@@ -24,7 +24,7 @@ public:
 	//! Constructor
 	/** Use setMesh() to set the mesh to display.
 	*/
-	IMeshSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
+	IMeshSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1,1,1))
@@ -56,7 +56,7 @@ public:
 	\return Pointer to the created shadow scene node. This pointer
 	should not be dropped. See IReferenceCounted::drop() for more
 	information. */
-	virtual IShadowVolumeSceneNode* addShadowVolumeSceneNode(const IMesh* shadowMesh=0,
+	virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(const IMesh* shadowMesh=0,
 		s32 id=-1, bool zfailmethod=true, f32 infinity=1000.0f) = 0;
 
 	//! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.

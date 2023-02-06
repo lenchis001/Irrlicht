@@ -20,22 +20,17 @@ namespace irr
 namespace scene
 {
 
-CSTLMeshWriter::CSTLMeshWriter(scene::ISceneManager* smgr)
+CSTLMeshWriter::CSTLMeshWriter(boost::shared_ptr<scene::ISceneManager> smgr)
 	: SceneManager(smgr)
 {
 	#ifdef _DEBUG
 	setDebugName("CSTLMeshWriter");
 	#endif
-
-	if (SceneManager)
-		SceneManager->grab();
 }
 
 
 CSTLMeshWriter::~CSTLMeshWriter()
 {
-	if (SceneManager)
-		SceneManager->drop();
 }
 
 

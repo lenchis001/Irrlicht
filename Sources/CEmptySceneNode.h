@@ -17,7 +17,7 @@ namespace scene
 	public:
 
 		//! constructor
-		CEmptySceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id);
+		CEmptySceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id);
 
 		//! returns the axis aligned bounding box of this node
 		virtual const core::aabbox3d<f32>& getBoundingBox() const;
@@ -32,7 +32,7 @@ namespace scene
 		virtual ESCENE_NODE_TYPE getType() const { return ESNT_EMPTY; }
 
 		//! Creates a clone of this scene node and its children.
-		virtual ISceneNode* clone(ISceneNode* newParent=0, ISceneManager* newManager=0);
+		virtual boost::shared_ptr<ISceneNode> clone(boost::shared_ptr<ISceneNode> newParent=0, boost::shared_ptr<scene::ISceneManager> newManager=0);
 
 	private:
 

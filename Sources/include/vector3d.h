@@ -290,7 +290,7 @@ namespace core
 		between two scene nodes, then applying the result of getHorizontalAngle() to one scene node will point
 		it at the other one.
 		Example code:
-		// Where target and seeker are of type ISceneNode*
+		// Where target and seeker are of type boost::shared_ptr<ISceneNode>
 		const vector3df toTarget(target->getAbsolutePosition() - seeker->getAbsolutePosition());
 		const vector3df requiredRotation = toTarget.getHorizontalAngle();
 		seeker->setRotation(requiredRotation);

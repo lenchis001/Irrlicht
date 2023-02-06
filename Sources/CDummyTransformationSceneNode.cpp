@@ -12,7 +12,7 @@ namespace scene
 
 //! constructor
 CDummyTransformationSceneNode::CDummyTransformationSceneNode(
-	ISceneNode* parent, ISceneManager* mgr, s32 id)
+	boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id)
 	: IDummyTransformationSceneNode(parent, mgr, id)
 {
 	#ifdef _DEBUG
@@ -46,22 +46,21 @@ core::matrix4 CDummyTransformationSceneNode::getRelativeTransformation() const
 }
 
 //! Creates a clone of this scene node and its children.
-ISceneNode* CDummyTransformationSceneNode::clone(ISceneNode* newParent, ISceneManager* newManager)
+boost::shared_ptr<ISceneNode> CDummyTransformationSceneNode::clone(boost::shared_ptr<ISceneNode> newParent, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	if (!newParent)
-		newParent = Parent;
+		newParent = Parent.lock();
 	if (!newManager)
 		newManager = SceneManager;
 
-	CDummyTransformationSceneNode* nb = new CDummyTransformationSceneNode(newParent,
+	boost::shared_ptr<CDummyTransformationSceneNode> nb = boost::make_shared<CDummyTransformationSceneNode>(newParent,
 		newManager, ID);
+	nb->setWeakThis(nb);
 
-	nb->cloneMembers(this, newManager);
+	nb->cloneMembers(getSharedThis(), newManager);
 	nb->RelativeTransformationMatrix = RelativeTransformationMatrix;
 	nb->Box = Box;
 
-	if ( newParent )
-		nb->drop();
 	return nb;
 }
 

@@ -42,7 +42,7 @@ namespace scene
 		//! \param scale: The scale factor for the terrain.  If you're using a heightmap of size 128x128 and would like
 		//! your terrain to be 12800x12800 in game units, then use a scale factor of ( core::vector ( 100.0f, 100.0f, 100.0f ).
 		//! If you use a Y scaling factor of 0.0f, then your terrain will be flat.
-		CTerrainSceneNode(ISceneNode* parent, ISceneManager* mgr, io::IFileSystem* fs, s32 id,
+		CTerrainSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, io::IFileSystem* fs, s32 id,
 			s32 maxLOD = 4, E_TERRAIN_PATCH_SIZE patchSize = ETPS_17,
 			const core::vector3df& position = core::vector3df(0.0f, 0.0f, 0.0f),
 			const core::vector3df& rotation = core::vector3df(0.0f, 0.0f, 0.0f),
@@ -213,8 +213,8 @@ namespace scene
 				io::SAttributeReadWriteOptions* options=0);
 
 		//! Creates a clone of this scene node and its children.
-		virtual ISceneNode* clone(ISceneNode* newParent,
-				ISceneManager* newManager);
+		virtual boost::shared_ptr<ISceneNode> clone(boost::shared_ptr<ISceneNode> newParent,
+				boost::shared_ptr<scene::ISceneManager> newManager);
 
 	private:
 		friend class CTerrainTriangleSelector;

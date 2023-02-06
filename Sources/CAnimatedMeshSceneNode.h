@@ -22,7 +22,7 @@ namespace scene
 	public:
 
 		//! constructor
-		CAnimatedMeshSceneNode(IAnimatedMesh* mesh, ISceneNode* parent, ISceneManager* mgr,	s32 id,
+		CAnimatedMeshSceneNode(IAnimatedMesh* mesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,	s32 id,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f));
@@ -78,29 +78,29 @@ namespace scene
 
 		//! Creates shadow volume scene node as child of this node
 		//! and returns a pointer to it.
-		virtual IShadowVolumeSceneNode* addShadowVolumeSceneNode(const IMesh* shadowMesh,
+		virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(const IMesh* shadowMesh,
 			s32 id, bool zfailmethod=true, f32 infinity=1000.0f);
 
 		//! Returns a pointer to a child node, which has the same transformation as
 		//! the corrsesponding joint, if the mesh in this scene node is a skinned mesh.
-		virtual IBoneSceneNode* getJointNode(const c8* jointName);
+		virtual boost::shared_ptr<IBoneSceneNode> getJointNode(const c8* jointName);
 
 		//! same as getJointNode(const c8* jointName), but based on id
-		virtual IBoneSceneNode* getJointNode(u32 jointID);
+		virtual boost::shared_ptr<IBoneSceneNode> getJointNode(u32 jointID);
 
 		//! Gets joint count.
 		virtual u32 getJointCount() const;
 
 		//! Deprecated command, please use getJointNode.
-		virtual ISceneNode* getMS3DJointNode(const c8* jointName);
+		virtual boost::shared_ptr<ISceneNode> getMS3DJointNode(const c8* jointName);
 
 		//! Deprecated command, please use getJointNode.
-		virtual ISceneNode* getXJointNode(const c8* jointName);
+		virtual boost::shared_ptr<ISceneNode> getXJointNode(const c8* jointName);
 
 		//! Removes a child from this scene node.
 		//! Implemented here, to be able to remove the shadow properly, if there is one,
 		//! or to remove attached childs.
-		virtual bool removeChild(ISceneNode* child);
+		virtual bool removeChild(boost::shared_ptr<ISceneNode> child);
 
 		//! Starts a MD2 animation.
 		virtual bool setMD2Animation(EMD2_ANIMATION_TYPE anim);
@@ -163,7 +163,7 @@ namespace scene
 		/** \param newParent An optional new parent.
 		\param newManager An optional new scene manager.
 		\return The newly created clone of this node. */
-		virtual ISceneNode* clone(ISceneNode* newParent=0, ISceneManager* newManager=0);
+		virtual boost::shared_ptr<ISceneNode> clone(boost::shared_ptr<ISceneNode> newParent=0, boost::shared_ptr<scene::ISceneManager> newManager=0);
 
 	private:
 
@@ -199,9 +199,9 @@ namespace scene
 		IAnimationEndCallBack* LoopCallBack;
 		s32 PassCount;
 
-		IShadowVolumeSceneNode* Shadow;
+		boost::shared_ptr<IShadowVolumeSceneNode> Shadow;
 
-		core::array<IBoneSceneNode* > JointChildSceneNodes;
+		core::array<boost::shared_ptr<IBoneSceneNode>> JointChildSceneNodes;
 		core::array<core::matrix4> PretransitingSave;
 
 		// Quake3 Model

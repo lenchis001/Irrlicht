@@ -180,7 +180,7 @@ class CColladaFileLoader : public IMeshLoader
 public:
 
 	//! Constructor
-	CColladaFileLoader(scene::ISceneManager* smgr, io::IFileSystem* fs);
+	CColladaFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs);
 
 	//! destructor
 	virtual ~CColladaFileLoader();
@@ -217,7 +217,7 @@ private:
 
 	//! reads a <node> section and its content
 	//! if a prefab pointer is passed the nodes are created as scene prefabs children of that prefab
-	void readNodeSection(io::IXMLReaderUTF8* reader, scene::ISceneNode* parent, CScenePrefab* p=0);
+	void readNodeSection(io::IXMLReaderUTF8* reader, boost::shared_ptr<scene::ISceneNode> parent, CScenePrefab* p=0);
 
 	//! reads a <lookat> element and its content and creates a matrix from it
 	core::matrix4 readLookAtNode(io::IXMLReaderUTF8* reader);
@@ -251,11 +251,11 @@ private:
 
 	//! reads a <instance> node
 	void readInstanceNode(io::IXMLReaderUTF8* reader,
-			scene::ISceneNode* parent, scene::ISceneNode** outNode,
+			boost::shared_ptr<scene::ISceneNode> parent, boost::shared_ptr<scene::ISceneNode>* outNode,
 			CScenePrefab* p=0, const core::stringc& type=core::stringc());
 
 	//! creates a scene node from Prefabs (with name given in 'url')
-	void instantiateNode(scene::ISceneNode* parent, scene::ISceneNode** outNode=0,
+	void instantiateNode(boost::shared_ptr<scene::ISceneNode> parent, boost::shared_ptr<scene::ISceneNode>* outNode=0,
 			CScenePrefab* p=0, const core::stringc& url="",
 			const core::stringc& type=core::stringc());
 
@@ -339,7 +339,7 @@ private:
 	//! read a parameter and value
 	void readParameter(io::IXMLReaderUTF8* reader, io::IAttributes* parameters);
 
-	scene::ISceneManager* SceneManager;
+	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IFileSystem* FileSystem;
 
 	scene::IAnimatedMesh* DummyMesh;
@@ -374,8 +374,8 @@ class IColladaPrefab : public virtual IReferenceCounted
 {
 public:
 	//! creates an instance of this prefab
-	virtual scene::ISceneNode* addInstance(scene::ISceneNode* parent,
-		scene::ISceneManager* mgr) = 0;
+	virtual boost::shared_ptr<scene::ISceneNode> addInstance(boost::shared_ptr<scene::ISceneNode> parent,
+		boost::shared_ptr<scene::ISceneManager> mgr) = 0;
 
 	//! returns id of this prefab
 	virtual const core::stringc& getId() = 0;

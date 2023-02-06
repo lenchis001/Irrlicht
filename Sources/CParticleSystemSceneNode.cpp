@@ -29,7 +29,7 @@ namespace scene
 
 //! constructor
 CParticleSystemSceneNode::CParticleSystemSceneNode(bool createDefaultEmitter,
-	ISceneNode* parent, ISceneManager* mgr, s32 id,
+	boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 	const core::vector3df& position, const core::vector3df& rotation,
 	const core::vector3df& scale)
 	: IParticleSystemSceneNode(parent, mgr, id, position, rotation, scale),
@@ -126,7 +126,7 @@ u32 CParticleSystemSceneNode::getMaterialCount() const
 //! Creates a particle emitter for an animated mesh scene node
 IParticleAnimatedMeshSceneNodeEmitter*
 CParticleSystemSceneNode::createAnimatedMeshSceneNodeEmitter(
-	scene::IAnimatedMeshSceneNode* node, bool useNormalDirection,
+	boost::shared_ptr<scene::IAnimatedMeshSceneNode> node, bool useNormalDirection,
 	const core::vector3df& direction, f32 normalDirectionModifier,
 	s32 mbNumber, bool everyMeshVertex,
 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
@@ -297,7 +297,7 @@ void CParticleSystemSceneNode::OnRegisterSceneNode()
 
 	if (IsVisible && (Particles.size() != 0))
 	{
-		SceneManager->registerNodeForRendering(this);
+		SceneManager->registerNodeForRendering(getSharedThis());
 		ISceneNode::OnRegisterSceneNode();
 	}
 }
@@ -307,7 +307,7 @@ void CParticleSystemSceneNode::OnRegisterSceneNode()
 void CParticleSystemSceneNode::render()
 {
 	video::IVideoDriver* driver = SceneManager->getVideoDriver();
-	ICameraSceneNode* camera = SceneManager->getActiveCamera();
+	boost::shared_ptr<ICameraSceneNode> camera = SceneManager->getActiveCamera();
 
 	if (!camera || !driver)
 		return;

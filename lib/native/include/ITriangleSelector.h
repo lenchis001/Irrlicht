@@ -107,7 +107,7 @@ public:
 	the associated scene node.
 	\return The scene node associated with that triangle.
 	*/
-	virtual ISceneNode* getSceneNodeForTriangle(u32 triangleIndex) const = 0;
+	virtual boost::shared_ptr<ISceneNode> getSceneNodeForTriangle(u32 triangleIndex) const = 0;
 
 	//! Get number of TriangleSelectors that are part of this one
 	/** Only useful for MetaTriangleSelector, others return 1

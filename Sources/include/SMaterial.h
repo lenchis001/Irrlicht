@@ -337,14 +337,14 @@ namespace video
 		to use specular highlights:
 		\code
 		// load and display mesh
-		scene::IAnimatedMeshSceneNode* node = smgr->addAnimatedMeshSceneNode(
+		boost::shared_ptr<scene::IAnimatedMeshSceneNode> node = smgr->addAnimatedMeshSceneNode(
 		smgr->getMesh("data/faerie.md2"));
 		node->setMaterialTexture(0, driver->getTexture("data/Faerie2.pcx")); // set diffuse texture
 		node->setMaterialFlag(video::EMF_LIGHTING, true); // enable dynamic lighting
 		node->getMaterial(0).Shininess = 20.0f; // set size of specular highlights
 
 		// add white light
-		scene::ILightSceneNode* light = smgr->addLightSceneNode(0,
+		boost::shared_ptr<scene::ILightSceneNode>  light = smgr->addLightSceneNode(0,
 			core::vector3df(5,5,5), video::SColorf(1.0f, 1.0f, 1.0f));
 		\endcode */
 		f32 Shininess;

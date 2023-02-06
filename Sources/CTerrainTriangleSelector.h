@@ -30,13 +30,13 @@ class CTerrainTriangleSelector : public ITriangleSelector
 public:
 
 	//! Constructs a selector based on an ITerrainSceneNode
-	CTerrainTriangleSelector(ITerrainSceneNode* node, s32 LOD);
+	CTerrainTriangleSelector(boost::shared_ptr<ITerrainSceneNode> node, s32 LOD);
 
 	//! Destructor
 	virtual ~CTerrainTriangleSelector();
 
 	//! Clears and sets triangle data
-	virtual void setTriangleData (ITerrainSceneNode* node, s32 LOD);
+	virtual void setTriangleData (boost::shared_ptr<ITerrainSceneNode> node, s32 LOD);
 
 	//! Gets all triangles.
 	void getTriangles(core::triangle3df* triangles, s32 arraySize, s32& outTriangleCount,
@@ -55,7 +55,7 @@ public:
 	virtual s32 getTriangleCount() const;
 
 	//! Return the scene node associated with a given triangle.
-	virtual ISceneNode* getSceneNodeForTriangle(u32 triangleIndex) const;
+	virtual boost::shared_ptr<ISceneNode> getSceneNodeForTriangle(u32 triangleIndex) const;
 
 	// Get the number of TriangleSelectors that are part of this one
 	virtual u32 getSelectorCount() const;
@@ -89,7 +89,7 @@ private:
 		u32 TotalTriangles;
 	};
 
-	ITerrainSceneNode* SceneNode;
+	boost::shared_ptr<ITerrainSceneNode> SceneNode;
 	SGeoMipMapTrianglePatches TrianglePatches;
 };
 

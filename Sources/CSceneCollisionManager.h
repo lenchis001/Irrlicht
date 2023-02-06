@@ -20,32 +20,32 @@ namespace scene
 	public:
 
 		//! constructor
-		CSceneCollisionManager(ISceneManager* smanager, video::IVideoDriver* driver);
+		CSceneCollisionManager(boost::shared_ptr<scene::ISceneManager> smanager, video::IVideoDriver* driver);
 
 		//! destructor
 		virtual ~CSceneCollisionManager();
 
 		//! Returns the scene node, which is currently visible at the given
 		//! screen coordinates, viewed from the currently active camera.
-		virtual ISceneNode* getSceneNodeFromScreenCoordinatesBB(const core::position2d<s32>& pos,
-				s32 idBitMask=0, bool bNoDebugObjects=false, ISceneNode* root=0);
+		virtual boost::shared_ptr<ISceneNode> getSceneNodeFromScreenCoordinatesBB(const core::position2d<s32>& pos,
+				s32 idBitMask=0, bool bNoDebugObjects=false, boost::shared_ptr<ISceneNode> root=0);
 
 		//! Returns the nearest scene node which collides with a 3d ray and
 		//! whose id matches a bitmask.
-		virtual ISceneNode* getSceneNodeFromRayBB(const core::line3d<f32>& ray,
+		virtual boost::shared_ptr<ISceneNode> getSceneNodeFromRayBB(const core::line3d<f32>& ray,
 						s32 idBitMask=0, bool bNoDebugObjects=false,
-						ISceneNode* root=0);
+						boost::shared_ptr<ISceneNode> root=0);
 
 		//! Returns the scene node, at which the overgiven camera is looking at and
 		//! which id matches the bitmask.
-		virtual ISceneNode* getSceneNodeFromCameraBB(ICameraSceneNode* camera,
+		virtual boost::shared_ptr<ISceneNode> getSceneNodeFromCameraBB(boost::shared_ptr<ICameraSceneNode> camera,
 				s32 idBitMask=0, bool bNoDebugObjects = false);
 
 		//! Finds the collision point of a line and lots of triangles, if there is one.
 		virtual bool getCollisionPoint(const core::line3d<f32>& ray,
 			ITriangleSelector* selector, core::vector3df& outCollisionPoint,
 			core::triangle3df& outTriangle,
-			ISceneNode* & outNode);
+			boost::shared_ptr<ISceneNode> & outNode);
 
 		//! Collides a moving ellipsoid with a 3d world with gravity and returns
 		//! the resulting new position of the ellipsoid.
@@ -57,43 +57,43 @@ namespace scene
 			core::triangle3df& triout,
 			core::vector3df& hitPosition,
 			bool& outFalling,
-			ISceneNode*& outNode,
+			boost::shared_ptr<ISceneNode>& outNode,
 			f32 slidingSpeed,
 			const core::vector3df& gravityDirectionAndSpeed);
 
 		//! Returns a 3d ray which would go through the 2d screen coodinates.
 		virtual core::line3d<f32> getRayFromScreenCoordinates(
-			const core::position2d<s32> & pos, ICameraSceneNode* camera = 0);
+			const core::position2d<s32> & pos, boost::shared_ptr<ICameraSceneNode> camera = 0);
 
 		//! Calculates 2d screen position from a 3d position.
 		virtual core::position2d<s32> getScreenCoordinatesFrom3DPosition(
-			const core::vector3df & pos, ICameraSceneNode* camera=0, bool useViewPort=false);
+			const core::vector3df & pos, boost::shared_ptr<ICameraSceneNode> camera=0, bool useViewPort=false);
 
 		//! Gets the scene node and nearest collision point for a ray based on
 		//! the nodes' id bitmasks, bounding boxes and triangle selectors.
-		virtual ISceneNode* getSceneNodeAndCollisionPointFromRay(
+		virtual boost::shared_ptr<ISceneNode> getSceneNodeAndCollisionPointFromRay(
 								core::line3df ray,
 								core::vector3df & outCollisionPoint,
 								core::triangle3df & outTriangle,
 								s32 idBitMask = 0,
-								ISceneNode * collisionRootNode = 0,
+								boost::shared_ptr<ISceneNode>  collisionRootNode = 0,
 								bool noDebugObjects = false);
 
 
 	private:
 
 		//! recursive method for going through all scene nodes
-		void getPickedNodeBB(ISceneNode* root, core::line3df& ray, s32 bits,
+		void getPickedNodeBB(boost::shared_ptr<ISceneNode> root, core::line3df& ray, s32 bits,
 					bool bNoDebugObjects,
-					f32& outbestdistance, ISceneNode*& outbestnode);
+					f32& outbestdistance, boost::shared_ptr<ISceneNode>& outbestnode);
 
 		//! recursive method for going through all scene nodes
-		void getPickedNodeFromBBAndSelector(ISceneNode * root,
+		void getPickedNodeFromBBAndSelector(boost::shared_ptr<ISceneNode>  root,
 						core::line3df & ray,
 						s32 bits,
 						bool noDebugObjects,
 						f32 & outBestDistanceSquared,
-						ISceneNode * & outBestNode,
+						boost::shared_ptr<ISceneNode>  & outBestNode,
 						core::vector3df & outBestCollisionPoint,
 						core::triangle3df & outBestTriangle);
 
@@ -138,14 +138,14 @@ namespace scene
 			const core::vector3df& gravity, core::triangle3df& triout,
 			core::vector3df& hitPosition,
 			bool& outFalling,
-			ISceneNode*& outNode);
+			boost::shared_ptr<ISceneNode>& outNode);
 
 		core::vector3df collideWithWorld(s32 recursionDepth, SCollisionData &colData,
 			core::vector3df pos, core::vector3df vel);
 
 		inline bool getLowestRoot(f32 a, f32 b, f32 c, f32 maxR, f32* root);
 
-		ISceneManager* SceneManager;
+		boost::shared_ptr<scene::ISceneManager> SceneManager;
 		video::IVideoDriver* Driver;
 		core::array<core::triangle3df> Triangles; // triangle buffer
 	};

@@ -25,7 +25,7 @@ namespace scene
 	class ISceneManager;
 
 	//! Typedef for list of scene nodes
-	typedef core::list<ISceneNode*> ISceneNodeList;
+	typedef core::list<boost::shared_ptr<ISceneNode>> ISceneNodeList;
 	//! Typedef for list of scene node animators
 	typedef core::list<ISceneNodeAnimator*> ISceneNodeAnimatorList;
 
@@ -42,7 +42,7 @@ namespace scene
 	public:
 
 		//! Constructor
-		ISceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id=-1,
+		ISceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id=-1,
 				const core::vector3df& position = core::vector3df(0,0,0),
 				const core::vector3df& rotation = core::vector3df(0,0,0),
 				const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f))
@@ -277,7 +277,7 @@ namespace scene
 		/** If the scene node already has a parent it is first removed
 		from the other parent.
 		\param child A pointer to the new child. */
-		virtual void addChild(ISceneNode* child)
+		virtual void addChild(boost::shared_ptr<ISceneNode> child)
 		{
 			if (child && (child != this))
 			{
@@ -299,7 +299,7 @@ namespace scene
 		\param child A pointer to the child which shall be removed.
 		\return True if the child was removed, and false if not,
 		e.g. because it couldn't be found in the children list. */
-		virtual bool removeChild(ISceneNode* child)
+		virtual bool removeChild(boost::shared_ptr<ISceneNode> child)
 		{
 			ISceneNodeList::Iterator it = Children.begin();
 			for (; it != Children.end(); ++it)
@@ -585,7 +585,7 @@ namespace scene
 
 		//! Returns a const reference to the list of all children.
 		/** \return The list of all children of this node. */
-		const core::list<ISceneNode*>& getChildren() const
+		const core::list<boost::shared_ptr<ISceneNode>>& getChildren() const
 		{
 			return Children;
 		}
@@ -593,7 +593,7 @@ namespace scene
 
 		//! Changes the parent of the scene node.
 		/** \param newParent The new parent to be used. */
-		virtual void setParent(ISceneNode* newParent)
+		virtual void setParent(boost::shared_ptr<ISceneNode> newParent)
 		{
 			grab();
 			remove();
@@ -663,7 +663,7 @@ namespace scene
 
 		//! Returns the parent of this scene node
 		/** \return A pointer to the parent. */
-		scene::ISceneNode* getParent() const
+		boost::shared_ptr<scene::ISceneNode> getParent() const
 		{
 			return Parent;
 		}
@@ -738,14 +738,14 @@ namespace scene
 		/** \param newParent An optional new parent.
 		\param newManager An optional new scene manager.
 		\return The newly created clone of this node. */
-		virtual ISceneNode* clone(ISceneNode* newParent=0, ISceneManager* newManager=0)
+		virtual boost::shared_ptr<ISceneNode> clone(boost::shared_ptr<ISceneNode> newParent=0, boost::shared_ptr<scene::ISceneManager> newManager=0)
 		{
 			return 0; // to be implemented by derived classes
 		}
 
 		//! Retrieve the scene manager for this node.
 		/** \return The node's scene manager. */
-		virtual ISceneManager* getSceneManager(void) const { return SceneManager; }
+		virtual boost::shared_ptr<scene::ISceneManager> getSceneManager(void) const { return SceneManager; }
 
 	protected:
 
@@ -754,7 +754,7 @@ namespace scene
 		derived classes
 		\param toCopyFrom The node from which the values are copied
 		\param newManager The new scene manager. */
-		void cloneMembers(ISceneNode* toCopyFrom, ISceneManager* newManager)
+		void cloneMembers(boost::shared_ptr<ISceneNode> toCopyFrom, boost::shared_ptr<scene::ISceneManager> newManager)
 		{
 			Name = toCopyFrom->Name;
 			AbsoluteTransformation = toCopyFrom->AbsoluteTransformation;
@@ -795,7 +795,7 @@ namespace scene
 
 		//! Sets the new scene manager for this node and all children.
 		//! Called by addChild when moving nodes between scene managers
-		void setSceneManager(ISceneManager* newManager)
+		void setSceneManager(boost::shared_ptr<scene::ISceneManager> newManager)
 		{
 			SceneManager = newManager;
 
@@ -820,16 +820,16 @@ namespace scene
 		core::vector3df RelativeScale;
 
 		//! Pointer to the parent
-		ISceneNode* Parent;
+		boost::shared_ptr<ISceneNode> Parent;
 
 		//! List of all children of this node
-		core::list<ISceneNode*> Children;
+		core::list<boost::shared_ptr<ISceneNode>> Children;
 
 		//! List of all animator nodes
 		core::list<ISceneNodeAnimator*> Animators;
 
 		//! Pointer to the scene manager
-		ISceneManager* SceneManager;
+		boost::shared_ptr<scene::ISceneManager> SceneManager;
 
 		//! Pointer to the triangle selector
 		ITriangleSelector* TriangleSelector;

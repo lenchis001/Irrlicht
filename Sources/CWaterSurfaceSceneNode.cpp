@@ -17,7 +17,7 @@ namespace scene
 
 //! constructor
 CWaterSurfaceSceneNode::CWaterSurfaceSceneNode(f32 waveHeight, f32 waveSpeed, f32 waveLength,
-		IMesh* mesh, ISceneNode* parent, ISceneManager* mgr, s32 id,
+		IMesh* mesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 		const core::vector3df& position, const core::vector3df& rotation,
 		const core::vector3df& scale)
 	: CMeshSceneNode(mesh, parent, mgr, id, position, rotation, scale),

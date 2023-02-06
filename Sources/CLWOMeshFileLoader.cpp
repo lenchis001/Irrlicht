@@ -116,7 +116,7 @@ struct tLWOLayerInfo
 
 
 //! Constructor
-CLWOMeshFileLoader::CLWOMeshFileLoader(scene::ISceneManager* smgr,
+CLWOMeshFileLoader::CLWOMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr,
 		io::IFileSystem* fs)
 : SceneManager(smgr), FileSystem(fs), File(0), Mesh(0)
 {

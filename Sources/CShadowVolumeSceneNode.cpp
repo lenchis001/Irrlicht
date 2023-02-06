@@ -18,8 +18,8 @@ namespace scene
 
 
 //! constructor
-CShadowVolumeSceneNode::CShadowVolumeSceneNode(const IMesh* shadowMesh, ISceneNode* parent,
-		ISceneManager* mgr, s32 id, bool zfailmethod, f32 infinity)
+CShadowVolumeSceneNode::CShadowVolumeSceneNode(const IMesh* shadowMesh, boost::shared_ptr<ISceneNode> parent,
+		boost::shared_ptr<scene::ISceneManager> mgr, s32 id, bool zfailmethod, f32 infinity)
 : IShadowVolumeSceneNode(parent, mgr, id),
 	ShadowMesh(0), IndexCount(0), VertexCount(0), ShadowVolumesUsed(0),
 	Infinity(infinity), UseZFailMethod(zfailmethod)
@@ -274,9 +274,9 @@ void CShadowVolumeSceneNode::updateShadowVolumes()
 	if (oldVertexCount != VertexCount || oldIndexCount != IndexCount)
 		calculateAdjacency();
 
-	core::matrix4 mat = Parent->getAbsoluteTransformation();
+	core::matrix4 mat = Parent.lock()->getAbsoluteTransformation();
 	mat.makeInverse();
-	const core::vector3df parentpos = Parent->getAbsolutePosition();
+	const core::vector3df parentpos = Parent.lock()->getAbsolutePosition();
 
 	// TODO: Only correct for point lights.
 	for (i=0; i<lightCount; ++i)
@@ -298,7 +298,7 @@ void CShadowVolumeSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
 	{
-		SceneManager->registerNodeForRendering(this, scene::ESNRP_SHADOW);
+		SceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_SHADOW);
 		ISceneNode::OnRegisterSceneNode();
 	}
 }
@@ -311,7 +311,7 @@ void CShadowVolumeSceneNode::render()
 	if (!ShadowVolumesUsed || !driver)
 		return;
 
-	driver->setTransform(video::ETS_WORLD, Parent->getAbsoluteTransformation());
+	driver->setTransform(video::ETS_WORLD, Parent.lock()->getAbsoluteTransformation());
 
 	for (u32 i=0; i<ShadowVolumesUsed; ++i)
 	{
@@ -323,7 +323,7 @@ void CShadowVolumeSceneNode::render()
 
 			SViewFrustum frust = *SceneManager->getActiveCamera()->getViewFrustum();
 
-			core::matrix4 invTrans(Parent->getAbsoluteTransformation(), core::matrix4::EM4CONST_INVERSE);
+			core::matrix4 invTrans(Parent.lock()->getAbsoluteTransformation(), core::matrix4::EM4CONST_INVERSE);
 			frust.transform(invTrans);
 
 			core::vector3df edges[8];

@@ -51,7 +51,7 @@ static const unsigned long MY3D_TEXDATA_COMPR_RLE_ID = 0x20524c45;
 static const unsigned long MY3D_PIXEL_FORMAT_24 = 0x5f32345f;
 static const unsigned long MY3D_PIXEL_FORMAT_16 = 0x5f31365f;
 
-CMY3DMeshFileLoader::CMY3DMeshFileLoader(ISceneManager* scmgr, io::IFileSystem* fs)
+CMY3DMeshFileLoader::CMY3DMeshFileLoader(boost::shared_ptr<scene::ISceneManager> scmgr, io::IFileSystem* fs)
 	: SceneManager(scmgr), FileSystem(fs)
 {
 	#ifdef _DEBUG
@@ -869,7 +869,7 @@ SMeshBufferLightMap* CMY3DMeshFileLoader::getMeshBufferByMaterialIndex(u32 matIn
 }
 
 
-const core::array<ISceneNode*>& CMY3DMeshFileLoader::getChildNodes() const
+const core::array<boost::shared_ptr<ISceneNode>>& CMY3DMeshFileLoader::getChildNodes() const
 {
 	return ChildNodes;
 }

@@ -29,7 +29,7 @@ namespace scene
 	*/
 
 //! constructor
-CCubeSceneNode::CCubeSceneNode(f32 size, ISceneNode* parent, ISceneManager* mgr,
+CCubeSceneNode::CCubeSceneNode(f32 size, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,
 		s32 id, const core::vector3df& position,
 		const core::vector3df& rotation, const core::vector3df& scale)
 	: IMeshSceneNode(parent, mgr, id, position, rotation, scale),
@@ -45,8 +45,6 @@ CCubeSceneNode::CCubeSceneNode(f32 size, ISceneNode* parent, ISceneManager* mgr,
 
 CCubeSceneNode::~CCubeSceneNode()
 {
-	if (Shadow)
-		Shadow->drop();
 	if (Mesh)
 		Mesh->drop();
 }
@@ -130,11 +128,10 @@ const core::aabbox3d<f32>& CCubeSceneNode::getBoundingBox() const
 //! Removes a child from this scene node.
 //! Implemented here, to be able to remove the shadow properly, if there is one,
 //! or to remove attached childs.
-bool CCubeSceneNode::removeChild(ISceneNode* child)
+bool CCubeSceneNode::removeChild(boost::shared_ptr<ISceneNode> child)
 {
 	if (child && Shadow == child)
 	{
-		Shadow->drop();
 		Shadow = 0;
 	}
 
@@ -144,7 +141,7 @@ bool CCubeSceneNode::removeChild(ISceneNode* child)
 
 //! Creates shadow volume scene node as child of this node
 //! and returns a pointer to it.
-IShadowVolumeSceneNode* CCubeSceneNode::addShadowVolumeSceneNode(
+boost::shared_ptr<IShadowVolumeSceneNode> CCubeSceneNode::addShadowVolumeSceneNode(
 		const IMesh* shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
 	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
@@ -153,10 +150,7 @@ IShadowVolumeSceneNode* CCubeSceneNode::addShadowVolumeSceneNode(
 	if (!shadowMesh)
 		shadowMesh = Mesh; // if null is given, use the mesh of node
 
-	if (Shadow)
-		Shadow->drop();
-
-	Shadow = new CShadowVolumeSceneNode(shadowMesh, this, SceneManager, id,  zfailmethod, infinity);
+	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), SceneManager, id, zfailmethod, infinity);
 	return Shadow;
 }
 
@@ -164,7 +158,7 @@ IShadowVolumeSceneNode* CCubeSceneNode::addShadowVolumeSceneNode(
 void CCubeSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(this);
+		SceneManager->registerNodeForRendering(getSharedThis());
 	ISceneNode::OnRegisterSceneNode();
 }
 
@@ -208,24 +202,21 @@ void CCubeSceneNode::deserializeAttributes(io::IAttributes* in, io::SAttributeRe
 
 
 //! Creates a clone of this scene node and its children.
-ISceneNode* CCubeSceneNode::clone(ISceneNode* newParent, ISceneManager* newManager)
+boost::shared_ptr<ISceneNode> CCubeSceneNode::clone(boost::shared_ptr<ISceneNode> newParent, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	if (!newParent)
-		newParent = Parent;
+		newParent = Parent.lock();
 	if (!newManager)
 		newManager = SceneManager;
 
-	CCubeSceneNode* nb = new CCubeSceneNode(Size, newParent,
+	boost::shared_ptr<CCubeSceneNode> nb = boost::make_shared<CCubeSceneNode>(Size, newParent,
 		newManager, ID, RelativeTranslation);
+	nb->setWeakThis(nb);
 
-	nb->cloneMembers(this, newManager);
+	nb->cloneMembers(getSharedThis(), newManager);
 	nb->getMaterial(0) = getMaterial(0);
 	nb->Shadow = Shadow;
-	if ( nb->Shadow )
-		nb->Shadow->grab();
 
-	if ( newParent )
-		nb->drop();
 	return nb;
 }
 

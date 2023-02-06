@@ -23,7 +23,7 @@ class CQuake3ShaderSceneNode : public scene::IMeshSceneNode
 {
 public:
 
-	CQuake3ShaderSceneNode( ISceneNode* parent, ISceneManager* mgr, s32 id,
+	CQuake3ShaderSceneNode( boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 				io::IFileSystem* fileSystem,
 				const IMeshBuffer* original,
 				const quake3::IShader* shader
@@ -49,18 +49,18 @@ public:
 
 	//! Creates shadow volume scene node as child of this node
 	//! and returns a pointer to it.
-	virtual IShadowVolumeSceneNode* addShadowVolumeSceneNode(const IMesh* shadowMesh,
+	virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(const IMesh* shadowMesh,
 		s32 id, bool zfailmethod=true, f32 infinity=10000.0f);
 
 	//! Removes a child from this scene node.
 	//! Implemented here, to be able to remove the shadow properly, if there is one,
 	//! or to remove attached childs.
-	virtual bool removeChild(ISceneNode* child);
+	virtual bool removeChild(boost::shared_ptr<ISceneNode> child);
 
 private:
 	const quake3::IShader* Shader;
 	SMesh *Mesh;
-	IShadowVolumeSceneNode* Shadow;
+	boost::shared_ptr<IShadowVolumeSceneNode> Shadow;
 	const SMeshBufferLightMap* Original;
 	SMeshBuffer* MeshBuffer;
 	core::vector3df MeshOffset;

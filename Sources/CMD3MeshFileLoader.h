@@ -22,7 +22,7 @@ class CMD3MeshFileLoader : public IMeshLoader
 public:
 
 	//! Constructor
-	CMD3MeshFileLoader( scene::ISceneManager* smgr );
+	CMD3MeshFileLoader( boost::shared_ptr<scene::ISceneManager> smgr );
 
 	//! destructor
 	virtual ~CMD3MeshFileLoader();
@@ -38,7 +38,7 @@ public:
 	virtual IAnimatedMesh* createMesh(io::IReadFile* file);
 
 private:
-	scene::ISceneManager* SceneManager;
+	boost::shared_ptr<scene::ISceneManager> SceneManager;
 
 };
 

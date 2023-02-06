@@ -22,7 +22,7 @@ class CBSPMeshFileLoader : public IMeshLoader
 public:
 
 	//! Constructor
-	CBSPMeshFileLoader(scene::ISceneManager* smgr, io::IFileSystem* fs);
+	CBSPMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs);
 
 	//! destructor
 	virtual ~CBSPMeshFileLoader();
@@ -40,7 +40,7 @@ public:
 private:
 
 	io::IFileSystem* FileSystem;
-	scene::ISceneManager* SceneManager;
+	boost::shared_ptr<scene::ISceneManager> SceneManager;
 
 	quake3::Q3LevelLoadParameter LoadParam;
 };

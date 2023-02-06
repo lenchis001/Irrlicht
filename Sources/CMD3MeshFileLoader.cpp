@@ -15,7 +15,7 @@ namespace scene
 {
 
 //! Constructor
-CMD3MeshFileLoader::CMD3MeshFileLoader( scene::ISceneManager* smgr)
+CMD3MeshFileLoader::CMD3MeshFileLoader( boost::shared_ptr<scene::ISceneManager> smgr)
 : SceneManager(smgr)
 {
 }

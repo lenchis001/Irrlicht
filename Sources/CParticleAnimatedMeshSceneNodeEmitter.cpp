@@ -14,7 +14,7 @@ namespace scene
 
 //! constructor
 CParticleAnimatedMeshSceneNodeEmitter::CParticleAnimatedMeshSceneNodeEmitter(
-		IAnimatedMeshSceneNode* node, bool useNormalDirection,
+		boost::shared_ptr<scene::IAnimatedMeshSceneNode> node, bool useNormalDirection,
 		const core::vector3df& direction, f32 normalDirectionModifier,
 		s32 mbNumber, bool everyMeshVertex,
 		u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
@@ -171,7 +171,7 @@ s32 CParticleAnimatedMeshSceneNodeEmitter::emitt(u32 now, u32 timeSinceLastCall,
 
 
 //! Set Mesh to emit particles from
-void CParticleAnimatedMeshSceneNodeEmitter::setAnimatedMeshSceneNode( IAnimatedMeshSceneNode* node )
+void CParticleAnimatedMeshSceneNodeEmitter::setAnimatedMeshSceneNode( boost::shared_ptr<scene::IAnimatedMeshSceneNode> node )
 {
 	Node = node;
 	AnimatedMesh = 0;

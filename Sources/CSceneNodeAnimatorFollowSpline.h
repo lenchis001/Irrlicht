@@ -25,7 +25,7 @@ namespace scene
 			f32 speed = 1.0f, f32 tightness = 0.5f, bool loop=true, bool pingpong=false);
 
 		//! animates a scene node
-		virtual void animateNode(ISceneNode* node, u32 timeMs);
+		virtual void animateNode(boost::shared_ptr<ISceneNode> node, u32 timeMs);
 
 		//! Writes attributes of the scene node animator.
 		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const;
@@ -40,7 +40,7 @@ namespace scene
 		/** Please note that you will have to drop
 		(IReferenceCounted::drop()) the returned pointer after calling
 		this. */
-		virtual ISceneNodeAnimator* createClone(ISceneNode* node, ISceneManager* newManager=0);
+		virtual ISceneNodeAnimator* createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager=0);
 
 	protected:
 

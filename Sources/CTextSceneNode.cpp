@@ -18,7 +18,7 @@ namespace scene
 
 
 //! constructor
-CTextSceneNode::CTextSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
+CTextSceneNode::CTextSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 			gui::IGUIFont* font, scene::ISceneCollisionManager* coll,
 			const core::vector3df& position, const wchar_t* text,
 			video::SColor color)
@@ -46,7 +46,7 @@ CTextSceneNode::~CTextSceneNode()
 void CTextSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(this, ESNRP_TRANSPARENT);
+		SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_TRANSPARENT);
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -89,7 +89,7 @@ void CTextSceneNode::setTextColor(video::SColor color)
 
 
 //! constructor
-CBillboardTextSceneNode::CBillboardTextSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
+CBillboardTextSceneNode::CBillboardTextSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 	gui::IGUIFont* font,const wchar_t* text,
 	const core::vector3df& position, const core::dimension2d<f32>& size,
 	video::SColor colorTop,video::SColor shade_bottom )
@@ -243,7 +243,7 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 	if (!IsVisible || !Font || !Mesh)
 		return;
 
-	ICameraSceneNode* camera = SceneManager->getActiveCamera();
+	boost::shared_ptr<ICameraSceneNode> camera = SceneManager->getActiveCamera();
 	if (!camera)
 		return;
 
@@ -325,7 +325,7 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 
 void CBillboardTextSceneNode::OnRegisterSceneNode()
 {
-	SceneManager->registerNodeForRendering(this, ESNRP_TRANSPARENT);
+	SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_TRANSPARENT);
 	ISceneNode::OnRegisterSceneNode();
 }
 

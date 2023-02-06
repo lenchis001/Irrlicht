@@ -24,17 +24,17 @@ class CTriangleSelector : public ITriangleSelector
 public:
 
 	//! Constructs a selector based on a mesh
-	CTriangleSelector(ISceneNode* node);
+	CTriangleSelector(boost::shared_ptr<ISceneNode> node);
 
 	//! Constructs a selector based on a mesh
-	CTriangleSelector(const IMesh* mesh, ISceneNode* node);
+	CTriangleSelector(const IMesh* mesh, boost::shared_ptr<ISceneNode> node);
 
 	//! Constructs a selector based on an animated mesh scene node
 	//!\param node An animated mesh scene node, which must have a valid mesh
-	CTriangleSelector(IAnimatedMeshSceneNode* node);
+	CTriangleSelector(boost::shared_ptr<scene::IAnimatedMeshSceneNode> node);
 
 	//! Constructs a selector based on a bounding box
-	CTriangleSelector(const core::aabbox3d<f32>& box, ISceneNode* node);
+	CTriangleSelector(const core::aabbox3d<f32>& box, boost::shared_ptr<ISceneNode> node);
 
 	//! Gets all triangles.
 	void getTriangles(core::triangle3df* triangles, s32 arraySize, s32& outTriangleCount,
@@ -53,7 +53,7 @@ public:
 	virtual s32 getTriangleCount() const;
 
 	//! Return the scene node associated with a given triangle.
-	virtual ISceneNode* getSceneNodeForTriangle(u32 triangleIndex) const { return SceneNode; }
+	virtual boost::shared_ptr<ISceneNode> getSceneNodeForTriangle(u32 triangleIndex) const { return SceneNode; }
 
 	// Get the number of TriangleSelectors that are part of this one
 	virtual u32 getSelectorCount() const;
@@ -76,11 +76,11 @@ protected:
 	//! since the last time it was updated.
 	virtual void update(void) const;
 
-	ISceneNode* SceneNode;
+	boost::shared_ptr<ISceneNode> SceneNode;
 	mutable core::array<core::triangle3df> Triangles; // (mutable for CTriangleBBSelector)
 	mutable core::aabbox3df BoundingBox; // Allows for trivial rejection
 
-	IAnimatedMeshSceneNode* AnimatedNode;
+	boost::shared_ptr<scene::IAnimatedMeshSceneNode> AnimatedNode;
 	mutable u32 LastMeshFrame;
 };
 

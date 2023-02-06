@@ -28,7 +28,7 @@ class CB3DMeshFileLoader : public IMeshLoader
 public:
 
 	//! Constructor
-	CB3DMeshFileLoader(scene::ISceneManager* smgr);
+	CB3DMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr);
 
 	//! returns true if the file maybe is able to be loaded by this class
 	//! based on the file extension (e.g. ".bsp")
@@ -119,7 +119,7 @@ private:
 
 	core::array<video::S3DVertex2TCoords> BaseVertices;
 
-	ISceneManager*	SceneManager;
+	boost::shared_ptr<scene::ISceneManager>	SceneManager;
 	CSkinnedMesh*	AnimatedMesh;
 	io::IReadFile*	B3DFile;
 

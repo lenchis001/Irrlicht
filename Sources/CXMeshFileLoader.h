@@ -27,7 +27,7 @@ class CXMeshFileLoader : public IMeshLoader
 public:
 
 	//! Constructor
-	CXMeshFileLoader(scene::ISceneManager* smgr, io::IFileSystem* fs);
+	CXMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs);
 
 	//! returns true if the file maybe is able to be loaded by this class
 	//! based on the file extension (e.g. ".cob")
@@ -165,7 +165,7 @@ private:
 	bool readRGB(video::SColor& color);
 	bool readRGBA(video::SColor& color);
 
-	ISceneManager* SceneManager;
+	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IFileSystem* FileSystem;
 
 	core::array<CSkinnedMesh::SJoint*> *AllJoints;

@@ -11,7 +11,7 @@ namespace scene
 {
 
 //! constructor
-CEmptySceneNode::CEmptySceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id)
+CEmptySceneNode::CEmptySceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id)
 : ISceneNode(parent, mgr, id)
 {
 	#ifdef _DEBUG
@@ -26,7 +26,7 @@ CEmptySceneNode::CEmptySceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id)
 void CEmptySceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(this);
+		SceneManager->registerNodeForRendering(getSharedThis());
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -47,21 +47,20 @@ const core::aabbox3d<f32>& CEmptySceneNode::getBoundingBox() const
 
 
 //! Creates a clone of this scene node and its children.
-ISceneNode* CEmptySceneNode::clone(ISceneNode* newParent, ISceneManager* newManager)
+boost::shared_ptr<ISceneNode> CEmptySceneNode::clone(boost::shared_ptr<ISceneNode> newParent, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	if (!newParent)
-		newParent = Parent;
+		newParent = Parent.lock();
 	if (!newManager)
 		newManager = SceneManager;
 
-	CEmptySceneNode* nb = new CEmptySceneNode(newParent,
+	boost::shared_ptr<CEmptySceneNode> nb = boost::make_shared<CEmptySceneNode>(newParent,
 		newManager, ID);
+	nb->setWeakThis(nb);
 
-	nb->cloneMembers(this, newManager);
+	nb->cloneMembers(getSharedThis(), newManager);
 	nb->Box = Box;
 
-	if ( newParent )
-		nb->drop();
 	return nb;
 }
 

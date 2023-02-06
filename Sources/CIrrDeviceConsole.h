@@ -227,9 +227,9 @@ namespace irr
 
 		bool IsWindowFocused;
 
-		std::vector<core::stringc> OutputBuffer;
+		core::array<core::stringc> OutputBuffer;
 		gui::IGUIFont  *ConsoleFont;
-		std::vector<SPostPresentText> Text;
+		core::array<SPostPresentText> Text;
 
 		FILE *OutFile;
 

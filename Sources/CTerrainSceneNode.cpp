@@ -29,7 +29,7 @@ namespace scene
 {
 
 	//! constructor
-	CTerrainSceneNode::CTerrainSceneNode(ISceneNode* parent, ISceneManager* mgr,
+	CTerrainSceneNode::CTerrainSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,
 			io::IFileSystem* fs, s32 id, s32 maxLOD, E_TERRAIN_PATCH_SIZE patchSize,
 			const core::vector3df& position,
 			const core::vector3df& rotation,
@@ -567,7 +567,7 @@ namespace scene
 		if (!IsVisible || !SceneManager->getActiveCamera())
 			return;
 
-		SceneManager->registerNodeForRendering(this);
+		SceneManager->registerNodeForRendering(getSharedThis());
 
 		preRenderCalculationsIfNeeded();
 
@@ -579,7 +579,7 @@ namespace scene
 
 	void CTerrainSceneNode::preRenderCalculationsIfNeeded()
 	{
-		scene::ICameraSceneNode * camera = SceneManager->getActiveCamera();
+		boost::shared_ptr<scene::ICameraSceneNode> camera = SceneManager->getActiveCamera();
 		if (!camera)
 			return;
 
@@ -622,7 +622,7 @@ namespace scene
 
 	void CTerrainSceneNode::preRenderLODCalculations()
 	{
-		scene::ICameraSceneNode * camera = SceneManager->getActiveCamera();
+		boost::shared_ptr<scene::ICameraSceneNode> camera = SceneManager->getActiveCamera();
 
 		if (!camera)
 			return;
@@ -714,7 +714,7 @@ namespace scene
 		if (DynamicSelectorUpdate && TriangleSelector)
 		{
 			CTerrainTriangleSelector* selector = (CTerrainTriangleSelector*)TriangleSelector;
-			selector->setTriangleData(this, -1);
+			selector->setTriangleData(getSharedThis<ITerrainSceneNode>(), -1);
 		}
 	}
 
@@ -1445,18 +1445,19 @@ namespace scene
 
 
 	//! Creates a clone of this scene node and its children.
-	ISceneNode* CTerrainSceneNode::clone(ISceneNode* newParent, ISceneManager* newManager)
+	boost::shared_ptr<ISceneNode> CTerrainSceneNode::clone(boost::shared_ptr<ISceneNode> newParent, boost::shared_ptr<scene::ISceneManager> newManager)
 	{
 		if (!newParent)
-			newParent = Parent;
+			newParent = Parent.lock();
 		if (!newManager)
 			newManager = SceneManager;
 
-		CTerrainSceneNode* nb = new CTerrainSceneNode(
+		boost::shared_ptr<CTerrainSceneNode> nb = boost::make_shared<CTerrainSceneNode>(
 			newParent, newManager, FileSystem, ID,
 			4, ETPS_17, getPosition(), getRotation(), getScale());
+		nb->setWeakThis(nb);
 
-		nb->cloneMembers(this, newManager);
+		nb->cloneMembers(getSharedThis(), newManager);
 
 		// instead of cloning the data structures, recreate the terrain.
 		// (temporary solution)
@@ -1491,8 +1492,6 @@ namespace scene
 
 		// finish
 
-		if ( newParent )
-			nb->drop();
 		return nb;
 	}
 

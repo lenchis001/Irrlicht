@@ -17,7 +17,7 @@ namespace scene
 {
 
 //! constructor
-CSceneCollisionManager::CSceneCollisionManager(ISceneManager* smanager, video::IVideoDriver* driver)
+CSceneCollisionManager::CSceneCollisionManager(boost::shared_ptr<scene::ISceneManager> smanager, video::IVideoDriver* driver)
 : SceneManager(smanager), Driver(driver)
 {
 	#ifdef _DEBUG
@@ -39,8 +39,8 @@ CSceneCollisionManager::~CSceneCollisionManager()
 
 //! Returns the scene node, which is currently visible at the given
 //! screen coordinates, viewed from the currently active camera.
-ISceneNode* CSceneCollisionManager::getSceneNodeFromScreenCoordinatesBB(
-		const core::position2d<s32>& pos, s32 idBitMask, bool noDebugObjects, scene::ISceneNode* root)
+boost::shared_ptr<ISceneNode> CSceneCollisionManager::getSceneNodeFromScreenCoordinatesBB(
+		const core::position2d<s32>& pos, s32 idBitMask, bool noDebugObjects, boost::shared_ptr<scene::ISceneNode> root)
 {
 	const core::line3d<f32> ln = getRayFromScreenCoordinates(pos, 0);
 
@@ -53,11 +53,11 @@ ISceneNode* CSceneCollisionManager::getSceneNodeFromScreenCoordinatesBB(
 
 //! Returns the nearest scene node which collides with a 3d ray and
 //! which id matches a bitmask.
-ISceneNode* CSceneCollisionManager::getSceneNodeFromRayBB(
+boost::shared_ptr<ISceneNode> CSceneCollisionManager::getSceneNodeFromRayBB(
 		const core::line3d<f32>& ray,
-		s32 idBitMask, bool noDebugObjects, scene::ISceneNode* root)
+		s32 idBitMask, bool noDebugObjects, boost::shared_ptr<scene::ISceneNode> root)
 {
-	ISceneNode* best = 0;
+	boost::shared_ptr<ISceneNode> best = 0;
 	f32 dist = FLT_MAX;
 
 	core::line3d<f32> truncatableRay(ray);
@@ -70,9 +70,9 @@ ISceneNode* CSceneCollisionManager::getSceneNodeFromRayBB(
 
 
 //! recursive method for going through all scene nodes
-void CSceneCollisionManager::getPickedNodeBB(ISceneNode* root,
+void CSceneCollisionManager::getPickedNodeBB(boost::shared_ptr<ISceneNode> root,
 		core::line3df& ray, s32 bits, bool noDebugObjects,
-		f32& outbestdistance, ISceneNode*& outbestnode)
+		f32& outbestdistance, boost::shared_ptr<ISceneNode>& outbestnode)
 {
 	const ISceneNodeList& children = root->getChildren();
 	const core::vector3df rayVector = ray.getVector().normalize();
@@ -80,7 +80,7 @@ void CSceneCollisionManager::getPickedNodeBB(ISceneNode* root,
 	ISceneNodeList::ConstIterator it = children.begin();
 	for (; it != children.end(); ++it)
 	{
-		ISceneNode* current = *it;
+		boost::shared_ptr<ISceneNode> current = *it;
 
 		if (current->isVisible())
 		{
@@ -221,15 +221,15 @@ void CSceneCollisionManager::getPickedNodeBB(ISceneNode* root,
 }
 
 
-ISceneNode* CSceneCollisionManager::getSceneNodeAndCollisionPointFromRay(
+boost::shared_ptr<ISceneNode> CSceneCollisionManager::getSceneNodeAndCollisionPointFromRay(
 						core::line3df ray,
 						core::vector3df & outCollisionPoint,
 						core::triangle3df & outTriangle,
 						s32 idBitMask,
-						ISceneNode * collisionRootNode,
+						boost::shared_ptr<ISceneNode>  collisionRootNode,
 						bool noDebugObjects)
 {
-	ISceneNode* bestNode = 0;
+	boost::shared_ptr<ISceneNode> bestNode = 0;
 	f32 bestDistanceSquared = FLT_MAX;
 
 	if(0 == collisionRootNode)
@@ -266,12 +266,12 @@ ISceneNode* CSceneCollisionManager::getSceneNodeAndCollisionPointFromRay(
 
 
 void CSceneCollisionManager::getPickedNodeFromBBAndSelector(
-				ISceneNode * root,
+				boost::shared_ptr<ISceneNode>  root,
 				core::line3df & ray,
 				s32 bits,
 				bool noDebugObjects,
 				f32 & outBestDistanceSquared,
-				ISceneNode * & outBestNode,
+				boost::shared_ptr<ISceneNode>  & outBestNode,
 				core::vector3df & outBestCollisionPoint,
 				core::triangle3df & outBestTriangle)
 {
@@ -280,7 +280,7 @@ void CSceneCollisionManager::getPickedNodeFromBBAndSelector(
 	ISceneNodeList::ConstIterator it = children.begin();
 	for (; it != children.end(); ++it)
 	{
-		ISceneNode* current = *it;
+		boost::shared_ptr<ISceneNode> current = *it;
 		ITriangleSelector * selector = current->getTriangleSelector();
 
 		if (selector && current->isVisible() &&
@@ -303,7 +303,7 @@ void CSceneCollisionManager::getPickedNodeFromBBAndSelector(
 			core::triangle3df candidateTriangle;
 
 			// do intersection test in object space
-			ISceneNode * hitNode = 0;
+			boost::shared_ptr<ISceneNode>  hitNode = 0;
 			if (box.intersectsWithLine(line) &&
 				getCollisionPoint(ray, selector, candidateCollisionPoint, candidateTriangle, hitNode))
 			{
@@ -330,8 +330,8 @@ void CSceneCollisionManager::getPickedNodeFromBBAndSelector(
 
 //! Returns the scene node, at which the overgiven camera is looking at and
 //! which id matches the bitmask.
-ISceneNode* CSceneCollisionManager::getSceneNodeFromCameraBB(
-	ICameraSceneNode* camera, s32 idBitMask, bool noDebugObjects)
+boost::shared_ptr<ISceneNode> CSceneCollisionManager::getSceneNodeFromCameraBB(
+	boost::shared_ptr<ICameraSceneNode> camera, s32 idBitMask, bool noDebugObjects)
 {
 	if (!camera)
 		return 0;
@@ -349,7 +349,7 @@ ISceneNode* CSceneCollisionManager::getSceneNodeFromCameraBB(
 bool CSceneCollisionManager::getCollisionPoint(const core::line3d<f32>& ray,
 		ITriangleSelector* selector, core::vector3df& outIntersection,
 		core::triangle3df& outTriangle,
-		ISceneNode*& outNode)
+		boost::shared_ptr<ISceneNode>& outNode)
 {
 	if (!selector)
 	{
@@ -426,7 +426,7 @@ core::vector3df CSceneCollisionManager::getCollisionResultPosition(
 		core::triangle3df& triout,
 		core::vector3df& hitPosition,
 		bool& outFalling,
-		ISceneNode*& outNode,
+		boost::shared_ptr<ISceneNode>& outNode,
 		f32 slidingSpeed,
 		const core::vector3df& gravity)
 {
@@ -694,7 +694,7 @@ core::vector3df CSceneCollisionManager::collideEllipsoidWithWorld(
 		core::triangle3df& triout,
 		core::vector3df& hitPosition,
 		bool& outFalling,
-		ISceneNode*& outNode)
+		boost::shared_ptr<ISceneNode>& outNode)
 {
 	if (!selector || radius.X == 0.0f || radius.Y == 0.0f || radius.Z == 0.0f)
 		return position;
@@ -839,7 +839,7 @@ core::vector3df CSceneCollisionManager::collideWithWorld(s32 recursionDepth,
 
 //! Returns a 3d ray which would go through the 2d screen coodinates.
 core::line3d<f32> CSceneCollisionManager::getRayFromScreenCoordinates(
-	const core::position2d<s32> & pos, ICameraSceneNode* camera)
+	const core::position2d<s32> & pos, boost::shared_ptr<ICameraSceneNode> camera)
 {
 	core::line3d<f32> ln(0,0,0,0,0,0);
 
@@ -877,7 +877,7 @@ core::line3d<f32> CSceneCollisionManager::getRayFromScreenCoordinates(
 
 //! Calculates 2d screen position from a 3d position.
 core::position2d<s32> CSceneCollisionManager::getScreenCoordinatesFrom3DPosition(
-	const core::vector3df & pos3d, ICameraSceneNode* camera, bool useViewPort)
+	const core::vector3df & pos3d, boost::shared_ptr<ICameraSceneNode> camera, bool useViewPort)
 {
 	if (!SceneManager || !Driver)
 		return core::position2d<s32>(-1000,-1000);

@@ -14,7 +14,7 @@ namespace scene
 {
 
 //! constructor
-CVolumeLightSceneNode::CVolumeLightSceneNode(ISceneNode* parent, ISceneManager* mgr,
+CVolumeLightSceneNode::CVolumeLightSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,
 		s32 id, const u32 subdivU, const u32 subdivV,
 		const video::SColor foot,
 		const video::SColor tail,
@@ -74,7 +74,7 @@ void CVolumeLightSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
 	{
-		SceneManager->registerNodeForRendering(this, ESNRP_TRANSPARENT);
+		SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_TRANSPARENT);
 	}
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -178,21 +178,20 @@ void CVolumeLightSceneNode::deserializeAttributes(io::IAttributes* in, io::SAttr
 
 
 //! Creates a clone of this scene node and its children.
-ISceneNode* CVolumeLightSceneNode::clone(ISceneNode* newParent, ISceneManager* newManager)
+boost::shared_ptr<ISceneNode> CVolumeLightSceneNode::clone(boost::shared_ptr<ISceneNode> newParent, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	if (!newParent)
-		newParent = Parent;
+		newParent = Parent.lock();
 	if (!newManager)
 		newManager = SceneManager;
 
-	CVolumeLightSceneNode* nb = new CVolumeLightSceneNode(newParent,
+	boost::shared_ptr<CVolumeLightSceneNode> nb = boost::make_shared<CVolumeLightSceneNode>(newParent,
 		newManager, ID, SubdivideU, SubdivideV, FootColor, TailColor, RelativeTranslation);
+	nb->setWeakThis(nb);
 
-	nb->cloneMembers(this, newManager);
+	nb->cloneMembers(getSharedThis(), newManager);
 	nb->getMaterial(0) = Mesh->getMeshBuffer(0)->getMaterial();
 
-	if ( newParent )
-		nb->drop();
 	return nb;
 }
 

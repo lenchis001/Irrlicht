@@ -18,7 +18,7 @@ namespace scene
 	public:
 
 		//! constructor
-		CShadowVolumeSceneNode(const IMesh* shadowMesh, ISceneNode* parent, ISceneManager* mgr, 
+		CShadowVolumeSceneNode(const IMesh* shadowMesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, 
 			s32 id,  bool zfailmethod=true, f32 infinity=10000.0f);
 
 		//! destructor

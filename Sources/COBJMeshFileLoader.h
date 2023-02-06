@@ -23,7 +23,7 @@ class COBJMeshFileLoader : public IMeshLoader
 public:
 
 	//! Constructor
-	COBJMeshFileLoader(scene::ISceneManager* smgr, io::IFileSystem* fs);
+	COBJMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs);
 
 	//! destructor
 	virtual ~COBJMeshFileLoader();
@@ -109,7 +109,7 @@ private:
 
 	void cleanUp();
 
-	scene::ISceneManager* SceneManager;
+	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IFileSystem* FileSystem;
 
 	core::array<SObjMtl*> Materials;

@@ -95,12 +95,12 @@ bool CSceneNodeAnimatorCameraFPS::OnEvent(const SEvent& evt)
 }
 
 
-void CSceneNodeAnimatorCameraFPS::animateNode(ISceneNode* node, u32 timeMs)
+void CSceneNodeAnimatorCameraFPS::animateNode(boost::shared_ptr<ISceneNode> node, u32 timeMs)
 {
 	if (!node || node->getType() != ESNT_CAMERA)
 		return;
 
-	ICameraSceneNode* camera = static_cast<ICameraSceneNode*>(node);
+	boost::shared_ptr<ICameraSceneNode> camera = boost::static_pointer_cast<ICameraSceneNode>(node);
 
 	if (firstUpdate)
 	{
@@ -129,7 +129,7 @@ void CSceneNodeAnimatorCameraFPS::animateNode(ISceneNode* node, u32 timeMs)
 		firstInput = false;
 	}
 
-	scene::ISceneManager * smgr = camera->getSceneManager();
+	boost::shared_ptr<scene::ISceneManager>  smgr = camera->getSceneManager();
 	if(smgr && smgr->getActiveCamera() != camera)
 		return;
 
@@ -340,7 +340,7 @@ void CSceneNodeAnimatorCameraFPS::setInvertMouse(bool invert)
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorCameraFPS::createClone(ISceneNode* node, ISceneManager* newManager)
+ISceneNodeAnimator* CSceneNodeAnimatorCameraFPS::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	CSceneNodeAnimatorCameraFPS * newAnimator =
 		new CSceneNodeAnimatorCameraFPS(CursorControl,	RotateSpeed, MoveSpeed, JumpSpeed,

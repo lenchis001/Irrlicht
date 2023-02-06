@@ -163,7 +163,7 @@ namespace scene
 
 //! Constructor
 CHalflifeMDLMeshFileLoader::CHalflifeMDLMeshFileLoader(
-		scene::ISceneManager* smgr) : SceneManager(smgr)
+		boost::shared_ptr<scene::ISceneManager> smgr) : SceneManager(smgr)
 {
 #ifdef _DEBUG
 	setDebugName("CHalflifeMDLMeshFileLoader");
@@ -216,7 +216,7 @@ CAnimatedMeshHalfLife::CAnimatedMeshHalfLife()
 	loads a complete model
 */
 bool CAnimatedMeshHalfLife::loadModelFile(io::IReadFile* file,
-		ISceneManager* smgr)
+		boost::shared_ptr<scene::ISceneManager> smgr)
 {
 	if (!file)
 		return false;

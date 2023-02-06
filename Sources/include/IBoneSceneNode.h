@@ -56,7 +56,7 @@ namespace scene
 	{
 	public:
 
-		IBoneSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id=-1) :
+		IBoneSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id=-1) :
 			ISceneNode(parent, mgr, id),positionHint(-1),scaleHint(-1),rotationHint(-1) { }
 
 		//! Get the name of the bone

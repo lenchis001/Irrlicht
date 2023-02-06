@@ -15,7 +15,7 @@ namespace scene
 {
 
 //! constructor
-CSphereSceneNode::CSphereSceneNode(f32 radius, u32 polyCountX, u32 polyCountY, ISceneNode* parent, ISceneManager* mgr, s32 id,
+CSphereSceneNode::CSphereSceneNode(f32 radius, u32 polyCountX, u32 polyCountY, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 			const core::vector3df& position, const core::vector3df& rotation, const core::vector3df& scale)
 : IMeshSceneNode(parent, mgr, id, position, rotation, scale), Mesh(0), Shadow(0),
 	Radius(radius), PolyCountX(polyCountX), PolyCountY(polyCountY)
@@ -32,8 +32,6 @@ CSphereSceneNode::CSphereSceneNode(f32 radius, u32 polyCountX, u32 polyCountY, I
 //! destructor
 CSphereSceneNode::~CSphereSceneNode()
 {
-	if (Shadow)
-		Shadow->drop();
 	if (Mesh)
 		Mesh->drop();
 }
@@ -66,11 +64,10 @@ void CSphereSceneNode::render()
 //! Removes a child from this scene node.
 //! Implemented here, to be able to remove the shadow properly, if there is one,
 //! or to remove attached childs.
-bool CSphereSceneNode::removeChild(ISceneNode* child)
+bool CSphereSceneNode::removeChild(boost::shared_ptr<ISceneNode> child)
 {
 	if (child && Shadow == child)
 	{
-		Shadow->drop();
 		Shadow = 0;
 	}
 
@@ -80,7 +77,7 @@ bool CSphereSceneNode::removeChild(ISceneNode* child)
 
 //! Creates shadow volume scene node as child of this node
 //! and returns a pointer to it.
-IShadowVolumeSceneNode* CSphereSceneNode::addShadowVolumeSceneNode(
+boost::shared_ptr<IShadowVolumeSceneNode> CSphereSceneNode::addShadowVolumeSceneNode(
 		const IMesh* shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
 	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
@@ -89,10 +86,7 @@ IShadowVolumeSceneNode* CSphereSceneNode::addShadowVolumeSceneNode(
 	if (!shadowMesh)
 		shadowMesh = Mesh; // if null is given, use the mesh of node
 
-	if (Shadow)
-		Shadow->drop();
-
-	Shadow = new CShadowVolumeSceneNode(shadowMesh, this, SceneManager, id,  zfailmethod, infinity);
+	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), SceneManager, id, zfailmethod, infinity);
 	return Shadow;
 }
 
@@ -107,7 +101,7 @@ const core::aabbox3d<f32>& CSphereSceneNode::getBoundingBox() const
 void CSphereSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(this);
+		SceneManager->registerNodeForRendering(getSharedThis());
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -173,24 +167,21 @@ void CSphereSceneNode::deserializeAttributes(io::IAttributes* in, io::SAttribute
 }
 
 //! Creates a clone of this scene node and its children.
-ISceneNode* CSphereSceneNode::clone(ISceneNode* newParent, ISceneManager* newManager)
+boost::shared_ptr<ISceneNode> CSphereSceneNode::clone(boost::shared_ptr<ISceneNode> newParent, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	if (!newParent)
-		newParent = Parent;
+		newParent = Parent.lock();
 	if (!newManager)
 		newManager = SceneManager;
 
-	CSphereSceneNode* nb = new CSphereSceneNode(Radius, PolyCountX, PolyCountY, newParent,
+	boost::shared_ptr<CSphereSceneNode> nb = boost::make_shared<CSphereSceneNode>(Radius, PolyCountX, PolyCountY, newParent,
 		newManager, ID, RelativeTranslation);
+	nb->setWeakThis(nb);
 
-	nb->cloneMembers(this, newManager);
+	nb->cloneMembers(getSharedThis(), newManager);
 	nb->getMaterial(0) = Mesh->getMeshBuffer(0)->getMaterial();
 	nb->Shadow = Shadow;
-	if ( nb->Shadow )
-		nb->Shadow->grab();
 
-	if ( newParent )
-		nb->drop();
 	return nb;
 }
 

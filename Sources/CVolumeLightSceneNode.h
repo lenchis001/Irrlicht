@@ -19,7 +19,7 @@ namespace scene
 	public:
 
 		//! constructor
-		CVolumeLightSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
+		CVolumeLightSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 			const u32 subdivU = 32, const u32 subdivV = 32,
 			const video::SColor foot = video::SColor(51, 0, 230, 180),
 			const video::SColor tail = video::SColor(0, 0, 0, 0),
@@ -53,7 +53,7 @@ namespace scene
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0);
 
 		//! Creates a clone of this scene node and its children.
-		virtual ISceneNode* clone(ISceneNode* newParent=0, ISceneManager* newManager=0);
+		virtual boost::shared_ptr<ISceneNode> clone(boost::shared_ptr<ISceneNode> newParent=0, boost::shared_ptr<scene::ISceneManager> newManager=0);
 
 		virtual void setSubDivideU(const u32 inU);
 		virtual void setSubDivideV(const u32 inV);

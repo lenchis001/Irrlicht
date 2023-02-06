@@ -12,7 +12,7 @@ namespace scene
 
 
 //! constructor
-CSceneNodeAnimatorDelete::CSceneNodeAnimatorDelete(ISceneManager* manager, u32 time)
+CSceneNodeAnimatorDelete::CSceneNodeAnimatorDelete(boost::shared_ptr<scene::ISceneManager> manager, u32 time)
 : ISceneNodeAnimatorFinishing(time), SceneManager(manager)
 {
 	#ifdef _DEBUG
@@ -22,7 +22,7 @@ CSceneNodeAnimatorDelete::CSceneNodeAnimatorDelete(ISceneManager* manager, u32 t
 
 
 //! animates a scene node
-void CSceneNodeAnimatorDelete::animateNode(ISceneNode* node, u32 timeMs)
+void CSceneNodeAnimatorDelete::animateNode(boost::shared_ptr<ISceneNode> node, u32 timeMs)
 {
 	if (timeMs > FinishTime)
 	{
@@ -37,7 +37,7 @@ void CSceneNodeAnimatorDelete::animateNode(ISceneNode* node, u32 timeMs)
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorDelete::createClone(ISceneNode* node, ISceneManager* newManager)
+ISceneNodeAnimator* CSceneNodeAnimatorDelete::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	CSceneNodeAnimatorDelete * newAnimator = 
 		new CSceneNodeAnimatorDelete(SceneManager, FinishTime);

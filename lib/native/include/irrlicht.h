@@ -232,12 +232,12 @@
  *		core::dimension2d<u32>(640,480));
  *
  *	video::IVideoDriver* driver = device->getVideoDriver();
- *	scene::ISceneManager* scenemgr = device->getSceneManager();
+ *	boost::shared_ptr<scene::ISceneManager> scenemgr = device->getSceneManager();
  *
  *	device->setWindowCaption(L"Hello World!");
  *
  *	// load and show quake2 .md2 model
- *	scene::ISceneNode* node = scenemgr->addAnimatedMeshSceneNode(
+ *	boost::shared_ptr<scene::ISceneNode> node = scenemgr->addAnimatedMeshSceneNode(
  *		scenemgr->getMesh("quake2model.md2"));
  *
  *	// if everything worked, add a texture and disable lighting

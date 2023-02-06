@@ -20,7 +20,7 @@ namespace scene
 {
 
 
-CDefaultSceneNodeFactory::CDefaultSceneNodeFactory(ISceneManager* mgr)
+CDefaultSceneNodeFactory::CDefaultSceneNodeFactory(boost::shared_ptr<scene::ISceneManager> mgr)
 : Manager(mgr)
 {
 
@@ -60,7 +60,7 @@ CDefaultSceneNodeFactory::CDefaultSceneNodeFactory(ISceneManager* mgr)
 
 
 //! adds a scene node to the scene graph based on its type id
-ISceneNode* CDefaultSceneNodeFactory::addSceneNode(ESCENE_NODE_TYPE type, ISceneNode* parent)
+boost::shared_ptr<ISceneNode> CDefaultSceneNodeFactory::addSceneNode(ESCENE_NODE_TYPE type, boost::shared_ptr<ISceneNode> parent)
 {
 	switch(type)
 	{
@@ -110,7 +110,7 @@ ISceneNode* CDefaultSceneNodeFactory::addSceneNode(ESCENE_NODE_TYPE type, IScene
 	case ESNT_PARTICLE_SYSTEM:
 		return Manager->addParticleSystemSceneNode(true, parent);
 	case ESNT_VOLUME_LIGHT:
-		return (ISceneNode*)Manager->addVolumeLightSceneNode(parent);
+		return boost::reinterpret_pointer_cast<ISceneNode>(Manager->addVolumeLightSceneNode(parent));
 	default:
 		break;
 	}
@@ -120,7 +120,7 @@ ISceneNode* CDefaultSceneNodeFactory::addSceneNode(ESCENE_NODE_TYPE type, IScene
 
 
 //! adds a scene node to the scene graph based on its type name
-ISceneNode* CDefaultSceneNodeFactory::addSceneNode(const c8* typeName, ISceneNode* parent)
+boost::shared_ptr<ISceneNode> CDefaultSceneNodeFactory::addSceneNode(const c8* typeName, boost::shared_ptr<ISceneNode> parent)
 {
 	return addSceneNode( getTypeFromName(typeName), parent );
 }

@@ -49,7 +49,7 @@ void CSceneNodeAnimatorTexture::clearTextures()
 
 
 //! animates a scene node
-void CSceneNodeAnimatorTexture::animateNode(ISceneNode* node, u32 timeMs)
+void CSceneNodeAnimatorTexture::animateNode(boost::shared_ptr<ISceneNode> node, u32 timeMs)
 {
 	if(!node)
 		return;
@@ -126,7 +126,7 @@ void CSceneNodeAnimatorTexture::deserializeAttributes(io::IAttributes* in, io::S
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorTexture::createClone(ISceneNode* node, ISceneManager* newManager)
+ISceneNodeAnimator* CSceneNodeAnimatorTexture::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	CSceneNodeAnimatorTexture * newAnimator = 
 		new CSceneNodeAnimatorTexture(Textures, TimePerFrame, Loop, StartTime);

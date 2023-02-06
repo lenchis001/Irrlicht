@@ -31,7 +31,7 @@ class CPLYMeshFileLoader : public IMeshLoader
 public:
 
 	//! Constructor
-	CPLYMeshFileLoader(scene::ISceneManager* smgr);
+	CPLYMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr);
 
 	//! Destructor
 	virtual ~CPLYMeshFileLoader();
@@ -133,7 +133,7 @@ private:
 
 	core::array<SPLYElement*> ElementList;
 
-	scene::ISceneManager* SceneManager;
+	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IReadFile *File;
 	c8 *Buffer;
 	bool IsBinaryFile, IsWrongEndian, EndOfFile;

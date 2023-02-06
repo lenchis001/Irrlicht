@@ -356,7 +356,7 @@ namespace scene
 		CameraData cameraData;
 	};
 
-	CCSMLoader::CCSMLoader(scene::ISceneManager* manager, io::IFileSystem* fs)
+	CCSMLoader::CCSMLoader(boost::shared_ptr<scene::ISceneManager> manager, io::IFileSystem* fs)
 		: FileSystem(fs), SceneManager(manager)
 	{
 

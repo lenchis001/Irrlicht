@@ -139,8 +139,8 @@ namespace
 		}
 
 		//! creates an instance of this prefab
-		virtual scene::ISceneNode* addInstance(scene::ISceneNode* parent,
-			scene::ISceneManager* mgr)
+		virtual boost::shared_ptr<scene::ISceneNode> addInstance(boost::shared_ptr<scene::ISceneNode> parent,
+			boost::shared_ptr<scene::ISceneManager> mgr)
 		{
 			// empty implementation
 			return 0;
@@ -173,8 +173,8 @@ namespace
 		video::SLight LightData; // publically accessible
 
 		//! creates an instance of this prefab
-		virtual scene::ISceneNode* addInstance(scene::ISceneNode* parent,
-			scene::ISceneManager* mgr)
+		virtual boost::shared_ptr<scene::ISceneNode> addInstance(boost::shared_ptr<scene::ISceneNode> parent,
+			boost::shared_ptr<scene::ISceneManager> mgr)
 		{
 			#ifdef COLLADA_READER_DEBUG
 			os::Printer::log("COLLADA: Constructing light instance", Id.c_str(), ELL_DEBUG);
@@ -186,7 +186,7 @@ namespace
 				return 0;
 			}
 
-			scene::ILightSceneNode* l = mgr->addLightSceneNode(parent);
+			boost::shared_ptr<scene::ILightSceneNode>  l = mgr->addLightSceneNode(parent);
 			if (l)
 			{
 				l->setLightData ( LightData );
@@ -209,14 +209,14 @@ namespace
 		scene::IMesh* Mesh;
 
 		//! creates an instance of this prefab
-		virtual scene::ISceneNode* addInstance(scene::ISceneNode* parent,
-			scene::ISceneManager* mgr)
+		virtual boost::shared_ptr<scene::ISceneNode> addInstance(boost::shared_ptr<scene::ISceneNode> parent,
+			boost::shared_ptr<scene::ISceneManager> mgr)
 		{
 			#ifdef COLLADA_READER_DEBUG
 			os::Printer::log("COLLADA: Constructing mesh instance", Id.c_str(), ELL_DEBUG);
 			#endif
 
-			scene::ISceneNode* m = mgr->addMeshSceneNode(Mesh, parent);
+			boost::shared_ptr<scene::ISceneNode> m = mgr->addMeshSceneNode(Mesh, parent);
 			if (m)
 			{
 				m->setName(getId());
@@ -247,14 +247,14 @@ namespace
 		f32 ZFar;
 
 		//! creates an instance of this prefab
-		virtual scene::ISceneNode* addInstance(scene::ISceneNode* parent,
-			scene::ISceneManager* mgr)
+		virtual boost::shared_ptr<scene::ISceneNode> addInstance(boost::shared_ptr<scene::ISceneNode> parent,
+			boost::shared_ptr<scene::ISceneManager> mgr)
 		{
 			#ifdef COLLADA_READER_DEBUG
 			os::Printer::log("COLLADA: Constructing camera instance", Id.c_str(), ELL_DEBUG);
 			#endif
 
-			scene::ICameraSceneNode* c = mgr->addCameraSceneNode(parent);
+			boost::shared_ptr<scene::ICameraSceneNode> c = mgr->addCameraSceneNode(parent);
 			if (c)
 			{
 				c->setFOV(YFov);
@@ -281,8 +281,8 @@ namespace
 		}
 
 		//! creates an instance of this prefab
-		virtual scene::ISceneNode* addInstance(scene::ISceneNode* parent,
-			scene::ISceneManager* mgr)
+		virtual boost::shared_ptr<scene::ISceneNode> addInstance(boost::shared_ptr<scene::ISceneNode> parent,
+			boost::shared_ptr<scene::ISceneManager> mgr)
 		{
 			#ifdef COLLADA_READER_DEBUG
 			os::Printer::log("COLLADA: Constructing scene instance", Id.c_str(), ELL_DEBUG);
@@ -291,7 +291,7 @@ namespace
 			if (Children.size()==0)
 				return 0;
 
-			scene::IDummyTransformationSceneNode* s = mgr->addDummyTransformationSceneNode(parent);
+			boost::shared_ptr<scene::IDummyTransformationSceneNode> s = mgr->addDummyTransformationSceneNode(parent);
 			if (s)
 			{
 				s->setName(getId());
@@ -320,7 +320,7 @@ namespace
 
 
 //! Constructor
-CColladaFileLoader::CColladaFileLoader(scene::ISceneManager* smgr,
+CColladaFileLoader::CColladaFileLoader(boost::shared_ptr<scene::ISceneManager> smgr,
 		io::IFileSystem* fs)
 : SceneManager(smgr), FileSystem(fs), DummyMesh(0),
 	FirstLoadedMesh(0), LoadedMeshCount(0), CreateInstances(false)
@@ -637,7 +637,7 @@ void CColladaFileLoader::readSceneSection(io::IXMLReaderUTF8* reader)
 
 	core::matrix4 transform; // transformation of this node
 	core::aabbox3df bbox;
-	scene::IDummyTransformationSceneNode* node = 0;
+	boost::shared_ptr<scene::IDummyTransformationSceneNode> node = 0;
 
 	while(reader->read())
 	{
@@ -726,7 +726,7 @@ void CColladaFileLoader::readAssetSection(io::IXMLReaderUTF8* reader)
 
 
 //! reads a <node> section and its content
-void CColladaFileLoader::readNodeSection(io::IXMLReaderUTF8* reader, scene::ISceneNode* parent, CScenePrefab* p)
+void CColladaFileLoader::readNodeSection(io::IXMLReaderUTF8* reader, boost::shared_ptr<scene::ISceneNode> parent, CScenePrefab* p)
 {
 	if (reader->isEmptyElement())
 	{
@@ -743,7 +743,7 @@ void CColladaFileLoader::readNodeSection(io::IXMLReaderUTF8* reader, scene::ISce
 
 	core::matrix4 transform; // transformation of this node
 	core::aabbox3df bbox;
-	scene::ISceneNode* node = 0; // instance
+	boost::shared_ptr<scene::ISceneNode> node = 0; // instance
 	CScenePrefab* nodeprefab = 0; // prefab for library_nodes usage
 
 	if (p)
@@ -791,7 +791,7 @@ void CColladaFileLoader::readNodeSection(io::IXMLReaderUTF8* reader, scene::ISce
 				(instanceGeometryName == reader->getNodeName()) ||
 				(instanceLightName == reader->getNodeName()))
 			{
-				scene::ISceneNode* newnode = 0;
+				boost::shared_ptr<scene::ISceneNode> newnode = 0;
 				readInstanceNode(reader, parent, &newnode, nodeprefab, reader->getNodeName());
 
 				if (node && newnode)
@@ -812,7 +812,7 @@ void CColladaFileLoader::readNodeSection(io::IXMLReaderUTF8* reader, scene::ISce
 				// create dummy node if there is none yet.
 				if (CreateInstances && !node)
 				{
-					scene::IDummyTransformationSceneNode* dummy =
+					boost::shared_ptr<scene::IDummyTransformationSceneNode> dummy =
 						SceneManager->addDummyTransformationSceneNode(parent);
 					dummy->getRelativeTransformationMatrix() = transform;
 					node = dummy;
@@ -1099,7 +1099,7 @@ core::matrix4 CColladaFileLoader::readTranslateNode(io::IXMLReaderUTF8* reader)
 
 //! reads any kind of <instance*> node
 void CColladaFileLoader::readInstanceNode(io::IXMLReaderUTF8* reader,
-		scene::ISceneNode* parent, scene::ISceneNode** outNode,
+		boost::shared_ptr<scene::ISceneNode> parent, boost::shared_ptr<scene::ISceneNode>* outNode,
 		CScenePrefab* p, const core::stringc& type)
 {
 	// find prefab of the specified id
@@ -1131,8 +1131,8 @@ void CColladaFileLoader::readInstanceNode(io::IXMLReaderUTF8* reader,
 }
 
 
-void CColladaFileLoader::instantiateNode(scene::ISceneNode* parent,
-		scene::ISceneNode** outNode, CScenePrefab* p, const core::stringc& url,
+void CColladaFileLoader::instantiateNode(boost::shared_ptr<scene::ISceneNode> parent,
+		boost::shared_ptr<scene::ISceneNode>* outNode, CScenePrefab* p, const core::stringc& url,
 		const core::stringc& type)
 {
 	#ifdef COLLADA_READER_DEBUG
@@ -1148,7 +1148,7 @@ void CColladaFileLoader::instantiateNode(scene::ISceneNode* parent,
 			else
 			if (CreateInstances)
 			{
-				scene::ISceneNode * newNode
+				boost::shared_ptr<scene::ISceneNode>  newNode
 					= Prefabs[i]->addInstance(parent, SceneManager);
 				if (outNode)
 				{

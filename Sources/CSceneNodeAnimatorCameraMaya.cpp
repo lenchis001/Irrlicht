@@ -91,7 +91,7 @@ bool CSceneNodeAnimatorCameraMaya::OnEvent(const SEvent& event)
 
 
 //! OnAnimate() is called just before rendering the whole scene.
-void CSceneNodeAnimatorCameraMaya::animateNode(ISceneNode *node, u32 timeMs)
+void CSceneNodeAnimatorCameraMaya::animateNode(boost::shared_ptr<ISceneNode> node, u32 timeMs)
 {
 	//Alt + LM = Rotate around camera pivot
 	//Alt + LM + MM = Dolly forth/back in view direction (speed % distance camera pivot - max distance to pivot)
@@ -100,13 +100,13 @@ void CSceneNodeAnimatorCameraMaya::animateNode(ISceneNode *node, u32 timeMs)
 	if (!node || node->getType() != ESNT_CAMERA)
 		return;
 
-	ICameraSceneNode* camera = static_cast<ICameraSceneNode*>(node);
+	boost::shared_ptr<ICameraSceneNode> camera = boost::static_pointer_cast<ICameraSceneNode>(node);
 
 	// If the camera isn't the active camera, and receiving input, then don't process it.
 	if (!camera->isInputReceiverEnabled())
 		return;
 
-	scene::ISceneManager * smgr = camera->getSceneManager();
+	boost::shared_ptr<scene::ISceneManager>  smgr = camera->getSceneManager();
 	if (smgr && smgr->getActiveCamera() != camera)
 		return;
 
@@ -305,7 +305,7 @@ f32 CSceneNodeAnimatorCameraMaya::getDistance() const
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorCameraMaya::createClone(ISceneNode* node, ISceneManager* newManager)
+ISceneNodeAnimator* CSceneNodeAnimatorCameraMaya::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	CSceneNodeAnimatorCameraMaya * newAnimator =
 		new CSceneNodeAnimatorCameraMaya(CursorControl, RotateSpeed, ZoomSpeed, TranslateSpeed);

@@ -25,7 +25,7 @@ public:
 
 	//! constructor
 	CParticleSystemSceneNode(bool createDefaultEmitter,
-		ISceneNode* parent, ISceneManager* mgr, s32 id,
+		boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 		const core::vector3df& position,
 		const core::vector3df& rotation,
 		const core::vector3df& scale);
@@ -65,7 +65,7 @@ public:
 
 	//! Creates a particle emitter for an animated mesh scene node
 	virtual IParticleAnimatedMeshSceneNodeEmitter* createAnimatedMeshSceneNodeEmitter(
-		scene::IAnimatedMeshSceneNode* node, bool useNormalDirection = true,
+		boost::shared_ptr<scene::IAnimatedMeshSceneNode> node, bool useNormalDirection = true,
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		f32 normalDirectionModifier = 100.0f, s32 mbNumber = -1,
 		bool everyMeshVertex = false, u32 minParticlesPerSecond = 5,

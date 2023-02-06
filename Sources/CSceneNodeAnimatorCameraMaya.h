@@ -35,7 +35,7 @@ namespace scene
 		virtual ~CSceneNodeAnimatorCameraMaya();
 
 		//! Animates the scene node, currently only works on cameras
-		virtual void animateNode(ISceneNode* node, u32 timeMs);
+		virtual void animateNode(boost::shared_ptr<ISceneNode> node, u32 timeMs);
 
 		//! Event receiver
 		virtual bool OnEvent(const SEvent& event);
@@ -80,7 +80,7 @@ namespace scene
 		/** Please note that you will have to drop
 		(IReferenceCounted::drop()) the returned pointer after calling
 		this. */
-		virtual ISceneNodeAnimator* createClone(ISceneNode* node, ISceneManager* newManager=0);
+		virtual ISceneNodeAnimator* createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager=0);
 
 	private:
 
@@ -91,7 +91,7 @@ namespace scene
 		bool MouseKeys[3];
 
 		gui::ICursorControl *CursorControl;
-		scene::ICameraSceneNode* OldCamera;
+		boost::shared_ptr<scene::ICameraSceneNode> OldCamera;
 		core::vector3df OldTarget;
 		core::vector3df LastCameraTarget;	// to find out if the camera target was moved outside this animator
 		core::position2df RotateStart;

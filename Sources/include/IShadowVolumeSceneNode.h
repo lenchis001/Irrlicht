@@ -19,7 +19,7 @@ namespace scene
 	public:
 
 		//! constructor
-		IShadowVolumeSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id)
+		IShadowVolumeSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id)
 			: ISceneNode(parent, mgr, id) {}
 
 		//! Sets the mesh from which the shadow volume should be generated.

@@ -21,7 +21,7 @@ namespace scene
 
 
 //! constructor
-CMeshSceneNode::CMeshSceneNode(IMesh* mesh, ISceneNode* parent, ISceneManager* mgr, s32 id,
+CMeshSceneNode::CMeshSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 			const core::vector3df& position, const core::vector3df& rotation,
 			const core::vector3df& scale)
 : IMeshSceneNode(parent, mgr, id, position, rotation, scale), Mesh(0), Shadow(0),
@@ -38,8 +38,6 @@ CMeshSceneNode::CMeshSceneNode(IMesh* mesh, ISceneNode* parent, ISceneManager* m
 //! destructor
 CMeshSceneNode::~CMeshSceneNode()
 {
-	if (Shadow)
-		Shadow->drop();
 	if (Mesh)
 		Mesh->drop();
 }
@@ -102,10 +100,10 @@ void CMeshSceneNode::OnRegisterSceneNode()
 		// register according to material types counted
 
 		if (solidCount)
-			SceneManager->registerNodeForRendering(this, scene::ESNRP_SOLID);
+			SceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_SOLID);
 
 		if (transparentCount)
-			SceneManager->registerNodeForRendering(this, scene::ESNRP_TRANSPARENT);
+			SceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_TRANSPARENT);
 
 		ISceneNode::OnRegisterSceneNode();
 	}
@@ -230,11 +228,10 @@ void CMeshSceneNode::render()
 //! Removes a child from this scene node.
 //! Implemented here, to be able to remove the shadow properly, if there is one,
 //! or to remove attached childs.
-bool CMeshSceneNode::removeChild(ISceneNode* child)
+bool CMeshSceneNode::removeChild(boost::shared_ptr<ISceneNode> child)
 {
 	if (child && Shadow == child)
 	{
-		Shadow->drop();
 		Shadow = 0;
 	}
 
@@ -296,7 +293,7 @@ void CMeshSceneNode::setMesh(IMesh* mesh)
 
 //! Creates shadow volume scene node as child of this node
 //! and returns a pointer to it.
-IShadowVolumeSceneNode* CMeshSceneNode::addShadowVolumeSceneNode(
+boost::shared_ptr<IShadowVolumeSceneNode> CMeshSceneNode::addShadowVolumeSceneNode(
 		const IMesh* shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
 	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
@@ -305,10 +302,7 @@ IShadowVolumeSceneNode* CMeshSceneNode::addShadowVolumeSceneNode(
 	if (!shadowMesh)
 		shadowMesh = Mesh; // if null is given, use the mesh of node
 
-	if (Shadow)
-		Shadow->drop();
-
-	Shadow = new CShadowVolumeSceneNode(shadowMesh, this, SceneManager, id,  zfailmethod, infinity);
+	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), SceneManager, id, zfailmethod, infinity);
 	return Shadow;
 }
 
@@ -419,25 +413,22 @@ bool CMeshSceneNode::isReadOnlyMaterials() const
 
 
 //! Creates a clone of this scene node and its children.
-ISceneNode* CMeshSceneNode::clone(ISceneNode* newParent, ISceneManager* newManager)
+boost::shared_ptr<ISceneNode> CMeshSceneNode::clone(boost::shared_ptr<ISceneNode> newParent, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	if (!newParent)
-		newParent = Parent;
+		newParent = Parent.lock();
 	if (!newManager)
 		newManager = SceneManager;
 
-	CMeshSceneNode* nb = new CMeshSceneNode(Mesh, newParent,
+	boost::shared_ptr<CMeshSceneNode> nb = boost::make_shared<CMeshSceneNode>(Mesh, newParent,
 		newManager, ID, RelativeTranslation, RelativeRotation, RelativeScale);
+	nb->setWeakThis(nb);
 
-	nb->cloneMembers(this, newManager);
+	nb->cloneMembers(getSharedThis(), newManager);
 	nb->ReadOnlyMaterials = ReadOnlyMaterials;
 	nb->Materials = Materials;
 	nb->Shadow = Shadow;
-	if ( nb->Shadow )
-		nb->Shadow->grab();
 
-	if (newParent)
-		nb->drop();
 	return nb;
 }
 

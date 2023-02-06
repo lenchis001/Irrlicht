@@ -14,7 +14,7 @@ namespace scene
 
 
 //! constructor
-CCameraSceneNode::CCameraSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
+CCameraSceneNode::CCameraSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 	const core::vector3df& position, const core::vector3df& lookat)
 	: ICameraSceneNode(parent, mgr, id, position),
 	Target(lookat), UpVector(0.0f, 1.0f, 0.0f), ZNear(1.0f), ZFar(3000.0f),
@@ -234,8 +234,8 @@ void CCameraSceneNode::recalculateProjectionMatrix()
 //! prerender
 void CCameraSceneNode::OnRegisterSceneNode()
 {
-	if ( SceneManager->getActiveCamera () == this )
-		SceneManager->registerNodeForRendering(this, ESNRP_CAMERA);
+	if ( SceneManager->getActiveCamera().get() == this)
+		SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_CAMERA);
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -348,20 +348,21 @@ bool CCameraSceneNode::getTargetAndRotationBinding(void) const
 
 
 //! Creates a clone of this scene node and its children.
-ISceneNode* CCameraSceneNode::clone(ISceneNode* newParent, ISceneManager* newManager)
+boost::shared_ptr<ISceneNode> CCameraSceneNode::clone(boost::shared_ptr<ISceneNode> newParent, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	ICameraSceneNode::clone(newParent, newManager);
 
 	if (!newParent)
-		newParent = Parent;
+		newParent = Parent.lock();
 	if (!newManager)
 		newManager = SceneManager;
 
-	CCameraSceneNode* nb = new CCameraSceneNode(newParent,
+	boost::shared_ptr<CCameraSceneNode> nb = boost::make_shared<CCameraSceneNode>(newParent,
 		newManager, ID, RelativeTranslation, Target);
+	nb->setWeakThis(nb);
 
-	nb->ISceneNode::cloneMembers(this, newManager);
-	nb->ICameraSceneNode::cloneMembers(this);
+	nb->ISceneNode::cloneMembers(getSharedThis(), newManager);
+	nb->ICameraSceneNode::cloneMembers(getSharedThis<ICameraSceneNode>());
 
 	nb->Target = Target;
 	nb->UpVector = UpVector;
@@ -374,8 +375,6 @@ ISceneNode* CCameraSceneNode::clone(ISceneNode* newParent, ISceneManager* newMan
 	nb->InputReceiverEnabled = InputReceiverEnabled;
 	nb->TargetAndRotationAreBound = TargetAndRotationAreBound;
 
-	if ( newParent )
-		nb->drop();
 	return nb;
 }
 

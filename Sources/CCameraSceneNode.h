@@ -18,7 +18,7 @@ namespace scene
 	public:
 
 		//! constructor
-		CCameraSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id, 
+		CCameraSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id, 
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& lookat = core::vector3df(0,0,100));
 
@@ -143,7 +143,7 @@ namespace scene
 		virtual bool getTargetAndRotationBinding(void) const;
 
 		//! Creates a clone of this scene node and its children.
-		virtual ISceneNode* clone(ISceneNode* newParent=0, ISceneManager* newManager=0);
+		virtual boost::shared_ptr<ISceneNode> clone(boost::shared_ptr<ISceneNode> newParent=0, boost::shared_ptr<scene::ISceneManager> newManager=0);
 
 	protected:
 

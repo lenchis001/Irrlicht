@@ -14,7 +14,7 @@ namespace scene
 {
 
 //! constructor
-CBillboardSceneNode::CBillboardSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
+CBillboardSceneNode::CBillboardSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 			const core::vector3df& position, const core::dimension2d<f32>& size,
 			video::SColor colorTop, video::SColor colorBottom)
 	: IBillboardSceneNode(parent, mgr, id, position)
@@ -50,7 +50,7 @@ CBillboardSceneNode::CBillboardSceneNode(ISceneNode* parent, ISceneManager* mgr,
 void CBillboardSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(this);
+		SceneManager->registerNodeForRendering(getSharedThis());
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -60,7 +60,7 @@ void CBillboardSceneNode::OnRegisterSceneNode()
 void CBillboardSceneNode::render()
 {
 	video::IVideoDriver* driver = SceneManager->getVideoDriver();
-	ICameraSceneNode* camera = SceneManager->getActiveCamera();
+	boost::shared_ptr<ICameraSceneNode> camera = SceneManager->getActiveCamera();
 
 	if (!camera || !driver)
 		return;
@@ -269,22 +269,21 @@ void CBillboardSceneNode::getColor(video::SColor& topColor,
 
 
 //! Creates a clone of this scene node and its children.
-ISceneNode* CBillboardSceneNode::clone(ISceneNode* newParent, ISceneManager* newManager)
+boost::shared_ptr<ISceneNode> CBillboardSceneNode::clone(boost::shared_ptr<ISceneNode> newParent, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	if (!newParent)
-		newParent = Parent;
+		newParent = Parent.lock();
 	if (!newManager)
 		newManager = SceneManager;
 
-	CBillboardSceneNode* nb = new CBillboardSceneNode(newParent,
+	boost::shared_ptr<CBillboardSceneNode> nb = boost::make_shared<CBillboardSceneNode>(newParent,
 		newManager, ID, RelativeTranslation, Size);
+	nb->setWeakThis(nb);
 
-	nb->cloneMembers(this, newManager);
+	nb->cloneMembers(getSharedThis(), newManager);
 	nb->Material = Material;
 	nb->TopEdgeWidth = this->TopEdgeWidth;
 
-	if ( newParent )
-		nb->drop();
 	return nb;
 }
 

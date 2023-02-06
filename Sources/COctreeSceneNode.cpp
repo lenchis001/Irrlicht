@@ -20,7 +20,7 @@ namespace scene
 
 
 //! constructor
-COctreeSceneNode::COctreeSceneNode(ISceneNode* parent, ISceneManager* mgr,
+COctreeSceneNode::COctreeSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,
 					 s32 id, s32 minimalPolysPerNode)
 	: IMeshSceneNode(parent, mgr, id), StdOctree(0), LightMapOctree(0),
 	TangentsOctree(0), VertexType((video::E_VERTEX_TYPE)-1),
@@ -37,8 +37,6 @@ COctreeSceneNode::COctreeSceneNode(ISceneNode* parent, ISceneManager* mgr,
 //! destructor
 COctreeSceneNode::~COctreeSceneNode()
 {
-	if (Shadow)
-		Shadow->drop();
 	deleteTree();
 }
 
@@ -76,10 +74,10 @@ void COctreeSceneNode::OnRegisterSceneNode()
 		// register according to material types counted
 
 		if (solidCount)
-			SceneManager->registerNodeForRendering(this, scene::ESNRP_SOLID);
+			SceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_SOLID);
 
 		if (transparentCount)
-			SceneManager->registerNodeForRendering(this, scene::ESNRP_TRANSPARENT);
+			SceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_TRANSPARENT);
 
 		ISceneNode::OnRegisterSceneNode();
 	}
@@ -94,7 +92,7 @@ void COctreeSceneNode::render()
 	if (VertexType == -1 || !driver)
 		return;
 
-	ICameraSceneNode* camera = SceneManager->getActiveCamera();
+	boost::shared_ptr<ICameraSceneNode> camera = SceneManager->getActiveCamera();
 	if (!camera)
 		return;
 
@@ -289,11 +287,10 @@ void COctreeSceneNode::render()
 //! Removes a child from this scene node.
 //! Implemented here, to be able to remove the shadow properly, if there is one,
 //! or to remove attached childs.
-bool COctreeSceneNode::removeChild(ISceneNode* child)
+bool COctreeSceneNode::removeChild(boost::shared_ptr<ISceneNode> child)
 {
 	if (child && Shadow == child)
 	{
-		Shadow->drop();
 		Shadow = 0;
 	}
 
@@ -303,7 +300,7 @@ bool COctreeSceneNode::removeChild(ISceneNode* child)
 
 //! Creates shadow volume scene node as child of this node
 //! and returns a pointer to it.
-IShadowVolumeSceneNode* COctreeSceneNode::addShadowVolumeSceneNode(
+boost::shared_ptr<IShadowVolumeSceneNode> COctreeSceneNode::addShadowVolumeSceneNode(
 		const IMesh* shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
 	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
@@ -312,10 +309,7 @@ IShadowVolumeSceneNode* COctreeSceneNode::addShadowVolumeSceneNode(
 	if (!shadowMesh)
 		shadowMesh = Mesh; // if null is given, use the mesh of node
 
-	if (Shadow)
-		Shadow->drop();
-
-	Shadow = new CShadowVolumeSceneNode(shadowMesh, this, SceneManager, id,  zfailmethod, infinity);
+	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), SceneManager, id,  zfailmethod, infinity);
 	return Shadow;
 }
 

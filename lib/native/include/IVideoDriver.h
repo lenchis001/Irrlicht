@@ -468,11 +468,11 @@ namespace video
 
 		//! Create occlusion query.
 		/** Use node for identification and mesh for occlusion test. */
-		virtual void addOcclusionQuery(scene::ISceneNode* node,
+		virtual void addOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node,
 				const scene::IMesh* mesh=0) =0;
 
 		//! Remove occlusion query.
-		virtual void removeOcclusionQuery(scene::ISceneNode* node) =0;
+		virtual void removeOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node) =0;
 
 		//! Remove all occlusion queries.
 		virtual void removeAllOcclusionQueries() =0;
@@ -480,7 +480,7 @@ namespace video
 		//! Run occlusion query. Draws mesh stored in query.
 		/** If the mesh shall not be rendered visible, use
 		overrideMaterial to disable the color and depth buffer. */
-		virtual void runOcclusionQuery(scene::ISceneNode* node, bool visible=false) =0;
+		virtual void runOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node, bool visible=false) =0;
 
 		//! Run all occlusion queries. Draws all meshes stored in queries.
 		/** If the meshes shall not be rendered visible, use
@@ -490,7 +490,7 @@ namespace video
 		//! Update occlusion query. Retrieves results from GPU.
 		/** If the query shall not block, set the flag to false.
 		Update might not occur in this case, though */
-		virtual void updateOcclusionQuery(scene::ISceneNode* node, bool block=true) =0;
+		virtual void updateOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node, bool block=true) =0;
 
 		//! Update all occlusion queries. Retrieves results from GPU.
 		/** If the query shall not block, set the flag to false.
@@ -501,7 +501,7 @@ namespace video
 		/** Return value is the number of visible pixels/fragments.
 		The value is a safe approximation, i.e. can be larger than the
 		actual value of pixels. */
-		virtual u32 getOcclusionQueryResult(scene::ISceneNode* node) const =0;
+		virtual u32 getOcclusionQueryResult(boost::shared_ptr<scene::ISceneNode> node) const =0;
 
 		//! Sets a boolean alpha channel on the texture based on a color key.
 		/** This makes the texture fully transparent at the texels where

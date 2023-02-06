@@ -194,13 +194,18 @@ CSceneManager::CSceneManager(video::IVideoDriver* driver, io::IFileSystem* fs,
 	ISceneManager::setDebugName("CSceneManager ISceneManager");
 	ISceneNode::setDebugName("CSceneManager ISceneNode");
 	#endif
+}
+
+void CSceneManager::setWeakThis(boost::shared_ptr<CSceneManager> value)
+{
+	ISceneNode::setWeakThis(value);
 
 	// root node's scene manager
-	SceneManager = this;
+	SceneManager = value;
 
 	// set scene parameters
-	Parameters.setAttribute( DEBUG_NORMAL_LENGTH, 1.f );
-	Parameters.setAttribute( DEBUG_NORMAL_COLOR, video::SColor(255, 34, 221, 221));
+	Parameters.setAttribute(DEBUG_NORMAL_LENGTH, 1.f);
+	Parameters.setAttribute(DEBUG_NORMAL_COLOR, video::SColor(255, 34, 221, 221));
 
 	if (Driver)
 		Driver->grab();
@@ -221,7 +226,7 @@ CSceneManager::CSceneManager(video::IVideoDriver* driver, io::IFileSystem* fs,
 		MeshCache->grab();
 
 	// create collision manager
-	CollisionManager = new CSceneCollisionManager(this, Driver);
+	CollisionManager = new CSceneCollisionManager(SceneManager, Driver);
 
 	// create geometry creator
 	GeometryCreator = new CGeometryCreator();
@@ -233,81 +238,81 @@ CSceneManager::CSceneManager(video::IVideoDriver* driver, io::IFileSystem* fs,
 	// shallow copies from the previous manager if there is one.
 
 	#ifdef _IRR_COMPILE_WITH_STL_LOADER_
-	MeshLoaderList.push_back(new CSTLMeshFileLoader());
+		MeshLoaderList.push_back(new CSTLMeshFileLoader());
 	#endif
 	#ifdef _IRR_COMPILE_WITH_PLY_LOADER_
-	MeshLoaderList.push_back(new CPLYMeshFileLoader(this));
+		MeshLoaderList.push_back(new CPLYMeshFileLoader(SceneManager));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_SMF_LOADER_
-	MeshLoaderList.push_back(new CSMFMeshFileLoader(Driver));
+		MeshLoaderList.push_back(new CSMFMeshFileLoader(Driver));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_OCT_LOADER_
-	MeshLoaderList.push_back(new COCTLoader(this, FileSystem));
+		MeshLoaderList.push_back(new COCTLoader(SceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_CSM_LOADER_
-	MeshLoaderList.push_back(new CCSMLoader(this, FileSystem));
+		MeshLoaderList.push_back(new CCSMLoader(SceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_LMTS_LOADER_
-	MeshLoaderList.push_back(new CLMTSMeshFileLoader(FileSystem, Driver, &Parameters));
+		MeshLoaderList.push_back(new CLMTSMeshFileLoader(FileSystem, Driver, &Parameters));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_MY3D_LOADER_
-	MeshLoaderList.push_back(new CMY3DMeshFileLoader(this, FileSystem));
+		MeshLoaderList.push_back(new CMY3DMeshFileLoader(SceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_DMF_LOADER_
-	MeshLoaderList.push_back(new CDMFLoader(this, FileSystem));
+		MeshLoaderList.push_back(new CDMFLoader(SceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_OGRE_LOADER_
-	MeshLoaderList.push_back(new COgreMeshFileLoader(FileSystem, Driver));
+		MeshLoaderList.push_back(new COgreMeshFileLoader(FileSystem, Driver));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_HALFLIFE_LOADER_
-	MeshLoaderList.push_back(new CHalflifeMDLMeshFileLoader( this ));
+		MeshLoaderList.push_back(new CHalflifeMDLMeshFileLoader(SceneManager));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_MD3_LOADER_
-	MeshLoaderList.push_back(new CMD3MeshFileLoader( this));
+		MeshLoaderList.push_back(new CMD3MeshFileLoader(SceneManager));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_LWO_LOADER_
-	MeshLoaderList.push_back(new CLWOMeshFileLoader(this, FileSystem));
+		MeshLoaderList.push_back(new CLWOMeshFileLoader(SceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_MD2_LOADER_
-	MeshLoaderList.push_back(new CMD2MeshFileLoader());
+		MeshLoaderList.push_back(new CMD2MeshFileLoader());
 	#endif
 	#ifdef _IRR_COMPILE_WITH_IRR_MESH_LOADER_
-	MeshLoaderList.push_back(new CIrrMeshFileLoader(this, FileSystem));
+		MeshLoaderList.push_back(new CIrrMeshFileLoader(SceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_BSP_LOADER_
-	MeshLoaderList.push_back(new CBSPMeshFileLoader(this, FileSystem));
+		MeshLoaderList.push_back(new CBSPMeshFileLoader(SceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_COLLADA_LOADER_
-	MeshLoaderList.push_back(new CColladaFileLoader(this, FileSystem));
+		MeshLoaderList.push_back(new CColladaFileLoader(SceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_3DS_LOADER_
-	MeshLoaderList.push_back(new C3DSMeshFileLoader(this, FileSystem));
+		MeshLoaderList.push_back(new C3DSMeshFileLoader(SceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_X_LOADER_
-	MeshLoaderList.push_back(new CXMeshFileLoader(this, FileSystem));
+		MeshLoaderList.push_back(new CXMeshFileLoader(SceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_MS3D_LOADER_
-	MeshLoaderList.push_back(new CMS3DMeshFileLoader(Driver));
+		MeshLoaderList.push_back(new CMS3DMeshFileLoader(Driver));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_OBJ_LOADER_
-	MeshLoaderList.push_back(new COBJMeshFileLoader(this, FileSystem));
+		MeshLoaderList.push_back(new COBJMeshFileLoader(SceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_B3D_LOADER_
-	MeshLoaderList.push_back(new CB3DMeshFileLoader(this));
+		MeshLoaderList.push_back(new CB3DMeshFileLoader(SceneManager));
 	#endif
 
-	// scene loaders
+		// scene loaders
 	#ifdef _IRR_COMPILE_WITH_IRR_SCENE_LOADER_
-	SceneLoaderList.push_back(new CSceneLoaderIrr(this, FileSystem));
+		SceneLoaderList.push_back(new CSceneLoaderIrr(SceneManager, FileSystem));
 	#endif
 
 
 	// factories
-	ISceneNodeFactory* factory = new CDefaultSceneNodeFactory(this);
+	ISceneNodeFactory* factory = new CDefaultSceneNodeFactory(SceneManager);
 	registerSceneNodeFactory(factory);
 	factory->drop();
 
-	ISceneNodeAnimatorFactory* animatorFactory = new CDefaultSceneNodeAnimatorFactory(this, CursorControl);
+	ISceneNodeAnimatorFactory* animatorFactory = new CDefaultSceneNodeAnimatorFactory(SceneManager, CursorControl);
 	registerSceneNodeAnimatorFactory(animatorFactory);
 	animatorFactory->drop();
 }
@@ -346,8 +351,6 @@ CSceneManager::~CSceneManager()
 	for (i=0; i<SceneLoaderList.size(); ++i)
 		SceneLoaderList[i]->drop();
 
-	if (ActiveCamera)
-		ActiveCamera->drop();
 	ActiveCamera = 0;
 
 	if (MeshCache)
@@ -477,27 +480,27 @@ io::IFileSystem* CSceneManager::getFileSystem()
 
 //! Adds a text scene node, which is able to display
 //! 2d text at a position in three dimensional space
-ITextSceneNode* CSceneManager::addTextSceneNode(gui::IGUIFont* font,
-		const wchar_t* text, video::SColor color, ISceneNode* parent,
+boost::shared_ptr<ITextSceneNode> CSceneManager::addTextSceneNode(gui::IGUIFont* font,
+		const wchar_t* text, video::SColor color, boost::shared_ptr<ISceneNode> parent,
 		const core::vector3df& position, s32 id)
 {
 	if (!font)
 		return 0;
 
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	ITextSceneNode* t = new CTextSceneNode(parent, this, id, font,
+	boost::shared_ptr<ITextSceneNode> t = boost::make_shared<CTextSceneNode>(parent, SceneManager, id, font,
 		getSceneCollisionManager(), position, text, color);
-	t->drop();
+	t->setWeakThis(t);
 
 	return t;
 }
 
 
 //! Adds a text scene node, which uses billboards
-IBillboardTextSceneNode* CSceneManager::addBillboardTextSceneNode(gui::IGUIFont* font,
-		const wchar_t* text, ISceneNode* parent,
+boost::shared_ptr<IBillboardTextSceneNode> CSceneManager::addBillboardTextSceneNode(gui::IGUIFont* font,
+		const wchar_t* text, boost::shared_ptr<ISceneNode> parent,
 		const core::dimension2d<f32>& size,
 		const core::vector3df& position, s32 id,
 		video::SColor colorTop, video::SColor colorBottom)
@@ -509,11 +512,11 @@ IBillboardTextSceneNode* CSceneManager::addBillboardTextSceneNode(gui::IGUIFont*
 		return 0;
 
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	IBillboardTextSceneNode* node = new CBillboardTextSceneNode(parent, this, id, font, text, position, size,
+	boost::shared_ptr<IBillboardTextSceneNode> node = boost::make_shared<CBillboardTextSceneNode>(parent, SceneManager, id, font, text, position, size,
 		colorTop, colorBottom);
-	node->drop();
+	node->setWeakThis(node);
 
 	return node;
 
@@ -521,21 +524,21 @@ IBillboardTextSceneNode* CSceneManager::addBillboardTextSceneNode(gui::IGUIFont*
 
 
 //! Adds a scene node, which can render a quake3 shader
-IMeshSceneNode* CSceneManager::addQuake3SceneNode(const IMeshBuffer* meshBuffer,
+boost::shared_ptr<IMeshSceneNode> CSceneManager::addQuake3SceneNode(const IMeshBuffer* meshBuffer,
 					const quake3::IShader * shader,
-					ISceneNode* parent, s32 id )
+					boost::shared_ptr<ISceneNode> parent, s32 id )
 {
 #ifdef _IRR_COMPILE_WITH_BSP_LOADER_
 	if (!shader)
 		return 0;
 
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	CQuake3ShaderSceneNode* node = new CQuake3ShaderSceneNode( parent,
-		this, id, FileSystem,
+	boost::shared_ptr<CQuake3ShaderSceneNode> node = boost::make_shared<CQuake3ShaderSceneNode>(parent,
+		SceneManager, id, FileSystem,
 		meshBuffer, shader );
-	node->drop();
+	node->setWeakThis(node);
 
 	return node;
 #else
@@ -546,17 +549,17 @@ IMeshSceneNode* CSceneManager::addQuake3SceneNode(const IMeshBuffer* meshBuffer,
 
 //! adds Volume Lighting Scene Node.
 //! the returned pointer must not be dropped.
-IVolumeLightSceneNode* CSceneManager::addVolumeLightSceneNode(
-		ISceneNode* parent, s32 id,
+boost::shared_ptr<IVolumeLightSceneNode> CSceneManager::addVolumeLightSceneNode(
+		boost::shared_ptr<ISceneNode> parent, s32 id,
 		const u32 subdivU, const u32 subdivV,
 		const video::SColor foot, const video::SColor tail,
 		const core::vector3df& position, const core::vector3df& rotation, const core::vector3df& scale)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	IVolumeLightSceneNode* node = new CVolumeLightSceneNode(parent, this, id, subdivU, subdivV, foot, tail, position, rotation, scale);
-	node->drop();
+	boost::shared_ptr<IVolumeLightSceneNode> node = boost::make_shared<CVolumeLightSceneNode>(parent, SceneManager, id, subdivU, subdivV, foot, tail, position, rotation, scale);
+	node->setWeakThis(node);
 
 	return node;
 }
@@ -564,30 +567,30 @@ IVolumeLightSceneNode* CSceneManager::addVolumeLightSceneNode(
 
 //! adds a test scene node for test purposes to the scene. It is a simple cube of (1,1,1) size.
 //! the returned pointer must not be dropped.
-IMeshSceneNode* CSceneManager::addCubeSceneNode(f32 size, ISceneNode* parent,
+boost::shared_ptr<IMeshSceneNode> CSceneManager::addCubeSceneNode(f32 size, boost::shared_ptr<ISceneNode> parent,
 		s32 id, const core::vector3df& position,
 		const core::vector3df& rotation, const core::vector3df& scale)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	IMeshSceneNode* node = new CCubeSceneNode(size, parent, this, id, position, rotation, scale);
-	node->drop();
+	boost::shared_ptr<IMeshSceneNode> node = boost::make_shared<CCubeSceneNode>(size, parent, SceneManager, id, position, rotation, scale);
+	node->setWeakThis(node);
 
 	return node;
 }
 
 
 //! Adds a sphere scene node for test purposes to the scene.
-IMeshSceneNode* CSceneManager::addSphereSceneNode(f32 radius, s32 polyCount,
-		ISceneNode* parent, s32 id, const core::vector3df& position,
+boost::shared_ptr<IMeshSceneNode> CSceneManager::addSphereSceneNode(f32 radius, s32 polyCount,
+		boost::shared_ptr<ISceneNode> parent, s32 id, const core::vector3df& position,
 		const core::vector3df& rotation, const core::vector3df& scale)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	IMeshSceneNode* node = new CSphereSceneNode(radius, polyCount, polyCount, parent, this, id, position, rotation, scale);
-	node->drop();
+	boost::shared_ptr<IMeshSceneNode> node = boost::make_shared<CSphereSceneNode>(radius, polyCount, polyCount, parent, SceneManager, id, position, rotation, scale);
+	node->setWeakThis(node);
 
 	return node;
 }
@@ -595,7 +598,7 @@ IMeshSceneNode* CSceneManager::addSphereSceneNode(f32 radius, s32 polyCount,
 
 //! adds a scene node for rendering a static mesh
 //! the returned pointer must not be dropped.
-IMeshSceneNode* CSceneManager::addMeshSceneNode(IMesh* mesh, ISceneNode* parent, s32 id,
+boost::shared_ptr<IMeshSceneNode> CSceneManager::addMeshSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent, s32 id,
 	const core::vector3df& position, const core::vector3df& rotation,
 	const core::vector3df& scale, bool alsoAddIfMeshPointerZero)
 {
@@ -603,34 +606,33 @@ IMeshSceneNode* CSceneManager::addMeshSceneNode(IMesh* mesh, ISceneNode* parent,
 		return 0;
 
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	IMeshSceneNode* node = new CMeshSceneNode(mesh, parent, this, id, position, rotation, scale);
-	node->drop();
+	boost::shared_ptr<IMeshSceneNode> node = boost::make_shared<CMeshSceneNode>(mesh, parent, SceneManager, id, position, rotation, scale);
+	node->setWeakThis(node);
 
 	return node;
 }
 
 
 //! Adds a scene node for rendering a animated water surface mesh.
-ISceneNode* CSceneManager::addWaterSurfaceSceneNode(IMesh* mesh, f32 waveHeight, f32 waveSpeed, f32 waveLength,
-	ISceneNode* parent, s32 id, const core::vector3df& position,
+boost::shared_ptr<ISceneNode> CSceneManager::addWaterSurfaceSceneNode(IMesh* mesh, f32 waveHeight, f32 waveSpeed, f32 waveLength,
+	boost::shared_ptr<ISceneNode> parent, s32 id, const core::vector3df& position,
 	const core::vector3df& rotation, const core::vector3df& scale)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	ISceneNode* node = new CWaterSurfaceSceneNode(waveHeight, waveSpeed, waveLength,
-		mesh, parent, this, id, position, rotation, scale);
-
-	node->drop();
+	boost::shared_ptr<ISceneNode> node = boost::make_shared<CWaterSurfaceSceneNode>(waveHeight, waveSpeed, waveLength,
+		mesh, parent, SceneManager, id, position, rotation, scale);
+	node->setWeakThis(node);
 
 	return node;
 }
 
 
 //! adds a scene node for rendering an animated mesh model
-IAnimatedMeshSceneNode* CSceneManager::addAnimatedMeshSceneNode(IAnimatedMesh* mesh, ISceneNode* parent, s32 id,
+boost::shared_ptr<scene::IAnimatedMeshSceneNode> CSceneManager::addAnimatedMeshSceneNode(IAnimatedMesh* mesh, boost::shared_ptr<ISceneNode> parent, s32 id,
 	const core::vector3df& position, const core::vector3df& rotation,
 	const core::vector3df& scale, bool alsoAddIfMeshPointerZero)
 {
@@ -638,11 +640,11 @@ IAnimatedMeshSceneNode* CSceneManager::addAnimatedMeshSceneNode(IAnimatedMesh* m
 		return 0;
 
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	IAnimatedMeshSceneNode* node =
-		new CAnimatedMeshSceneNode(mesh, parent, this, id, position, rotation, scale);
-	node->drop();
+	boost::shared_ptr<scene::IAnimatedMeshSceneNode> node =
+		boost::make_shared<CAnimatedMeshSceneNode>(mesh, parent, SceneManager, id, position, rotation, scale);
+	node->setWeakThis(node);
 
 	return node;
 }
@@ -651,7 +653,7 @@ IAnimatedMeshSceneNode* CSceneManager::addAnimatedMeshSceneNode(IAnimatedMesh* m
 //! Adds a scene node for rendering using a octree to the scene graph. This a good method for rendering
 //! scenes with lots of geometry. The Octree is built on the fly from the mesh, much
 //! faster then a bsp tree.
-IMeshSceneNode* CSceneManager::addOctreeSceneNode(IAnimatedMesh* mesh, ISceneNode* parent,
+boost::shared_ptr<IMeshSceneNode> CSceneManager::addOctreeSceneNode(IAnimatedMesh* mesh, boost::shared_ptr<ISceneNode> parent,
 			s32 id, s32 minimalPolysPerNode, bool alsoAddIfMeshPointerZero)
 {
 	if (!alsoAddIfMeshPointerZero && (!mesh || !mesh->getFrameCount()))
@@ -666,21 +668,21 @@ IMeshSceneNode* CSceneManager::addOctreeSceneNode(IAnimatedMesh* mesh, ISceneNod
 //! Adds a scene node for rendering using a octree. This a good method for rendering
 //! scenes with lots of geometry. The Octree is built on the fly from the mesh, much
 //! faster then a bsp tree.
-IMeshSceneNode* CSceneManager::addOctreeSceneNode(IMesh* mesh, ISceneNode* parent,
+boost::shared_ptr<IMeshSceneNode> CSceneManager::addOctreeSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent,
 		s32 id, s32 minimalPolysPerNode, bool alsoAddIfMeshPointerZero)
 {
 	if (!alsoAddIfMeshPointerZero && !mesh)
 		return 0;
 
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	COctreeSceneNode* node = new COctreeSceneNode(parent, this, id, minimalPolysPerNode);
+	boost::shared_ptr<COctreeSceneNode> node = boost::make_shared<COctreeSceneNode>(parent, SceneManager, id, minimalPolysPerNode);
+	node->setWeakThis(node);
 
 	if (node)
 	{
 		node->setMesh(mesh);
-		node->drop();
 	}
 
 	return node;
@@ -693,18 +695,18 @@ IMeshSceneNode* CSceneManager::addOctreeSceneNode(IMesh* mesh, ISceneNode* paren
 //! \param parent: Parent scene node of the camera. Can be null. If the parent moves,
 //! the camera will move too.
 //! \return Returns pointer to interface to camera
-ICameraSceneNode* CSceneManager::addCameraSceneNode(ISceneNode* parent,
+boost::shared_ptr<ICameraSceneNode> CSceneManager::addCameraSceneNode(boost::shared_ptr<ISceneNode> parent,
 	const core::vector3df& position, const core::vector3df& lookat, s32 id,
 	bool makeActive)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	ICameraSceneNode* node = new CCameraSceneNode(parent, this, id, position, lookat);
+	boost::shared_ptr<ICameraSceneNode> node = boost::make_shared<CCameraSceneNode>(parent, SceneManager, id, position, lookat);
+	node->setWeakThis(node);
 
 	if (makeActive)
 		setActiveCamera(node);
-	node->drop();
 
 	return node;
 }
@@ -713,11 +715,11 @@ ICameraSceneNode* CSceneManager::addCameraSceneNode(ISceneNode* parent,
 //! Adds a camera scene node which is able to be controlled with the mouse similar
 //! to in the 3D Software Maya by Alias Wavefront.
 //! The returned pointer must not be dropped.
-ICameraSceneNode* CSceneManager::addCameraSceneNodeMaya(ISceneNode* parent,
+boost::shared_ptr<ICameraSceneNode> CSceneManager::addCameraSceneNodeMaya(boost::shared_ptr<ISceneNode> parent,
 	f32 rotateSpeed, f32 zoomSpeed, f32 translationSpeed, s32 id, f32 distance,
 	bool makeActive)
 {
-	ICameraSceneNode* node = addCameraSceneNode(parent, core::vector3df(),
+	boost::shared_ptr<ICameraSceneNode> node = addCameraSceneNode(parent, core::vector3df(),
 			core::vector3df(0,0,100), id, makeActive);
 	if (node)
 	{
@@ -734,12 +736,12 @@ ICameraSceneNode* CSceneManager::addCameraSceneNodeMaya(ISceneNode* parent,
 
 //! Adds a camera scene node which is able to be controlled with the mouse and keys
 //! like in most first person shooters (FPS):
-ICameraSceneNode* CSceneManager::addCameraSceneNodeFPS(ISceneNode* parent,
+boost::shared_ptr<ICameraSceneNode> CSceneManager::addCameraSceneNodeFPS(boost::shared_ptr<ISceneNode> parent,
 	f32 rotateSpeed, f32 moveSpeed, s32 id, SKeyMap* keyMapArray,
 	s32 keyMapSize, bool noVerticalMovement, f32 jumpSpeed,
 	bool invertMouseY, bool makeActive)
 {
-	ICameraSceneNode* node = addCameraSceneNode(parent, core::vector3df(),
+	boost::shared_ptr<ICameraSceneNode> node = addCameraSceneNode(parent, core::vector3df(),
 			core::vector3df(0,0,100), id, makeActive);
 	if (node)
 	{
@@ -756,7 +758,7 @@ ICameraSceneNode* CSceneManager::addCameraSceneNodeFPS(ISceneNode* parent,
 	return node;
 }
 
-ICameraSceneNode* CSceneManager::addCameraSceneNodeEditor() {
+boost::shared_ptr<ICameraSceneNode> CSceneManager::addCameraSceneNodeEditor() {
 	auto camera = addCameraSceneNode();
 	camera->setName(L"Internal camera");
 
@@ -769,7 +771,7 @@ ICameraSceneNode* CSceneManager::addCameraSceneNodeEditor() {
 	return camera;
 }
 
-ICameraSceneNode* CSceneManager::addCameraSceneNodeThirdPerson(ISceneNode* parent) {
+boost::shared_ptr<ICameraSceneNode> CSceneManager::addCameraSceneNodeThirdPerson(boost::shared_ptr<ISceneNode> parent) {
 	auto camera = addCameraSceneNode(parent);
 	camera->bindTargetAndRotation(false);
 
@@ -781,14 +783,14 @@ ICameraSceneNode* CSceneManager::addCameraSceneNodeThirdPerson(ISceneNode* paren
 //! Adds a dynamic light scene node. The light will cast dynamic light on all
 //! other scene nodes in the scene, which have the material flag video::MTF_LIGHTING
 //! turned on. (This is the default setting in most scene nodes).
-ILightSceneNode* CSceneManager::addLightSceneNode(ISceneNode* parent,
+boost::shared_ptr<scene::ILightSceneNode> CSceneManager::addLightSceneNode(boost::shared_ptr<ISceneNode> parent,
 	const core::vector3df& position, video::SColorf color, f32 range, s32 id)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	ILightSceneNode* node = new CLightSceneNode(parent, this, id, position, color, range);
-	node->drop();
+	boost::shared_ptr<scene::ILightSceneNode> node = boost::make_shared<CLightSceneNode>(parent, SceneManager, id, position, color, range);
+	node->setWeakThis(node);
 
 	return node;
 }
@@ -797,17 +799,17 @@ ILightSceneNode* CSceneManager::addLightSceneNode(ISceneNode* parent,
 //! Adds a billboard scene node to the scene. A billboard is like a 3d sprite: A 2d element,
 //! which always looks to the camera. It is usually used for things like explosions, fire,
 //! lensflares and things like that.
-IBillboardSceneNode* CSceneManager::addBillboardSceneNode(ISceneNode* parent,
+boost::shared_ptr<IBillboardSceneNode> CSceneManager::addBillboardSceneNode(boost::shared_ptr<ISceneNode> parent,
 	const core::dimension2d<f32>& size, const core::vector3df& position, s32 id,
 	video::SColor colorTop, video::SColor colorBottom
 	)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	IBillboardSceneNode* node = new CBillboardSceneNode(parent, this, id, position, size,
+	boost::shared_ptr<IBillboardSceneNode> node = boost::make_shared<CBillboardSceneNode>(parent, SceneManager, id, position, size,
 		colorTop, colorBottom);
-	node->drop();
+	node->setWeakThis(node);
 
 	return node;
 }
@@ -815,59 +817,59 @@ IBillboardSceneNode* CSceneManager::addBillboardSceneNode(ISceneNode* parent,
 
 //! Adds a skybox scene node. A skybox is a big cube with 6 textures on it and
 //! is drawn around the camera position.
-ISceneNode* CSceneManager::addSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom,
+boost::shared_ptr<ISceneNode> CSceneManager::addSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom,
 	video::ITexture* left, video::ITexture* right, video::ITexture* front,
-	video::ITexture* back, ISceneNode* parent, s32 id)
+	video::ITexture* back, boost::shared_ptr<ISceneNode> parent, s32 id)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	ISceneNode* node = new CSkyBoxSceneNode(top, bottom, left, right,
-			front, back, parent, this, id);
+	boost::shared_ptr<ISceneNode> node = boost::make_shared<CSkyBoxSceneNode>(top, bottom, left, right,
+			front, back, parent, SceneManager, id);
+	node->setWeakThis(node);
 
-	node->drop();
 	return node;
 }
 
 
 //! Adds a skydome scene node. A skydome is a large (half-) sphere with a
 //! panoramic texture on it and is drawn around the camera position.
-ISceneNode* CSceneManager::addSkyDomeSceneNode(video::ITexture* texture,
+boost::shared_ptr<ISceneNode> CSceneManager::addSkyDomeSceneNode(video::ITexture* texture,
 	u32 horiRes, u32 vertRes, f32 texturePercentage,f32 spherePercentage, f32 radius,
-	ISceneNode* parent, s32 id)
+	boost::shared_ptr<ISceneNode> parent, s32 id)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	ISceneNode* node = new CSkyDomeSceneNode(texture, horiRes, vertRes,
-		texturePercentage, spherePercentage, radius, parent, this, id);
+	boost::shared_ptr<ISceneNode> node = boost::make_shared<CSkyDomeSceneNode>(texture, horiRes, vertRes,
+		texturePercentage, spherePercentage, radius, parent, SceneManager, id);
+	node->setWeakThis(node);
 
-	node->drop();
 	return node;
 }
 
 
 //! Adds a particle system scene node.
-IParticleSystemSceneNode* CSceneManager::addParticleSystemSceneNode(
-	bool withDefaultEmitter, ISceneNode* parent, s32 id,
+boost::shared_ptr<IParticleSystemSceneNode> CSceneManager::addParticleSystemSceneNode(
+	bool withDefaultEmitter, boost::shared_ptr<ISceneNode> parent, s32 id,
 	const core::vector3df& position, const core::vector3df& rotation,
 	const core::vector3df& scale)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	IParticleSystemSceneNode* node = new CParticleSystemSceneNode(withDefaultEmitter,
-		parent, this, id, position, rotation, scale);
-	node->drop();
+	boost::shared_ptr<IParticleSystemSceneNode> node = boost::make_shared<CParticleSystemSceneNode>(withDefaultEmitter,
+		parent, SceneManager, id, position, rotation, scale);
+	node->setWeakThis(node);
 
 	return node;
 }
 
 
 //! Adds a terrain scene node to the scene graph.
-ITerrainSceneNode* CSceneManager::addTerrainSceneNode(
+boost::shared_ptr<ITerrainSceneNode> CSceneManager::addTerrainSceneNode(
 	const io::path& heightMapFileName,
-	ISceneNode* parent, s32 id,
+	boost::shared_ptr<ISceneNode> parent, s32 id,
 	const core::vector3df& position,
 	const core::vector3df& rotation,
 	const core::vector3df& scale,
@@ -884,7 +886,7 @@ ITerrainSceneNode* CSceneManager::addTerrainSceneNode(
 		return 0;
 	}
 
-	ITerrainSceneNode* terrain = addTerrainSceneNode(file, parent, id,
+	boost::shared_ptr<ITerrainSceneNode> terrain = addTerrainSceneNode(file, parent, id,
 		position, rotation, scale, vertexColor, maxLOD, patchSize,
 		smoothFactor, addAlsoIfHeightmapEmpty);
 
@@ -895,9 +897,9 @@ ITerrainSceneNode* CSceneManager::addTerrainSceneNode(
 }
 
 //! Adds a terrain scene node to the scene graph.
-ITerrainSceneNode* CSceneManager::addTerrainSceneNode(
+boost::shared_ptr<ITerrainSceneNode> CSceneManager::addTerrainSceneNode(
 	io::IReadFile* heightMapFile,
-	ISceneNode* parent, s32 id,
+	boost::shared_ptr<ISceneNode> parent, s32 id,
 	const core::vector3df& position,
 	const core::vector3df& rotation,
 	const core::vector3df& scale,
@@ -907,7 +909,7 @@ ITerrainSceneNode* CSceneManager::addTerrainSceneNode(
 	bool addAlsoIfHeightmapEmpty)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
 	if (!heightMapFile && !addAlsoIfHeightmapEmpty)
 	{
@@ -915,47 +917,46 @@ ITerrainSceneNode* CSceneManager::addTerrainSceneNode(
 		return 0;
 	}
 
-	CTerrainSceneNode* node = new CTerrainSceneNode(parent, this, FileSystem, id,
+	boost::shared_ptr<CTerrainSceneNode> node = boost::make_shared<CTerrainSceneNode>(parent, SceneManager, FileSystem, id,
 		maxLOD, patchSize, position, rotation, scale);
+	node->setWeakThis(node);
 
 	if (!node->loadHeightMap(heightMapFile, vertexColor, smoothFactor))
 	{
 		if (!addAlsoIfHeightmapEmpty)
 		{
 			node->remove();
-			node->drop();
 			return 0;
 		}
 	}
 
-	node->drop();
 	return node;
 }
 
 
 //! Adds an empty scene node.
-ISceneNode* CSceneManager::addEmptySceneNode(ISceneNode* parent, s32 id)
+boost::shared_ptr<ISceneNode> CSceneManager::addEmptySceneNode(boost::shared_ptr<ISceneNode> parent, s32 id)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	ISceneNode* node = new CEmptySceneNode(parent, this, id);
-	node->drop();
+	boost::shared_ptr<ISceneNode> node = boost::make_shared<CEmptySceneNode>(parent, SceneManager, id);
+	node->setWeakThis(node);
 
 	return node;
 }
 
 
 //! Adds a dummy transformation scene node to the scene graph.
-IDummyTransformationSceneNode* CSceneManager::addDummyTransformationSceneNode(
-	ISceneNode* parent, s32 id)
+boost::shared_ptr<IDummyTransformationSceneNode> CSceneManager::addDummyTransformationSceneNode(
+	boost::shared_ptr<ISceneNode> parent, s32 id)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	IDummyTransformationSceneNode* node = new CDummyTransformationSceneNode(
-		parent, this, id);
-	node->drop();
+	boost::shared_ptr<IDummyTransformationSceneNode> node = boost::make_shared<CDummyTransformationSceneNode>(
+		parent, SceneManager, id);
+	node->setWeakThis(node);
 
 	return node;
 }
@@ -1133,16 +1134,16 @@ IAnimatedMesh* CSceneManager::addVolumeLightMesh(const io::path& name,
 //! only exists to manage all scene nodes. It is not rendered and cannot
 //! be removed from the scene.
 //! \return Returns a pointer to the root scene node.
-ISceneNode* CSceneManager::getRootSceneNode()
+boost::shared_ptr<ISceneNode> CSceneManager::getRootSceneNode()
 {
-	return this;
+	return getSharedThis();
 }
 
 
 //! Returns the current active camera.
 //! \return The active camera is returned. Note that this can be NULL, if there
 //! was no camera created yet.
-ICameraSceneNode* CSceneManager::getActiveCamera() const
+boost::shared_ptr<ICameraSceneNode> CSceneManager::getActiveCamera() const
 {
 	return ActiveCamera;
 }
@@ -1150,13 +1151,8 @@ ICameraSceneNode* CSceneManager::getActiveCamera() const
 
 //! Sets the active camera. The previous active camera will be deactivated.
 //! \param camera: The new camera which should be active.
-void CSceneManager::setActiveCamera(ICameraSceneNode* camera)
+void CSceneManager::setActiveCamera(boost::shared_ptr<ICameraSceneNode> camera)
 {
-	if (camera)
-		camera->grab();
-	if (ActiveCamera)
-		ActiveCamera->drop();
-
 	ActiveCamera = camera;
 }
 
@@ -1178,9 +1174,9 @@ const core::aabbox3d<f32>& CSceneManager::getBoundingBox() const
 
 
 //! returns if node is culled
-bool CSceneManager::isCulled(const ISceneNode* node) const
+bool CSceneManager::isCulled(const boost::shared_ptr<ISceneNode> node) const
 {
-	const ICameraSceneNode* cam = getActiveCamera();
+	const boost::shared_ptr<ICameraSceneNode> cam = getActiveCamera();
 	if (!cam)
 	{
 		_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
@@ -1191,7 +1187,7 @@ bool CSceneManager::isCulled(const ISceneNode* node) const
 	// has occlusion query information
 	if (node->getAutomaticCulling() & scene::EAC_OCC_QUERY)
 	{
-		result = (Driver->getOcclusionQueryResult(const_cast<ISceneNode*>(node))==0);
+		result = (Driver->getOcclusionQueryResult(node)==0);
 	}
 
 	// can be seen by a bounding box ?
@@ -1246,7 +1242,7 @@ bool CSceneManager::isCulled(const ISceneNode* node) const
 
 
 //! registers a node for rendering it at a specific time.
-u32 CSceneManager::registerNodeForRendering(ISceneNode* node, E_SCENE_NODE_RENDER_PASS pass)
+u32 CSceneManager::registerNodeForRendering(boost::shared_ptr<ISceneNode> node, E_SCENE_NODE_RENDER_PASS pass)
 {
 	u32 taken = 0;
 
@@ -1481,7 +1477,7 @@ void CSceneManager::drawAll()
 			LightManager->OnRenderPassPreRender(CurrentRendertime);
 			for (i=0; i<SkyBoxList.size(); ++i)
 			{
-				ISceneNode* node = SkyBoxList[i];
+				boost::shared_ptr<ISceneNode> node = SkyBoxList[i];
 				LightManager->OnNodePreRender(node);
 				node->render();
 				LightManager->OnNodePostRender(node);
@@ -1512,7 +1508,7 @@ void CSceneManager::drawAll()
 			LightManager->OnRenderPassPreRender(CurrentRendertime);
 			for (i=0; i<SolidNodeList.size(); ++i)
 			{
-				ISceneNode* node = SolidNodeList[i].Node;
+				boost::shared_ptr<ISceneNode> node = SolidNodeList[i].Node;
 				LightManager->OnNodePreRender(node);
 				node->render();
 				LightManager->OnNodePostRender(node);
@@ -1543,7 +1539,7 @@ void CSceneManager::drawAll()
 			LightManager->OnRenderPassPreRender(CurrentRendertime);
 			for (i=0; i<ShadowNodeList.size(); ++i)
 			{
-				ISceneNode* node = ShadowNodeList[i];
+				boost::shared_ptr<ISceneNode> node = ShadowNodeList[i];
 				LightManager->OnNodePreRender(node);
 				node->render();
 				LightManager->OnNodePostRender(node);
@@ -1577,7 +1573,7 @@ void CSceneManager::drawAll()
 
 			for (i=0; i<TransparentNodeList.size(); ++i)
 			{
-				ISceneNode* node = TransparentNodeList[i].Node;
+				boost::shared_ptr<ISceneNode> node = TransparentNodeList[i].Node;
 				LightManager->OnNodePreRender(node);
 				node->render();
 				LightManager->OnNodePostRender(node);
@@ -1611,7 +1607,7 @@ void CSceneManager::drawAll()
 
 			for (i=0; i<TransparentEffectNodeList.size(); ++i)
 			{
-				ISceneNode* node = TransparentEffectNodeList[i].Node;
+				boost::shared_ptr<ISceneNode> node = TransparentEffectNodeList[i].Node;
 				LightManager->OnNodePreRender(node);
 				node->render();
 				LightManager->OnNodePostRender(node);
@@ -1717,19 +1713,19 @@ ISceneNodeAnimator* CSceneManager::createTextureAnimator(const core::array<video
 //! some time automaticly.
 ISceneNodeAnimator* CSceneManager::createDeleteAnimator(u32 when)
 {
-	return new CSceneNodeAnimatorDelete(this, os::Timer::getTime() + when);
+	return new CSceneNodeAnimatorDelete(SceneManager, os::Timer::getTime() + when);
 }
 
 
 //! Creates a special scene node animator for doing automatic collision detection
 //! and response.
 ISceneNodeAnimatorCollisionResponse* CSceneManager::createCollisionResponseAnimator(
-	ITriangleSelector* world, ISceneNode* sceneNode, const core::vector3df& ellipsoidRadius,
+	ITriangleSelector* world, boost::shared_ptr<ISceneNode> sceneNode, const core::vector3df& ellipsoidRadius,
 	const core::vector3df& gravityPerSecond,
 	const core::vector3df& ellipsoidTranslation, f32 slidingValue)
 {
 	ISceneNodeAnimatorCollisionResponse* anim = new
-		CSceneNodeAnimatorCollisionResponse(this, world, sceneNode,
+		CSceneNodeAnimatorCollisionResponse(SceneManager, world, sceneNode,
 			ellipsoidRadius, gravityPerSecond,
 			ellipsoidTranslation, slidingValue);
 
@@ -1819,7 +1815,7 @@ IMeshManipulator* CSceneManager::getMeshManipulator()
 
 
 //! Creates a simple ITriangleSelector, based on a mesh.
-ITriangleSelector* CSceneManager::createTriangleSelector(IMesh* mesh, ISceneNode* node)
+ITriangleSelector* CSceneManager::createTriangleSelector(IMesh* mesh, boost::shared_ptr<ISceneNode> node)
 {
 	if (!mesh)
 		return 0;
@@ -1830,7 +1826,7 @@ ITriangleSelector* CSceneManager::createTriangleSelector(IMesh* mesh, ISceneNode
 
 //! Creates a simple and updatable ITriangleSelector, based on a the mesh owned by an
 //! animated scene node
-ITriangleSelector* CSceneManager::createTriangleSelector(IAnimatedMeshSceneNode* node)
+ITriangleSelector* CSceneManager::createTriangleSelector(boost::shared_ptr<scene::IAnimatedMeshSceneNode> node)
 {
 	if (!node || !node->getMesh())
 		return 0;
@@ -1840,7 +1836,7 @@ ITriangleSelector* CSceneManager::createTriangleSelector(IAnimatedMeshSceneNode*
 
 
 //! Creates a simple dynamic ITriangleSelector, based on a axis aligned bounding box.
-ITriangleSelector* CSceneManager::createTriangleSelectorFromBoundingBox(ISceneNode* node)
+ITriangleSelector* CSceneManager::createTriangleSelectorFromBoundingBox(boost::shared_ptr<ISceneNode> node)
 {
 	if (!node)
 		return 0;
@@ -1851,7 +1847,7 @@ ITriangleSelector* CSceneManager::createTriangleSelectorFromBoundingBox(ISceneNo
 
 //! Creates a simple ITriangleSelector, based on a mesh.
 ITriangleSelector* CSceneManager::createOctreeTriangleSelector(IMesh* mesh,
-							ISceneNode* node, s32 minimalPolysPerNode)
+							boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode)
 {
 	if (!mesh)
 		return 0;
@@ -1869,7 +1865,7 @@ IMetaTriangleSelector* CSceneManager::createMetaTriangleSelector()
 
 //! Creates a triangle selector which can select triangles from a terrain scene node
 ITriangleSelector* CSceneManager::createTerrainTriangleSelector(
-	ITerrainSceneNode* node, s32 LOD)
+	boost::shared_ptr<ITerrainSceneNode> node, s32 LOD)
 {
 	return new CTerrainTriangleSelector(node, LOD);
 }
@@ -1877,12 +1873,11 @@ ITriangleSelector* CSceneManager::createTerrainTriangleSelector(
 
 
 //! Adds a scene node to the deletion queue.
-void CSceneManager::addToDeletionQueue(ISceneNode* node)
+void CSceneManager::addToDeletionQueue(boost::shared_ptr<ISceneNode> node)
 {
 	if (!node)
 		return;
 
-	node->grab();
 	DeletionList.push_back(node);
 }
 
@@ -1896,7 +1891,6 @@ void CSceneManager::clearDeletionList()
 	for (u32 i=0; i<DeletionList.size(); ++i)
 	{
 		DeletionList[i]->remove();
-		DeletionList[i]->drop();
 	}
 
 	DeletionList.clear();
@@ -1904,7 +1898,7 @@ void CSceneManager::clearDeletionList()
 
 
 //! Returns the first scene node with the specified name.
-ISceneNode* CSceneManager::getSceneNodeFromName(const char* name, ISceneNode* start)
+boost::shared_ptr<ISceneNode> CSceneManager::getSceneNodeFromName(const char* name, boost::shared_ptr<ISceneNode> start)
 {
 	if (start == 0)
 		start = getRootSceneNode();
@@ -1912,7 +1906,7 @@ ISceneNode* CSceneManager::getSceneNodeFromName(const char* name, ISceneNode* st
 	if (!strcmp(start->getName(),name))
 		return start;
 
-	ISceneNode* node = 0;
+	boost::shared_ptr<ISceneNode> node = 0;
 
 	const ISceneNodeList& list = start->getChildren();
 	ISceneNodeList::ConstIterator it = list.begin();
@@ -1928,7 +1922,7 @@ ISceneNode* CSceneManager::getSceneNodeFromName(const char* name, ISceneNode* st
 
 
 //! Returns the first scene node with the specified id.
-ISceneNode* CSceneManager::getSceneNodeFromId(s32 id, ISceneNode* start)
+boost::shared_ptr<ISceneNode> CSceneManager::getSceneNodeFromId(s32 id, boost::shared_ptr<ISceneNode> start)
 {
 	if (start == 0)
 		start = getRootSceneNode();
@@ -1936,7 +1930,7 @@ ISceneNode* CSceneManager::getSceneNodeFromId(s32 id, ISceneNode* start)
 	if (start->getID() == id)
 		return start;
 
-	ISceneNode* node = 0;
+	boost::shared_ptr<ISceneNode> node = 0;
 
 	const ISceneNodeList& list = start->getChildren();
 	ISceneNodeList::ConstIterator it = list.begin();
@@ -1952,7 +1946,7 @@ ISceneNode* CSceneManager::getSceneNodeFromId(s32 id, ISceneNode* start)
 
 
 //! Returns the first scene node with the specified type.
-ISceneNode* CSceneManager::getSceneNodeFromType(scene::ESCENE_NODE_TYPE type, ISceneNode* start)
+boost::shared_ptr<ISceneNode> CSceneManager::getSceneNodeFromType(scene::ESCENE_NODE_TYPE type, boost::shared_ptr<ISceneNode> start)
 {
 	if (start == 0)
 		start = getRootSceneNode();
@@ -1960,7 +1954,7 @@ ISceneNode* CSceneManager::getSceneNodeFromType(scene::ESCENE_NODE_TYPE type, IS
 	if (start->getType() == type || ESNT_ANY == type)
 		return start;
 
-	ISceneNode* node = 0;
+	boost::shared_ptr<ISceneNode> node = 0;
 
 	const ISceneNodeList& list = start->getChildren();
 	ISceneNodeList::ConstIterator it = list.begin();
@@ -1976,7 +1970,7 @@ ISceneNode* CSceneManager::getSceneNodeFromType(scene::ESCENE_NODE_TYPE type, IS
 
 
 //! returns scene nodes by type.
-void CSceneManager::getSceneNodesFromType(ESCENE_NODE_TYPE type, core::array<scene::ISceneNode*>& outNodes, ISceneNode* start)
+void CSceneManager::getSceneNodesFromType(ESCENE_NODE_TYPE type, core::array<boost::shared_ptr<scene::ISceneNode>>& outNodes, boost::shared_ptr<ISceneNode> start)
 {
 	if (start == 0)
 		start = getRootSceneNode();
@@ -1999,7 +1993,7 @@ void CSceneManager::getSceneNodesFromType(ESCENE_NODE_TYPE type, core::array<sce
 bool CSceneManager::postEventFromUser(const SEvent& event)
 {
 	bool ret = false;
-	ICameraSceneNode* cam = getActiveCamera();
+	boost::shared_ptr<ICameraSceneNode> cam = getActiveCamera();
 	if (cam)
 		ret = cam->OnEvent(event);
 
@@ -2048,12 +2042,13 @@ IMeshCache* CSceneManager::getMeshCache()
 
 
 //! Creates a new scene manager.
-ISceneManager* CSceneManager::createNewSceneManager(bool cloneContent)
+boost::shared_ptr<scene::ISceneManager> CSceneManager::createNewSceneManager(bool cloneContent)
 {
-	CSceneManager* manager = new CSceneManager(Driver, FileSystem, CursorControl, MeshCache, GUIEnvironment);
+	boost::shared_ptr<CSceneManager> manager = boost::make_shared<CSceneManager>(Driver, FileSystem, CursorControl, MeshCache, GUIEnvironment);
+	manager->setWeakThis(manager);
 
 	if (cloneContent)
-		manager->cloneMembers(this, manager);
+		manager->cloneMembers(getSharedThis(), manager);
 
 	return manager;
 }
@@ -2130,7 +2125,7 @@ ISceneNodeAnimatorFactory* CSceneManager::getSceneNodeAnimatorFactory(u32 index)
 
 //! Saves the current scene into a file.
 //! \param filename: Name of the file .
-bool CSceneManager::saveScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer, ISceneNode* node)
+bool CSceneManager::saveScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer, boost::shared_ptr<ISceneNode> node)
 {
 	bool ret = false;
 	io::IWriteFile* file = FileSystem->createAndWriteFile(filename);
@@ -2148,7 +2143,7 @@ bool CSceneManager::saveScene(const io::path& filename, ISceneUserDataSerializer
 
 
 //! Saves the current scene into a file.
-bool CSceneManager::saveScene(io::IWriteFile* file, ISceneUserDataSerializer* userDataSerializer, ISceneNode* node)
+bool CSceneManager::saveScene(io::IWriteFile* file, ISceneUserDataSerializer* userDataSerializer, boost::shared_ptr<ISceneNode> node)
 {
 	if (!file)
 	{
@@ -2171,13 +2166,13 @@ bool CSceneManager::saveScene(io::IWriteFile* file, ISceneUserDataSerializer* us
 
 
 //! Saves the current scene into a file.
-bool CSceneManager::saveScene(io::IXMLWriter* writer, const io::path& currentPath, ISceneUserDataSerializer* userDataSerializer, ISceneNode* node)
+bool CSceneManager::saveScene(io::IXMLWriter* writer, const io::path& currentPath, ISceneUserDataSerializer* userDataSerializer, boost::shared_ptr<ISceneNode> node)
 {
 	if (!writer)
 		return false;
 
 	if (!node)
-		node=this;
+		node=getSharedThis();
 
 	writer->writeXMLHeader();
 	writeSceneNode(writer, node, userDataSerializer, currentPath.c_str(), true);
@@ -2187,7 +2182,7 @@ bool CSceneManager::saveScene(io::IXMLWriter* writer, const io::path& currentPat
 
 
 //! Loads a scene.
-bool CSceneManager::loadScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer, ISceneNode* rootNode)
+bool CSceneManager::loadScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer, boost::shared_ptr<ISceneNode> rootNode)
 {
 	io::IReadFile* file = FileSystem->createAndOpenFile(filename);
 	if (!file)
@@ -2204,7 +2199,7 @@ bool CSceneManager::loadScene(const io::path& filename, ISceneUserDataSerializer
 
 
 //! Loads a scene. Note that the current scene is not cleared before.
-bool CSceneManager::loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer, ISceneNode* rootNode)
+bool CSceneManager::loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer, boost::shared_ptr<ISceneNode> rootNode)
 {
 	if (!file)
 	{
@@ -2228,20 +2223,20 @@ bool CSceneManager::loadScene(io::IReadFile* file, ISceneUserDataSerializer* use
 
 
 //! writes a scene node
-void CSceneManager::writeSceneNode(io::IXMLWriter* writer, ISceneNode* node, ISceneUserDataSerializer* userDataSerializer,
+void CSceneManager::writeSceneNode(io::IXMLWriter* writer, boost::shared_ptr<ISceneNode> node, ISceneUserDataSerializer* userDataSerializer,
 		const fschar_t* currentPath, bool init)
 {
 	if (!writer || !node || node->isDebugObject())
 		return;
 
 	const wchar_t* name;
-	ISceneNode* tmpNode=node;
+	boost::shared_ptr<ISceneNode> tmpNode=node;
 
 	if (init)
 	{
 		name = IRR_XML_FORMAT_SCENE.c_str();
 		writer->writeElement(name, false);
-		node=this;
+		node= getSharedThis();
 	}
 	else
 	{
@@ -2341,7 +2336,7 @@ void CSceneManager::writeSceneNode(io::IXMLWriter* writer, ISceneNode* node, ISc
 
 	// write children once root node is written
 	// if parent is not scene manager, we need to write out node first
-	if (init && (node != this))
+	if (init && (node.get() != this))
 	{
 		writeSceneNode(writer, node, userDataSerializer, currentPath);
 	}
@@ -2372,9 +2367,9 @@ const c8* CSceneManager::getSceneNodeTypeName(ESCENE_NODE_TYPE type)
 }
 
 //! Adds a scene node to the scene by name
-ISceneNode* CSceneManager::addSceneNode(const char* sceneNodeTypeName, ISceneNode* parent)
+boost::shared_ptr<ISceneNode> CSceneManager::addSceneNode(const char* sceneNodeTypeName, boost::shared_ptr<ISceneNode> parent)
 {
-	ISceneNode* node = 0;
+	boost::shared_ptr<ISceneNode> node = 0;
 
 	for (s32 i=(s32)SceneNodeFactoryList.size()-1; i>=0 && !node; --i)
 			node = SceneNodeFactoryList[i]->addSceneNode(sceneNodeTypeName, parent);
@@ -2382,7 +2377,7 @@ ISceneNode* CSceneManager::addSceneNode(const char* sceneNodeTypeName, ISceneNod
 	return node;
 }
 
-ISceneNodeAnimator* CSceneManager::createSceneNodeAnimator(const char* typeName, ISceneNode* target)
+ISceneNodeAnimator* CSceneManager::createSceneNodeAnimator(const char* typeName, boost::shared_ptr<ISceneNode> target)
 {
 	ISceneNodeAnimator *animator = 0;
 
@@ -2502,19 +2497,19 @@ IMeshWriter* CSceneManager::createMeshWriter(EMESH_WRITER_TYPE type)
 #endif
 	case EMWT_COLLADA:
 #ifdef _IRR_COMPILE_WITH_COLLADA_WRITER_
-		return new CColladaMeshWriter(this, Driver, FileSystem);
+		return new CColladaMeshWriter(SceneManager, Driver, FileSystem);
 #else
 		return 0;
 #endif
 	case EMWT_STL:
 #ifdef _IRR_COMPILE_WITH_STL_WRITER_
-		return new CSTLMeshWriter(this);
+		return new CSTLMeshWriter(SceneManager);
 #else
 		return 0;
 #endif
 	case EMWT_OBJ:
 #ifdef _IRR_COMPILE_WITH_OBJ_WRITER_
-		return new COBJMeshWriter(this, FileSystem);
+		return new COBJMeshWriter(SceneManager, FileSystem);
 #else
 		return 0;
 #endif
@@ -2532,11 +2527,14 @@ IMeshWriter* CSceneManager::createMeshWriter(EMESH_WRITER_TYPE type)
 
 
 // creates a scenemanager
-ISceneManager* createSceneManager(video::IVideoDriver* driver,
+boost::shared_ptr<scene::ISceneManager> createSceneManager(video::IVideoDriver* driver,
 		io::IFileSystem* fs, gui::ICursorControl* cursorcontrol,
 		gui::IGUIEnvironment *guiEnvironment)
 {
-	return new CSceneManager(driver, fs, cursorcontrol, 0, guiEnvironment );
+	boost::shared_ptr<scene::CSceneManager> sceneManager = boost::make_shared<CSceneManager>(driver, fs, cursorcontrol, nullptr, guiEnvironment);
+	sceneManager->setWeakThis(sceneManager);
+
+	return sceneManager;
 }
 
 

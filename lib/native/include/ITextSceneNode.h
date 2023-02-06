@@ -18,7 +18,7 @@ class ITextSceneNode : public ISceneNode
 public:
 
 	//! constructor
-	ITextSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
+	ITextSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 		const core::vector3df& position = core::vector3df(0,0,0))
 			: ISceneNode(parent, mgr, id, position) {}
 

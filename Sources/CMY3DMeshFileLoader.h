@@ -72,7 +72,7 @@ struct SMyMaterialHeader
 class CMY3DMeshFileLoader : public IMeshLoader
 {
 public:
-	CMY3DMeshFileLoader(ISceneManager *scmgr, io::IFileSystem* fs);
+	CMY3DMeshFileLoader(boost::shared_ptr<ISceneManager> scmgr, io::IFileSystem* fs);
 	virtual ~CMY3DMeshFileLoader();
 
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
@@ -81,13 +81,13 @@ public:
 
 	//! getting access to the nodes (with transparent material), creating
 	//! while loading .my3d file
-	const core::array<ISceneNode*>& getChildNodes() const;
+	const core::array<boost::shared_ptr<ISceneNode>>& getChildNodes() const;
 
 private:
 
 	video::ITexture* readEmbeddedLightmap(io::IReadFile* file, char* namebuf);
 
-	scene::ISceneManager* SceneManager;
+	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IFileSystem* FileSystem;
 
 	struct SMyMaterialEntry
@@ -120,7 +120,7 @@ private:
 	core::array<SMyMaterialEntry>   MaterialEntry;
 	core::array<SMyMeshBufferEntry> MeshBufferEntry;
 
-	core::array<ISceneNode*> ChildNodes;
+	core::array<boost::shared_ptr<ISceneNode>> ChildNodes;
 };
 
 

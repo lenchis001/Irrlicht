@@ -20,7 +20,7 @@ namespace scene
 	public:
 
 		//! constructor
-		IVolumeLightSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
+		IVolumeLightSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 			const core::vector3df& position,
 			const core::vector3df& rotation,
 			const core::vector3df& scale)

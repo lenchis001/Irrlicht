@@ -32,7 +32,7 @@ namespace scene
 
 CSkyDomeSceneNode::CSkyDomeSceneNode(video::ITexture* sky, u32 horiRes, u32 vertRes,
 		f32 texturePercentage, f32 spherePercentage, f32 radius,
-		ISceneNode* parent, ISceneManager* mgr, s32 id)
+		boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id)
 	: ISceneNode(parent, mgr, id), Buffer(0),
 	  HorizontalResolution(horiRes), VerticalResolution(vertRes),
 	  TexturePercentage(texturePercentage),
@@ -134,7 +134,7 @@ void CSkyDomeSceneNode::generateMesh()
 void CSkyDomeSceneNode::render()
 {
 	video::IVideoDriver* driver = SceneManager->getVideoDriver();
-	scene::ICameraSceneNode* camera = SceneManager->getActiveCamera();
+	boost::shared_ptr<scene::ICameraSceneNode> camera = SceneManager->getActiveCamera();
 
 	if (!camera || !driver)
 		return;
@@ -188,7 +188,7 @@ void CSkyDomeSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
 	{
-		SceneManager->registerNodeForRendering(this, ESNRP_SKY_BOX );
+		SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_SKY_BOX );
 	}
 
 	ISceneNode::OnRegisterSceneNode();
@@ -242,20 +242,18 @@ void CSkyDomeSceneNode::deserializeAttributes(io::IAttributes* in, io::SAttribut
 }
 
 //! Creates a clone of this scene node and its children.
-ISceneNode* CSkyDomeSceneNode::clone(ISceneNode* newParent, ISceneManager* newManager)
+boost::shared_ptr<ISceneNode> CSkyDomeSceneNode::clone(boost::shared_ptr<ISceneNode> newParent, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	if (!newParent)
-		newParent = Parent;
+		newParent = Parent.lock();
 	if (!newManager)
 		newManager = SceneManager;
 
-	CSkyDomeSceneNode* nb = new CSkyDomeSceneNode(Buffer->Material.TextureLayer[0].Texture, HorizontalResolution, VerticalResolution, TexturePercentage,
+	boost::shared_ptr<CSkyDomeSceneNode> nb = boost::make_shared<CSkyDomeSceneNode>(Buffer->Material.TextureLayer[0].Texture, HorizontalResolution, VerticalResolution, TexturePercentage,
 		SpherePercentage, Radius, newParent, newManager, ID);
 
-	nb->cloneMembers(this, newManager);
+	nb->cloneMembers(getSharedThis(), newManager);
 
-	if ( newParent )
-		nb->drop();
 	return nb;
 }
 

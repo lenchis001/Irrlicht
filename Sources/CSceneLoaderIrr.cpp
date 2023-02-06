@@ -16,7 +16,7 @@ namespace scene
 {
 
 //! Constructor
-CSceneLoaderIrr::CSceneLoaderIrr(ISceneManager *smgr, io::IFileSystem* fs)
+CSceneLoaderIrr::CSceneLoaderIrr(boost::shared_ptr<ISceneManager> smgr, io::IFileSystem* fs)
  : SceneManager(smgr), FileSystem(fs),
    IRR_XML_FORMAT_SCENE(L"irr_scene"), IRR_XML_FORMAT_NODE(L"node"), IRR_XML_FORMAT_NODE_ATTR_TYPE(L"type"),
    IRR_XML_FORMAT_ATTRIBUTES(L"attributes"), IRR_XML_FORMAT_MATERIALS(L"materials"),
@@ -46,7 +46,7 @@ bool CSceneLoaderIrr::isALoadableFileFormat(io::IReadFile *file) const
 
 //! Loads the scene into the scene manager.
 bool CSceneLoaderIrr::loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer,
-	ISceneNode* rootNode)
+	boost::shared_ptr<ISceneNode> rootNode)
 {
 	if (!file)
 	{
@@ -81,13 +81,13 @@ bool CSceneLoaderIrr::loadScene(io::IReadFile* file, ISceneUserDataSerializer* u
 
 
 //! Reads the next node
-void CSceneLoaderIrr::readSceneNode(io::IXMLReader* reader, ISceneNode* parent,
+void CSceneLoaderIrr::readSceneNode(io::IXMLReader* reader, boost::shared_ptr<ISceneNode> parent,
 	ISceneUserDataSerializer* userDataSerializer)
 {
 	if (!reader)
 		return;
 
-	scene::ISceneNode* node = 0;
+	boost::shared_ptr<scene::ISceneNode> node = 0;
 
 	if (!parent && IRR_XML_FORMAT_SCENE==reader->getNodeName())
 		node = SceneManager->getRootSceneNode();
@@ -165,7 +165,7 @@ void CSceneLoaderIrr::readSceneNode(io::IXMLReader* reader, ISceneNode* parent,
 }
 
 //! reads materials of a node
-void CSceneLoaderIrr::readMaterials(io::IXMLReader* reader, ISceneNode* node)
+void CSceneLoaderIrr::readMaterials(io::IXMLReader* reader, boost::shared_ptr<ISceneNode> node)
 {
 	u32 nr = 0;
 
@@ -204,7 +204,7 @@ void CSceneLoaderIrr::readMaterials(io::IXMLReader* reader, ISceneNode* node)
 
 
 //! reads animators of a node
-void CSceneLoaderIrr::readAnimators(io::IXMLReader* reader, ISceneNode* node)
+void CSceneLoaderIrr::readAnimators(io::IXMLReader* reader, boost::shared_ptr<ISceneNode> node)
 {
 	while(reader->read())
 	{
@@ -246,7 +246,7 @@ void CSceneLoaderIrr::readAnimators(io::IXMLReader* reader, ISceneNode* node)
 
 
 //! reads user data of a node
-void CSceneLoaderIrr::readUserData(io::IXMLReader* reader, ISceneNode* node, ISceneUserDataSerializer* userDataSerializer)
+void CSceneLoaderIrr::readUserData(io::IXMLReader* reader, boost::shared_ptr<ISceneNode> node, ISceneUserDataSerializer* userDataSerializer)
 {
 	while(reader->read())
 	{

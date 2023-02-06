@@ -63,7 +63,7 @@ namespace scene
 	{
 	public:
 		//! constructor
-		COCTLoader(ISceneManager* smgr, io::IFileSystem* fs);
+		COCTLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs);
 
 		//! destructor
 		virtual ~COCTLoader();
@@ -79,7 +79,7 @@ namespace scene
 		virtual IAnimatedMesh* createMesh(io::IReadFile* file);
 
 		void OCTLoadLights(io::IReadFile* file,
-				ISceneNode * parent = 0, f32 radius = 500.0f,
+				boost::shared_ptr<ISceneNode>  parent = 0, f32 radius = 500.0f,
 				f32 intensityScale = 0.0000001f*2.5,
 				bool rewind = true);
 
@@ -130,7 +130,7 @@ namespace scene
 			u32 intensity;
 		};
 
-		ISceneManager* SceneManager;
+		boost::shared_ptr<scene::ISceneManager> SceneManager;
 		io::IFileSystem* FileSystem;
 	};
 

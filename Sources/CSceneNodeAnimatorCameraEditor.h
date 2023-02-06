@@ -19,9 +19,9 @@ namespace irr::scene {
 		bool isEventReceiverEnabled() const override;
 
 		bool OnEvent(const SEvent& event) override;
-		void animateNode(ISceneNode* node, u32 timeMs) override;
-		ISceneNodeAnimator* createClone(ISceneNode* node,
-			ISceneManager* newManager) override;
+		void animateNode(boost::shared_ptr<ISceneNode> node, u32 timeMs) override;
+		ISceneNodeAnimator* createClone(boost::shared_ptr<ISceneNode> node,
+			boost::shared_ptr<scene::ISceneManager> newManager) override;
 	private:
 		void _updateTargetPositionData();
 

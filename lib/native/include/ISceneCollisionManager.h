@@ -40,7 +40,7 @@ namespace scene
 		\return True if a collision was detected and false if not. */
 		virtual bool getCollisionPoint(const core::line3d<f32>& ray,
 				ITriangleSelector* selector, core::vector3df& outCollisionPoint,
-				core::triangle3df& outTriangle, ISceneNode*& outNode) =0;
+				core::triangle3df& outTriangle, boost::shared_ptr<ISceneNode>& outNode) =0;
 
 		//! Collides a moving ellipsoid with a 3d world with gravity and returns the resulting new position of the ellipsoid.
 		/** This can be used for moving a character in a 3d world: The
@@ -73,7 +73,7 @@ namespace scene
 			core::triangle3df& triout,
 			core::vector3df& hitPosition,
 			bool& outFalling,
-			ISceneNode*& outNode,
+			boost::shared_ptr<ISceneNode>& outNode,
 			f32 slidingSpeed = 0.0005f,
 			const core::vector3df& gravityDirectionAndSpeed
 			= core::vector3df(0.0f, 0.0f, 0.0f)) = 0;
@@ -86,7 +86,7 @@ namespace scene
 		at a length of the far value of the camera at a position which
 		would be behind the 2d screen coodinates. */
 		virtual core::line3d<f32> getRayFromScreenCoordinates(
-			const core::position2d<s32>& pos, ICameraSceneNode* camera = 0) = 0;
+			const core::position2d<s32>& pos, boost::shared_ptr<ICameraSceneNode> camera = 0) = 0;
 
 		//! Calculates 2d screen position from a 3d position.
 		/** \param pos: 3D position in world space to be transformed
@@ -104,7 +104,7 @@ namespace scene
 		method for drawing a decorator over a 3d object, it will be
 		clipped by the screen borders. */
 		virtual core::position2d<s32> getScreenCoordinatesFrom3DPosition(
-			const core::vector3df& pos, ICameraSceneNode* camera=0, bool useViewPort=false) = 0;
+			const core::vector3df& pos, boost::shared_ptr<ICameraSceneNode> camera=0, bool useViewPort=false) = 0;
 
 		//! Gets the scene node, which is currently visible under the given screencoordinates, viewed from the currently active camera.
 		/** The collision tests are done using a bounding box for each
@@ -122,8 +122,8 @@ namespace scene
 		\return Visible scene node under screen coordinates with
 		matching bits in its id. If there is no scene node under this
 		position, 0 is returned. */
-		virtual ISceneNode* getSceneNodeFromScreenCoordinatesBB(const core::position2d<s32>& pos,
-				s32 idBitMask=0, bool bNoDebugObjects=false, ISceneNode* root=0) =0;
+		virtual boost::shared_ptr<ISceneNode> getSceneNodeFromScreenCoordinatesBB(const core::position2d<s32>& pos,
+				s32 idBitMask=0, bool bNoDebugObjects=false, boost::shared_ptr<ISceneNode> root=0) =0;
 
 		//! Returns the nearest scene node which collides with a 3d ray and whose id matches a bitmask.
 		/** The collision tests are done using a bounding box for each
@@ -138,8 +138,8 @@ namespace scene
 		\return Scene node nearest to ray.start, which collides with
 		the ray and matches the idBitMask, if the mask is not null. If
 		no scene node is found, 0 is returned. */
-		virtual ISceneNode* getSceneNodeFromRayBB(const core::line3d<f32>& ray,
-							s32 idBitMask=0, bool bNoDebugObjects=false, ISceneNode* root=0) =0;
+		virtual boost::shared_ptr<ISceneNode> getSceneNodeFromRayBB(const core::line3d<f32>& ray,
+							s32 idBitMask=0, bool bNoDebugObjects=false, boost::shared_ptr<ISceneNode> root=0) =0;
 
 		//! Get the scene node, which the given camera is looking at and whose id matches the bitmask.
 		/** A ray is simply casted from the position of the camera to
@@ -158,7 +158,7 @@ namespace scene
 		\return Scene node nearest to the camera, which collides with
 		the ray and matches the idBitMask, if the mask is not null. If
 		no scene node is found, 0 is returned. */
-		virtual ISceneNode* getSceneNodeFromCameraBB(ICameraSceneNode* camera,
+		virtual boost::shared_ptr<ISceneNode> getSceneNodeFromCameraBB(boost::shared_ptr<ICameraSceneNode> camera,
 			s32 idBitMask=0, bool bNoDebugObjects = false) = 0;
 
 		//! Perform a ray/box and ray/triangle collision check on a heirarchy of scene nodes.
@@ -188,12 +188,12 @@ namespace scene
 		Debug objects are scene nodes with IsDebugObject() = true.
 		\return Returns the scene node containing the hit triangle nearest to ray.start.
 		If no collision is detected, then 0 is returned. */
-		virtual ISceneNode* getSceneNodeAndCollisionPointFromRay(
+		virtual boost::shared_ptr<ISceneNode> getSceneNodeAndCollisionPointFromRay(
 								core::line3df ray,
 								core::vector3df & outCollisionPoint,
 								core::triangle3df & outTriangle,
 								s32 idBitMask = 0,
-								ISceneNode * collisionRootNode = 0,
+								boost::shared_ptr<ISceneNode>  collisionRootNode = 0,
 								bool noDebugObjects = false) = 0;
 	};
 

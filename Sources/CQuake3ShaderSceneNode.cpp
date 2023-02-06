@@ -27,7 +27,7 @@ using namespace quake3;
 /*!
 */
 CQuake3ShaderSceneNode::CQuake3ShaderSceneNode(
-			scene::ISceneNode* parent, scene::ISceneManager* mgr,s32 id,
+			boost::shared_ptr<scene::ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,s32 id,
 			io::IFileSystem *fileSystem, const scene::IMeshBuffer *original,
 			const IShader * shader)
 : scene::IMeshSceneNode(parent, mgr, id, 
@@ -72,9 +72,6 @@ CQuake3ShaderSceneNode::CQuake3ShaderSceneNode(
 */
 CQuake3ShaderSceneNode::~CQuake3ShaderSceneNode()
 {
-	if (Shadow)
-		Shadow->drop();
-
 	if (Mesh)
 		Mesh->drop();
 
@@ -226,7 +223,7 @@ void CQuake3ShaderSceneNode::OnRegisterSceneNode()
 {
 	if ( isVisible() )
 	{
-		SceneManager->registerNodeForRendering(this, getRenderStage() );
+		SceneManager->registerNodeForRendering(getSharedThis(), getRenderStage() );
 	}
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -499,11 +496,10 @@ void CQuake3ShaderSceneNode::render()
 //! Removes a child from this scene node.
 //! Implemented here, to be able to remove the shadow properly, if there is one,
 //! or to remove attached childs.
-bool CQuake3ShaderSceneNode::removeChild(ISceneNode* child)
+bool CQuake3ShaderSceneNode::removeChild(boost::shared_ptr<ISceneNode> child)
 {
 	if (child && Shadow == child)
 	{
-		Shadow->drop();
 		Shadow = 0;
 	}
 
@@ -513,7 +509,7 @@ bool CQuake3ShaderSceneNode::removeChild(ISceneNode* child)
 
 //! Creates shadow volume scene node as child of this node
 //! and returns a pointer to it.
-IShadowVolumeSceneNode* CQuake3ShaderSceneNode::addShadowVolumeSceneNode(
+boost::shared_ptr<IShadowVolumeSceneNode> CQuake3ShaderSceneNode::addShadowVolumeSceneNode(
 		const IMesh* shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
 	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
@@ -522,10 +518,7 @@ IShadowVolumeSceneNode* CQuake3ShaderSceneNode::addShadowVolumeSceneNode(
 	if (!shadowMesh)
 		shadowMesh = Mesh; // if null is given, use the mesh of node
 
-	if (Shadow)
-		Shadow->drop();
-
-	Shadow = new CShadowVolumeSceneNode(shadowMesh, this, SceneManager, id,  zfailmethod, infinity);
+	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), SceneManager, id,  zfailmethod, infinity);
 	return Shadow;
 }
 

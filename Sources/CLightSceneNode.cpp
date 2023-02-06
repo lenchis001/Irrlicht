@@ -15,7 +15,7 @@ namespace scene
 {
 
 //! constructor
-CLightSceneNode::CLightSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
+CLightSceneNode::CLightSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 		const core::vector3df& position, video::SColorf color, f32 radius)
 : ILightSceneNode(parent, mgr, id, position), DriverLightIndex(-1), LightIsOn(true)
 {
@@ -37,7 +37,7 @@ void CLightSceneNode::OnRegisterSceneNode()
 	doLightRecalc();
 
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(this, ESNRP_LIGHT);
+		SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_LIGHT);
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -251,22 +251,21 @@ void CLightSceneNode::deserializeAttributes(io::IAttributes* in, io::SAttributeR
 }
 
 //! Creates a clone of this scene node and its children.
-ISceneNode* CLightSceneNode::clone(ISceneNode* newParent, ISceneManager* newManager)
+boost::shared_ptr<ISceneNode> CLightSceneNode::clone(boost::shared_ptr<ISceneNode> newParent, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	if (!newParent)
-		newParent = Parent;
+		newParent = Parent.lock();
 	if (!newManager)
 		newManager = SceneManager;
 
-	CLightSceneNode* nb = new CLightSceneNode(newParent,
+	boost::shared_ptr<CLightSceneNode> nb = boost::make_shared<CLightSceneNode>(newParent,
 		newManager, ID, RelativeTranslation, LightData.DiffuseColor, LightData.Radius);
+	nb->setWeakThis(nb);
 
-	nb->cloneMembers(this, newManager);
+	nb->cloneMembers(getSharedThis(), newManager);
 	nb->LightData = LightData;
 	nb->BBox = BBox;
 
-	if ( newParent )
-		nb->drop();
 	return nb;
 }
 

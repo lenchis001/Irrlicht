@@ -25,7 +25,7 @@ namespace scene
 	using namespace quake3;
 
 //! constructor
-CQ3LevelMesh::CQ3LevelMesh(io::IFileSystem* fs, scene::ISceneManager* smgr,
+CQ3LevelMesh::CQ3LevelMesh(io::IFileSystem* fs, boost::shared_ptr<scene::ISceneManager> smgr,
 				const Q3LevelLoadParameter &loadParam)
 	: LoadParam(loadParam), Textures(0), NumTextures(0), LightMaps(0), NumLightMaps(0),
 	Vertices(0), NumVertices(0), Faces(0), NumFaces(0), Models(0), NumModels(0),

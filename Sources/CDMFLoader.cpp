@@ -36,7 +36,7 @@ namespace scene
 {
 
 /** Constructor*/
-CDMFLoader::CDMFLoader(ISceneManager* smgr, io::IFileSystem* filesys)
+CDMFLoader::CDMFLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* filesys)
 : SceneMgr(smgr), FileSystem(filesys)
 {
 	#ifdef _DEBUG

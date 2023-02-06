@@ -21,19 +21,19 @@ namespace scene
 	{
 	public:
 
-		CDefaultSceneNodeFactory(ISceneManager* mgr);
+		CDefaultSceneNodeFactory(boost::shared_ptr<scene::ISceneManager> mgr);
 
 		//! adds a scene node to the scene graph based on its type id
 		/** \param type: Type of the scene node to add.
 		\param parent: Parent scene node of the new node, can be null to add the scene node to the root.
 		\return Returns pointer to the new scene node or null if not successful. */
-		virtual ISceneNode* addSceneNode(ESCENE_NODE_TYPE type, ISceneNode* parent=0);
+		virtual boost::shared_ptr<ISceneNode> addSceneNode(ESCENE_NODE_TYPE type, boost::shared_ptr<ISceneNode> parent=0);
 
 		//! adds a scene node to the scene graph based on its type name
 		/** \param typeName: Type name of the scene node to add.
 		\param parent: Parent scene node of the new node, can be null to add the scene node to the root.
 		\return Returns pointer to the new scene node or null if not successful. */
-		virtual ISceneNode* addSceneNode(const c8* typeName, ISceneNode* parent=0);
+		virtual boost::shared_ptr<ISceneNode> addSceneNode(const c8* typeName, boost::shared_ptr<ISceneNode> parent=0);
 
 		//! returns amount of scene node types this factory is able to create
 		virtual u32 getCreatableSceneNodeTypeCount() const;
@@ -69,7 +69,7 @@ namespace scene
 
 		core::array<SSceneNodeTypePair> SupportedSceneNodeTypes;
 
-		ISceneManager* Manager;
+		boost::shared_ptr<scene::ISceneManager> Manager;
 	};
 
 

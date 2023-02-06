@@ -27,7 +27,7 @@ namespace scene
 {
 
 //! constructor
-COCTLoader::COCTLoader(ISceneManager* smgr, io::IFileSystem* fs)
+COCTLoader::COCTLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs)
 	: SceneManager(smgr), FileSystem(fs)
 {
 	#ifdef _DEBUG
@@ -47,7 +47,7 @@ COCTLoader::~COCTLoader()
 
 
 // Doesn't really belong here, but it's jammed in for now.
-void COCTLoader::OCTLoadLights(io::IReadFile* file, scene::ISceneNode * parent, f32 radius, f32 intensityScale, bool rewind)
+void COCTLoader::OCTLoadLights(io::IReadFile* file, boost::shared_ptr<scene::ISceneNode>  parent, f32 radius, f32 intensityScale, bool rewind)
 {
 	if (rewind)
 		file->seek(0);

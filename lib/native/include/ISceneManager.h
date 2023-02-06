@@ -442,7 +442,7 @@ namespace scene
 			}
 		\return Pointer to the volumeLight if successful, otherwise NULL.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IVolumeLightSceneNode* addVolumeLightSceneNode(ISceneNode* parent=0, s32 id=-1,
+		virtual boost::shared_ptr<IVolumeLightSceneNode> addVolumeLightSceneNode(boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const u32 subdivU = 32, const u32 subdivV = 32,
 			const video::SColor foot = video::SColor(51, 0, 230, 180),
 			const video::SColor tail = video::SColor(0, 0, 0, 0),
@@ -461,7 +461,7 @@ namespace scene
 		\return Pointer to the created test scene node. This
 		pointer should not be dropped. See IReferenceCounted::drop()
 		for more information. */
-		virtual IMeshSceneNode* addCubeSceneNode(f32 size=10.0f, ISceneNode* parent=0, s32 id=-1,
+		virtual boost::shared_ptr<IMeshSceneNode> addCubeSceneNode(f32 size=10.0f, boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f)) = 0;
@@ -481,8 +481,8 @@ namespace scene
 		\return Pointer to the created test scene node. This
 		pointer should not be dropped. See IReferenceCounted::drop()
 		for more information. */
-		virtual IMeshSceneNode* addSphereSceneNode(f32 radius=5.0f, s32 polyCount=16,
-				ISceneNode* parent=0, s32 id=-1,
+		virtual boost::shared_ptr<IMeshSceneNode> addSphereSceneNode(f32 radius=5.0f, s32 polyCount=16,
+				boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 				const core::vector3df& position = core::vector3df(0,0,0),
 				const core::vector3df& rotation = core::vector3df(0,0,0),
 				const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f)) = 0;
@@ -498,8 +498,8 @@ namespace scene
 		\param alsoAddIfMeshPointerZero: Add the scene node even if a 0 pointer is passed.
 		\return Pointer to the created scene node.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IAnimatedMeshSceneNode* addAnimatedMeshSceneNode(IAnimatedMesh* mesh,
-				ISceneNode* parent=0, s32 id=-1,
+		virtual boost::shared_ptr<scene::IAnimatedMeshSceneNode> addAnimatedMeshSceneNode(IAnimatedMesh* mesh,
+				boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 				const core::vector3df& position = core::vector3df(0,0,0),
 				const core::vector3df& rotation = core::vector3df(0,0,0),
 				const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f),
@@ -516,7 +516,7 @@ namespace scene
 		\param alsoAddIfMeshPointerZero: Add the scene node even if a 0 pointer is passed.
 		\return Pointer to the created scene node.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IMeshSceneNode* addMeshSceneNode(IMesh* mesh, ISceneNode* parent=0, s32 id=-1,
+		virtual boost::shared_ptr<IMeshSceneNode> addMeshSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f),
@@ -537,9 +537,9 @@ namespace scene
 		\param scale: Initial scale of the scene node.
 		\return Pointer to the created scene node.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ISceneNode* addWaterSurfaceSceneNode(IMesh* mesh,
+		virtual boost::shared_ptr<ISceneNode> addWaterSurfaceSceneNode(IMesh* mesh,
 			f32 waveHeight=2.0f, f32 waveSpeed=300.0f, f32 waveLength=10.0f,
-			ISceneNode* parent=0, s32 id=-1,
+			boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f)) = 0;
@@ -558,12 +558,12 @@ namespace scene
 		\param alsoAddIfMeshPointerZero: Add the scene node even if a 0 pointer is passed.
 		\return Pointer to the Octree if successful, otherwise 0.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IMeshSceneNode* addOctreeSceneNode(IAnimatedMesh* mesh, ISceneNode* parent=0,
+		virtual boost::shared_ptr<IMeshSceneNode> addOctreeSceneNode(IAnimatedMesh* mesh, boost::shared_ptr<ISceneNode> parent=0,
 			s32 id=-1, s32 minimalPolysPerNode=512, bool alsoAddIfMeshPointerZero=false) = 0;
 
 		//! Adds a scene node for rendering using a octree to the scene graph.
 		/** \deprecated Use addOctreeSceneNode instead. This method may be removed by Irrlicht 1.9. */
-		_IRR_DEPRECATED_ IMeshSceneNode* addOctTreeSceneNode(IAnimatedMesh* mesh, ISceneNode* parent=0,
+		_IRR_DEPRECATED_ boost::shared_ptr<IMeshSceneNode> addOctTreeSceneNode(IAnimatedMesh* mesh, boost::shared_ptr<ISceneNode> parent=0,
 			s32 id=-1, s32 minimalPolysPerNode=512, bool alsoAddIfMeshPointerZero=false)
 		{
 			return addOctreeSceneNode(mesh, parent, id, minimalPolysPerNode, alsoAddIfMeshPointerZero);
@@ -582,12 +582,12 @@ namespace scene
 		\param alsoAddIfMeshPointerZero: Add the scene node even if a 0 pointer is passed.
 		\return Pointer to the octree if successful, otherwise 0.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IMeshSceneNode* addOctreeSceneNode(IMesh* mesh, ISceneNode* parent=0,
+		virtual boost::shared_ptr<IMeshSceneNode> addOctreeSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent=0,
 			s32 id=-1, s32 minimalPolysPerNode=256, bool alsoAddIfMeshPointerZero=false) = 0;
 
 		//! Adds a scene node for rendering using a octree to the scene graph.
 		/** \deprecated Use addOctreeSceneNode instead. This method may be removed by Irrlicht 1.9. */
-		_IRR_DEPRECATED_ IMeshSceneNode* addOctTreeSceneNode(IMesh* mesh, ISceneNode* parent=0,
+		_IRR_DEPRECATED_ boost::shared_ptr<IMeshSceneNode> addOctTreeSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent=0,
 			s32 id=-1, s32 minimalPolysPerNode=256, bool alsoAddIfMeshPointerZero=false)
 		{
 			return addOctreeSceneNode(mesh, parent, id, minimalPolysPerNode, alsoAddIfMeshPointerZero);
@@ -610,7 +610,7 @@ namespace scene
 		Make sure you always have one active camera.
 		\return Pointer to interface to camera if successful, otherwise 0.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ICameraSceneNode* addCameraSceneNode(ISceneNode* parent = 0,
+		virtual boost::shared_ptr<ICameraSceneNode> addCameraSceneNode(boost::shared_ptr<ISceneNode> parent = 0,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& lookat = core::vector3df(0,0,100),
 			s32 id=-1, bool makeActive=true) = 0;
@@ -632,7 +632,7 @@ namespace scene
 		Make sure you always have one active camera.
 		\return Returns a pointer to the interface of the camera if successful, otherwise 0.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ICameraSceneNode* addCameraSceneNodeMaya(ISceneNode* parent=0,
+		virtual boost::shared_ptr<ICameraSceneNode> addCameraSceneNodeMaya(boost::shared_ptr<ISceneNode> parent=0,
 			f32 rotateSpeed=-1500.f, f32 zoomSpeed=200.f,
 			f32 translationSpeed=1500.f, s32 id=-1, f32 distance=70.f,
 			bool makeActive=true) =0;
@@ -701,17 +701,17 @@ namespace scene
 		\return Pointer to the interface of the camera if successful,
 		otherwise 0. This pointer should not be dropped. See
 		IReferenceCounted::drop() for more information. */
-		virtual ICameraSceneNode* addCameraSceneNodeFPS(ISceneNode* parent = 0,
+		virtual boost::shared_ptr<ICameraSceneNode> addCameraSceneNodeFPS(boost::shared_ptr<ISceneNode> parent = 0,
 			f32 rotateSpeed = 100.0f, f32 moveSpeed = 0.5f, s32 id=-1,
 			SKeyMap* keyMapArray=0, s32 keyMapSize=0, bool noVerticalMovement=false,
 			f32 jumpSpeed = 0.f, bool invertMouse=false,
 			bool makeActive=true) = 0;
 
 		//! Adds an editor camera.
-		virtual ICameraSceneNode* addCameraSceneNodeEditor() = 0;
+		virtual boost::shared_ptr<ICameraSceneNode> addCameraSceneNodeEditor() = 0;
 
 		//! Adds a third person camera.
-		virtual ICameraSceneNode* addCameraSceneNodeThirdPerson(ISceneNode* parent) = 0;
+		virtual boost::shared_ptr<ICameraSceneNode> addCameraSceneNodeThirdPerson(boost::shared_ptr<ISceneNode> parent) = 0;
 
 		//! Adds a dynamic light scene node to the scene graph.
 		/** The light will cast dynamic light on all
@@ -726,7 +726,7 @@ namespace scene
 		\param id: id of the node. This id can be used to identify the node.
 		\return Pointer to the interface of the light if successful, otherwise NULL.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ILightSceneNode* addLightSceneNode(ISceneNode* parent = 0,
+		virtual boost::shared_ptr<scene::ILightSceneNode> addLightSceneNode(boost::shared_ptr<ISceneNode> parent = 0,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			video::SColorf color = video::SColorf(1.0f, 1.0f, 1.0f),
 			f32 radius=100.0f, s32 id=-1) = 0;
@@ -750,7 +750,7 @@ namespace scene
 		\return Pointer to the billboard if successful, otherwise NULL.
 		This pointer should not be dropped. See
 		IReferenceCounted::drop() for more information. */
-		virtual IBillboardSceneNode* addBillboardSceneNode(ISceneNode* parent = 0,
+		virtual boost::shared_ptr<IBillboardSceneNode> addBillboardSceneNode(boost::shared_ptr<ISceneNode> parent = 0,
 			const core::dimension2d<f32>& size = core::dimension2d<f32>(10.0f, 10.0f),
 			const core::vector3df& position = core::vector3df(0,0,0), s32 id=-1,
 			video::SColor colorTop = 0xFFFFFFFF, video::SColor colorBottom = 0xFFFFFFFF) = 0;
@@ -770,9 +770,9 @@ namespace scene
 		\param id: An id of the node. This id can be used to identify the node.
 		\return Pointer to the sky box if successful, otherwise NULL.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ISceneNode* addSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom,
+		virtual boost::shared_ptr<ISceneNode> addSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom,
 			video::ITexture* left, video::ITexture* right, video::ITexture* front,
-			video::ITexture* back, ISceneNode* parent = 0, s32 id=-1) = 0;
+			video::ITexture* back, boost::shared_ptr<ISceneNode> parent = 0, s32 id=-1) = 0;
 
 		//! Adds a skydome scene node to the scene graph.
 		/** A skydome is a large (half-) sphere with a panoramic texture
@@ -792,10 +792,10 @@ namespace scene
 		\param id: An id of the node. This id can be used to identify the node.
 		\return Pointer to the sky dome if successful, otherwise NULL.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ISceneNode* addSkyDomeSceneNode(video::ITexture* texture,
+		virtual boost::shared_ptr<ISceneNode> addSkyDomeSceneNode(video::ITexture* texture,
 			u32 horiRes=16, u32 vertRes=8,
 			f32 texturePercentage=0.9, f32 spherePercentage=2.0,f32 radius = 1000.f,
-			ISceneNode* parent=0, s32 id=-1) = 0;
+			boost::shared_ptr<ISceneNode> parent=0, s32 id=-1) = 0;
 
 		//! Adds a particle system scene node to the scene graph.
 		/** \param withDefaultEmitter: Creates a default working point emitter
@@ -810,8 +810,8 @@ namespace scene
 		\param scale: Initial scale of the scene node.
 		\return Pointer to the created scene node.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IParticleSystemSceneNode* addParticleSystemSceneNode(
-			bool withDefaultEmitter=true, ISceneNode* parent=0, s32 id=-1,
+		virtual boost::shared_ptr<IParticleSystemSceneNode> addParticleSystemSceneNode(
+			bool withDefaultEmitter=true, boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f)) = 0;
@@ -872,9 +872,9 @@ namespace scene
 		heightmap could not be loaded. The returned pointer should
 		not be dropped. See IReferenceCounted::drop() for more
 		information. */
-		virtual ITerrainSceneNode* addTerrainSceneNode(
+		virtual boost::shared_ptr<ITerrainSceneNode> addTerrainSceneNode(
 			const io::path& heightMapFileName,
-				ISceneNode* parent=0, s32 id=-1,
+				boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const core::vector3df& position = core::vector3df(0.0f,0.0f,0.0f),
 			const core::vector3df& rotation = core::vector3df(0.0f,0.0f,0.0f),
 			const core::vector3df& scale = core::vector3df(1.0f,1.0f,1.0f),
@@ -910,9 +910,9 @@ namespace scene
 		heightmap could not be loaded. The returned pointer should
 		not be dropped. See IReferenceCounted::drop() for more
 		information. */
-		virtual ITerrainSceneNode* addTerrainSceneNode(
+		virtual boost::shared_ptr<ITerrainSceneNode> addTerrainSceneNode(
 			io::IReadFile* heightMapFile,
-			ISceneNode* parent=0, s32 id=-1,
+			boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const core::vector3df& position = core::vector3df(0.0f,0.0f,0.0f),
 			const core::vector3df& rotation = core::vector3df(0.0f,0.0f,0.0f),
 			const core::vector3df& scale = core::vector3df(1.0f,1.0f,1.0f),
@@ -924,8 +924,8 @@ namespace scene
 		/** A Quake3 Scene renders multiple meshes for a specific HighLanguage Shader (Quake3 Style )
 		\return Pointer to the quake3 scene node if successful, otherwise NULL.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IMeshSceneNode* addQuake3SceneNode(const IMeshBuffer* meshBuffer, const quake3::IShader * shader,
-												ISceneNode* parent=0, s32 id=-1
+		virtual boost::shared_ptr<IMeshSceneNode> addQuake3SceneNode(const IMeshBuffer* meshBuffer, const quake3::IShader * shader,
+												boost::shared_ptr<ISceneNode> parent=0, s32 id=-1
 												) = 0;
 
 
@@ -934,7 +934,7 @@ namespace scene
 		or structuring the scene graph.
 		\return Pointer to the created scene node.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ISceneNode* addEmptySceneNode(ISceneNode* parent=0, s32 id=-1) = 0;
+		virtual boost::shared_ptr<ISceneNode> addEmptySceneNode(boost::shared_ptr<ISceneNode> parent=0, s32 id=-1) = 0;
 
 		//! Adds a dummy transformation scene node to the scene graph.
 		/** This scene node does not render itself, and does not respond to set/getPosition,
@@ -943,13 +943,13 @@ namespace scene
 		anywhere into the scene graph.
 		\return Pointer to the created scene node.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IDummyTransformationSceneNode* addDummyTransformationSceneNode(
-			ISceneNode* parent=0, s32 id=-1) = 0;
+		virtual boost::shared_ptr<IDummyTransformationSceneNode> addDummyTransformationSceneNode(
+			boost::shared_ptr<ISceneNode> parent=0, s32 id=-1) = 0;
 
 		//! Adds a text scene node, which is able to display 2d text at a position in three dimensional space
-		virtual ITextSceneNode* addTextSceneNode(gui::IGUIFont* font, const wchar_t* text,
+		virtual boost::shared_ptr<ITextSceneNode> addTextSceneNode(gui::IGUIFont* font, const wchar_t* text,
 			video::SColor color=video::SColor(100,255,255,255),
-			ISceneNode* parent = 0, const core::vector3df& position = core::vector3df(0,0,0),
+			boost::shared_ptr<ISceneNode> parent = 0, const core::vector3df& position = core::vector3df(0,0,0),
 			s32 id=-1) = 0;
 
 		//! Adds a text scene node, which uses billboards. The node, and the text on it, will scale with distance.
@@ -964,8 +964,8 @@ namespace scene
 		\param colorBottom: The color of the vertices at the bottom of the billboard (default: white).
 		\return Pointer to the billboard if successful, otherwise NULL.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IBillboardTextSceneNode* addBillboardTextSceneNode( gui::IGUIFont* font, const wchar_t* text,
-			ISceneNode* parent = 0,
+		virtual boost::shared_ptr<IBillboardTextSceneNode> addBillboardTextSceneNode( gui::IGUIFont* font, const wchar_t* text,
+			boost::shared_ptr<ISceneNode> parent = 0,
 			const core::dimension2d<f32>& size = core::dimension2d<f32>(10.0f, 10.0f),
 			const core::vector3df& position = core::vector3df(0,0,0), s32 id=-1,
 			video::SColor colorTop = 0xFFFFFFFF, video::SColor colorBottom = 0xFFFFFFFF) = 0;
@@ -1083,7 +1083,7 @@ namespace scene
 		be removed from the scene.
 		\return Pointer to the root scene node.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ISceneNode* getRootSceneNode() = 0;
+		virtual boost::shared_ptr<ISceneNode> getRootSceneNode() = 0;
 
 		//! Get the first scene node with the specified id.
 		/** \param id: The id to search for
@@ -1093,7 +1093,7 @@ namespace scene
 		\return Pointer to the first scene node with this id,
 		and null if no scene node could be found.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ISceneNode* getSceneNodeFromId(s32 id, ISceneNode* start=0) = 0;
+		virtual boost::shared_ptr<ISceneNode> getSceneNodeFromId(s32 id, boost::shared_ptr<ISceneNode> start=0) = 0;
 
 		//! Get the first scene node with the specified name.
 		/** \param name: The name to search for
@@ -1103,7 +1103,7 @@ namespace scene
 		\return Pointer to the first scene node with this id,
 		and null if no scene node could be found.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ISceneNode* getSceneNodeFromName(const c8* name, ISceneNode* start=0) = 0;
+		virtual boost::shared_ptr<ISceneNode> getSceneNodeFromName(const c8* name, boost::shared_ptr<ISceneNode> start=0) = 0;
 
 		//! Get the first scene node with the specified type.
 		/** \param type: The type to search for
@@ -1113,7 +1113,7 @@ namespace scene
 		\return Pointer to the first scene node with this type,
 		and null if no scene node could be found.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ISceneNode* getSceneNodeFromType(scene::ESCENE_NODE_TYPE type, ISceneNode* start=0) = 0;
+		virtual boost::shared_ptr<ISceneNode> getSceneNodeFromType(scene::ESCENE_NODE_TYPE type, boost::shared_ptr<ISceneNode> start=0) = 0;
 
 		//! Get scene nodes by type.
 		/** \param type: Type of scene node to find (ESNT_ANY will return all child nodes).
@@ -1122,19 +1122,19 @@ namespace scene
 		node are searched. If null is specified, the root scene node is
 		taken. */
 		virtual void getSceneNodesFromType(ESCENE_NODE_TYPE type,
-				core::array<scene::ISceneNode*>& outNodes,
-				ISceneNode* start=0) = 0;
+				core::array<boost::shared_ptr<scene::ISceneNode>>& outNodes,
+				boost::shared_ptr<ISceneNode> start=0) = 0;
 
 		//! Get the current active camera.
 		/** \return The active camera is returned. Note that this can
 		be NULL, if there was no camera created yet.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ICameraSceneNode* getActiveCamera() const =0;
+		virtual boost::shared_ptr<ICameraSceneNode> getActiveCamera() const =0;
 
 		//! Sets the currently active camera.
 		/** The previous active camera will be deactivated.
 		\param camera: The new camera which should be active. */
-		virtual void setActiveCamera(ICameraSceneNode* camera) = 0;
+		virtual void setActiveCamera(boost::shared_ptr<ICameraSceneNode> camera) = 0;
 
 		//! Sets the color of stencil buffers shadows drawn by the scene manager.
 		virtual void setShadowColor(video::SColor color = video::SColor(150,0,0,0)) = 0;
@@ -1151,7 +1151,7 @@ namespace scene
 		For example, if the node is a shadow, it usually wants to be drawn after all other nodes
 		and will use ESNRP_SHADOW for this. See scene::E_SCENE_NODE_RENDER_PASS for details.
 		\return scene will be rendered ( passed culling ) */
-		virtual u32 registerNodeForRendering(ISceneNode* node,
+		virtual u32 registerNodeForRendering(boost::shared_ptr<ISceneNode> node,
 			E_SCENE_NODE_RENDER_PASS pass = ESNRP_AUTOMATIC) = 0;
 
 		//! Draws all the scene nodes.
@@ -1258,7 +1258,7 @@ namespace scene
 		If you no longer need the animator, you should call ISceneNodeAnimator::drop().
 		See IReferenceCounted::drop() for more information. */
 		virtual ISceneNodeAnimatorCollisionResponse* createCollisionResponseAnimator(
-			ITriangleSelector* world, ISceneNode* sceneNode,
+			ITriangleSelector* world, boost::shared_ptr<ISceneNode> sceneNode,
 			const core::vector3df& ellipsoidRadius = core::vector3df(30,60,30),
 			const core::vector3df& gravityPerSecond = core::vector3df(0,-10.0f,0),
 			const core::vector3df& ellipsoidTranslation = core::vector3df(0,0,0),
@@ -1296,7 +1296,7 @@ namespace scene
 		\return The selector, or null if not successful.
 		If you no longer need the selector, you should call ITriangleSelector::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual ITriangleSelector* createTriangleSelector(IMesh* mesh, ISceneNode* node) = 0;
+		virtual ITriangleSelector* createTriangleSelector(IMesh* mesh, boost::shared_ptr<ISceneNode> node) = 0;
 
 		//! Creates a simple ITriangleSelector, based on an animated mesh scene node.
 		/** Details of the mesh associated with the node will be extracted internally.
@@ -1304,7 +1304,7 @@ namespace scene
 		on the current frame of the animated mesh scene node.
 		\param node The animated mesh scene node from which to build the selector
 		*/
-		virtual ITriangleSelector* createTriangleSelector(IAnimatedMeshSceneNode* node) = 0;
+		virtual ITriangleSelector* createTriangleSelector(boost::shared_ptr<scene::IAnimatedMeshSceneNode> node) = 0;
 
 
 		//! Creates a simple dynamic ITriangleSelector, based on a axis aligned bounding box.
@@ -1316,7 +1316,7 @@ namespace scene
 		\return The selector, or null if not successful.
 		If you no longer need the selector, you should call ITriangleSelector::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual ITriangleSelector* createTriangleSelectorFromBoundingBox(ISceneNode* node) = 0;
+		virtual ITriangleSelector* createTriangleSelectorFromBoundingBox(boost::shared_ptr<ISceneNode> node) = 0;
 
 		//! Creates a Triangle Selector, optimized by an octree.
 		/** Triangle selectors
@@ -1342,12 +1342,12 @@ namespace scene
 		If you no longer need the selector, you should call ITriangleSelector::drop().
 		See IReferenceCounted::drop() for more information. */
 		virtual ITriangleSelector* createOctreeTriangleSelector(IMesh* mesh,
-			ISceneNode* node, s32 minimalPolysPerNode=32) = 0;
+			boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode=32) = 0;
 
 		//! //! Creates a Triangle Selector, optimized by an octree.
 		/** \deprecated Use createOctreeTriangleSelector instead. This method may be removed by Irrlicht 1.9. */
 		_IRR_DEPRECATED_ ITriangleSelector* createOctTreeTriangleSelector(IMesh* mesh,
-			ISceneNode* node, s32 minimalPolysPerNode=32)
+			boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode=32)
 		{
 			return createOctreeTriangleSelector(mesh, node, minimalPolysPerNode);
 		}
@@ -1369,7 +1369,7 @@ namespace scene
 		If you no longer need the selector, you should call ITriangleSelector::drop().
 		See IReferenceCounted::drop() for more information. */
 		virtual ITriangleSelector* createTerrainTriangleSelector(
-			ITerrainSceneNode* node, s32 LOD=0) = 0;
+			boost::shared_ptr<ITerrainSceneNode> node, s32 LOD=0) = 0;
 
 		//! Adds an external mesh loader for extending the engine with new file formats.
 		/** If you want the engine to be extended with
@@ -1426,7 +1426,7 @@ namespace scene
 		deletion queue is not necessary.
 		See ISceneManager::createDeleteAnimator() for details.
 		\param node: Node to detete. */
-		virtual void addToDeletionQueue(ISceneNode* node) = 0;
+		virtual void addToDeletionQueue(boost::shared_ptr<ISceneNode> node) = 0;
 
 		//! Posts an input event to the environment.
 		/** Usually you do not have to
@@ -1499,14 +1499,14 @@ namespace scene
 		//! Adds a scene node to the scene by name
 		/** \return Pointer to the scene node added by a factory
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ISceneNode* addSceneNode(const char* sceneNodeTypeName, ISceneNode* parent=0) = 0;
+		virtual boost::shared_ptr<ISceneNode> addSceneNode(const char* sceneNodeTypeName, boost::shared_ptr<ISceneNode> parent=0) = 0;
 
 		//! creates a scene node animator based on its type name
 		/** \param typeName: Type of the scene node animator to add.
 		\param target: Target scene node of the new animator.
 		\return Returns pointer to the new scene node animator or null if not successful. You need to
 		drop this pointer after calling this, see IReferenceCounted::drop() for details. */
-		virtual ISceneNodeAnimator* createSceneNodeAnimator(const char* typeName, ISceneNode* target=0) = 0;
+		virtual ISceneNodeAnimator* createSceneNodeAnimator(const char* typeName, boost::shared_ptr<ISceneNode> target=0) = 0;
 
 		//! Creates a new scene manager.
 		/** This can be used to easily draw and/or store two
@@ -1527,7 +1527,7 @@ namespace scene
 		If you no longer need the new scene manager, you should call
 		ISceneManager::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual ISceneManager* createNewSceneManager(bool cloneContent=false) = 0;
+		virtual boost::shared_ptr<scene::ISceneManager> createNewSceneManager(bool cloneContent=false) = 0;
 
 		//! Saves the current scene into a file.
 		/** Scene nodes with the option isDebugObject set to true are
@@ -1545,7 +1545,7 @@ namespace scene
 		file. Pass 0 or the scene manager to save the full scene (which
 		is also the default).
 		\return True if successful. */
-		virtual bool saveScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer=0, ISceneNode* node=0) = 0;
+		virtual bool saveScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> node=0) = 0;
 
 		//! Saves the current scene into a file.
 		/** Scene nodes with the option isDebugObject set to true are
@@ -1563,7 +1563,7 @@ namespace scene
 		file. Pass 0 or the scene manager to save the full scene (which
 		is also the default).
 		\return True if successful. */
-		virtual bool saveScene(io::IWriteFile* file, ISceneUserDataSerializer* userDataSerializer=0, ISceneNode* node=0) = 0;
+		virtual bool saveScene(io::IWriteFile* file, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> node=0) = 0;
 
 		//! Saves the current scene into a file.
 		/** Scene nodes with the option isDebugObject set to true are
@@ -1583,7 +1583,7 @@ namespace scene
 		file. Pass 0 or the scene manager to save the full scene (which
 		is also the default).
 		\return True if successful. */
-		virtual bool saveScene(io::IXMLWriter* writer, const io::path& currentPath, ISceneUserDataSerializer* userDataSerializer=0, ISceneNode* node=0) = 0;
+		virtual bool saveScene(io::IXMLWriter* writer, const io::path& currentPath, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> node=0) = 0;
 
 		//! Loads a scene. Note that the current scene is not cleared before.
 		/** The scene is usually loaded from an .irr file, an xml based
@@ -1602,7 +1602,7 @@ namespace scene
 		scene. Pass 0 to add the scene directly to the scene manager
 		(which is also the default).
 		\return True if successful. */
-		virtual bool loadScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer=0, ISceneNode* rootNode=0) = 0;
+		virtual bool loadScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> rootNode=0) = 0;
 
 		//! Loads a scene. Note that the current scene is not cleared before.
 		/** The scene is usually loaded from an .irr file, an xml based
@@ -1621,7 +1621,7 @@ namespace scene
 		scene. Pass 0 to add the scene directly to the scene manager
 		(which is also the default).
 		\return True if successful. */
-		virtual bool loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer=0, ISceneNode* rootNode=0) = 0;
+		virtual bool loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> rootNode=0) = 0;
 
 		//! Get a mesh writer implementation if available
 		/** Note: You need to drop() the pointer after use again, see IReferenceCounted::drop()
@@ -1658,7 +1658,7 @@ namespace scene
 		\param node The scene node which is checked for culling.
 		\return True if node is not visible in the current scene, else
 		false. */
-		virtual bool isCulled(const ISceneNode* node) const =0;
+		virtual bool isCulled(const boost::shared_ptr<ISceneNode> node) const =0;
 	};
 
 

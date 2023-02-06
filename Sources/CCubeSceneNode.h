@@ -17,7 +17,7 @@ namespace scene
 	public:
 
 		//! constructor
-		CCubeSceneNode(f32 size, ISceneNode* parent, ISceneManager* mgr, s32 id,
+		CCubeSceneNode(f32 size, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f));
@@ -47,7 +47,7 @@ namespace scene
 
 		//! Creates shadow volume scene node as child of this node
 		//! and returns a pointer to it.
-		virtual IShadowVolumeSceneNode* addShadowVolumeSceneNode(const IMesh* shadowMesh,
+		virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(const IMesh* shadowMesh,
 			s32 id, bool zfailmethod=true, f32 infinity=10000.0f);
 
 		//! Writes attributes of the scene node.
@@ -57,7 +57,7 @@ namespace scene
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0);
 
 		//! Creates a clone of this scene node and its children.
-		virtual ISceneNode* clone(ISceneNode* newParent=0, ISceneManager* newManager=0);
+		virtual boost::shared_ptr<ISceneNode> clone(boost::shared_ptr<ISceneNode> newParent=0, boost::shared_ptr<scene::ISceneManager> newManager=0);
 
 		//! Sets a new mesh to display
 		virtual void setMesh(IMesh* mesh) {}
@@ -76,13 +76,13 @@ namespace scene
 		//! Removes a child from this scene node.
 		//! Implemented here, to be able to remove the shadow properly, if there is one,
 		//! or to remove attached childs.
-		virtual bool removeChild(ISceneNode* child);
+		virtual bool removeChild(boost::shared_ptr<ISceneNode> child);
 
 	private:
 		void setSize();
 
 		IMesh* Mesh;
-		IShadowVolumeSceneNode* Shadow;
+		boost::shared_ptr<IShadowVolumeSceneNode> Shadow;
 		f32 Size;
 	};
 

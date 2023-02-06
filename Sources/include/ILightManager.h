@@ -34,7 +34,7 @@ namespace scene
 		the light manager may modify. This reference will remain valid
 		until OnPostRender().
 		*/
-		virtual void OnPreRender(core::array<ISceneNode*> & lightList) = 0;
+		virtual void OnPreRender(core::array<boost::shared_ptr<ISceneNode>> & lightList) = 0;
 
 		//! Called after the last scene node is rendered.
 		/** After this call returns, the lightList passed to OnPreRender() becomes invalid. */
@@ -50,11 +50,11 @@ namespace scene
 
 		//! Called before the given scene node is rendered
 		/** \param[in] node: the scene node that's about to be rendered */
-		virtual void OnNodePreRender(ISceneNode* node) = 0;
+		virtual void OnNodePreRender(boost::shared_ptr<ISceneNode> node) = 0;
 
 		//! Called after the the node specified in OnNodePreRender() has been rendered
 		/** \param[in] node: the scene node that has just been rendered */
-		virtual void OnNodePostRender(ISceneNode* node) = 0;
+		virtual void OnNodePostRender(boost::shared_ptr<ISceneNode> node) = 0;
 	};
 } // end namespace scene
 } // end namespace irr

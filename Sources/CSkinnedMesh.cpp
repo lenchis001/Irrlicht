@@ -1271,11 +1271,11 @@ void CSkinnedMesh::normalizeWeights()
 }
 
 
-void CSkinnedMesh::recoverJointsFromMesh(core::array<IBoneSceneNode*> &jointChildSceneNodes)
+void CSkinnedMesh::recoverJointsFromMesh(core::array<boost::shared_ptr<IBoneSceneNode>> &jointChildSceneNodes)
 {
 	for (u32 i=0; i<AllJoints.size(); ++i)
 	{
-		IBoneSceneNode* node=jointChildSceneNodes[i];
+		boost::shared_ptr<IBoneSceneNode> node=jointChildSceneNodes[i];
 		SJoint *joint=AllJoints[i];
 		node->setPosition(joint->LocalAnimatedMatrix.getTranslation());
 		node->setRotation(joint->LocalAnimatedMatrix.getRotationDegrees());
@@ -1290,11 +1290,11 @@ void CSkinnedMesh::recoverJointsFromMesh(core::array<IBoneSceneNode*> &jointChil
 }
 
 
-void CSkinnedMesh::transferJointsToMesh(const core::array<IBoneSceneNode*> &jointChildSceneNodes)
+void CSkinnedMesh::transferJointsToMesh(const core::array<boost::shared_ptr<IBoneSceneNode>> &jointChildSceneNodes)
 {
 	for (u32 i=0; i<AllJoints.size(); ++i)
 	{
-		const IBoneSceneNode* const node=jointChildSceneNodes[i];
+		const boost::shared_ptr<IBoneSceneNode> const node=jointChildSceneNodes[i];
 		SJoint *joint=AllJoints[i];
 
 		joint->LocalAnimatedMatrix.setRotationDegrees(node->getRotation());
@@ -1313,11 +1313,11 @@ void CSkinnedMesh::transferJointsToMesh(const core::array<IBoneSceneNode*> &join
 }
 
 
-void CSkinnedMesh::transferOnlyJointsHintsToMesh(const core::array<IBoneSceneNode*> &jointChildSceneNodes)
+void CSkinnedMesh::transferOnlyJointsHintsToMesh(const core::array<boost::shared_ptr<IBoneSceneNode>> &jointChildSceneNodes)
 {
 	for (u32 i=0; i<AllJoints.size(); ++i)
 	{
-		const IBoneSceneNode* const node=jointChildSceneNodes[i];
+		const boost::shared_ptr<IBoneSceneNode> const node=jointChildSceneNodes[i];
 		SJoint *joint=AllJoints[i];
 
 		joint->positionHint=node->positionHint;
@@ -1328,13 +1328,13 @@ void CSkinnedMesh::transferOnlyJointsHintsToMesh(const core::array<IBoneSceneNod
 }
 
 
-void CSkinnedMesh::addJoints(core::array<IBoneSceneNode*> &jointChildSceneNodes,
-		IAnimatedMeshSceneNode* node, ISceneManager* smgr)
+void CSkinnedMesh::addJoints(core::array<boost::shared_ptr<IBoneSceneNode>> &jointChildSceneNodes,
+		boost::shared_ptr<scene::IAnimatedMeshSceneNode> node, boost::shared_ptr<scene::ISceneManager> smgr)
 {
 	//Create new joints
 	for (u32 i=0; i<AllJoints.size(); ++i)
 	{
-		jointChildSceneNodes.push_back(new CBoneSceneNode(0, smgr, 0, i, AllJoints[i]->Name.c_str()));
+		jointChildSceneNodes.push_back(boost::make_shared<CBoneSceneNode>(nullptr, smgr, 0, i, AllJoints[i]->Name.c_str()));
 	}
 
 	//Match up parents
@@ -1360,13 +1360,11 @@ void CSkinnedMesh::addJoints(core::array<IBoneSceneNode*> &jointChildSceneNodes,
 			}
 		}
 
-		IBoneSceneNode* bone=jointChildSceneNodes[i];
+		boost::shared_ptr<IBoneSceneNode> bone=jointChildSceneNodes[i];
 		if (parentID!=-1)
 			bone->setParent(jointChildSceneNodes[parentID]);
 		else
 			bone->setParent(node);
-
-		bone->drop();
 	}
 	SkinnedLastFrame=false;
 }

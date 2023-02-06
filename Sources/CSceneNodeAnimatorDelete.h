@@ -16,10 +16,10 @@ namespace scene
 	public:
 
 		//! constructor
-		CSceneNodeAnimatorDelete(ISceneManager* manager, u32 when);
+		CSceneNodeAnimatorDelete(boost::shared_ptr<scene::ISceneManager> manager, u32 when);
 
 		//! animates a scene node
-		virtual void animateNode(ISceneNode* node, u32 timeMs);
+		virtual void animateNode(boost::shared_ptr<ISceneNode> node, u32 timeMs);
 
 		//! Returns type of the scene node animator
 		virtual ESCENE_NODE_ANIMATOR_TYPE getType() const
@@ -31,11 +31,11 @@ namespace scene
 		/** Please note that you will have to drop
 		(IReferenceCounted::drop()) the returned pointer after calling
 		this. */
-		virtual ISceneNodeAnimator* createClone(ISceneNode* node, ISceneManager* newManager=0);
+		virtual ISceneNodeAnimator* createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager=0);
 
 	private:
 
-		ISceneManager* SceneManager;
+		boost::shared_ptr<scene::ISceneManager> SceneManager;
 	};
 
 

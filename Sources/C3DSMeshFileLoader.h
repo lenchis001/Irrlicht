@@ -23,7 +23,7 @@ class C3DSMeshFileLoader : public IMeshLoader
 public:
 
 	//! Constructor
-	C3DSMeshFileLoader(ISceneManager* smgr, io::IFileSystem* fs);
+	C3DSMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs);
 
 	//! destructor
 	virtual ~C3DSMeshFileLoader();
@@ -138,7 +138,7 @@ private:
 	void loadMaterials(io::IReadFile* file);
 	void cleanUp();
 
-	scene::ISceneManager* SceneManager;
+	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IFileSystem* FileSystem;
 
 	f32* Vertices;

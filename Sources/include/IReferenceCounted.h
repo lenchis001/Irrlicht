@@ -7,9 +7,10 @@
 
 #include "irrTypes.h"
 
+#include "boost/smart_ptr.hpp"
+
 namespace irr
 {
-
 	//! Base class of most objects of the Irrlicht Engine.
 	/** This class provides reference counting through the methods grab() and drop().
 	It also is able to store a debug string for every instance of an object.
@@ -38,19 +39,51 @@ namespace irr
 	the name of the method does not start with 'create'. The texture
 	is stored somewhere by the driver.
 	*/
-	class IReferenceCounted
+	class IDebugable
 	{
 	public:
 
 		//! Constructor.
-		IReferenceCounted()
-			: DebugName(0), ReferenceCounter(1)
+		IDebugable()
+			: DebugName(0)
 		{
 		}
 
 		//! Destructor.
-		virtual ~IReferenceCounted()
+		virtual ~IDebugable()
 		{
+		}
+
+		//! Returns the debug name of the object.
+		/** The Debugname may only be set and changed by the object
+		itself. This method should only be used in Debug mode.
+		\return Returns a string, previously set by setDebugName(); */
+		const c8* getDebugName() const
+		{
+			return DebugName;
+		}
+
+	protected:
+
+		//! Sets the debug name of the object.
+		/** The Debugname may only be set and changed by the object
+		itself. This method should only be used in Debug mode.
+		\param newName: New debug name to set. */
+		void setDebugName(const c8* newName)
+		{
+			DebugName = newName;
+		}
+
+	private:
+
+		//! The debug name.
+		const c8* DebugName;
+	};
+
+	class IReferenceCounted : public IDebugable {
+	public:
+		IReferenceCounted() : IDebugable(), ReferenceCounter(1) {
+
 		}
 
 		//! Grabs the object. Increments the reference counter by one.
@@ -118,7 +151,7 @@ namespace irr
 			// someone is doing bad reference counting.
 			_IRR_DEBUG_BREAK_IF(ReferenceCounter <= 0)
 
-			--ReferenceCounter;
+				--ReferenceCounter;
 			if (!ReferenceCounter)
 			{
 				delete this;
@@ -135,30 +168,7 @@ namespace irr
 			return ReferenceCounter;
 		}
 
-		//! Returns the debug name of the object.
-		/** The Debugname may only be set and changed by the object
-		itself. This method should only be used in Debug mode.
-		\return Returns a string, previously set by setDebugName(); */
-		const c8* getDebugName() const
-		{
-			return DebugName;
-		}
-
-	protected:
-
-		//! Sets the debug name of the object.
-		/** The Debugname may only be set and changed by the object
-		itself. This method should only be used in Debug mode.
-		\param newName: New debug name to set. */
-		void setDebugName(const c8* newName)
-		{
-			DebugName = newName;
-		}
-
 	private:
-
-		//! The debug name.
-		const c8* DebugName;
 
 		//! The reference counter. Mutable to do reference counting on const objects.
 		mutable s32 ReferenceCounter;

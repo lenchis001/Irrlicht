@@ -23,7 +23,7 @@ namespace scene
 #define PLY_INPUT_BUFFER_SIZE 51200 // file is loaded in 50k chunks
 
 // constructor
-CPLYMeshFileLoader::CPLYMeshFileLoader(scene::ISceneManager* smgr)
+CPLYMeshFileLoader::CPLYMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr)
 : SceneManager(smgr), File(0), Buffer(0)
 {
 }

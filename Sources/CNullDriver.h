@@ -431,11 +431,11 @@ namespace video
 
 		//! Create occlusion query.
 		/** Use node for identification and mesh for occlusion test. */
-		virtual void addOcclusionQuery(scene::ISceneNode* node,
+		virtual void addOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node,
 				const scene::IMesh* mesh=0);
 
 		//! Remove occlusion query.
-		virtual void removeOcclusionQuery(scene::ISceneNode* node);
+		virtual void removeOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node);
 
 		//! Remove all occlusion queries.
 		virtual void removeAllOcclusionQueries();
@@ -443,7 +443,7 @@ namespace video
 		//! Run occlusion query. Draws mesh stored in query.
 		/** If the mesh shall not be rendered visible, use
 		overrideMaterial to disable the color and depth buffer. */
-		virtual void runOcclusionQuery(scene::ISceneNode* node, bool visible=false);
+		virtual void runOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node, bool visible=false);
 
 		//! Run all occlusion queries. Draws all meshes stored in queries.
 		/** If the meshes shall not be rendered visible, use
@@ -453,7 +453,7 @@ namespace video
 		//! Update occlusion query. Retrieves results from GPU.
 		/** If the query shall not block, set the flag to false.
 		Update might not occur in this case, though */
-		virtual void updateOcclusionQuery(scene::ISceneNode* node, bool block=true);
+		virtual void updateOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node, bool block=true);
 
 		//! Update all occlusion queries. Retrieves results from GPU.
 		/** If the query shall not block, set the flag to false.
@@ -464,7 +464,7 @@ namespace video
 		/** Return value is the number of visible pixels/fragments.
 		The value is a safe approximation, i.e. can be larger than the
 		actual value of pixels. */
-		virtual u32 getOcclusionQueryResult(scene::ISceneNode* node) const;
+		virtual u32 getOcclusionQueryResult(boost::shared_ptr<scene::ISceneNode> node) const;
 
 		//! Only used by the engine internally.
 		/** Used to notify the driver that the window was resized. */
@@ -754,26 +754,20 @@ namespace video
 
 		struct SOccQuery
 		{
-			SOccQuery(scene::ISceneNode* node, const scene::IMesh* mesh=0) : Node(node), Mesh(mesh), PID(0), Result(~0), Run(~0)
+			SOccQuery(boost::shared_ptr<scene::ISceneNode> node, const scene::IMesh* mesh=0) : Node(node), Mesh(mesh), PID(0), Result(~0), Run(~0)
 			{
-				if (Node)
-					Node->grab();
 				if (Mesh)
 					Mesh->grab();
 			}
 
 			SOccQuery(const SOccQuery& other) : Node(other.Node), Mesh(other.Mesh), PID(other.PID), Result(other.Result), Run(other.Run)
 			{
-				if (Node)
-					Node->grab();
 				if (Mesh)
 					Mesh->grab();
 			}
 
 			~SOccQuery()
 			{
-				if (Node)
-					Node->drop();
 				if (Mesh)
 					Mesh->drop();
 			}
@@ -785,8 +779,6 @@ namespace video
 				PID=other.PID;
 				Result=other.Result;
 				Run=other.Run;
-				if (Node)
-					Node->grab();
 				if (Mesh)
 					Mesh->grab();
 				return *this;
@@ -797,7 +789,7 @@ namespace video
 				return other.Node==Node;
 			}
 
-			scene::ISceneNode* Node;
+			boost::shared_ptr<scene::ISceneNode> Node;
 			const scene::IMesh* Mesh;
 			union
 			{

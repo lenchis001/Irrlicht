@@ -25,7 +25,7 @@ namespace scene
 {
 
 //! Constructor
-CB3DMeshFileLoader::CB3DMeshFileLoader(scene::ISceneManager* smgr)
+CB3DMeshFileLoader::CB3DMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr)
 : SceneManager(smgr), AnimatedMesh(0), B3DFile(0), NormalsInFile(false),
 	HasVertexColors(false), ShowWarning(true)
 {

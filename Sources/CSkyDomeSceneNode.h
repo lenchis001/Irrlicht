@@ -19,7 +19,7 @@ class CSkyDomeSceneNode : public ISceneNode
 	public:
 		CSkyDomeSceneNode(video::ITexture* texture, u32 horiRes, u32 vertRes,
 			f32 texturePercentage, f32 spherePercentage, f32 radius,
-			ISceneNode* parent, ISceneManager* smgr, s32 id);
+			boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> smgr, s32 id);
 		virtual ~CSkyDomeSceneNode();
 		virtual void OnRegisterSceneNode();
 		virtual void render();
@@ -30,7 +30,7 @@ class CSkyDomeSceneNode : public ISceneNode
 
 		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const;
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
-		virtual ISceneNode* clone(ISceneNode* newParent=0, ISceneManager* newManager=0);
+		virtual boost::shared_ptr<ISceneNode> clone(boost::shared_ptr<ISceneNode> newParent=0, boost::shared_ptr<scene::ISceneManager> newManager=0);
 
 	private:
 

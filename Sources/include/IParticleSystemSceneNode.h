@@ -29,7 +29,7 @@ can be controlled by setting the right particle emitters and affectors.
 You can for example easily create a campfire by doing this:
 
 \code
-	scene::IParticleSystemSceneNode* p = scenemgr->addParticleSystemSceneNode();
+	scene::boost::shared_ptr<IParticleSystemSceneNode> p = scenemgr->addParticleSystemSceneNode();
 	p->setParticleSize(core::dimension2d<f32>(20.0f, 10.0f));
 	scene::IParticleEmitter* em = p->createBoxEmitter(
 		core::aabbox3d<f32>(-5,0,-5,5,1,5),
@@ -48,7 +48,7 @@ class IParticleSystemSceneNode : public ISceneNode
 public:
 
 	//! Constructor
-	IParticleSystemSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
+	IParticleSystemSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 		const core::vector3df& position = core::vector3df(0,0,0),
 		const core::vector3df& rotation = core::vector3df(0,0,0),
 		const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f))
@@ -151,7 +151,7 @@ public:
 	that you'll have to drop() the returned pointer, after you don't need
 	it any more, see IReferenceCounted::drop() for more informations. */
 	virtual IParticleAnimatedMeshSceneNodeEmitter* createAnimatedMeshSceneNodeEmitter(
-		scene::IAnimatedMeshSceneNode* node, bool useNormalDirection = true,
+		boost::shared_ptr<scene::IAnimatedMeshSceneNode> node, bool useNormalDirection = true,
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		f32 normalDirectionModifier = 100.0f, s32 mbNumber = -1,
 		bool everyMeshVertex = false,

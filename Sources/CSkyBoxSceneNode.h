@@ -21,7 +21,7 @@ namespace scene
 		//! constructor
 		CSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom, video::ITexture* left,
 			video::ITexture* right, video::ITexture* front, video::ITexture* back,
-			ISceneNode* parent, ISceneManager* mgr, s32 id);
+			boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id);
 
 		virtual void OnRegisterSceneNode();
 
@@ -45,7 +45,7 @@ namespace scene
 		virtual ESCENE_NODE_TYPE getType() const { return ESNT_SKY_BOX; }
 
 		//! Creates a clone of this scene node and its children.
-		virtual ISceneNode* clone(ISceneNode* newParent=0, ISceneManager* newManager=0); 
+		virtual boost::shared_ptr<ISceneNode> clone(boost::shared_ptr<ISceneNode> newParent=0, boost::shared_ptr<scene::ISceneManager> newManager=0); 
 
 	private:
 

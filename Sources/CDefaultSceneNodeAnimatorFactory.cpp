@@ -32,7 +32,7 @@ const c8* const SceneNodeAnimatorTypeNames[] =
 };
 
 
-CDefaultSceneNodeAnimatorFactory::CDefaultSceneNodeAnimatorFactory(ISceneManager* mgr, gui::ICursorControl* crs)
+CDefaultSceneNodeAnimatorFactory::CDefaultSceneNodeAnimatorFactory(boost::shared_ptr<scene::ISceneManager> mgr, gui::ICursorControl* crs)
 : Manager(mgr), CursorControl(crs)
 {
 	#ifdef _DEBUG
@@ -53,7 +53,7 @@ CDefaultSceneNodeAnimatorFactory::~CDefaultSceneNodeAnimatorFactory()
 
 
 //! creates a scene node animator based on its type id
-ISceneNodeAnimator* CDefaultSceneNodeAnimatorFactory::createSceneNodeAnimator(ESCENE_NODE_ANIMATOR_TYPE type, ISceneNode* target)
+ISceneNodeAnimator* CDefaultSceneNodeAnimatorFactory::createSceneNodeAnimator(ESCENE_NODE_ANIMATOR_TYPE type, boost::shared_ptr<ISceneNode> target)
 {
 	scene::ISceneNodeAnimator* anim = 0;
 
@@ -112,7 +112,7 @@ ISceneNodeAnimator* CDefaultSceneNodeAnimatorFactory::createSceneNodeAnimator(ES
 
 
 //! creates a scene node animator based on its type name
-ISceneNodeAnimator* CDefaultSceneNodeAnimatorFactory::createSceneNodeAnimator(const c8* typeName, ISceneNode* target)
+ISceneNodeAnimator* CDefaultSceneNodeAnimatorFactory::createSceneNodeAnimator(const c8* typeName, boost::shared_ptr<ISceneNode> target)
 {
 	return createSceneNodeAnimator( getTypeFromName(typeName), target );
 }

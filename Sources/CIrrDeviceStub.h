@@ -26,7 +26,7 @@ namespace irr
 
 	namespace scene
 	{
-		ISceneManager* createSceneManager(video::IVideoDriver* driver,
+		boost::shared_ptr<scene::ISceneManager> createSceneManager(video::IVideoDriver* driver,
 			io::IFileSystem* fs, gui::ICursorControl* cc, gui::IGUIEnvironment *gui);
 	}
 
@@ -68,7 +68,7 @@ namespace irr
 		virtual gui::IGUIEnvironment* getGUIEnvironment();
 
 		//! returns the scene manager
-		virtual scene::ISceneManager* getSceneManager();
+		virtual boost::shared_ptr<scene::ISceneManager> getSceneManager();
 
 		//! \return Returns a pointer to the mouse cursor control interface.
 		virtual gui::ICursorControl* getCursorControl();
@@ -93,7 +93,7 @@ namespace irr
 
 		//! Sets the input receiving scene manager.
 		/** If set to null, the main scene manager (returned by GetSceneManager()) will receive the input */
-		virtual void setInputReceivingSceneManager(scene::ISceneManager* sceneManager);
+		virtual void setInputReceivingSceneManager(boost::shared_ptr<scene::ISceneManager> sceneManager);
 
 		//! Returns a pointer to the logger.
 		virtual ILogger* getLogger();
@@ -152,7 +152,7 @@ namespace irr
 
 		video::IVideoDriver* VideoDriver;
 		gui::IGUIEnvironment* GUIEnvironment;
-		scene::ISceneManager* SceneManager;
+		boost::shared_ptr<scene::ISceneManager> SceneManager;
 		ITimer* Timer;
 		gui::ICursorControl* CursorControl;
 		IEventReceiver* UserReceiver;
@@ -160,7 +160,7 @@ namespace irr
 		IOSOperator* Operator;
 		IRandomizer* Randomizer;
 		io::IFileSystem* FileSystem;
-		scene::ISceneManager* InputReceivingSceneManager;
+		boost::shared_ptr<scene::ISceneManager> InputReceivingSceneManager;
 
 		struct SMouseMultiClicks
 		{

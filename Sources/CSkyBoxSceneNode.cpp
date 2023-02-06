@@ -16,7 +16,7 @@ namespace scene
 
 //! constructor
 CSkyBoxSceneNode::CSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom, video::ITexture* left,
-			video::ITexture* right, video::ITexture* front, video::ITexture* back, ISceneNode* parent, ISceneManager* mgr, s32 id)
+			video::ITexture* right, video::ITexture* front, video::ITexture* back, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id)
 : ISceneNode(parent, mgr, id)
 {
 	#ifdef _DEBUG
@@ -131,7 +131,7 @@ CSkyBoxSceneNode::CSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom
 void CSkyBoxSceneNode::render()
 {
 	video::IVideoDriver* driver = SceneManager->getVideoDriver();
-	scene::ICameraSceneNode* camera = SceneManager->getActiveCamera();
+	boost::shared_ptr<scene::ICameraSceneNode> camera = SceneManager->getActiveCamera();
 
 	if (!camera || !driver)
 		return;
@@ -214,7 +214,7 @@ const core::aabbox3d<f32>& CSkyBoxSceneNode::getBoundingBox() const
 void CSkyBoxSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(this, ESNRP_SKY_BOX);
+		SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_SKY_BOX);
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -239,21 +239,19 @@ u32 CSkyBoxSceneNode::getMaterialCount() const
 
 
 //! Creates a clone of this scene node and its children.
-ISceneNode* CSkyBoxSceneNode::clone(ISceneNode* newParent, ISceneManager* newManager)
+boost::shared_ptr<ISceneNode> CSkyBoxSceneNode::clone(boost::shared_ptr<ISceneNode> newParent, boost::shared_ptr<scene::ISceneManager> newManager)
 {
-	if (!newParent) newParent = Parent;
+	if (!newParent) newParent = Parent.lock();
 	if (!newManager) newManager = SceneManager;
 
-	CSkyBoxSceneNode* nb = new CSkyBoxSceneNode(0,0,0,0,0,0, newParent,
-		newManager, ID);
+	boost::shared_ptr<CSkyBoxSceneNode> nb = boost::make_shared<CSkyBoxSceneNode>(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, newParent, newManager, ID);
+	nb->setWeakThis(nb);
 
-	nb->cloneMembers(this, newManager);
+	nb->cloneMembers(getSharedThis(), newManager);
 
 	for (u32 i=0; i<6; ++i)
 		nb->Material[i] = Material[i];
 
-	if ( newParent )
-		nb->drop();
 	return nb;
 }
 

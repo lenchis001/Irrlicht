@@ -25,7 +25,7 @@ namespace scene
 	public:
 
 		//! Constructor
-		ICameraSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
+		ICameraSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f,1.0f,1.0f))
@@ -192,7 +192,7 @@ namespace scene
 
 	protected:
 
-		void cloneMembers(ICameraSceneNode* toCopyFrom)
+		void cloneMembers(boost::shared_ptr<ICameraSceneNode> toCopyFrom)
 		{
 			IsOrthogonal = toCopyFrom->IsOrthogonal;
 		}

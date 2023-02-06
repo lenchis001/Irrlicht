@@ -19,7 +19,7 @@ class IParticleAnimatedMeshSceneNodeEmitter : public IParticleEmitter
 public:
 
 	//! Set Mesh to emit particles from
-	virtual void setAnimatedMeshSceneNode( IAnimatedMeshSceneNode* node ) = 0;
+	virtual void setAnimatedMeshSceneNode( boost::shared_ptr<scene::IAnimatedMeshSceneNode> node ) = 0;
 
 	//! Set whether to use vertex normal for direction, or direction specified
 	virtual void setUseNormalDirection( bool useNormalDirection = true ) = 0;
@@ -31,7 +31,7 @@ public:
 	virtual void setEveryMeshVertex( bool everyMeshVertex = true ) = 0;
 
 	//! Get mesh we're emitting particles from
-	virtual const IAnimatedMeshSceneNode* getAnimatedMeshSceneNode() const = 0;
+	virtual const boost::shared_ptr<scene::IAnimatedMeshSceneNode> getAnimatedMeshSceneNode() const = 0;
 
 	//! Get whether to use vertex normal for direction, or direction specified
 	virtual bool isUsingNormalDirection() const = 0;

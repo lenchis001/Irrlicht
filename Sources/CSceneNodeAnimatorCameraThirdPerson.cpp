@@ -100,9 +100,9 @@ namespace irr::scene {
 		return true;
 	}
 
-	void CSceneNodeAnimatorCameraThirdPerson::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
+	void CSceneNodeAnimatorCameraThirdPerson::animateNode(boost::shared_ptr<irr::scene::ISceneNode> node, irr::u32 timeMs)
 	{
-		irr::scene::ICameraSceneNode* camera = static_cast<irr::scene::ICameraSceneNode*>(node);
+		boost::shared_ptr<irr::scene::ICameraSceneNode> camera = boost::static_pointer_cast<irr::scene::ICameraSceneNode>(node);
 
 		auto parent = camera->getParent();
 		irr::core::vector3df parentPosition = parent->getPosition();
@@ -113,7 +113,7 @@ namespace irr::scene {
 	}
 
 	irr::scene::ISceneNodeAnimator* CSceneNodeAnimatorCameraThirdPerson::createClone(
-		irr::scene::ISceneNode* node, irr::scene::ISceneManager* newManager)
+		boost::shared_ptr<irr::scene::ISceneNode> node, boost::shared_ptr<irr::scene::ISceneManager> newManager)
 	{
 		return new CSceneNodeAnimatorCameraThirdPerson(_cursorControl);
 	}

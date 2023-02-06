@@ -1613,7 +1613,7 @@ bool CNullDriver::isHardwareBufferRecommend(const scene::IMeshBuffer* mb)
 
 //! Create occlusion query.
 /** Use node for identification and mesh for occlusion test. */
-void CNullDriver::addOcclusionQuery(scene::ISceneNode* node, const scene::IMesh* mesh)
+void CNullDriver::addOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node, const scene::IMesh* mesh)
 {
 	if (!node)
 		return;
@@ -1622,9 +1622,9 @@ void CNullDriver::addOcclusionQuery(scene::ISceneNode* node, const scene::IMesh*
 		if ((node->getType() != scene::ESNT_MESH) && (node->getType() != scene::ESNT_ANIMATED_MESH))
 			return;
 		else if (node->getType() == scene::ESNT_MESH)
-			mesh = static_cast<scene::IMeshSceneNode*>(node)->getMesh();
+			mesh = boost::static_pointer_cast<scene::IMeshSceneNode>(node)->getMesh();
 		else
-			mesh = static_cast<scene::IAnimatedMeshSceneNode*>(node)->getMesh()->getMesh(0);
+			mesh = boost::static_pointer_cast<scene::IAnimatedMeshSceneNode>(node)->getMesh()->getMesh(0);
 		if (!mesh)
 			return;
 	}
@@ -1649,7 +1649,7 @@ void CNullDriver::addOcclusionQuery(scene::ISceneNode* node, const scene::IMesh*
 
 
 //! Remove occlusion query.
-void CNullDriver::removeOcclusionQuery(scene::ISceneNode* node)
+void CNullDriver::removeOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node)
 {
 	//search for query
 	s32 index = OcclusionQueries.linear_search(SOccQuery(node));
@@ -1674,7 +1674,7 @@ void CNullDriver::removeAllOcclusionQueries()
 //! Run occlusion query. Draws mesh stored in query.
 /** If the mesh shall be rendered visible, use
 flag to enable the proper material setting. */
-void CNullDriver::runOcclusionQuery(scene::ISceneNode* node, bool visible)
+void CNullDriver::runOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node, bool visible)
 {
 	if(!node)
 		return;
@@ -1716,7 +1716,7 @@ void CNullDriver::runAllOcclusionQueries(bool visible)
 //! Update occlusion query. Retrieves results from GPU.
 /** If the query shall not block, set the flag to false.
 Update might not occur in this case, though */
-void CNullDriver::updateOcclusionQuery(scene::ISceneNode* node, bool block)
+void CNullDriver::updateOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node, bool block)
 {
 }
 
@@ -1742,7 +1742,7 @@ void CNullDriver::updateAllOcclusionQueries(bool block)
 /** Return value is the number of visible pixels/fragments.
 The value is a safe approximation, i.e. can be larger then the
 actual value of pixels. */
-u32 CNullDriver::getOcclusionQueryResult(scene::ISceneNode* node) const
+u32 CNullDriver::getOcclusionQueryResult(boost::shared_ptr<scene::ISceneNode> node) const
 {
 	return ~0;
 }

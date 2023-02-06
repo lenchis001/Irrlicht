@@ -15,8 +15,8 @@ namespace scene
 
 //! constructor
 CSceneNodeAnimatorCollisionResponse::CSceneNodeAnimatorCollisionResponse(
-		ISceneManager* scenemanager,
-		ITriangleSelector* world, ISceneNode* object,
+		boost::shared_ptr<scene::ISceneManager> scenemanager,
+		ITriangleSelector* world, boost::shared_ptr<ISceneNode> object,
 		const core::vector3df& ellipsoidRadius,
 		const core::vector3df& gravityPerSecond,
 		const core::vector3df& ellipsoidTranslation,
@@ -138,7 +138,7 @@ ITriangleSelector* CSceneNodeAnimatorCollisionResponse::getWorld() const
 }
 
 
-void CSceneNodeAnimatorCollisionResponse::animateNode(ISceneNode* node, u32 timeMs)
+void CSceneNodeAnimatorCollisionResponse::animateNode(boost::shared_ptr<ISceneNode> node, u32 timeMs)
 {
 	CollisionOccurred = false;
 
@@ -218,7 +218,7 @@ void CSceneNodeAnimatorCollisionResponse::animateNode(ISceneNode* node, u32 time
 	if (AnimateCameraTarget && IsCamera)
 	{
 		const core::vector3df pdiff = Object->getPosition() - LastPosition - vel;
-		ICameraSceneNode* cam = (ICameraSceneNode*)Object;
+		boost::shared_ptr<ICameraSceneNode> cam = boost::static_pointer_cast<ICameraSceneNode>(Object);
 		cam->setTarget(cam->getTarget() + pdiff);
 	}
 
@@ -226,7 +226,7 @@ void CSceneNodeAnimatorCollisionResponse::animateNode(ISceneNode* node, u32 time
 }
 
 
-void CSceneNodeAnimatorCollisionResponse::setNode(ISceneNode* node)
+void CSceneNodeAnimatorCollisionResponse::setNode(boost::shared_ptr<ISceneNode> node)
 {
 	Object = node;
 
@@ -260,7 +260,7 @@ void CSceneNodeAnimatorCollisionResponse::deserializeAttributes(io::IAttributes*
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorCollisionResponse::createClone(ISceneNode* node, ISceneManager* newManager)
+ISceneNodeAnimator* CSceneNodeAnimatorCollisionResponse::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	if (!newManager) newManager = SceneManager;
 

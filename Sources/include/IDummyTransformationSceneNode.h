@@ -25,7 +25,7 @@ class IDummyTransformationSceneNode : public ISceneNode
 public:
 
 	//! Constructor
-	IDummyTransformationSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id)
+	IDummyTransformationSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id)
 		: ISceneNode(parent, mgr, id) {}
 
 	//! Returns a reference to the current relative transformation matrix.

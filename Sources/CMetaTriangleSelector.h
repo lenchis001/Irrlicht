@@ -52,7 +52,7 @@ public:
 	virtual void removeAllTriangleSelectors();
 
 	//! Get the scene node associated with a given triangle.
-	virtual ISceneNode* getSceneNodeForTriangle(u32 triangleIndex) const;
+	virtual boost::shared_ptr<ISceneNode> getSceneNodeForTriangle(u32 triangleIndex) const;
 
 	// Get the number of TriangleSelectors that are part of this one
 	virtual u32 getSelectorCount() const;

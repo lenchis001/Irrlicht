@@ -485,7 +485,7 @@ namespace scene
 		virtual ~CAnimatedMeshHalfLife();
 
 		//! loads a Halflife mdl file
-		virtual bool loadModelFile( io::IReadFile* file, ISceneManager * smgr );
+		virtual bool loadModelFile( io::IReadFile* file, boost::shared_ptr<ISceneManager>  smgr );
 
 		//IAnimatedMesh
 		virtual u32 getFrameCount() const;
@@ -546,7 +546,7 @@ namespace scene
 		//! return a Mesh per frame
 		SMesh* MeshIPol;
 
-		ISceneManager *SceneManager;
+		boost::shared_ptr<ISceneManager> SceneManager;
 
 		SHalflifeHeader *Header;
 		SHalflifeHeader *TextureHeader;
@@ -605,7 +605,7 @@ namespace scene
 	public:
 
 		//! Constructor
-		CHalflifeMDLMeshFileLoader( scene::ISceneManager* smgr );
+		CHalflifeMDLMeshFileLoader( boost::shared_ptr<scene::ISceneManager> smgr );
 
 		//! returns true if the file maybe is able to be loaded by this class
 		/** based on the file extension (e.g. ".bsp") */
@@ -619,7 +619,7 @@ namespace scene
 		virtual IAnimatedMesh* createMesh(io::IReadFile* file);
 
 	private:
-		scene::ISceneManager* SceneManager;
+		boost::shared_ptr<scene::ISceneManager> SceneManager;
 	};
 
 

@@ -99,7 +99,7 @@ namespace irr::scene {
 		return true;
 	}
 
-	void CSceneNodeAnimatorCameraEditor::animateNode(ISceneNode* node, irr::u32 timeMs)
+	void CSceneNodeAnimatorCameraEditor::animateNode(boost::shared_ptr<ISceneNode> node, irr::u32 timeMs)
 	{
 		switch (_moveMode)
 		{
@@ -121,14 +121,14 @@ namespace irr::scene {
 			break;
 		}
 
-		ICameraSceneNode* camera = static_cast<ICameraSceneNode*>(node);
+		boost::shared_ptr<ICameraSceneNode> camera = boost::static_pointer_cast<ICameraSceneNode>(node);
 
 		camera->setPosition(_cameraPosition);
 		camera->setTarget(_targetPosition);
 	}
 
 	ISceneNodeAnimator* CSceneNodeAnimatorCameraEditor::createClone(
-		ISceneNode* node, ISceneManager* newManager)
+		boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 	{
 		return new CSceneNodeAnimatorCameraEditor();
 	}

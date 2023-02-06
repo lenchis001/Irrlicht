@@ -14,7 +14,7 @@ namespace scene
 {
 
 //! Constructor
-CBSPMeshFileLoader::CBSPMeshFileLoader(scene::ISceneManager* smgr,
+CBSPMeshFileLoader::CBSPMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr,
 		io::IFileSystem* fs)
 : FileSystem(fs), SceneManager(smgr)
 {

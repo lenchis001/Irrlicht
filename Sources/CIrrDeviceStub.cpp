@@ -63,12 +63,6 @@ CIrrDeviceStub::~CIrrDeviceStub()
 	if (VideoDriver)
 		VideoDriver->drop();
 
-	if (SceneManager)
-		SceneManager->drop();
-
-	if (InputReceivingSceneManager)
-		InputReceivingSceneManager->drop();
-
 	if (CursorControl)
 		CursorControl->drop();
 
@@ -127,7 +121,7 @@ gui::IGUIEnvironment* CIrrDeviceStub::getGUIEnvironment()
 
 
 //! returns the scene manager
-scene::ISceneManager* CIrrDeviceStub::getSceneManager()
+boost::shared_ptr<scene::ISceneManager> CIrrDeviceStub::getSceneManager()
 {
 	return SceneManager;
 }
@@ -223,7 +217,7 @@ bool CIrrDeviceStub::postEventFromUser(const SEvent& event)
 	if (!absorbed && GUIEnvironment)
 		absorbed = GUIEnvironment->postEventFromUser(event);
 
-	scene::ISceneManager* inputReceiver = InputReceivingSceneManager;
+	boost::shared_ptr<scene::ISceneManager> inputReceiver = InputReceivingSceneManager;
 	if (!inputReceiver)
 		inputReceiver = SceneManager;
 
@@ -322,13 +316,8 @@ IRandomizer* CIrrDeviceStub::createDefaultRandomizer() const
 
 
 //! Sets the input receiving scene manager.
-void CIrrDeviceStub::setInputReceivingSceneManager(scene::ISceneManager* sceneManager)
+void CIrrDeviceStub::setInputReceivingSceneManager(boost::shared_ptr<scene::ISceneManager> sceneManager)
 {
-	if (sceneManager)
-		sceneManager->grab();
-	if (InputReceivingSceneManager)
-		InputReceivingSceneManager->drop();
-
 	InputReceivingSceneManager = sceneManager;
 }
 

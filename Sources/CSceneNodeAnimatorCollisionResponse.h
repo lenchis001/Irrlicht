@@ -25,8 +25,8 @@ namespace scene
 	public:
 
 		//! constructor
-		CSceneNodeAnimatorCollisionResponse(ISceneManager* scenemanager,
-			ITriangleSelector* world, ISceneNode* object,
+		CSceneNodeAnimatorCollisionResponse(boost::shared_ptr<scene::ISceneManager> scenemanager,
+			ITriangleSelector* world, boost::shared_ptr<ISceneNode> object,
 			const core::vector3df& ellipsoidRadius = core::vector3df(30,60,30),
 			const core::vector3df& gravityPerSecond = core::vector3df(0,-100.0f,0),
 			const core::vector3df& ellipsoidTranslation = core::vector3df(0,0,0),
@@ -76,7 +76,7 @@ namespace scene
 		virtual ITriangleSelector* getWorld() const;
 
 		//! animates a scene node
-		virtual void animateNode(ISceneNode* node, u32 timeMs);
+		virtual void animateNode(boost::shared_ptr<ISceneNode> node, u32 timeMs);
 
 		//! Writes attributes of the scene node animator.
 		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const;
@@ -91,13 +91,13 @@ namespace scene
 		/** Please note that you will have to drop
 		(IReferenceCounted::drop()) the returned pointer after calling
 		this. */
-		virtual ISceneNodeAnimator* createClone(ISceneNode* node, ISceneManager* newManager=0);
+		virtual ISceneNodeAnimator* createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager=0);
 
 		//! Set the single node that this animator will act on.
-		virtual void setTargetNode(ISceneNode * node) { setNode(node); }
+		virtual void setTargetNode(boost::shared_ptr<ISceneNode>  node) { setNode(node); }
 
 		//! Gets the single node that this animator is acting on.
-		virtual ISceneNode* getTargetNode(void) const { return Object; }
+		virtual boost::shared_ptr<ISceneNode> getTargetNode(void) const { return Object; }
 
 		//! Returns true if a collision occurred during the last animateNode()
 		virtual bool collisionOccurred() const { return CollisionOccurred; }
@@ -110,7 +110,7 @@ namespace scene
 
 		virtual const core::vector3df & getCollisionResultPosition(void) const { return CollisionResultPosition; }
 
-		virtual ISceneNode* getCollisionNode(void) const { return CollisionNode; }
+		virtual boost::shared_ptr<ISceneNode> getCollisionNode(void) const { return CollisionNode; }
 
 
 		//! Sets a callback interface which will be called if a collision occurs.
@@ -121,7 +121,7 @@ namespace scene
 
 	private:
 
-		void setNode(ISceneNode* node);
+		void setNode(boost::shared_ptr<ISceneNode> node);
 
 		core::vector3df Radius;
 		core::vector3df Gravity;
@@ -132,15 +132,15 @@ namespace scene
 		core::triangle3df RefTriangle;
 
 		ITriangleSelector* World;
-		ISceneNode* Object;
-		ISceneManager* SceneManager;
+		boost::shared_ptr<ISceneNode> Object;
+		boost::shared_ptr<scene::ISceneManager> SceneManager;
 		u32 LastTime;
 		f32 SlidingSpeed;
 
 		core::vector3df CollisionPoint;
 		core::triangle3df CollisionTriangle;
 		core::vector3df CollisionResultPosition;
-		ISceneNode * CollisionNode;
+		boost::shared_ptr<ISceneNode>  CollisionNode;
 		ICollisionCallback* CollisionCallback;
 
 		bool Falling;
