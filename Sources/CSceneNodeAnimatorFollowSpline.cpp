@@ -147,10 +147,10 @@ void CSceneNodeAnimatorFollowSpline::deserializeAttributes(io::IAttributes* in, 
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorFollowSpline::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
+boost::shared_ptr<ISceneNodeAnimator> CSceneNodeAnimatorFollowSpline::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
-	CSceneNodeAnimatorFollowSpline * newAnimator =
-		new CSceneNodeAnimatorFollowSpline(StartTime, Points, Speed, Tightness);
+	boost::shared_ptr<CSceneNodeAnimatorFollowSpline> newAnimator =
+		boost::make_shared<CSceneNodeAnimatorFollowSpline>(StartTime, Points, Speed, Tightness);
 
 	return newAnimator;
 }

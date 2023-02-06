@@ -723,11 +723,10 @@ boost::shared_ptr<ICameraSceneNode> CSceneManager::addCameraSceneNodeMaya(boost:
 			core::vector3df(0,0,100), id, makeActive);
 	if (node)
 	{
-		ISceneNodeAnimator* anm = new CSceneNodeAnimatorCameraMaya(CursorControl,
+		boost::shared_ptr<ISceneNodeAnimator> anm = boost::make_shared<CSceneNodeAnimatorCameraMaya>(CursorControl,
 			rotateSpeed, zoomSpeed, translationSpeed, distance);
 
 		node->addAnimator(anm);
-		anm->drop();
 	}
 
 	return node;
@@ -745,14 +744,13 @@ boost::shared_ptr<ICameraSceneNode> CSceneManager::addCameraSceneNodeFPS(boost::
 			core::vector3df(0,0,100), id, makeActive);
 	if (node)
 	{
-		ISceneNodeAnimator* anm = new CSceneNodeAnimatorCameraFPS(CursorControl,
+		boost::shared_ptr<ISceneNodeAnimator> anm = boost::make_shared<CSceneNodeAnimatorCameraFPS>(CursorControl,
 				rotateSpeed, moveSpeed, jumpSpeed,
 				keyMapArray, keyMapSize, noVerticalMovement, invertMouseY);
 
 		// Bind the node's rotation to its target. This is consistent with 1.4.2 and below.
 		node->bindTargetAndRotation(true);
 		node->addAnimator(anm);
-		anm->drop();
 	}
 
 	return node;
@@ -766,7 +764,7 @@ boost::shared_ptr<ICameraSceneNode> CSceneManager::addCameraSceneNodeEditor() {
 	camera->setTarget(irr::core::vector3df(0, 0, 0));
 
 	camera->bindTargetAndRotation(false);
-	camera->addAnimator(new CSceneNodeAnimatorCameraEditor());
+	camera->addAnimator(boost::make_shared<CSceneNodeAnimatorCameraEditor>());
 
 	return camera;
 }
@@ -775,7 +773,7 @@ boost::shared_ptr<ICameraSceneNode> CSceneManager::addCameraSceneNodeThirdPerson
 	auto camera = addCameraSceneNode(parent);
 	camera->bindTargetAndRotation(false);
 
-	camera->addAnimator(new CSceneNodeAnimatorCameraThirdPerson(CursorControl));
+	camera->addAnimator(boost::make_shared<CSceneNodeAnimatorCameraThirdPerson>(CursorControl));
 
 	return camera;
 }
@@ -1659,9 +1657,9 @@ video::SColor CSceneManager::getShadowColor() const
 
 
 //! creates a rotation animator, which rotates the attached scene node around itself.
-ISceneNodeAnimator* CSceneManager::createRotationAnimator(const core::vector3df& rotationPerSecond)
+boost::shared_ptr<ISceneNodeAnimator> CSceneManager::createRotationAnimator(const core::vector3df& rotationPerSecond)
 {
-	ISceneNodeAnimator* anim = new CSceneNodeAnimatorRotation(os::Timer::getTime(),
+	boost::shared_ptr<ISceneNodeAnimator> anim = boost::make_shared<CSceneNodeAnimatorRotation>(os::Timer::getTime(),
 		rotationPerSecond);
 
 	return anim;
@@ -1669,7 +1667,7 @@ ISceneNodeAnimator* CSceneManager::createRotationAnimator(const core::vector3df&
 
 
 //! creates a fly circle animator, which lets the attached scene node fly around a center.
-ISceneNodeAnimator* CSceneManager::createFlyCircleAnimator(
+boost::shared_ptr<ISceneNodeAnimator> CSceneManager::createFlyCircleAnimator(
 		const core::vector3df& center, f32 radius, f32 speed,
 		const core::vector3df& direction,
 		f32 startPosition,
@@ -1678,7 +1676,7 @@ ISceneNodeAnimator* CSceneManager::createFlyCircleAnimator(
 	const f32 orbitDurationMs = (core::DEGTORAD * 360.f) / speed;
 	const u32 effectiveTime = os::Timer::getTime() + (u32)(orbitDurationMs * startPosition);
 
-	ISceneNodeAnimator* anim = new CSceneNodeAnimatorFlyCircle(
+	boost::shared_ptr<ISceneNodeAnimator> anim = boost::make_shared<CSceneNodeAnimatorFlyCircle>(
 			effectiveTime, center,
 			radius, speed, direction,radiusEllipsoid);
 	return anim;
@@ -1687,10 +1685,10 @@ ISceneNodeAnimator* CSceneManager::createFlyCircleAnimator(
 
 //! Creates a fly straight animator, which lets the attached scene node
 //! fly or move along a line between two points.
-ISceneNodeAnimator* CSceneManager::createFlyStraightAnimator(const core::vector3df& startPoint,
+boost::shared_ptr<ISceneNodeAnimator> CSceneManager::createFlyStraightAnimator(const core::vector3df& startPoint,
 					const core::vector3df& endPoint, u32 timeForWay, bool loop,bool pingpong)
 {
-	ISceneNodeAnimator* anim = new CSceneNodeAnimatorFlyStraight(startPoint,
+	boost::shared_ptr<ISceneNodeAnimator> anim = boost::make_shared<CSceneNodeAnimatorFlyStraight>(startPoint,
 		endPoint, timeForWay, loop, os::Timer::getTime(), pingpong);
 
 	return anim;
@@ -1699,10 +1697,10 @@ ISceneNodeAnimator* CSceneManager::createFlyStraightAnimator(const core::vector3
 
 //! Creates a texture animator, which switches the textures of the target scene
 //! node based on a list of textures.
-ISceneNodeAnimator* CSceneManager::createTextureAnimator(const core::array<video::ITexture*>& textures,
+boost::shared_ptr<ISceneNodeAnimator> CSceneManager::createTextureAnimator(const core::array<video::ITexture*>& textures,
 	s32 timePerFrame, bool loop)
 {
-	ISceneNodeAnimator* anim = new CSceneNodeAnimatorTexture(textures,
+	boost::shared_ptr<ISceneNodeAnimator> anim = boost::make_shared<CSceneNodeAnimatorTexture>(textures,
 		timePerFrame, loop, os::Timer::getTime());
 
 	return anim;
@@ -1711,21 +1709,21 @@ ISceneNodeAnimator* CSceneManager::createTextureAnimator(const core::array<video
 
 //! Creates a scene node animator, which deletes the scene node after
 //! some time automaticly.
-ISceneNodeAnimator* CSceneManager::createDeleteAnimator(u32 when)
+boost::shared_ptr<ISceneNodeAnimator> CSceneManager::createDeleteAnimator(u32 when)
 {
-	return new CSceneNodeAnimatorDelete(SceneManager, os::Timer::getTime() + when);
+	return boost::make_shared<CSceneNodeAnimatorDelete>(SceneManager, os::Timer::getTime() + when);
 }
 
 
 //! Creates a special scene node animator for doing automatic collision detection
 //! and response.
-ISceneNodeAnimatorCollisionResponse* CSceneManager::createCollisionResponseAnimator(
+boost::shared_ptr<ISceneNodeAnimatorCollisionResponse> CSceneManager::createCollisionResponseAnimator(
 	ITriangleSelector* world, boost::shared_ptr<ISceneNode> sceneNode, const core::vector3df& ellipsoidRadius,
 	const core::vector3df& gravityPerSecond,
 	const core::vector3df& ellipsoidTranslation, f32 slidingValue)
 {
-	ISceneNodeAnimatorCollisionResponse* anim = new
-		CSceneNodeAnimatorCollisionResponse(SceneManager, world, sceneNode,
+	boost::shared_ptr<ISceneNodeAnimatorCollisionResponse> anim = 
+		boost::make_shared<CSceneNodeAnimatorCollisionResponse>(SceneManager, world, sceneNode,
 			ellipsoidRadius, gravityPerSecond,
 			ellipsoidTranslation, slidingValue);
 
@@ -1734,11 +1732,11 @@ ISceneNodeAnimatorCollisionResponse* CSceneManager::createCollisionResponseAnima
 
 
 //! Creates a follow spline animator.
-ISceneNodeAnimator* CSceneManager::createFollowSplineAnimator(s32 startTime,
+boost::shared_ptr<ISceneNodeAnimator> CSceneManager::createFollowSplineAnimator(s32 startTime,
 	const core::array< core::vector3df >& points,
 	f32 speed, f32 tightness, bool loop, bool pingpong)
 {
-	ISceneNodeAnimator* a = new CSceneNodeAnimatorFollowSpline(startTime, points,
+	boost::shared_ptr<ISceneNodeAnimator> a = boost::make_shared<CSceneNodeAnimatorFollowSpline>(startTime, points,
 		speed, tightness, loop, pingpong);
 	return a;
 }
@@ -2377,9 +2375,9 @@ boost::shared_ptr<ISceneNode> CSceneManager::addSceneNode(const char* sceneNodeT
 	return node;
 }
 
-ISceneNodeAnimator* CSceneManager::createSceneNodeAnimator(const char* typeName, boost::shared_ptr<ISceneNode> target)
+boost::shared_ptr<ISceneNodeAnimator> CSceneManager::createSceneNodeAnimator(const char* typeName, boost::shared_ptr<ISceneNode> target)
 {
-	ISceneNodeAnimator *animator = 0;
+	boost::shared_ptr<ISceneNodeAnimator> animator = 0;
 
 	for (s32 i=(s32)SceneNodeAnimatorFactoryList.size()-1; i>=0 && !animator; --i)
 		animator = SceneNodeAnimatorFactoryList[i]->createSceneNodeAnimator(typeName, target);

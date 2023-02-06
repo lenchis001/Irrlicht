@@ -53,9 +53,9 @@ CDefaultSceneNodeAnimatorFactory::~CDefaultSceneNodeAnimatorFactory()
 
 
 //! creates a scene node animator based on its type id
-ISceneNodeAnimator* CDefaultSceneNodeAnimatorFactory::createSceneNodeAnimator(ESCENE_NODE_ANIMATOR_TYPE type, boost::shared_ptr<ISceneNode> target)
+boost::shared_ptr<ISceneNodeAnimator> CDefaultSceneNodeAnimatorFactory::createSceneNodeAnimator(ESCENE_NODE_ANIMATOR_TYPE type, boost::shared_ptr<ISceneNode> target)
 {
-	scene::ISceneNodeAnimator* anim = 0;
+	boost::shared_ptr<scene::ISceneNodeAnimator> anim = 0;
 
 	switch(type)
 	{
@@ -89,16 +89,16 @@ ISceneNodeAnimator* CDefaultSceneNodeAnimatorFactory::createSceneNodeAnimator(ES
 		anim = Manager->createCollisionResponseAnimator(0, target);
 		break;
 	case ESNAT_CAMERA_FPS:
-		anim = new CSceneNodeAnimatorCameraFPS(CursorControl);
+		anim = boost::make_shared<CSceneNodeAnimatorCameraFPS>(CursorControl);
 		break;
 	case ESNAT_CAMERA_EDITOR:
-		anim = new CSceneNodeAnimatorCameraEditor();
+		anim = boost::make_shared<CSceneNodeAnimatorCameraEditor>();
 		break;
 	case ESNAT_CAMERA_THIRD_PERSON:
-		anim = new CSceneNodeAnimatorCameraThirdPerson(CursorControl);
+		anim = boost::make_shared<CSceneNodeAnimatorCameraThirdPerson>(CursorControl);
 		break;
 	case ESNAT_CAMERA_MAYA:
-		anim = new CSceneNodeAnimatorCameraMaya(CursorControl);
+		anim = boost::make_shared<CSceneNodeAnimatorCameraMaya>(CursorControl);
 		break;
 	default:
 		break;
@@ -112,7 +112,7 @@ ISceneNodeAnimator* CDefaultSceneNodeAnimatorFactory::createSceneNodeAnimator(ES
 
 
 //! creates a scene node animator based on its type name
-ISceneNodeAnimator* CDefaultSceneNodeAnimatorFactory::createSceneNodeAnimator(const c8* typeName, boost::shared_ptr<ISceneNode> target)
+boost::shared_ptr<ISceneNodeAnimator> CDefaultSceneNodeAnimatorFactory::createSceneNodeAnimator(const c8* typeName, boost::shared_ptr<ISceneNode> target)
 {
 	return createSceneNodeAnimator( getTypeFromName(typeName), target );
 }

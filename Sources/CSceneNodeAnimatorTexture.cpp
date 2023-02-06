@@ -126,10 +126,10 @@ void CSceneNodeAnimatorTexture::deserializeAttributes(io::IAttributes* in, io::S
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorTexture::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
+boost::shared_ptr<ISceneNodeAnimator> CSceneNodeAnimatorTexture::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
-	CSceneNodeAnimatorTexture * newAnimator = 
-		new CSceneNodeAnimatorTexture(Textures, TimePerFrame, Loop, StartTime);
+	boost::shared_ptr<CSceneNodeAnimatorTexture> newAnimator = 
+		boost::make_shared<CSceneNodeAnimatorTexture>(Textures, TimePerFrame, Loop, StartTime);
 
 	return newAnimator;
 }

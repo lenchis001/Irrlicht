@@ -299,7 +299,7 @@ namespace scene
 		//! \param rotationPerSecond: Specifies the speed of the animation
 		//! \return The animator. Attach it to a scene node with ISceneNode::addAnimator()
 		//! and the animator will animate it.
-		virtual ISceneNodeAnimator* createRotationAnimator(const core::vector3df& rotationPerSecond);
+		virtual boost::shared_ptr<ISceneNodeAnimator> createRotationAnimator(const core::vector3df& rotationPerSecond);
 
 		//! creates a fly circle animator
 		/** Lets the attached scene node fly around a center.
@@ -310,7 +310,7 @@ namespace scene
 			begin. Value is in multiples  of a circle, i.e. 0.5 is half way around.
 		 \return The animator. Attach it to a scene node with ISceneNode::addAnimator()
 		 */
-		virtual ISceneNodeAnimator* createFlyCircleAnimator(
+		virtual boost::shared_ptr<ISceneNodeAnimator> createFlyCircleAnimator(
 				const core::vector3df& center=core::vector3df(0.f, 0.f, 0.f),
 				f32 radius=100.f, f32 speed=0.001f,
 				const core::vector3df& direction=core::vector3df(0.f, 1.f, 0.f),
@@ -319,22 +319,22 @@ namespace scene
 
 		//! Creates a fly straight animator, which lets the attached scene node
 		//! fly or move along a line between two points.
-		virtual ISceneNodeAnimator* createFlyStraightAnimator(const core::vector3df& startPoint,
+		virtual boost::shared_ptr<ISceneNodeAnimator> createFlyStraightAnimator(const core::vector3df& startPoint,
 			const core::vector3df& endPoint, u32 timeForWay, bool loop=false,bool pingpong = false);
 
 		//! Creates a texture animator, which switches the textures of the target scene
 		//! node based on a list of textures.
-		virtual ISceneNodeAnimator* createTextureAnimator(const core::array<video::ITexture*>& textures,
+		virtual boost::shared_ptr<ISceneNodeAnimator> createTextureAnimator(const core::array<video::ITexture*>& textures,
 			s32 timePerFrame, bool loop);
 
 		//! Creates a scene node animator, which deletes the scene node after
 		//! some time automaticly.
-		virtual ISceneNodeAnimator* createDeleteAnimator(u32 timeMS);
+		virtual boost::shared_ptr<ISceneNodeAnimator> createDeleteAnimator(u32 timeMS);
 
 
 		//! Creates a special scene node animator for doing automatic collision detection
 		//! and response.
-		virtual ISceneNodeAnimatorCollisionResponse* createCollisionResponseAnimator(
+		virtual boost::shared_ptr<ISceneNodeAnimatorCollisionResponse> createCollisionResponseAnimator(
 			ITriangleSelector* world, boost::shared_ptr<ISceneNode> sceneNode,
 			const core::vector3df& ellipsoidRadius = core::vector3df(30,60,30),
 			const core::vector3df& gravityPerSecond = core::vector3df(0,-1.0f,0),
@@ -342,7 +342,7 @@ namespace scene
 			f32 slidingValue = 0.0005f);
 
 		//! Creates a follow spline animator.
-		virtual ISceneNodeAnimator* createFollowSplineAnimator(s32 startTime,
+		virtual boost::shared_ptr<ISceneNodeAnimator> createFollowSplineAnimator(s32 startTime,
 			const core::array< core::vector3df >& points,
 			f32 speed, f32 tightness, bool loop, bool pingpong);
 
@@ -465,7 +465,7 @@ namespace scene
 		virtual boost::shared_ptr<ISceneNode> addSceneNode(const char* sceneNodeTypeName, boost::shared_ptr<ISceneNode> parent=0);
 
 		//! creates a scene node animator based on its type name
-		virtual ISceneNodeAnimator* createSceneNodeAnimator(const char* typeName, boost::shared_ptr<ISceneNode> target=0);
+		virtual boost::shared_ptr<ISceneNodeAnimator> createSceneNodeAnimator(const char* typeName, boost::shared_ptr<ISceneNode> target=0);
 
 		//! Returns the default scene node animator factory which can create all built-in scene node animators
 		virtual ISceneNodeAnimatorFactory* getDefaultSceneNodeAnimatorFactory();

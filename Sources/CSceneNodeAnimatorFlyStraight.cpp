@@ -98,10 +98,10 @@ void CSceneNodeAnimatorFlyStraight::deserializeAttributes(io::IAttributes* in, i
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorFlyStraight::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
+boost::shared_ptr<ISceneNodeAnimator> CSceneNodeAnimatorFlyStraight::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
-	CSceneNodeAnimatorFlyStraight * newAnimator =
-		new CSceneNodeAnimatorFlyStraight(Start, End, TimeForWay, Loop, StartTime, PingPong);
+	boost::shared_ptr<CSceneNodeAnimatorFlyStraight> newAnimator =
+		boost::make_shared<CSceneNodeAnimatorFlyStraight>(Start, End, TimeForWay, Loop, StartTime, PingPong);
 
 	return newAnimator;
 }

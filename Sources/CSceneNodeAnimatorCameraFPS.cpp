@@ -244,8 +244,8 @@ void CSceneNodeAnimatorCameraFPS::animateNode(boost::shared_ptr<ISceneNode> node
 		{
 			if(ESNAT_COLLISION_RESPONSE == (*it)->getType())
 			{
-				ISceneNodeAnimatorCollisionResponse * collisionResponse =
-					static_cast<ISceneNodeAnimatorCollisionResponse *>(*it);
+				boost::shared_ptr<ISceneNodeAnimatorCollisionResponse> collisionResponse =
+					boost::static_pointer_cast<ISceneNodeAnimatorCollisionResponse>(*it);
 
 				if(!collisionResponse->isFalling())
 					collisionResponse->jump(JumpSpeed);
@@ -340,11 +340,11 @@ void CSceneNodeAnimatorCameraFPS::setInvertMouse(bool invert)
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorCameraFPS::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
+boost::shared_ptr<ISceneNodeAnimator> CSceneNodeAnimatorCameraFPS::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
-	CSceneNodeAnimatorCameraFPS * newAnimator =
-		new CSceneNodeAnimatorCameraFPS(CursorControl,	RotateSpeed, MoveSpeed, JumpSpeed,
-											0, 0, NoVerticalMovement);
+	boost::shared_ptr<CSceneNodeAnimatorCameraFPS> newAnimator =
+		boost::make_shared<CSceneNodeAnimatorCameraFPS>(CursorControl,	RotateSpeed, MoveSpeed, JumpSpeed,
+											nullptr, 0, 0, NoVerticalMovement);
 	newAnimator->setKeyMap(KeyMap);
 	return newAnimator;
 }

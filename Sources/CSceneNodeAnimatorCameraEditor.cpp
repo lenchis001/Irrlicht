@@ -127,9 +127,9 @@ namespace irr::scene {
 		camera->setTarget(_targetPosition);
 	}
 
-	ISceneNodeAnimator* CSceneNodeAnimatorCameraEditor::createClone(
+	boost::shared_ptr<ISceneNodeAnimator> CSceneNodeAnimatorCameraEditor::createClone(
 		boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 	{
-		return new CSceneNodeAnimatorCameraEditor();
+		return boost::make_shared<CSceneNodeAnimatorCameraEditor>();
 	}
 }

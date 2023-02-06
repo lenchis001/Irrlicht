@@ -37,10 +37,10 @@ void CSceneNodeAnimatorDelete::animateNode(boost::shared_ptr<ISceneNode> node, u
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorDelete::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
+boost::shared_ptr<ISceneNodeAnimator> CSceneNodeAnimatorDelete::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
-	CSceneNodeAnimatorDelete * newAnimator = 
-		new CSceneNodeAnimatorDelete(SceneManager, FinishTime);
+	boost::shared_ptr<CSceneNodeAnimatorDelete> newAnimator = 
+		boost::make_shared<CSceneNodeAnimatorDelete>(SceneManager, FinishTime);
 
 	return newAnimator;
 }

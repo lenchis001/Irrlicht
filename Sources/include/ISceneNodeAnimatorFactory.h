@@ -33,14 +33,14 @@ namespace scene
 		\param target: Target scene node of the new animator.
 		\return Returns pointer to the new scene node animator or null if not successful. You need to
 		drop this pointer after calling this, see IReferenceCounted::drop() for details. */
-		virtual ISceneNodeAnimator* createSceneNodeAnimator(ESCENE_NODE_ANIMATOR_TYPE type, boost::shared_ptr<ISceneNode> target) = 0;
+		virtual boost::shared_ptr<ISceneNodeAnimator> createSceneNodeAnimator(ESCENE_NODE_ANIMATOR_TYPE type, boost::shared_ptr<ISceneNode> target) = 0;
 
 		//! creates a scene node animator based on its type name
 		/** \param typeName: Type of the scene node animator to add.
 		\param target: Target scene node of the new animator.
 		\return Returns pointer to the new scene node animator or null if not successful. You need to
 		drop this pointer after calling this, see IReferenceCounted::drop() for details. */
-		virtual ISceneNodeAnimator* createSceneNodeAnimator(const c8* typeName, boost::shared_ptr<ISceneNode> target) = 0;
+		virtual boost::shared_ptr<ISceneNodeAnimator> createSceneNodeAnimator(const c8* typeName, boost::shared_ptr<ISceneNode> target) = 0;
 
 		//! returns amount of scene node animator types this factory is able to create
 		virtual u32 getCreatableSceneNodeAnimatorTypeCount() const = 0;

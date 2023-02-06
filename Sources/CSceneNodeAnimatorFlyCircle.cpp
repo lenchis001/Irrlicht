@@ -86,10 +86,10 @@ void CSceneNodeAnimatorFlyCircle::deserializeAttributes(io::IAttributes* in, io:
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorFlyCircle::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
+boost::shared_ptr<ISceneNodeAnimator> CSceneNodeAnimatorFlyCircle::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
-	CSceneNodeAnimatorFlyCircle * newAnimator = 
-		new CSceneNodeAnimatorFlyCircle(StartTime, Center, Radius, Speed, Direction, RadiusEllipsoid);
+	boost::shared_ptr<CSceneNodeAnimatorFlyCircle> newAnimator = 
+		boost::make_shared<CSceneNodeAnimatorFlyCircle>(StartTime, Center, Radius, Speed, Direction, RadiusEllipsoid);
 
 	return newAnimator;
 }

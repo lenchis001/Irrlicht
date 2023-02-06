@@ -27,7 +27,7 @@ namespace scene
 	change its position, rotation, scale and/or material. There are lots of animators
 	to choose from. You can create scene node animators with the ISceneManager interface.
 	*/
-	class ISceneNodeAnimator : public io::IAttributeExchangingObject, public IEventReceiver
+	class ISceneNodeAnimator : public io::IDebuableAttributeExchangingObject, public IEventReceiver
 	{
 	public:
 		//! Animates a scene node.
@@ -38,7 +38,7 @@ namespace scene
 		//! Creates a clone of this animator.
 		/** Please note that you will have to drop
 		(IReferenceCounted::drop()) the returned pointer after calling this. */
-		virtual ISceneNodeAnimator* createClone(boost::shared_ptr<ISceneNode> node,
+		virtual boost::shared_ptr<ISceneNodeAnimator> createClone(boost::shared_ptr<ISceneNode> node,
 				boost::shared_ptr<scene::ISceneManager> newManager=0) =0;
 
 		//! Returns true if this animator receives events.

@@ -91,7 +91,7 @@ namespace scene
 		/** Please note that you will have to drop
 		(IReferenceCounted::drop()) the returned pointer after calling
 		this. */
-		virtual ISceneNodeAnimator* createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager=0);
+		virtual boost::shared_ptr<ISceneNodeAnimator> createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager=0);
 
 		//! Set the single node that this animator will act on.
 		virtual void setTargetNode(boost::shared_ptr<ISceneNode>  node) { setNode(node); }

@@ -226,12 +226,11 @@ void CSceneLoaderIrr::readAnimators(io::IXMLReader* reader, boost::shared_ptr<IS
 				if (node)
 				{
 					core::stringc typeName = attr->getAttributeAsString("Type");
-					ISceneNodeAnimator* anim = SceneManager->createSceneNodeAnimator(typeName.c_str(), node);
+					boost::shared_ptr<ISceneNodeAnimator> anim = SceneManager->createSceneNodeAnimator(typeName.c_str(), node);
 
 					if (anim)
 					{
 						anim->deserializeAttributes(attr);
-						anim->drop();
 					}
 				}
 

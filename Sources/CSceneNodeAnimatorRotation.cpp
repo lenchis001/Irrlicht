@@ -59,10 +59,10 @@ void CSceneNodeAnimatorRotation::deserializeAttributes(io::IAttributes* in, io::
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorRotation::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
+boost::shared_ptr<ISceneNodeAnimator> CSceneNodeAnimatorRotation::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
-	CSceneNodeAnimatorRotation * newAnimator = 
-		new CSceneNodeAnimatorRotation(StartTime, Rotation);
+	boost::shared_ptr<CSceneNodeAnimatorRotation> newAnimator = 
+		boost::make_shared<CSceneNodeAnimatorRotation>(StartTime, Rotation);
 
 	return newAnimator;
 }

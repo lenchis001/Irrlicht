@@ -305,10 +305,10 @@ f32 CSceneNodeAnimatorCameraMaya::getDistance() const
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorCameraMaya::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
+boost::shared_ptr<ISceneNodeAnimator> CSceneNodeAnimatorCameraMaya::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
-	CSceneNodeAnimatorCameraMaya * newAnimator =
-		new CSceneNodeAnimatorCameraMaya(CursorControl, RotateSpeed, ZoomSpeed, TranslateSpeed);
+	boost::shared_ptr<CSceneNodeAnimatorCameraMaya> newAnimator =
+		boost::make_shared<CSceneNodeAnimatorCameraMaya>(CursorControl, RotateSpeed, ZoomSpeed, TranslateSpeed);
 	return newAnimator;
 }
 

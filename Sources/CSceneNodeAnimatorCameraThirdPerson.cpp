@@ -112,9 +112,9 @@ namespace irr::scene {
 		camera->setPosition(_targetPosition);
 	}
 
-	irr::scene::ISceneNodeAnimator* CSceneNodeAnimatorCameraThirdPerson::createClone(
+	boost::shared_ptr<irr::scene::ISceneNodeAnimator> CSceneNodeAnimatorCameraThirdPerson::createClone(
 		boost::shared_ptr<irr::scene::ISceneNode> node, boost::shared_ptr<irr::scene::ISceneManager> newManager)
 	{
-		return new CSceneNodeAnimatorCameraThirdPerson(_cursorControl);
+		return boost::make_shared<CSceneNodeAnimatorCameraThirdPerson>(_cursorControl);
 	}
 }

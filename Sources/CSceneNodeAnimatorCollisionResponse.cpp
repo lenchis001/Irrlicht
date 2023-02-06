@@ -260,12 +260,12 @@ void CSceneNodeAnimatorCollisionResponse::deserializeAttributes(io::IAttributes*
 }
 
 
-ISceneNodeAnimator* CSceneNodeAnimatorCollisionResponse::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
+boost::shared_ptr<ISceneNodeAnimator> CSceneNodeAnimatorCollisionResponse::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	if (!newManager) newManager = SceneManager;
 
-	CSceneNodeAnimatorCollisionResponse * newAnimator =
-		new CSceneNodeAnimatorCollisionResponse(newManager, World, Object, Radius,
+	boost::shared_ptr<CSceneNodeAnimatorCollisionResponse> newAnimator =
+		boost::make_shared<CSceneNodeAnimatorCollisionResponse>(newManager, World, Object, Radius,
 				(Gravity * 1000.0f), Translation, SlidingSpeed);
 
 	return newAnimator;
