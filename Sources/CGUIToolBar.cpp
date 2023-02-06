@@ -49,7 +49,7 @@ CGUIToolBar::CGUIToolBar(IGUIEnvironment* environment, IGUIElement* parent, s32 
 	rr.UpperLeftCorner.Y = y;
 	s32 height = Environment->getSkin()->getSize ( EGDS_MENU_HEIGHT );
 
-	/*IGUISkin* skin = Environment->getSkin();
+	/*boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	IGUIFont* font = skin->getFont();
 	if (font)
 	{
@@ -87,7 +87,7 @@ void CGUIToolBar::draw()
 	if (!IsVisible)
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (!skin)
 		return;
 
@@ -131,7 +131,7 @@ IGUIButton* CGUIToolBar::addButton(s32 id, const wchar_t* text,const wchar_t* to
 
 	if ( text )
 	{
-		IGUISkin* skin = Environment->getSkin();
+		boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 		IGUIFont * font = skin->getFont(EGDF_BUTTON);
 		if ( font )
 		{

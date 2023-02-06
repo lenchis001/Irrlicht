@@ -34,7 +34,7 @@ CGUITab::CGUITab(s32 number, IGUIEnvironment* environment,
 	setDebugName("CGUITab");
 	#endif
 
-	const IGUISkin* const skin = environment->getSkin();
+	const boost::shared_ptr<IGUISkin> const skin = environment->getSkin();
 	if (skin)
 		TextColor = skin->getColor(EGDC_BUTTON_TEXT);
 }
@@ -68,7 +68,7 @@ void CGUITab::draw()
 	if (!IsVisible)
 		return;
 
-	IGUISkin *skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin>skin = Environment->getSkin();
 
 	if (skin && DrawBackground)
 		skin->draw2DRectangle(this, BackColor, AbsoluteRect, &AbsoluteClippingRect);
@@ -174,7 +174,7 @@ CGUITabControl::CGUITabControl(IGUIEnvironment* environment,
 	setDebugName("CGUITabControl");
 	#endif
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	IGUISpriteBank* sprites = 0;
 
 	TabHeight = 32;
@@ -232,7 +232,7 @@ CGUITabControl::~CGUITabControl()
 void CGUITabControl::refreshSprites()
 {
 	video::SColor color(255,255,255,255);
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (skin)
 	{
 		color = skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
@@ -489,7 +489,7 @@ bool CGUITabControl::needScrollControl(s32 startIndex, bool withScrollControl)
 	if ( startIndex < 0 )
 		startIndex = 0;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (!skin)
 		return false;
 
@@ -572,7 +572,7 @@ void CGUITabControl::draw()
 	if (!IsVisible)
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (!skin)
 		return;
 
@@ -829,7 +829,7 @@ void CGUITabControl::setTabVerticalAlignment( EGUI_ALIGNMENT alignment )
 
 void CGUITabControl::recalculateScrollButtonPlacement()
 {
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	s32 ButtonSize = 16;
 	s32 ButtonHeight = TabHeight - 2;
 	if ( ButtonHeight < 0 )
@@ -872,7 +872,7 @@ EGUI_ALIGNMENT CGUITabControl::getTabVerticalAlignment() const
 s32 CGUITabControl::getTabAt(s32 xpos, s32 ypos) const
 {
 	core::position2di p(xpos, ypos);
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	IGUIFont* font = skin->getFont();
 
 	core::rect<s32> frameRect(AbsoluteRect);

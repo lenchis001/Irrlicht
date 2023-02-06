@@ -54,7 +54,7 @@ void CGUIStaticText::draw()
 	if (!IsVisible)
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (!skin)
 		return;
 	video::IVideoDriver* driver = Environment->getVideoDriver();
@@ -171,7 +171,7 @@ IGUIFont* CGUIStaticText::getActiveFont() const
 {
 	if ( OverrideFont )
 		return OverrideFont;
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (skin)
 		return skin->getFont();
 	return 0;
@@ -311,7 +311,7 @@ void CGUIStaticText::breakText()
 
 	BrokenText.clear();
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	IGUIFont* font = getActiveFont();
 	if (!font)
 		return;

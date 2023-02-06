@@ -62,7 +62,7 @@ CGUIFileOpenDialog::CGUIFileOpenDialog(const wchar_t* title,
 
 	IGUISpriteBank* sprites = 0;
 	video::SColor color(255,255,255,255);
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (skin)
 	{
 		sprites = skin->getSpriteBank();
@@ -307,7 +307,7 @@ void CGUIFileOpenDialog::draw()
 	if (!IsVisible)
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 
 	core::rect<s32> rect = AbsoluteRect;
 
@@ -363,7 +363,7 @@ void CGUIFileOpenDialog::deserializeAttributes(io::IAttributes* in, io::SAttribu
 //! fills the listbox with files.
 void CGUIFileOpenDialog::fillListBox()
 {
-	IGUISkin *skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin>skin = Environment->getSkin();
 
 	if (!FileSystem || !FileBox || !skin)
 		return;

@@ -446,7 +446,7 @@ CGUITreeView::CGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
 	setDebugName( "CGUITreeView" );
 #endif
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	s32 s = skin->getSize( EGDS_SCROLLBAR_SIZE );
 
 	if ( scrollBarVertical )
@@ -520,7 +520,7 @@ CGUITreeView::~CGUITreeView()
 
 void CGUITreeView::recalculateItemHeight()
 {
-	IGUISkin*		skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin>		skin = Environment->getSkin();
 	IGUITreeViewNode*	node;
 
 	if( Font != skin->getFont() )
@@ -791,7 +791,7 @@ void CGUITreeView::draw()
 
 	recalculateItemHeight(); // if the font changed
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	irr::video::IVideoDriver* driver = Environment->getVideoDriver();
 
 	core::rect<s32>* clipRect = 0;

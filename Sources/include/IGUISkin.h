@@ -22,7 +22,7 @@ namespace gui
 	/** To set one of the skins, use the following code, for example to set
 	the Windows classic skin:
 	\code
-	gui::IGUISkin* newskin = environment->createSkin(gui::EGST_WINDOWS_CLASSIC);
+	boost::shared_ptr<gui::IGUISkin> newskin = environment->createSkin(gui::EGST_WINDOWS_CLASSIC);
 	environment->setSkin(newskin);
 	newskin->drop();
 	\endcode
@@ -375,7 +375,7 @@ namespace gui
 	};
 
 	//! A skin modifies the look of the GUI elements.
-	class IGUISkin : public virtual io::IAttributeExchangingObject
+	class IGUISkin : public virtual io::IDebuableAttributeExchangingObject
 	{
 	public:
 

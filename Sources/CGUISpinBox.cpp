@@ -79,7 +79,7 @@ void CGUISpinBox::refreshSprites()
 
 	if (sb)
 	{
-		IGUISkin * skin = Environment->getSkin();
+		boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 		CurrentIconColor = skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
 		ButtonSpinDown->setSpriteBank(sb);
 		ButtonSpinDown->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_SMALL_CURSOR_DOWN), CurrentIconColor);
@@ -256,7 +256,7 @@ void CGUISpinBox::draw()
 	if ( !isVisible() )
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (!skin)
 		return;
 

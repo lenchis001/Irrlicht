@@ -297,7 +297,7 @@ void CGUITable::setCellText(u32 rowIndex, u32 columnIndex, const core::stringw& 
 		Rows[rowIndex].Items[columnIndex].Text = text;
 		breakText( Rows[rowIndex].Items[columnIndex].Text, Rows[rowIndex].Items[columnIndex].BrokenText, Columns[columnIndex].Width );
 
-		IGUISkin* skin = Environment->getSkin();
+		boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 		if ( skin )
 			Rows[rowIndex].Items[columnIndex].Color = skin->getColor(EGDC_BUTTON_TEXT);
 	}
@@ -415,7 +415,7 @@ void CGUITable::recalculateWidths()
 void CGUITable::recalculateHeights()
 {
 	TotalItemHeight = 0;
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (Font != skin->getFont())
 	{
 		if (Font)
@@ -439,7 +439,7 @@ void CGUITable::recalculateHeights()
 // automatic enabled/disabling and resizing of scrollbars
 void CGUITable::checkScrollbars()
 {
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if ( !HorizontalScrollBar || !VerticalScrollBar || !skin)
 		return;
 
@@ -834,7 +834,7 @@ void CGUITable::orderRows(s32 columnIndex, EGUI_ORDERING_MODE mode)
 
 void CGUITable::selectNew(s32 ypos, bool onlyHover)
 {
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (!skin)
 		return;
 
@@ -873,7 +873,7 @@ void CGUITable::draw()
 
 	irr::video::IVideoDriver* driver = Environment->getVideoDriver();
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (!skin)
 		return;
 
@@ -1027,7 +1027,7 @@ void CGUITable::draw()
 
 void CGUITable::breakText(const core::stringw& text, core::stringw& brokenText, u32 cellWidth)
 {
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 
 	if (!skin)
 		return;

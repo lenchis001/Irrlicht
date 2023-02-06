@@ -279,7 +279,7 @@ void CGUIScrollBar::draw()
 	if (!IsVisible)
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (!skin)
 		return;
 
@@ -454,7 +454,7 @@ void CGUIScrollBar::refreshControls()
 {
 	CurrentIconColor = video::SColor(255,255,255,255);
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	IGUISpriteBank* sprites = 0;
 
 	if (skin)

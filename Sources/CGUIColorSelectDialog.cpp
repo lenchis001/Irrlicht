@@ -65,7 +65,7 @@ CGUIColorSelectDialog::CGUIColorSelectDialog(const wchar_t* title, IGUIEnvironme
 
 	Text = title;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 
 	const s32 buttonw = environment->getSkin()->getSize(EGDS_WINDOW_BUTTON_WIDTH);
 	const s32 posx = RelativeRect.getWidth() - buttonw - 4;
@@ -404,7 +404,7 @@ void CGUIColorSelectDialog::draw()
 	if (!IsVisible)
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	core::rect<s32> rect = skin->draw3DWindowBackground(this, true, skin->getColor(EGDC_ACTIVE_BORDER),
 		AbsoluteRect, &AbsoluteClippingRect);
 

@@ -33,7 +33,7 @@ CGUIListBox::CGUIListBox(IGUIEnvironment* environment, IGUIElement* parent,
 	setDebugName("CGUIListBox");
 	#endif
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	const s32 s = skin->getSize(EGDS_SCROLLBAR_SIZE);
 
 	ScrollBar = new CGUIScrollBar(false, Environment, this, -1,
@@ -158,7 +158,7 @@ void CGUIListBox::clear()
 
 void CGUIListBox::recalculateItemHeight()
 {
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 
 	if (Font != skin->getFont())
 	{
@@ -493,7 +493,7 @@ void CGUIListBox::draw()
 
 	recalculateItemHeight(); // if the font changed
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 
 	core::rect<s32>* clipRect = 0;
 
@@ -869,7 +869,7 @@ video::SColor CGUIListBox::getItemOverrideColor(u32 index, EGUI_LISTBOX_COLOR co
 
 video::SColor CGUIListBox::getItemDefaultColor(EGUI_LISTBOX_COLOR colorType) const
 {
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if ( !skin )
 		return video::SColor();
 

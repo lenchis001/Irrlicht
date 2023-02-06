@@ -149,7 +149,7 @@ CIrrDeviceConsole::CIrrDeviceConsole(const SIrrlichtCreationParameters& params)
 		if (GUIEnvironment)
 		{
 			ConsoleFont = new gui::CGUIConsoleFont(this);
-			gui::IGUISkin *skin = GUIEnvironment->getSkin();
+			boost::shared_ptr<gui::IGUISkin>skin = GUIEnvironment->getSkin();
 			if (skin)
 			{
 				for (u32 i=0; i < gui::EGDF_COUNT; ++i)

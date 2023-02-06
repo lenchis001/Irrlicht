@@ -41,7 +41,7 @@ void CGUIMenu::draw()
 	if (!IsVisible)
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	IGUIFont* font = skin->getFont(EGDF_MENU);
 
 	if (font != LastFont)
@@ -203,7 +203,7 @@ void CGUIMenu::recalculateSize()
 	}
 
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	IGUIFont* font = skin->getFont(EGDF_MENU);
 
 	if (!font)

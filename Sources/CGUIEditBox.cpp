@@ -101,7 +101,7 @@ IGUIFont* CGUIEditBox::getActiveFont() const
 {
 	if ( OverrideFont )
 		return OverrideFont;
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (skin)
 		return skin->getFont();
 	return 0;
@@ -723,7 +723,7 @@ void CGUIEditBox::draw()
 
 	const bool focus = Environment->hasFocus(this);
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (!skin)
 		return;
 
@@ -1345,7 +1345,7 @@ void CGUIEditBox::calculateScrollPos()
 	if (!AutoScroll)
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (!skin)
 		return;
 	IGUIFont* font = OverrideFont ? OverrideFont : skin->getFont();
@@ -1467,7 +1467,7 @@ void CGUIEditBox::calculateScrollPos()
 void CGUIEditBox::calculateFrameRect()
 {
 	FrameRect = AbsoluteRect;
-	IGUISkin *skin = 0;
+	boost::shared_ptr<IGUISkin>skin = 0;
 	if (Environment)
 		skin = Environment->getSkin();
 	if (Border && skin)

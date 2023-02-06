@@ -25,7 +25,7 @@ CGUIWindow::CGUIWindow(IGUIEnvironment* environment, IGUIElement* parent, s32 id
 	setDebugName("CGUIWindow");
 	#endif
 
-	IGUISkin* skin = 0;
+	boost::shared_ptr<IGUISkin> skin = 0;
 	if (environment)
 		skin = environment->getSkin();
 
@@ -91,7 +91,7 @@ void CGUIWindow::refreshSprites()
 {
 	if (!Environment)
 		return;
-	IGUISkin* skin  = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin  = Environment->getSkin();
 	if ( !skin )
 		return;
 
@@ -230,7 +230,7 @@ void CGUIWindow::draw()
 {
 	if (IsVisible)
 	{
-		IGUISkin* skin = Environment->getSkin();
+		boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 
 
 		// update each time because the skin is allowed to change this always.
@@ -342,7 +342,7 @@ void CGUIWindow::updateClientRect()
 		ClientRect = core::rect<s32>(0,0, AbsoluteRect.getWidth(), AbsoluteRect.getHeight());
 		return;
 	}
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	skin->draw3DWindowBackground(this, DrawTitlebar,
 			skin->getColor(IsActive ? EGDC_ACTIVE_BORDER : EGDC_INACTIVE_BORDER),
 			AbsoluteRect, &AbsoluteClippingRect, &ClientRect);

@@ -80,9 +80,8 @@ CGUIEnvironment::CGUIEnvironment(io::IFileSystem* fs, video::IVideoDriver* drive
 
 	loadBuiltInFont();
 
-	IGUISkin* skin = createSkin( gui::EGST_WINDOWS_METALLIC );
+	boost::shared_ptr<IGUISkin> skin = createSkin( gui::EGST_WINDOWS_METALLIC );
 	setSkin(skin);
-	skin->drop();
 
 	//set tooltip default
 	ToolTip.LastTime = 0;
@@ -127,7 +126,6 @@ CGUIEnvironment::~CGUIEnvironment()
 	// drop skin
 	if (CurrentSkin)
 	{
-		CurrentSkin->drop();
 		CurrentSkin = 0;
 	}
 
@@ -609,25 +607,19 @@ bool CGUIEnvironment::postEventFromUser(const SEvent& event)
 
 
 //! returns the current gui skin
-IGUISkin* CGUIEnvironment::getSkin() const
+boost::shared_ptr<IGUISkin> CGUIEnvironment::getSkin() const
 {
 	return CurrentSkin;
 }
 
 
 //! Sets a new GUI Skin
-void CGUIEnvironment::setSkin(IGUISkin* skin)
+void CGUIEnvironment::setSkin(boost::shared_ptr<IGUISkin> skin)
 {
 	if (CurrentSkin==skin)
 		return;
 
-	if (CurrentSkin)
-		CurrentSkin->drop();
-
 	CurrentSkin = skin;
-
-	if (CurrentSkin)
-		CurrentSkin->grab();
 }
 
 
@@ -635,9 +627,9 @@ void CGUIEnvironment::setSkin(IGUISkin* skin)
 /** \return Returns a pointer to the created skin.
 If you no longer need the skin, you should call IGUISkin::drop().
 See IReferenceCounted::drop() for more information. */
-IGUISkin* CGUIEnvironment::createSkin(EGUI_SKIN_TYPE type)
+boost::shared_ptr<IGUISkin> CGUIEnvironment::createSkin(EGUI_SKIN_TYPE type)
 {
-	IGUISkin* skin = new CGUISkin(type, Driver);
+	boost::shared_ptr<IGUISkin> skin = boost::make_shared<CGUISkin>(type, Driver);
 
 	IGUIFont* builtinfont = getBuiltInFont();
 	IGUIFontBitmap* bitfont = 0;
@@ -951,7 +943,7 @@ void CGUIEnvironment::writeGUIElement(io::IXMLWriter* writer, IGUIElement* node)
 //! Writes attributes of the environment
 void CGUIEnvironment::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
 {
-	IGUISkin* skin = getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSkin();
 
 	if (skin)
 	{
@@ -966,14 +958,13 @@ void CGUIEnvironment::deserializeAttributes(io::IAttributes* in, io::SAttributeR
 {
 	if (in->existsAttribute("Skin"))
 	{
-		IGUISkin *skin = getSkin();
+		boost::shared_ptr<IGUISkin>skin = getSkin();
 
 		EGUI_SKIN_TYPE t = (EGUI_SKIN_TYPE) in->getAttributeAsEnumeration("Skin",GUISkinTypeNames);
 		if ( !skin || t != skin->getType())
 		{
 			skin = createSkin(t);
 			setSkin(skin);
-			skin->drop();
 		}
 
 		skin = getSkin();

@@ -147,7 +147,7 @@ bool CGUIModalScreen::OnEvent(const SEvent& event)
 //! draws the element and its children
 void CGUIModalScreen::draw()
 {
-	IGUISkin *skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin>skin = Environment->getSkin();
 
 	if (!skin)
 		return;

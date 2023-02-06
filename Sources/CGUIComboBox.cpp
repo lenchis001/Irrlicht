@@ -30,7 +30,7 @@ CGUIComboBox::CGUIComboBox(IGUIEnvironment* environment, IGUIElement* parent,
 	setDebugName("CGUIComboBox");
 	#endif
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 
 	s32 width = 15;
 	if (skin)
@@ -383,7 +383,7 @@ void CGUIComboBox::draw()
 	if (!IsVisible)
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	IGUIElement *currentFocus = Environment->getFocus();
 	if (currentFocus != LastFocus)
 	{
@@ -433,7 +433,7 @@ void CGUIComboBox::openCloseMenu()
 		if (Parent)
 			Parent->bringToFront(this);
 
-		IGUISkin* skin = Environment->getSkin();
+		boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 		u32 h = Items.size();
 
 		if (h > getMaxSelectionRows())

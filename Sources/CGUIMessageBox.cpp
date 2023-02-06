@@ -110,7 +110,7 @@ void CGUIMessageBox::refreshControls()
 	// Two boxes with same height at the middle beside each other for icon and for text
 	// One box at the bottom for the buttons
 
-	const IGUISkin* skin = Environment->getSkin();
+	const boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 
 	const s32 buttonHeight   = skin->getSize(EGDS_BUTTON_HEIGHT);
 	const s32 buttonWidth    = skin->getSize(EGDS_BUTTON_WIDTH);

@@ -59,16 +59,16 @@ public:
 	virtual bool OnEvent(const SEvent& event);
 
 	//! returns the current gui skin
-	virtual IGUISkin* getSkin() const;
+	virtual boost::shared_ptr<IGUISkin> getSkin() const;
 
 	//! Sets a new GUI Skin
-	virtual void setSkin(IGUISkin* skin);
+	virtual void setSkin(boost::shared_ptr<IGUISkin> skin);
 
 	//! Creates a new GUI Skin based on a template.
 	/** \return Returns a pointer to the created skin.
 	If you no longer need the skin, you should call IGUISkin::drop().
 	See IReferenceCounted::drop() for more information. */
-	virtual IGUISkin* createSkin(EGUI_SKIN_TYPE type);
+	virtual boost::shared_ptr<IGUISkin> createSkin(EGUI_SKIN_TYPE type);
 
 	//! Creates the image list from the given texture.
 	virtual IGUIImageList* createImageList( video::ITexture* texture,
@@ -309,7 +309,7 @@ private:
 	IGUIElement* HoveredNoSubelement;	// subelements replaced by their parent, so you only have 'real' elements here
 	IGUIElement* Focus;
 	core::position2d<s32> LastHoveredMousePos;
-	IGUISkin* CurrentSkin;
+	boost::shared_ptr<IGUISkin> CurrentSkin;
 	io::IFileSystem* FileSystem;
 	IEventReceiver* UserReceiver;
 	IOSOperator* Operator;

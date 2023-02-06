@@ -136,7 +136,7 @@ public:
 
 	//! Returns pointer to the current gui skin.
 	/** \return Pointer to the GUI skin. */
-	virtual IGUISkin* getSkin() const = 0;
+	virtual boost::shared_ptr<IGUISkin> getSkin() const = 0;
 
 	//! Sets a new GUI Skin
 	/** You can use this to change the appearance of the whole GUI
@@ -145,13 +145,13 @@ public:
 	To set for example the built-in Windows classic skin, use the following
 	code:
 	\code
-	gui::IGUISkin* newskin = environment->createSkin(gui::EGST_WINDOWS_CLASSIC);
+	boost::shared_ptr<gui::IGUISkin> newskin = environment->createSkin(gui::EGST_WINDOWS_CLASSIC);
 	environment->setSkin(newskin);
 	newskin->drop();
 	\endcode
 	\param skin New skin to use.
 	*/
-	virtual void setSkin(IGUISkin* skin) = 0;
+	virtual void setSkin(boost::shared_ptr<IGUISkin> skin) = 0;
 
 	//! Creates a new GUI Skin based on a template.
 	/** Use setSkin() to set the created skin.
@@ -159,7 +159,7 @@ public:
 	\return Pointer to the created skin.
 	If you no longer need it, you should call IGUISkin::drop().
 	See IReferenceCounted::drop() for more information. */
-	virtual IGUISkin* createSkin(EGUI_SKIN_TYPE type) = 0;
+	virtual boost::shared_ptr<IGUISkin> createSkin(EGUI_SKIN_TYPE type) = 0;
 
 
 	//! Creates the image list from the given texture.

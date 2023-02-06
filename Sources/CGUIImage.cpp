@@ -73,7 +73,7 @@ void CGUIImage::draw()
 	if (!IsVisible)
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	video::IVideoDriver* driver = Environment->getVideoDriver();
 
 	if (Texture)

@@ -126,7 +126,7 @@ void CGUICheckBox::draw()
 	if (!IsVisible)
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (skin)
 	{
 		const s32 height = skin->getSize(EGDS_CHECK_BOX_WIDTH);

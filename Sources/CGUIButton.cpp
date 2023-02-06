@@ -232,7 +232,7 @@ void CGUIButton::draw()
 	if (!IsVisible)
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	video::IVideoDriver* driver = Environment->getVideoDriver();
 
 	// todo:	move sprite up and text down if the pressed state has a sprite
@@ -360,7 +360,7 @@ IGUIFont* CGUIButton::getActiveFont() const
 {
 	if ( OverrideFont )
 		return OverrideFont;
-	IGUISkin* skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	if (skin)
 		return skin->getFont(EGDF_BUTTON);
 	return 0;
