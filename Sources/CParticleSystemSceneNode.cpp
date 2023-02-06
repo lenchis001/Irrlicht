@@ -77,14 +77,13 @@ void CParticleSystemSceneNode::setEmitter(boost::shared_ptr<IParticleEmitter> em
 
 
 //! Adds new particle effector to the particle system.
-void CParticleSystemSceneNode::addAffector(IParticleAffector* affector)
+void CParticleSystemSceneNode::addAffector(boost::shared_ptr<IParticleAffector> affector)
 {
-	affector->grab();
 	AffectorList.push_back(affector);
 }
 
 //! Get a list of all particle affectors.
-const core::list<IParticleAffector*>& CParticleSystemSceneNode::getAffectors() const
+const core::list<boost::shared_ptr<IParticleAffector>>& CParticleSystemSceneNode::getAffectors() const
 {
 	return AffectorList;
 }
@@ -92,12 +91,7 @@ const core::list<IParticleAffector*>& CParticleSystemSceneNode::getAffectors() c
 //! Removes all particle affectors in the particle system.
 void CParticleSystemSceneNode::removeAllAffectors()
 {
-	core::list<IParticleAffector*>::Iterator it = AffectorList.begin();
-	while (it != AffectorList.end())
-	{
-		(*it)->drop();
-		it = AffectorList.erase(it);
-	}
+	AffectorList.clear();
 }
 
 
@@ -243,42 +237,42 @@ boost::shared_ptr<IParticleSphereEmitter> CParticleSystemSceneNode::createSphere
 
 //! Creates a point attraction affector. This affector modifies the positions of the
 //! particles and attracts them to a specified point at a specified speed per second.
-IParticleAttractionAffector* CParticleSystemSceneNode::createAttractionAffector(
+boost::shared_ptr<IParticleAttractionAffector> CParticleSystemSceneNode::createAttractionAffector(
 	const core::vector3df& point, f32 speed, bool attract,
 	bool affectX, bool affectY, bool affectZ )
 {
-	return new CParticleAttractionAffector( point, speed, attract, affectX, affectY, affectZ );
+	return boost::make_shared<CParticleAttractionAffector>( point, speed, attract, affectX, affectY, affectZ );
 }
 
 //! Creates a scale particle affector.
-IParticleAffector* CParticleSystemSceneNode::createScaleParticleAffector(const core::dimension2df& scaleTo)
+boost::shared_ptr<IParticleAffector> CParticleSystemSceneNode::createScaleParticleAffector(const core::dimension2df& scaleTo)
 {
-	return new CParticleScaleAffector(scaleTo);
+	return boost::make_shared<CParticleScaleAffector>(scaleTo);
 }
 
 
 //! Creates a fade out particle affector.
-IParticleFadeOutAffector* CParticleSystemSceneNode::createFadeOutParticleAffector(
+boost::shared_ptr<IParticleFadeOutAffector> CParticleSystemSceneNode::createFadeOutParticleAffector(
 		const video::SColor& targetColor, u32 timeNeededToFadeOut)
 {
-	return new CParticleFadeOutAffector(targetColor, timeNeededToFadeOut);
+	return boost::make_shared<CParticleFadeOutAffector>(targetColor, timeNeededToFadeOut);
 }
 
 
 //! Creates a gravity affector.
-IParticleGravityAffector* CParticleSystemSceneNode::createGravityAffector(
+boost::shared_ptr<IParticleGravityAffector> CParticleSystemSceneNode::createGravityAffector(
 		const core::vector3df& gravity, u32 timeForceLost)
 {
-	return new CParticleGravityAffector(gravity, timeForceLost);
+	return boost::make_shared<CParticleGravityAffector>(gravity, timeForceLost);
 }
 
 
 //! Creates a rotation affector. This affector rotates the particles around a specified pivot
 //! point.  The speed represents Degrees of rotation per second.
-IParticleRotationAffector* CParticleSystemSceneNode::createRotationAffector(
+boost::shared_ptr<IParticleRotationAffector> CParticleSystemSceneNode::createRotationAffector(
 	const core::vector3df& speed, const core::vector3df& pivotPoint )
 {
-	return new CParticleRotationAffector( speed, pivotPoint );
+	return boost::make_shared<CParticleRotationAffector>( speed, pivotPoint );
 }
 
 
@@ -433,7 +427,7 @@ void CParticleSystemSceneNode::doParticleSystem(u32 time)
 	}
 
 	// run affectors
-	core::list<IParticleAffector*>::Iterator ait = AffectorList.begin();
+	core::list<boost::shared_ptr<IParticleAffector>>::Iterator ait = AffectorList.begin();
 	for (; ait != AffectorList.end(); ++ait)
 		(*ait)->affect(now, Particles.pointer(), Particles.size());
 
@@ -572,7 +566,7 @@ void CParticleSystemSceneNode::serializeAttributes(io::IAttributes* out, io::SAt
 
 	E_PARTICLE_AFFECTOR_TYPE atype = EPAT_NONE;
 
-	for (core::list<IParticleAffector*>::ConstIterator it = AffectorList.begin();
+	for (core::list<boost::shared_ptr<IParticleAffector>>::ConstIterator it = AffectorList.begin();
 		it != AffectorList.end(); ++it)
 	{
 		atype = (*it)->getType();
@@ -663,7 +657,7 @@ void CParticleSystemSceneNode::deserializeAttributes(io::IAttributes* in, io::SA
 		E_PARTICLE_AFFECTOR_TYPE atype =
 			(E_PARTICLE_AFFECTOR_TYPE)in->getAttributeAsEnumeration(idx, ParticleAffectorTypeNames);
 
-		IParticleAffector* aff = 0;
+		boost::shared_ptr<IParticleAffector> aff = 0;
 
 		switch(atype)
 		{
@@ -699,7 +693,6 @@ void CParticleSystemSceneNode::deserializeAttributes(io::IAttributes* in, io::SA
 #endif
 
 			addAffector(aff);
-			aff->drop();
 		}
 	}
 }

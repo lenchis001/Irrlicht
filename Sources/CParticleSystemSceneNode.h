@@ -40,10 +40,10 @@ public:
 	virtual void setEmitter(boost::shared_ptr<IParticleEmitter> emitter);
 
 	//! Adds new particle affector to the particle system.
-	virtual void addAffector(IParticleAffector* affector);
+	virtual void addAffector(boost::shared_ptr<IParticleAffector> affector);
 
 	//! Get a list of all particle affectors.
-	virtual const core::list<IParticleAffector*>& getAffectors() const;
+	virtual const core::list<boost::shared_ptr<IParticleAffector>>& getAffectors() const;
 
 	//! Removes all particle affectors in the particle system.
 	virtual void removeAllAffectors();
@@ -158,26 +158,26 @@ public:
 
 	//! Creates a point attraction affector. This affector modifies the positions of the
 	//! particles and attracts them to a specified point at a specified speed per second.
-	virtual IParticleAttractionAffector* createAttractionAffector(
+	virtual boost::shared_ptr<IParticleAttractionAffector> createAttractionAffector(
 		const core::vector3df& point, f32 speed = 1.0f, bool attract = true,
 		bool affectX = true, bool affectY = true, bool affectZ = true);
 
 	//! Creates a scale particle affector.
-	virtual IParticleAffector* createScaleParticleAffector(const core::dimension2df& scaleTo = core::dimension2df(1.0f, 1.0f));
+	virtual boost::shared_ptr<IParticleAffector> createScaleParticleAffector(const core::dimension2df& scaleTo = core::dimension2df(1.0f, 1.0f));
 
 	//! Creates a fade out particle affector.
-	virtual IParticleFadeOutAffector* createFadeOutParticleAffector(
+	virtual boost::shared_ptr<IParticleFadeOutAffector> createFadeOutParticleAffector(
 		const video::SColor& targetColor = video::SColor(0,0,0,0),
 		u32 timeNeededToFadeOut = 1000);
 
 	//! Creates a gravity affector.
-	virtual IParticleGravityAffector* createGravityAffector(
+	virtual boost::shared_ptr<IParticleGravityAffector> createGravityAffector(
 		const core::vector3df& gravity = core::vector3df(0.0f,-0.03f,0.0f),
 		u32 timeForceLost = 1000);
 
 	//! Creates a rotation affector. This affector rotates the particles
 	//! around a specified pivot point. The speed is in Degrees per second.
-	virtual IParticleRotationAffector* createRotationAffector(
+	virtual boost::shared_ptr<IParticleRotationAffector> createRotationAffector(
 		const core::vector3df& speed = core::vector3df(5.0f,5.0f,5.0f),
 		const core::vector3df& pivotPoint = core::vector3df(0.0f,0.0f,0.0f) );
 
@@ -211,7 +211,7 @@ private:
 
 	void reallocateBuffers();
 
-	core::list<IParticleAffector*> AffectorList;
+	core::list<boost::shared_ptr<IParticleAffector>> AffectorList;
 	boost::shared_ptr<IParticleEmitter> Emitter;
 	core::array<SParticle> Particles;
 	core::dimension2d<f32> ParticleSize;

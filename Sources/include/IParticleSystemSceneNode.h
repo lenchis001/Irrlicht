@@ -37,7 +37,7 @@ You can for example easily create a campfire by doing this:
 		40,80, video::SColor(0,255,255,255),video::SColor(0,255,255,255), 1100,2000);
 	p->setEmitter(em);
 	em->drop();
-	scene::IParticleAffector* paf = p->createFadeOutParticleAffector();
+	boost::shared_ptr<scene::IParticleAffector> paf = p->createFadeOutParticleAffector();
 	p->addAffector(paf);
 	paf->drop();
 \endcode
@@ -90,18 +90,18 @@ public:
 	affector lets all particles fade out after some time. It is created and
 	used in this way:
 	\code
-	IParticleAffector* p = createFadeOutParticleAffector();
+	boost::shared_ptr<IParticleAffector> p = createFadeOutParticleAffector();
 	addAffector(p);
 	p->drop();
 	\endcode
 	Please note that an affector is not necessary for the particle system to
 	work.
 	\param affector: New affector. */
-	virtual void addAffector(IParticleAffector* affector) = 0;
+	virtual void addAffector(boost::shared_ptr<IParticleAffector> affector) = 0;
 
 	//! Get a list of all particle affectors.
 	/** \return The list of particle affectors attached to this node. */
-	virtual const core::list<IParticleAffector*>& getAffectors() const = 0;
+	virtual const core::list<boost::shared_ptr<IParticleAffector>>& getAffectors() const = 0;
 
 	//! Removes all particle affectors in the particle system.
 	virtual void removeAllAffectors() = 0;
@@ -441,7 +441,7 @@ public:
 	as new affector of this particle system, just call addAffector(). Note
 	that you'll have to drop() the returned pointer, after you don't need
 	it any more, see IReferenceCounted::drop() for more informations. */
-	virtual IParticleAttractionAffector* createAttractionAffector(
+	virtual boost::shared_ptr<IParticleAttractionAffector> createAttractionAffector(
 		const core::vector3df& point, f32 speed = 1.0f, bool attract = true,
 		bool affectX = true, bool affectY = true, bool affectZ = true) = 0;
 
@@ -454,7 +454,7 @@ public:
 	just call addAffector(). Note that you'll have to drop() the
 	returned pointer, after you don't need it any more, see
 	IReferenceCounted::drop() for more information. */
-	virtual IParticleAffector* createScaleParticleAffector(const core::dimension2df& scaleTo = core::dimension2df(1.0f, 1.0f)) = 0;
+	virtual boost::shared_ptr<IParticleAffector> createScaleParticleAffector(const core::dimension2df& scaleTo = core::dimension2df(1.0f, 1.0f)) = 0;
 
 	//! Creates a fade out particle affector.
 	/** This affector modifies the color of every particle and and reaches
@@ -469,7 +469,7 @@ public:
 	as new affector of this particle system, just call addAffector(). Note
 	that you'll have to drop() the returned pointer, after you don't need
 	it any more, see IReferenceCounted::drop() for more informations. */
-	virtual IParticleFadeOutAffector* createFadeOutParticleAffector(
+	virtual boost::shared_ptr<IParticleFadeOutAffector> createFadeOutParticleAffector(
 		const video::SColor& targetColor = video::SColor(0,0,0,0),
 		u32 timeNeededToFadeOut = 1000) = 0;
 
@@ -486,7 +486,7 @@ public:
 	as new affector of this particle system, just call addAffector(). Note
 	that you'll have to drop() the returned pointer, after you don't need
 	it any more, see IReferenceCounted::drop() for more informations. */
-	virtual IParticleGravityAffector* createGravityAffector(
+	virtual boost::shared_ptr<IParticleGravityAffector> createGravityAffector(
 		const core::vector3df& gravity = core::vector3df(0.0f,-0.03f,0.0f),
 		u32 timeForceLost = 1000) = 0;
 
@@ -499,7 +499,7 @@ public:
 	as new affector of this particle system, just call addAffector(). Note
 	that you'll have to drop() the returned pointer, after you don't need
 	it any more, see IReferenceCounted::drop() for more informations. */
-	virtual IParticleRotationAffector* createRotationAffector(
+	virtual boost::shared_ptr<IParticleRotationAffector> createRotationAffector(
 		const core::vector3df& speed = core::vector3df(5.0f,5.0f,5.0f),
 		const core::vector3df& pivotPoint = core::vector3df(0.0f,0.0f,0.0f) ) = 0;
 };
