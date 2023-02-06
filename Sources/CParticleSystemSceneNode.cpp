@@ -43,9 +43,8 @@ CParticleSystemSceneNode::CParticleSystemSceneNode(bool createDefaultEmitter,
 	Buffer = new SMeshBuffer();
 	if (createDefaultEmitter)
 	{
-		IParticleEmitter* e = createBoxEmitter();
+		boost::shared_ptr<IParticleEmitter> e = createBoxEmitter();
 		setEmitter(e);
-		e->drop();
 	}
 }
 
@@ -53,8 +52,6 @@ CParticleSystemSceneNode::CParticleSystemSceneNode(bool createDefaultEmitter,
 //! destructor
 CParticleSystemSceneNode::~CParticleSystemSceneNode()
 {
-	if (Emitter)
-		Emitter->drop();
 	if (Buffer)
 		Buffer->drop();
 
@@ -63,24 +60,19 @@ CParticleSystemSceneNode::~CParticleSystemSceneNode()
 
 
 //! Gets the particle emitter, which creates the particles.
-IParticleEmitter* CParticleSystemSceneNode::getEmitter()
+boost::shared_ptr<IParticleEmitter> CParticleSystemSceneNode::getEmitter()
 {
 	return Emitter;
 }
 
 
 //! Sets the particle emitter, which creates the particles.
-void CParticleSystemSceneNode::setEmitter(IParticleEmitter* emitter)
+void CParticleSystemSceneNode::setEmitter(boost::shared_ptr<IParticleEmitter> emitter)
 {
 	if (emitter == Emitter)
 		return;
-	if (Emitter)
-		Emitter->drop();
 
 	Emitter = emitter;
-
-	if (Emitter)
-		Emitter->grab();
 }
 
 
@@ -124,7 +116,7 @@ u32 CParticleSystemSceneNode::getMaterialCount() const
 
 
 //! Creates a particle emitter for an animated mesh scene node
-IParticleAnimatedMeshSceneNodeEmitter*
+boost::shared_ptr<IParticleAnimatedMeshSceneNodeEmitter>
 CParticleSystemSceneNode::createAnimatedMeshSceneNodeEmitter(
 	boost::shared_ptr<scene::IAnimatedMeshSceneNode> node, bool useNormalDirection,
 	const core::vector3df& direction, f32 normalDirectionModifier,
@@ -135,7 +127,7 @@ CParticleSystemSceneNode::createAnimatedMeshSceneNodeEmitter(
 	const core::dimension2df& minStartSize,
 	const core::dimension2df& maxStartSize )
 {
-	return new CParticleAnimatedMeshSceneNodeEmitter( node,
+	return boost::make_shared<CParticleAnimatedMeshSceneNodeEmitter>( node,
 			useNormalDirection, direction, normalDirectionModifier,
 			mbNumber, everyMeshVertex,
 			minParticlesPerSecond, maxParticlesPerSecond,
@@ -146,7 +138,7 @@ CParticleSystemSceneNode::createAnimatedMeshSceneNodeEmitter(
 
 
 //! Creates a box particle emitter.
-IParticleBoxEmitter* CParticleSystemSceneNode::createBoxEmitter(
+boost::shared_ptr<IParticleBoxEmitter> CParticleSystemSceneNode::createBoxEmitter(
 	const core::aabbox3df& box, const core::vector3df& direction,
 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
 	const video::SColor& minStartColor, const video::SColor& maxStartColor,
@@ -154,7 +146,7 @@ IParticleBoxEmitter* CParticleSystemSceneNode::createBoxEmitter(
 	s32 maxAngleDegrees, const core::dimension2df& minStartSize,
 	const core::dimension2df& maxStartSize )
 {
-	return new CParticleBoxEmitter(box, direction, minParticlesPerSecond,
+	return boost::make_shared<CParticleBoxEmitter>(box, direction, minParticlesPerSecond,
 		maxParticlesPerSecond, minStartColor, maxStartColor,
 		lifeTimeMin, lifeTimeMax, maxAngleDegrees,
 			minStartSize, maxStartSize );
@@ -162,7 +154,7 @@ IParticleBoxEmitter* CParticleSystemSceneNode::createBoxEmitter(
 
 
 //! Creates a particle emitter for emitting from a cylinder
-IParticleCylinderEmitter* CParticleSystemSceneNode::createCylinderEmitter(
+boost::shared_ptr<IParticleCylinderEmitter> CParticleSystemSceneNode::createCylinderEmitter(
 	const core::vector3df& center, f32 radius,
 	const core::vector3df& normal, f32 length,
 	bool outlineOnly, const core::vector3df& direction,
@@ -172,7 +164,7 @@ IParticleCylinderEmitter* CParticleSystemSceneNode::createCylinderEmitter(
 	const core::dimension2df& minStartSize,
 	const core::dimension2df& maxStartSize )
 {
-	return new CParticleCylinderEmitter( center, radius, normal, length,
+	return boost::make_shared<CParticleCylinderEmitter>( center, radius, normal, length,
 			outlineOnly, direction,
 			minParticlesPerSecond, maxParticlesPerSecond,
 			minStartColor, maxStartColor,
@@ -182,7 +174,7 @@ IParticleCylinderEmitter* CParticleSystemSceneNode::createCylinderEmitter(
 
 
 //! Creates a mesh particle emitter.
-IParticleMeshEmitter* CParticleSystemSceneNode::createMeshEmitter(
+boost::shared_ptr<IParticleMeshEmitter> CParticleSystemSceneNode::createMeshEmitter(
 	scene::IMesh* mesh, bool useNormalDirection,
 	const core::vector3df& direction, f32 normalDirectionModifier,
 	s32 mbNumber, bool everyMeshVertex,
@@ -192,7 +184,7 @@ IParticleMeshEmitter* CParticleSystemSceneNode::createMeshEmitter(
 	const core::dimension2df& minStartSize,
 	const core::dimension2df& maxStartSize)
 {
-	return new CParticleMeshEmitter( mesh, useNormalDirection, direction,
+	return boost::make_shared<CParticleMeshEmitter>( mesh, useNormalDirection, direction,
 			normalDirectionModifier, mbNumber, everyMeshVertex,
 			minParticlesPerSecond, maxParticlesPerSecond,
 			minStartColor, maxStartColor,
@@ -202,14 +194,14 @@ IParticleMeshEmitter* CParticleSystemSceneNode::createMeshEmitter(
 
 
 //! Creates a point particle emitter.
-IParticlePointEmitter* CParticleSystemSceneNode::createPointEmitter(
+boost::shared_ptr<IParticlePointEmitter> CParticleSystemSceneNode::createPointEmitter(
 	const core::vector3df& direction, u32 minParticlesPerSecond,
 	u32 maxParticlesPerSecond, const video::SColor& minStartColor,
 	const video::SColor& maxStartColor, u32 lifeTimeMin, u32 lifeTimeMax,
 	s32 maxAngleDegrees, const core::dimension2df& minStartSize,
 	const core::dimension2df& maxStartSize )
 {
-	return new CParticlePointEmitter(direction, minParticlesPerSecond,
+	return boost::make_shared<CParticlePointEmitter>(direction, minParticlesPerSecond,
 		maxParticlesPerSecond, minStartColor, maxStartColor,
 		lifeTimeMin, lifeTimeMax, maxAngleDegrees,
 			minStartSize, maxStartSize );
@@ -217,7 +209,7 @@ IParticlePointEmitter* CParticleSystemSceneNode::createPointEmitter(
 
 
 //! Creates a ring particle emitter.
-IParticleRingEmitter* CParticleSystemSceneNode::createRingEmitter(
+boost::shared_ptr<IParticleRingEmitter> CParticleSystemSceneNode::createRingEmitter(
 	const core::vector3df& center, f32 radius, f32 ringThickness,
 	const core::vector3df& direction,
 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
@@ -225,7 +217,7 @@ IParticleRingEmitter* CParticleSystemSceneNode::createRingEmitter(
 	u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees,
 	const core::dimension2df& minStartSize, const core::dimension2df& maxStartSize )
 {
-	return new CParticleRingEmitter( center, radius, ringThickness, direction,
+	return boost::make_shared<CParticleRingEmitter>( center, radius, ringThickness, direction,
 		minParticlesPerSecond, maxParticlesPerSecond, minStartColor,
 		maxStartColor, lifeTimeMin, lifeTimeMax, maxAngleDegrees,
 			minStartSize, maxStartSize );
@@ -233,7 +225,7 @@ IParticleRingEmitter* CParticleSystemSceneNode::createRingEmitter(
 
 
 //! Creates a sphere particle emitter.
-IParticleSphereEmitter* CParticleSystemSceneNode::createSphereEmitter(
+boost::shared_ptr<IParticleSphereEmitter> CParticleSystemSceneNode::createSphereEmitter(
 	const core::vector3df& center, f32 radius, const core::vector3df& direction,
 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
 	const video::SColor& minStartColor, const video::SColor& maxStartColor,
@@ -241,7 +233,7 @@ IParticleSphereEmitter* CParticleSystemSceneNode::createSphereEmitter(
 	s32 maxAngleDegrees, const core::dimension2df& minStartSize,
 	const core::dimension2df& maxStartSize )
 {
-	return new CParticleSphereEmitter(center, radius, direction,
+	return boost::make_shared<CParticleSphereEmitter>(center, radius, direction,
 			minParticlesPerSecond, maxParticlesPerSecond,
 			minStartColor, maxStartColor,
 			lifeTimeMin, lifeTimeMax, maxAngleDegrees,
@@ -612,8 +604,6 @@ void CParticleSystemSceneNode::deserializeAttributes(io::IAttributes* in, io::SA
 	if (emitterIdx == -1)
 		return;
 
-	if (Emitter)
-		Emitter->drop();
 	Emitter = 0;
 
 	E_PARTICLE_EMITTER_TYPE type = (E_PARTICLE_EMITTER_TYPE)

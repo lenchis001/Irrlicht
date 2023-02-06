@@ -34,10 +34,10 @@ public:
 	virtual ~CParticleSystemSceneNode();
 
 	//! Gets the particle emitter, which creates the particles.
-	virtual IParticleEmitter* getEmitter();
+	virtual boost::shared_ptr<IParticleEmitter> getEmitter();
 
 	//! Sets the particle emitter, which creates the particles.
-	virtual void setEmitter(IParticleEmitter* emitter);
+	virtual void setEmitter(boost::shared_ptr<IParticleEmitter> emitter);
 
 	//! Adds new particle affector to the particle system.
 	virtual void addAffector(IParticleAffector* affector);
@@ -64,7 +64,7 @@ public:
 	virtual const core::aabbox3d<f32>& getBoundingBox() const;
 
 	//! Creates a particle emitter for an animated mesh scene node
-	virtual IParticleAnimatedMeshSceneNodeEmitter* createAnimatedMeshSceneNodeEmitter(
+	virtual boost::shared_ptr<IParticleAnimatedMeshSceneNodeEmitter> createAnimatedMeshSceneNodeEmitter(
 		boost::shared_ptr<scene::IAnimatedMeshSceneNode> node, bool useNormalDirection = true,
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		f32 normalDirectionModifier = 100.0f, s32 mbNumber = -1,
@@ -78,7 +78,7 @@ public:
 		const core::dimension2df& maxStartSize = core::dimension2df(5.0f,5.0f) );
 
 	//! Creates a box particle emitter.
-	virtual IParticleBoxEmitter* createBoxEmitter(
+	virtual boost::shared_ptr<IParticleBoxEmitter> createBoxEmitter(
 		const core::aabbox3df& box = core::aabbox3d<f32>(-10,0,-10,5,30,10),
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		u32 minParticlesPerSecond = 5,
@@ -91,7 +91,7 @@ public:
 		const core::dimension2df& maxStartSize = core::dimension2df(5.0f,5.0f) );
 
 	//! Creates a particle emitter for emitting from a cylinder
-	virtual IParticleCylinderEmitter* createCylinderEmitter(
+	virtual boost::shared_ptr<IParticleCylinderEmitter> createCylinderEmitter(
 		const core::vector3df& center, f32 radius,
 		const core::vector3df& normal, f32 length,
 		bool outlineOnly = false, const core::vector3df& direction = core::vector3df(0.0f,0.5f,0.0f),
@@ -104,7 +104,7 @@ public:
 		const core::dimension2df& maxStartSize = core::dimension2df(5.0f,5.0f) );
 
 	//! Creates a mesh particle emitter.
-	virtual IParticleMeshEmitter* createMeshEmitter(
+	virtual boost::shared_ptr<IParticleMeshEmitter> createMeshEmitter(
 		scene::IMesh* mesh, bool useNormalDirection = true,
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		f32 normalDirectionModifier = 100.0f, s32 mbNumber = -1,
@@ -119,7 +119,7 @@ public:
 		const core::dimension2df& maxStartSize = core::dimension2df(5.0f,5.0f) );
 
 	//! Creates a point particle emitter.
-	virtual IParticlePointEmitter* createPointEmitter(
+	virtual boost::shared_ptr<IParticlePointEmitter> createPointEmitter(
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		u32 minParticlesPerSecond = 5,
 		u32 maxParticlesPerSecond = 10,
@@ -131,7 +131,7 @@ public:
 		const core::dimension2df& maxStartSize = core::dimension2df(5.0f,5.0f) );
 
 	//! Creates a ring particle emitter.
-	virtual IParticleRingEmitter* createRingEmitter(
+	virtual boost::shared_ptr<IParticleRingEmitter> createRingEmitter(
 		const core::vector3df& center, f32 radius, f32 ringThickness,
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		u32 minParticlesPerSecond = 5,
@@ -144,7 +144,7 @@ public:
 		const core::dimension2df& maxStartSize = core::dimension2df(5.0f,5.0f) );
 
 	//! Creates a sphere particle emitter.
-	virtual IParticleSphereEmitter* createSphereEmitter(
+	virtual boost::shared_ptr<IParticleSphereEmitter> createSphereEmitter(
 		const core::vector3df& center, f32 radius,
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		u32 minParticlesPerSecond = 5,
@@ -212,7 +212,7 @@ private:
 	void reallocateBuffers();
 
 	core::list<IParticleAffector*> AffectorList;
-	IParticleEmitter* Emitter;
+	boost::shared_ptr<IParticleEmitter> Emitter;
 	core::array<SParticle> Particles;
 	core::dimension2d<f32> ParticleSize;
 	u32 LastEmitTime;

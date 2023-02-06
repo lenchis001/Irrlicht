@@ -31,7 +31,7 @@ You can for example easily create a campfire by doing this:
 \code
 	scene::boost::shared_ptr<IParticleSystemSceneNode> p = scenemgr->addParticleSystemSceneNode();
 	p->setParticleSize(core::dimension2d<f32>(20.0f, 10.0f));
-	scene::IParticleEmitter* em = p->createBoxEmitter(
+	boost::shared_ptr<scene::IParticleEmitter> em = p->createBoxEmitter(
 		core::aabbox3d<f32>(-5,0,-5,5,1,5),
 		core::vector3df(0.0f,0.03f,0.0f),
 		40,80, video::SColor(0,255,255,255),video::SColor(0,255,255,255), 1100,2000);
@@ -74,16 +74,16 @@ public:
 
 	//! Gets the particle emitter, which creates the particles.
 	/** \return The particle emitter. Can be 0 if none is set. */
-	virtual IParticleEmitter* getEmitter() =0;
+	virtual boost::shared_ptr<IParticleEmitter> getEmitter() =0;
 
 	//! Sets the particle emitter, which creates the particles.
 	/** A particle emitter can be created using one of the createEmitter
 	methods. For example to create and use a simple PointEmitter, call
-	IParticleEmitter* p = createPointEmitter(); setEmitter(p); p->drop();
+	boost::shared_ptr<IParticleEmitter> p = createPointEmitter(); setEmitter(p); p->drop();
 	\param emitter: Sets the particle emitter. You can set this to 0 for
 	removing the current emitter and stopping the particle system emitting
 	new particles. */
-	virtual void setEmitter(IParticleEmitter* emitter) = 0;
+	virtual void setEmitter(boost::shared_ptr<IParticleEmitter> emitter) = 0;
 
 	//! Adds new particle effector to the particle system.
 	/** A particle affector modifies the particles. For example, the FadeOut
@@ -150,7 +150,7 @@ public:
 	as new emitter of this particle system, just call setEmitter(). Note
 	that you'll have to drop() the returned pointer, after you don't need
 	it any more, see IReferenceCounted::drop() for more informations. */
-	virtual IParticleAnimatedMeshSceneNodeEmitter* createAnimatedMeshSceneNodeEmitter(
+	virtual boost::shared_ptr<IParticleAnimatedMeshSceneNodeEmitter> createAnimatedMeshSceneNodeEmitter(
 		boost::shared_ptr<scene::IAnimatedMeshSceneNode> node, bool useNormalDirection = true,
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		f32 normalDirectionModifier = 100.0f, s32 mbNumber = -1,
@@ -190,7 +190,7 @@ public:
 	as new emitter of this particle system, just call setEmitter(). Note
 	that you'll have to drop() the returned pointer, after you don't need
 	it any more, see IReferenceCounted::drop() for more informations. */
-	virtual IParticleBoxEmitter* createBoxEmitter(
+	virtual boost::shared_ptr<IParticleBoxEmitter> createBoxEmitter(
 		const core::aabbox3df& box = core::aabbox3df(-10,28,-10,10,30,10),
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		u32 minParticlesPerSecond = 5,
@@ -234,7 +234,7 @@ public:
 	as new emitter of this particle system, just call setEmitter(). Note
 	that you'll have to drop() the returned pointer, after you don't need
 	it any more, see IReferenceCounted::drop() for more informations. */
-	virtual IParticleCylinderEmitter* createCylinderEmitter(
+	virtual boost::shared_ptr<IParticleCylinderEmitter> createCylinderEmitter(
 		const core::vector3df& center, f32 radius,
 		const core::vector3df& normal, f32 length,
 		bool outlineOnly = false,
@@ -290,7 +290,7 @@ public:
 	as new emitter of this particle system, just call setEmitter(). Note
 	that you'll have to drop() the returned pointer, after you don't need
 	it any more, see IReferenceCounted::drop() for more informations. */
-	virtual IParticleMeshEmitter* createMeshEmitter(
+	virtual boost::shared_ptr<IParticleMeshEmitter> createMeshEmitter(
 		scene::IMesh* mesh, bool useNormalDirection = true,
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		f32 normalDirectionModifier = 100.0f, s32 mbNumber = -1,
@@ -329,7 +329,7 @@ public:
 	as new emitter of this particle system, just call setEmitter(). Note
 	that you'll have to drop() the returned pointer, after you don't need
 	it any more, see IReferenceCounted::drop() for more informations. */
-	virtual IParticlePointEmitter* createPointEmitter(
+	virtual boost::shared_ptr<IParticlePointEmitter> createPointEmitter(
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		u32 minParticlesPerSecond = 5,
 		u32 maxParticlesPerSecond = 10,
@@ -371,7 +371,7 @@ public:
 	as new emitter of this particle system, just call setEmitter(). Note
 	that you'll have to drop() the returned pointer, after you don't need
 	it any more, see IReferenceCounted::drop() for more informations. */
-	virtual IParticleRingEmitter* createRingEmitter(
+	virtual boost::shared_ptr<IParticleRingEmitter> createRingEmitter(
 		const core::vector3df& center, f32 radius, f32 ringThickness,
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		u32 minParticlesPerSecond = 5,
@@ -411,7 +411,7 @@ public:
 	as new emitter of this particle system, just call setEmitter(). Note
 	that you'll have to drop() the returned pointer, after you don't need
 	it any more, see IReferenceCounted::drop() for more informations. */
-	virtual IParticleSphereEmitter* createSphereEmitter(
+	virtual boost::shared_ptr<IParticleSphereEmitter> createSphereEmitter(
 		const core::vector3df& center, f32 radius,
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		u32 minParticlesPerSecond = 5,
