@@ -1316,7 +1316,7 @@ void COpenGLDriver::drawHardwareBuffer(SHWBufferLink *_HWBuffer)
 //! Create occlusion query.
 /** Use node for identification and mesh for occlusion test. */
 void COpenGLDriver::addOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node,
-		const scene::IMesh* mesh)
+		boost::shared_ptr<const scene::IMesh> mesh)
 {
 	if (!queryFeature(EVDF_OCCLUSION_QUERY))
 		return;

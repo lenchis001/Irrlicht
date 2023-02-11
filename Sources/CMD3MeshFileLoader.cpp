@@ -35,15 +35,14 @@ bool CMD3MeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 }
 
 
-IAnimatedMesh* CMD3MeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CMD3MeshFileLoader::createMesh(io::IReadFile* file)
 {
-	CAnimatedMeshMD3 * mesh = new CAnimatedMeshMD3();
+	boost::shared_ptr<CAnimatedMeshMD3> mesh = boost::make_shared<CAnimatedMeshMD3>();
 
 	if ( mesh->loadModelFile ( 0, file, SceneManager->getFileSystem(), SceneManager->getVideoDriver() ) )
 		return mesh;
 
-	mesh->drop ();
-	return 0;
+	return nullptr;
 }
 
 

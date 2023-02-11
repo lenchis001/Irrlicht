@@ -32,23 +32,17 @@ const c8* const SceneNodeAnimatorTypeNames[] =
 };
 
 
-CDefaultSceneNodeAnimatorFactory::CDefaultSceneNodeAnimatorFactory(boost::shared_ptr<scene::ISceneManager> mgr, gui::ICursorControl* crs)
+CDefaultSceneNodeAnimatorFactory::CDefaultSceneNodeAnimatorFactory(boost::shared_ptr<scene::ISceneManager> mgr, boost::shared_ptr<gui::ICursorControl> crs)
 : Manager(mgr), CursorControl(crs)
 {
 	#ifdef _DEBUG
 	setDebugName("CDefaultSceneNodeAnimatorFactory");
 	#endif
-
-	// don't grab the scene manager here to prevent cyclic references
-	if (CursorControl)
-		CursorControl->grab();
 }
 
 
 CDefaultSceneNodeAnimatorFactory::~CDefaultSceneNodeAnimatorFactory()
 {
-	if (CursorControl)
-		CursorControl->drop();
 }
 
 

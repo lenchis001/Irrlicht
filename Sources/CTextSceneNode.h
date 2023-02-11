@@ -150,7 +150,7 @@ namespace scene
 
 		core::array < SSymbolInfo > Symbol;
 
-		SMesh *Mesh;
+		boost::shared_ptr<SMesh> Mesh;
 	};
 
 } // end namespace scene

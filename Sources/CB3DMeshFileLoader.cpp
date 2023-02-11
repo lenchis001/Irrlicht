@@ -47,13 +47,13 @@ bool CB3DMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-IAnimatedMesh* CB3DMeshFileLoader::createMesh(io::IReadFile* f)
+boost::shared_ptr<IAnimatedMesh> CB3DMeshFileLoader::createMesh(io::IReadFile* f)
 {
 	if (!f)
 		return 0;
 
 	B3DFile = f;
-	AnimatedMesh = new scene::CSkinnedMesh();
+	AnimatedMesh = boost::make_shared<scene::CSkinnedMesh>();
 	ShowWarning = true; // If true a warning is issued if too many textures are used
 	VerticesStart=0;
 
@@ -63,7 +63,6 @@ IAnimatedMesh* CB3DMeshFileLoader::createMesh(io::IReadFile* f)
 	}
 	else
 	{
-		AnimatedMesh->drop();
 		AnimatedMesh = 0;
 	}
 

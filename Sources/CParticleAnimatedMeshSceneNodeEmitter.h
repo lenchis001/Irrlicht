@@ -130,8 +130,8 @@ public:
 private:
 
 	boost::shared_ptr<scene::IAnimatedMeshSceneNode> Node;
-	IAnimatedMesh*		AnimatedMesh;
-	const IMesh*		BaseMesh;
+	boost::shared_ptr<IAnimatedMesh>		AnimatedMesh;
+	boost::shared_ptr<const IMesh>		BaseMesh;
 	s32			TotalVertices;
 	u32			MBCount;
 	s32			MBNumber;

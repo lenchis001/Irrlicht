@@ -45,7 +45,7 @@ namespace scene
 		setDebugName("CTerrainSceneNode");
 		#endif
 
-		Mesh = new SMesh();
+		Mesh = boost::make_shared<SMesh>();
 		RenderBuffer = new CDynamicMeshBuffer(video::EVT_2TCOORDS, video::EIT_16BIT);
 		RenderBuffer->setHardwareMappingHint(scene::EHM_STATIC, scene::EBT_VERTEX);
 		RenderBuffer->setHardwareMappingHint(scene::EHM_DYNAMIC, scene::EBT_INDEX);
@@ -64,9 +64,6 @@ namespace scene
 
 		if (FileSystem)
 			FileSystem->drop();
-
-		if (Mesh)
-			Mesh->drop();
 
 		if (RenderBuffer)
 			RenderBuffer->drop();
@@ -472,7 +469,7 @@ namespace scene
 
 
 	//! Returns the mesh
-	IMesh* CTerrainSceneNode::getMesh() { return Mesh; }
+	boost::shared_ptr<IMesh> CTerrainSceneNode::getMesh() { return Mesh; }
 
 
 	//! Returns the material based on the zero based index i.

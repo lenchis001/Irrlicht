@@ -38,7 +38,7 @@ CTriangleSelector::CTriangleSelector(const core::aabbox3d<f32>& box, boost::shar
 
 
 //! constructor
-CTriangleSelector::CTriangleSelector(const IMesh* mesh, boost::shared_ptr<ISceneNode> node)
+CTriangleSelector::CTriangleSelector(const boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> node)
 : SceneNode(node), AnimatedNode(0), LastMeshFrame(0)
 {
 	#ifdef _DEBUG
@@ -59,19 +59,19 @@ CTriangleSelector::CTriangleSelector(boost::shared_ptr<scene::IAnimatedMeshScene
 	if (!AnimatedNode)
 		return;
 
-	IAnimatedMesh* animatedMesh = AnimatedNode->getMesh();
+	boost::shared_ptr<IAnimatedMesh> animatedMesh = AnimatedNode->getMesh();
 	if (!animatedMesh)
 		return;
 
 	LastMeshFrame = (u32)AnimatedNode->getFrameNr();
-	IMesh* mesh = animatedMesh->getMesh(LastMeshFrame);
+	boost::shared_ptr<IMesh> mesh = animatedMesh->getMesh(LastMeshFrame);
 
 	if (mesh)
 		createFromMesh(mesh);
 }
 
 
-void CTriangleSelector::createFromMesh(const IMesh* mesh)
+void CTriangleSelector::createFromMesh(const boost::shared_ptr<IMesh> mesh)
 {
 	const u32 cnt = mesh->getMeshBufferCount();
 	u32 totalFaceCount = 0;
@@ -103,7 +103,7 @@ void CTriangleSelector::createFromMesh(const IMesh* mesh)
 }
 
 
-void CTriangleSelector::updateFromMesh(const IMesh* mesh) const
+void CTriangleSelector::updateFromMesh(const boost::shared_ptr<IMesh> mesh) const
 {
 	if (!mesh)
 		return;
@@ -142,11 +142,11 @@ void CTriangleSelector::update(void) const
 		return; //< Nothing to do
 
 	LastMeshFrame = currentFrame;
-	IAnimatedMesh * animatedMesh = AnimatedNode->getMesh();
+	boost::shared_ptr<IAnimatedMesh> animatedMesh = AnimatedNode->getMesh();
 
 	if (animatedMesh)
 	{
-		IMesh * mesh = animatedMesh->getMesh(LastMeshFrame);
+		boost::shared_ptr<IMesh> mesh = animatedMesh->getMesh(LastMeshFrame);
 
 		if (mesh)
 			updateFromMesh(mesh);

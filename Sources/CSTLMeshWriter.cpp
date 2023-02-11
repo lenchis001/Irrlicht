@@ -42,7 +42,7 @@ EMESH_WRITER_TYPE CSTLMeshWriter::getType() const
 
 
 //! writes a mesh
-bool CSTLMeshWriter::writeMesh(io::IWriteFile* file, scene::IMesh* mesh, s32 flags)
+bool CSTLMeshWriter::writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
 {
 	if (!file)
 		return false;
@@ -56,7 +56,7 @@ bool CSTLMeshWriter::writeMesh(io::IWriteFile* file, scene::IMesh* mesh, s32 fla
 }
 
 
-bool CSTLMeshWriter::writeMeshBinary(io::IWriteFile* file, scene::IMesh* mesh, s32 flags)
+bool CSTLMeshWriter::writeMeshBinary(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
 {
 	// write STL MESH header
 
@@ -105,7 +105,7 @@ bool CSTLMeshWriter::writeMeshBinary(io::IWriteFile* file, scene::IMesh* mesh, s
 }
 
 
-bool CSTLMeshWriter::writeMeshASCII(io::IWriteFile* file, scene::IMesh* mesh, s32 flags)
+bool CSTLMeshWriter::writeMeshASCII(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
 {
 	// write STL MESH header
 

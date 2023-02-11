@@ -54,7 +54,7 @@ bool CPLYMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 
 
 //! creates/loads an animated mesh from the file.
-IAnimatedMesh* CPLYMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CPLYMeshFileLoader::createMesh(io::IReadFile* file)
 {
 	if (!file)
 		return 0;
@@ -71,7 +71,7 @@ IAnimatedMesh* CPLYMeshFileLoader::createMesh(io::IReadFile* file)
 	}
 
 	// start with empty mesh
-	SAnimatedMesh* animMesh = 0;
+	boost::shared_ptr<SAnimatedMesh> animMesh = 0;
 	u32 vertCount=0;
 
 	// Currently only supports ASCII meshes
@@ -262,14 +262,13 @@ IAnimatedMesh* CPLYMeshFileLoader::createMesh(io::IReadFile* file)
 			mb->recalculateBoundingBox();
 			if (!hasNormals)
 				SceneManager->getMeshManipulator()->recalculateNormals(mb);
-			SMesh* m = new SMesh();
+			boost::shared_ptr<SMesh> m = boost::make_shared<SMesh>();
 			m->addMeshBuffer(mb);
 			m->recalculateBoundingBox();
 			mb->drop();
-			animMesh = new SAnimatedMesh();
+			animMesh = boost::make_shared<SAnimatedMesh>();
 			animMesh->addMesh(m);
 			animMesh->recalculateBoundingBox();
-			m->drop();
 		}
 	}
 

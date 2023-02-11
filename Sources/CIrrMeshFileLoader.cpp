@@ -47,7 +47,7 @@ bool CIrrMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-IAnimatedMesh* CIrrMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CIrrMeshFileLoader::createMesh(io::IReadFile* file)
 {
 	io::IXMLReader* reader = FileSystem->createXMLReader(file);
 	if (!reader)
@@ -56,7 +56,7 @@ IAnimatedMesh* CIrrMeshFileLoader::createMesh(io::IReadFile* file)
 	// read until mesh section, skip other parts
 
 	const core::stringc meshTagName = "mesh";
-	IAnimatedMesh* mesh = 0;
+	boost::shared_ptr<IAnimatedMesh> mesh = 0;
 
 	while(reader->read())
 	{
@@ -79,13 +79,12 @@ IAnimatedMesh* CIrrMeshFileLoader::createMesh(io::IReadFile* file)
 
 
 //! reads a mesh sections and creates a mesh from it
-IAnimatedMesh* CIrrMeshFileLoader::readMesh(io::IXMLReader* reader)
+boost::shared_ptr<IAnimatedMesh> CIrrMeshFileLoader::readMesh(io::IXMLReader* reader)
 {
-	SAnimatedMesh* animatedmesh = new SAnimatedMesh();
-	SMesh* mesh = new SMesh();
+	boost::shared_ptr<SAnimatedMesh> animatedmesh = boost::make_shared<SAnimatedMesh>();
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 
 	animatedmesh->addMesh(mesh);
-	mesh->drop();
 
 	core::stringc bbSectionName = "boundingBox";
 	core::stringc bufferSectionName = "buffer";

@@ -80,7 +80,7 @@ void COCTLoader::OCTLoadLights(io::IReadFile* file, boost::shared_ptr<scene::ISc
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-IAnimatedMesh* COCTLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> COCTLoader::createMesh(io::IReadFile* file)
 {
 	if (!file)
 		return 0;
@@ -119,7 +119,7 @@ IAnimatedMesh* COCTLoader::createMesh(io::IReadFile* file)
 	// a "null" texture and "null" lightmap.  Ones that end up with nothing in them
 	// will be removed later.
 
-	SMesh * Mesh = new SMesh();
+	boost::shared_ptr<SMesh> Mesh = boost::make_shared<SMesh>();
 	for (i=0; i<(header.numTextures+1) * (header.numLightmaps+1); ++i)
 	{
 		scene::SMeshBufferLightMap* buffer = new scene::SMeshBufferLightMap();
@@ -311,11 +311,10 @@ IAnimatedMesh* COCTLoader::createMesh(io::IReadFile* file)
 
 
 	// Set up an animated mesh to hold the mesh
-	SAnimatedMesh* AMesh = new SAnimatedMesh();
+	boost::shared_ptr<SAnimatedMesh> AMesh = boost::make_shared<SAnimatedMesh>();
 	AMesh->Type = EAMT_OCT;
 	AMesh->addMesh(Mesh);
 	AMesh->recalculateBoundingBox();
-	Mesh->drop();
 
 	return AMesh;
 }

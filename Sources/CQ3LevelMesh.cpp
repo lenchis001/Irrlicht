@@ -35,7 +35,7 @@ CQ3LevelMesh::CQ3LevelMesh(io::IFileSystem* fs, boost::shared_ptr<scene::ISceneM
 	SceneManager(smgr), FramesPerSecond(25.f)
 {
 	#ifdef _DEBUG
-	IReferenceCounted::setDebugName("CQ3LevelMesh");
+	IDebugable::setDebugName("CQ3LevelMesh");
 	#endif
 
 	for ( s32 i = 0; i!= E_Q3_MESH_SIZE; ++i )
@@ -72,16 +72,12 @@ CQ3LevelMesh::~CQ3LevelMesh()
 	{
 		if ( Mesh[i] )
 		{
-			Mesh[i]->drop();
 			Mesh[i] = 0;
 		}
 	}
 
-	for ( i = 1; i < NumModels; i++ )
-	{
-		BrushEntities[i]->drop();
-	}
-	delete [] BrushEntities; BrushEntities = 0;
+	delete [] BrushEntities; 
+	BrushEntities = 0;
 
 	ReleaseShader();
 	ReleaseEntity();
@@ -195,7 +191,7 @@ u32 CQ3LevelMesh::getFrameCount() const
 
 
 //! returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail. Note, that some Meshes will ignore the detail level.
-IMesh* CQ3LevelMesh::getMesh(s32 frameInMs, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
+boost::shared_ptr<IMesh> CQ3LevelMesh::getMesh(s32 frameInMs, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
 {
 	return Mesh[frameInMs];
 }
@@ -418,7 +414,7 @@ void CQ3LevelMesh::loadModels(tBSPLump* l, io::IReadFile* file)
 		}
 	}
 
-	BrushEntities = new SMesh*[NumModels];
+	BrushEntities = new boost::shared_ptr<SMesh>[NumModels];
 }
 
 /*!
@@ -843,15 +839,15 @@ s32 CQ3LevelMesh::setShaderMaterial( video::SMaterial &material, const tBSPFace 
 /*!
 	Internal function to build a mesh.
 */
-scene::SMesh** CQ3LevelMesh::buildMesh(s32 num)
+boost::shared_array<boost::shared_ptr<scene::SMesh>> CQ3LevelMesh::buildMesh(s32 num)
 {
-	scene::SMesh** newmesh = new SMesh *[quake3::E_Q3_MESH_SIZE];
+	boost::shared_array<boost::shared_ptr<scene::SMesh>> newmesh(new boost::shared_ptr<scene::SMesh>[quake3::E_Q3_MESH_SIZE]);
 
 	s32 i, j, k,s;
 
 	for (i = 0; i < E_Q3_MESH_SIZE; i++)
 	{
-		newmesh[i] = new SMesh();
+		newmesh[i] = boost::make_shared<SMesh>();
 	}
 
 	s32 *index;
@@ -1055,13 +1051,12 @@ void CQ3LevelMesh::constructMesh()
 	s32 i, j;
 
 	// First the main level
-	SMesh **tmp = buildMesh(0);
+	boost::shared_array<boost::shared_ptr<scene::SMesh>> tmp = buildMesh(0);
 
 	for (i = 0; i < E_Q3_MESH_SIZE; i++)
 	{
 		Mesh[i] = tmp[i];
 	}
-	delete [] tmp;
 
 	// Then the brush entities
 
@@ -1069,13 +1064,6 @@ void CQ3LevelMesh::constructMesh()
 	{
 		tmp = buildMesh(i);
 		BrushEntities[i] = tmp[0];
-
-		// We only care about the main geometry here
-		for (j = 1; j < E_Q3_MESH_SIZE; j++)
-		{
-			tmp[j]->drop();
-		}
-		delete [] tmp;
 	}
 
 	if ( LoadParam.verbose > 0 )
@@ -1462,7 +1450,7 @@ tQ3EntityList & CQ3LevelMesh::getEntityList()
 }
 
 //! returns the requested brush entity
-IMesh* CQ3LevelMesh::getBrushEntityMesh(s32 num) const
+boost::shared_ptr<IMesh> CQ3LevelMesh::getBrushEntityMesh(s32 num) const
 {
 	if (num < 1 || num >= NumModels)
 		return 0;
@@ -1471,7 +1459,7 @@ IMesh* CQ3LevelMesh::getBrushEntityMesh(s32 num) const
 }
 
 //! returns the requested brush entity
-IMesh* CQ3LevelMesh::getBrushEntityMesh(quake3::IEntity &ent) const
+boost::shared_ptr<IMesh> CQ3LevelMesh::getBrushEntityMesh(quake3::IEntity &ent) const
 {
 	// This is a helper function to parse the entity,
 	// so you don't have to.
@@ -1787,7 +1775,7 @@ void CQ3LevelMesh::cleanMeshes()
 	}
 }
 
-void CQ3LevelMesh::cleanMesh(SMesh *m, const bool texture0important)
+void CQ3LevelMesh::cleanMesh(boost::shared_ptr<SMesh> m, const bool texture0important)
 {
 	// delete all buffers without geometry in it.
 	u32 run = 0;

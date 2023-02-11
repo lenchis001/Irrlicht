@@ -56,10 +56,10 @@ namespace scene
 		virtual boost::shared_ptr<ISceneNode> clone(boost::shared_ptr<ISceneNode> newParent=0, boost::shared_ptr<scene::ISceneManager> newManager=0);
 
 		//! The mesh cannot be changed
-		virtual void setMesh(IMesh* mesh) {}
+		virtual void setMesh(boost::shared_ptr<IMesh> mesh) {}
 
 		//! Returns the current mesh
-		virtual IMesh* getMesh() { return Mesh; }
+		virtual boost::shared_ptr<IMesh> getMesh() { return Mesh; }
 
 		//! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
 		/* In this way it is possible to change the materials a mesh causing all mesh scene nodes 
@@ -71,7 +71,7 @@ namespace scene
 
 		//! Creates shadow volume scene node as child of this node
 		//! and returns a pointer to it.
-		virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(const IMesh* shadowMesh,
+		virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(boost::shared_ptr<const IMesh> shadowMesh,
 			s32 id, bool zfailmethod=true, f32 infinity=10000.0f);
 
 		//! Removes a child from this scene node.
@@ -81,7 +81,7 @@ namespace scene
 
 	private:
 
-		IMesh* Mesh;
+		boost::shared_ptr<IMesh> Mesh;
 		boost::shared_ptr<IShadowVolumeSceneNode> Shadow;
 		core::aabbox3d<f32> Box;
 		f32 Radius;

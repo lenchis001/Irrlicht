@@ -31,10 +31,10 @@ bool CSMFMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 }
 
 //! Creates/loads an animated mesh from the file.
-IAnimatedMesh* CSMFMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CSMFMeshFileLoader::createMesh(io::IReadFile* file)
 {
 	// create empty mesh
-	SMesh *mesh = new SMesh();
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 
 	// load file
 	u16 version;
@@ -56,15 +56,14 @@ IAnimatedMesh* CSMFMeshFileLoader::createMesh(io::IReadFile* file)
 		mesh->getMeshBuffer(i)->recalculateBoundingBox();
 
 	mesh->recalculateBoundingBox();
-	SAnimatedMesh *am = new SAnimatedMesh();
+	boost::shared_ptr<SAnimatedMesh> am = boost::make_shared<SAnimatedMesh>();
 	am->addMesh(mesh);
-	mesh->drop();
 	am->recalculateBoundingBox();
 
 	return am;
 }
 
-void CSMFMeshFileLoader::loadLimb(io::IReadFile* file, SMesh* mesh, const core::matrix4 &parentTransformation)
+void CSMFMeshFileLoader::loadLimb(io::IReadFile* file, boost::shared_ptr<SMesh> mesh, const core::matrix4 &parentTransformation)
 {
 	core::matrix4 transformation;
 

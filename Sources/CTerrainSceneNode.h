@@ -130,7 +130,7 @@ namespace scene
 		virtual u32 getIndexCount() const { return IndicesToRender; }
 
 		//! Returns the mesh
-		virtual IMesh* getMesh();
+		virtual boost::shared_ptr<IMesh> getMesh();
 
 		//! Returns a pointer to the buffer used by the terrain (most users will not need this)
 		virtual IMeshBuffer* getRenderBuffer() { return RenderBuffer; }
@@ -293,7 +293,7 @@ namespace scene
 		void applyTransformation();
 
 		STerrainData TerrainData;
-		SMesh* Mesh;
+		boost::shared_ptr<SMesh> Mesh;
 
 		IDynamicMeshBuffer *RenderBuffer;
 

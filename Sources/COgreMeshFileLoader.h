@@ -42,7 +42,7 @@ public:
 	//! \return Pointer to the created mesh. Returns 0 if loading failed.
 	//! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 	//! See IReferenceCounted::drop() for more information.
-	virtual IAnimatedMesh* createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
 
 private:
 
@@ -258,7 +258,7 @@ private:
 	core::array<OgreMaterial> Materials;
 	OgreSkeleton Skeleton;
 
-	IMesh* Mesh;
+	boost::shared_ptr<IMesh> Mesh;
 	u32 NumUV;
 };
 

@@ -19,7 +19,7 @@ namespace scene
 	struct SAnimatedMesh : public IAnimatedMesh
 	{
 		//! constructor
-		SAnimatedMesh(scene::IMesh* mesh=0, scene::E_ANIMATED_MESH_TYPE type=scene::EAMT_UNKNOWN) : IAnimatedMesh(), FramesPerSecond(25.f), Type(type)
+		SAnimatedMesh(boost::shared_ptr<scene::IMesh> mesh=0, scene::E_ANIMATED_MESH_TYPE type=scene::EAMT_UNKNOWN) : IAnimatedMesh(), FramesPerSecond(25.f), Type(type)
 		{
 			#ifdef _DEBUG
 			setDebugName("SAnimatedMesh");
@@ -31,9 +31,6 @@ namespace scene
 		//! destructor
 		virtual ~SAnimatedMesh()
 		{
-			// drop meshes
-			for (u32 i=0; i<Meshes.size(); ++i)
-				Meshes[i]->drop();
 		}
 
 		//! Gets the frame count of the animated mesh.
@@ -66,7 +63,7 @@ namespace scene
 		\param startFrameLoop: start frame
 		\param endFrameLoop: end frame
 		\return The animated mesh based on a detail level. */
-		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1)
+		virtual boost::shared_ptr<IMesh> getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1)
 		{
 			if (Meshes.empty())
 				return 0;
@@ -75,11 +72,10 @@ namespace scene
 		}
 
 		//! adds a Mesh
-		void addMesh(IMesh* mesh)
+		void addMesh(boost::shared_ptr<IMesh> mesh)
 		{
 			if (mesh)
 			{
-				mesh->grab();
 				Meshes.push_back(mesh);
 			}
 		}
@@ -169,7 +165,7 @@ namespace scene
 		}
 
 		//! All meshes defining the animated mesh
-		core::array<IMesh*> Meshes;
+		core::array<boost::shared_ptr<IMesh>> Meshes;
 
 		//! The bounding box of this mesh
 		core::aabbox3d<f32> Box;

@@ -117,7 +117,7 @@ bool CColladaMeshWriterProperties::isExportable(const boost::shared_ptr<irr::sce
 	return node && node->isVisible();
 }
 
-IMesh* CColladaMeshWriterProperties::getMesh(boost::shared_ptr<irr::scene::ISceneNode>  node)
+boost::shared_ptr<IMesh> CColladaMeshWriterProperties::getMesh(boost::shared_ptr<irr::scene::ISceneNode>  node)
 {
 	if ( !node )
 		return 0;
@@ -163,10 +163,10 @@ CColladaMeshWriterNames::CColladaMeshWriterNames(IColladaMeshWriter * writer)
 {
 }
 
-irr::core::stringw CColladaMeshWriterNames::nameForMesh(const scene::IMesh* mesh, int instance)
+irr::core::stringw CColladaMeshWriterNames::nameForMesh(const boost::shared_ptr<scene::IMesh> mesh, int instance)
 {
 	irr::core::stringw name(L"mesh");
-	name += nameForPtr(mesh);
+	name += nameForPtr(mesh.get());
 	if ( instance > 0 )
 	{
 		name += L"i";
@@ -191,7 +191,7 @@ irr::core::stringw CColladaMeshWriterNames::nameForNode(const boost::shared_ptr<
 	return ColladaMeshWriter->toNCName(name);
 }
 
-irr::core::stringw CColladaMeshWriterNames::nameForMaterial(const video::SMaterial & material, int materialId, const scene::IMesh* mesh, const boost::shared_ptr<scene::ISceneNode> node)
+irr::core::stringw CColladaMeshWriterNames::nameForMaterial(const video::SMaterial & material, int materialId, const boost::shared_ptr<scene::IMesh> mesh, const boost::shared_ptr<scene::ISceneNode> node)
 {
 	core::stringw strMat(L"mat");
 
@@ -203,7 +203,7 @@ irr::core::stringw CColladaMeshWriterNames::nameForMaterial(const video::SMateri
 		strMat += irr::core::stringw(node->getName());
 	}
 	strMat += L"mesh";
-	strMat += nameForPtr(mesh);
+	strMat += nameForPtr(mesh.get());
 	strMat += materialId;
 	return ColladaMeshWriter->toNCName(strMat);
 }
@@ -416,7 +416,7 @@ void CColladaMeshWriter::makeMeshNames(boost::shared_ptr<irr::scene::ISceneNode>
 	if ( !node || !getProperties() || !getProperties()->isExportable(node) || !getNameGenerator())
 		return;
 
-	IMesh* mesh = getProperties()->getMesh(node);
+	boost::shared_ptr<IMesh> mesh = getProperties()->getMesh(node);
 	if ( mesh )
 	{
 		if ( !Meshes.find(mesh) )
@@ -441,7 +441,7 @@ void CColladaMeshWriter::writeNodeMaterials(boost::shared_ptr<irr::scene::IScene
 
 	core::array<irr::core::stringw> materialNames;
 
-	IMesh* mesh = getProperties()->getMesh(node);
+	boost::shared_ptr<IMesh> mesh = getProperties()->getMesh(node);
 	if ( mesh )
 	{
 		MeshNode * n = Meshes.find(mesh);
@@ -525,7 +525,7 @@ void CColladaMeshWriter::writeNodeEffects(boost::shared_ptr<irr::scene::ISceneNo
 	if ( !node || !getProperties() || !getProperties()->isExportable(node) || !getNameGenerator() )
 		return;
 
-	IMesh* mesh = getProperties()->getMesh(node);
+	boost::shared_ptr<IMesh> mesh = getProperties()->getMesh(node);
 	if ( mesh )
 	{
 		if ( !getProperties()->useNodeMaterial(node) )
@@ -705,10 +705,10 @@ void CColladaMeshWriter::writeNodeCameras(boost::shared_ptr<irr::scene::ISceneNo
 
 void CColladaMeshWriter::writeAllMeshGeometries()
 {
-	core::map<IMesh*, SColladaMesh>::ConstIterator it = Meshes.getConstIterator();
+	core::map<boost::shared_ptr<IMesh>, SColladaMesh>::ConstIterator it = Meshes.getConstIterator();
 	for(; !it.atEnd(); it++ )
 	{
-		IMesh* mesh = it->getKey();
+		boost::shared_ptr<IMesh> mesh = it->getKey();
 		const SColladaMesh& colladaMesh = it->getValue();
 
 		if ( getGeometryWriting() == ECGI_PER_MESH_AND_MATERIAL && colladaMesh.GeometryMeshMaterials.size() > 1 )
@@ -760,7 +760,7 @@ void CColladaMeshWriter::writeSceneNode(boost::shared_ptr<irr::scene::ISceneNode
 	}
 
 	// instance geometry
-	IMesh* mesh = getProperties()->getMesh(node);
+	boost::shared_ptr<IMesh> mesh = getProperties()->getMesh(node);
 	if ( mesh )
 	{
 		MeshNode * n = Meshes.find(mesh);
@@ -798,7 +798,7 @@ void CColladaMeshWriter::writeSceneNode(boost::shared_ptr<irr::scene::ISceneNode
 }
 
 //! writes a mesh
-bool CColladaMeshWriter::writeMesh(io::IWriteFile* file, scene::IMesh* mesh, s32 flags)
+bool CColladaMeshWriter::writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
 {
 	if (!file)
 		return false;
@@ -905,7 +905,7 @@ bool CColladaMeshWriter::writeMesh(io::IWriteFile* file, scene::IMesh* mesh, s32
 	return true;
 }
 
-void CColladaMeshWriter::writeMeshInstanceGeometry(const irr::core::stringw& meshname, scene::IMesh* mesh, boost::shared_ptr<scene::ISceneNode> node)
+void CColladaMeshWriter::writeMeshInstanceGeometry(const irr::core::stringw& meshname, boost::shared_ptr<scene::IMesh> mesh, boost::shared_ptr<scene::ISceneNode> node)
 {
 	//<instance_geometry url="#mesh">
 	Writer->writeElement(L"instance_geometry", false, L"url", toRef(meshname).c_str());
@@ -1058,7 +1058,7 @@ bool CColladaMeshWriter::isCamera(const boost::shared_ptr<scene::ISceneNode> nod
 	return false;
 }
 
-irr::core::stringw CColladaMeshWriter::nameForMesh(const scene::IMesh* mesh, int instance) const
+irr::core::stringw CColladaMeshWriter::nameForMesh(const boost::shared_ptr<scene::IMesh> mesh, int instance) const
 {
 	IColladaMeshWriterNames * nameGenerator = getNameGenerator();
 	if ( nameGenerator )
@@ -1078,7 +1078,7 @@ irr::core::stringw CColladaMeshWriter::nameForNode(const boost::shared_ptr<scene
 	return irr::core::stringw(L"missing_name_generator");
 }
 
-irr::core::stringw CColladaMeshWriter::nameForMaterial(const video::SMaterial & material, int materialId, const scene::IMesh* mesh, const boost::shared_ptr<scene::ISceneNode> node)
+irr::core::stringw CColladaMeshWriter::nameForMaterial(const video::SMaterial & material, int materialId, const boost::shared_ptr<scene::IMesh> mesh, const boost::shared_ptr<scene::ISceneNode> node)
 {
 	irr::core::stringw matName;
 	if ( getExportSMaterialsOnlyOnce() )
@@ -1102,7 +1102,7 @@ irr::core::stringw CColladaMeshWriter::nameForMaterial(const video::SMaterial & 
 }
 
 // Each mesh-material has one symbol which is replaced on instantiation
-irr::core::stringw CColladaMeshWriter::nameForMaterialSymbol(const scene::IMesh* mesh, int materialId) const
+irr::core::stringw CColladaMeshWriter::nameForMaterialSymbol(const boost::shared_ptr<scene::IMesh> mesh, int materialId) const
 {
 	wchar_t buf[100];
 	swprintf(buf, 100, L"mat_symb_%p_%d", mesh, materialId);
@@ -1250,7 +1250,7 @@ void CColladaMeshWriter::writeAsset()
 	Writer->writeLineBreak();
 }
 
-void CColladaMeshWriter::writeMeshMaterials(scene::IMesh* mesh, irr::core::array<irr::core::stringw> * materialNamesOut)
+void CColladaMeshWriter::writeMeshMaterials(boost::shared_ptr<scene::IMesh> mesh, irr::core::array<irr::core::stringw> * materialNamesOut)
 {
 	u32 i;
 	for (i=0; i<mesh->getMeshBufferCount(); ++i)
@@ -1397,7 +1397,7 @@ void CColladaMeshWriter::writeMaterialEffect(const irr::core::stringw& materialf
 	Writer->writeLineBreak();
 }
 
-void CColladaMeshWriter::writeMeshEffects(scene::IMesh* mesh)
+void CColladaMeshWriter::writeMeshEffects(boost::shared_ptr<scene::IMesh> mesh)
 {
 	for (u32 i=0; i<mesh->getMeshBufferCount(); ++i)
 	{
@@ -1408,7 +1408,7 @@ void CColladaMeshWriter::writeMeshEffects(scene::IMesh* mesh)
 	}
 }
 
-void CColladaMeshWriter::writeMeshGeometry(const irr::core::stringw& meshname, scene::IMesh* mesh)
+void CColladaMeshWriter::writeMeshGeometry(const irr::core::stringw& meshname, boost::shared_ptr<scene::IMesh> mesh)
 {
 	core::stringw meshId(meshname);
 

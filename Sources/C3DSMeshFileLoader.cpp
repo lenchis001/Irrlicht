@@ -146,9 +146,6 @@ C3DSMeshFileLoader::~C3DSMeshFileLoader()
 
 	if (FileSystem)
 		FileSystem->drop();
-
-	if (Mesh)
-		Mesh->drop();
 }
 
 
@@ -164,7 +161,7 @@ bool C3DSMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-IAnimatedMesh* C3DSMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> C3DSMeshFileLoader::createMesh(io::IReadFile* file)
 {
 	ChunkData data;
 
@@ -178,10 +175,7 @@ IAnimatedMesh* C3DSMeshFileLoader::createMesh(io::IReadFile* file)
 	MeshBufferNames.clear();
 	cleanUp();
 
-	if (Mesh)
-		Mesh->drop();
-
-	Mesh = new SMesh();
+	Mesh = boost::make_shared<SMesh>();
 
 	if (readChunk(file, &data))
 	{
@@ -200,15 +194,13 @@ IAnimatedMesh* C3DSMeshFileLoader::createMesh(io::IReadFile* file)
 			{
 				if (mb->Material.MaterialType == video::EMT_PARALLAX_MAP_SOLID)
 				{
-					SMesh tmp;
-					tmp.addMeshBuffer(mb);
+					boost::shared_ptr<SMesh> tmp = boost::make_shared<SMesh>();
+					tmp->addMeshBuffer(mb);
 					mb->drop();
-					IMesh* tangentMesh = SceneManager->getMeshManipulator()->createMeshWithTangents(&tmp);
+					boost::shared_ptr<IMesh> tangentMesh = SceneManager->getMeshManipulator()->createMeshWithTangents(tmp);
 					Mesh->MeshBuffers[i]=tangentMesh->getMeshBuffer(0);
 					// we need to grab because we replace the buffer manually.
 					Mesh->MeshBuffers[i]->grab();
-					// clean up intermediate mesh struct
-					tangentMesh->drop();
 				}
 				Mesh->MeshBuffers[i]->recalculateBoundingBox();
 			}
@@ -216,16 +208,14 @@ IAnimatedMesh* C3DSMeshFileLoader::createMesh(io::IReadFile* file)
 
 		Mesh->recalculateBoundingBox();
 
-		SAnimatedMesh* am = new SAnimatedMesh();
+		boost::shared_ptr<SAnimatedMesh> am = boost::make_shared<SAnimatedMesh>();
 		am->Type = EAMT_3DS;
 		am->addMesh(Mesh);
 		am->recalculateBoundingBox();
-		Mesh->drop();
 		Mesh = 0;
 		return am;
 	}
 
-	Mesh->drop();
 	Mesh = 0;
 
 	return 0;

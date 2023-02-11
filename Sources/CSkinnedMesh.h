@@ -45,7 +45,7 @@ namespace scene
 		virtual void setAnimationSpeed(f32 fps);
 
 		//! returns the animated mesh based on a detail level (which is ignored)
-		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1);
+		virtual boost::shared_ptr<IMesh> getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1);
 
 		//! Animates this mesh's joints based on frame input
 		//! blend: {0-old position, 1-New position}
@@ -94,7 +94,7 @@ namespace scene
 		virtual s32 getJointNumber(const c8* name) const;
 
 		//! uses animation from another mesh
-		virtual bool useAnimationFrom(const ISkinnedMesh *mesh);
+		virtual bool useAnimationFrom(const boost::shared_ptr<ISkinnedMesh> mesh);
 
 		//! Update Normals when Animating
 		//! False= Don't (default)
@@ -160,6 +160,7 @@ namespace scene
 				boost::shared_ptr<scene::IAnimatedMeshSceneNode> node,
 				boost::shared_ptr<scene::ISceneManager> smgr);
 
+		void setWeakThis(boost::shared_ptr<CSkinnedMesh> value);
 private:
 		void checkForAnimation();
 
@@ -182,6 +183,12 @@ private:
 			core::vector3df& tangent, core::vector3df& binormal,
 			core::vector3df& vt1, core::vector3df& vt2, core::vector3df& vt3,
 			core::vector2df& tc1, core::vector2df& tc2, core::vector2df& tc3);
+
+		inline boost::shared_ptr<CSkinnedMesh> getSharedThis() {
+			assert(!WeakThis.expired());
+
+			return WeakThis.lock();
+		}
 
 		core::array<SSkinMeshBuffer*> *SkinningBuffers; //Meshbuffer to skin, default is to skin localBuffers
 
@@ -206,6 +213,9 @@ private:
 		bool PreparedForSkinning;
 		bool AnimateNormals;
 		bool HardwareSkinning;
+
+		//! Weak pointer to this object
+		boost::weak_ptr<CSkinnedMesh> WeakThis;
 	};
 
 } // end namespace scene

@@ -18,7 +18,7 @@ namespace scene
 
 
 //! constructor
-CShadowVolumeSceneNode::CShadowVolumeSceneNode(const IMesh* shadowMesh, boost::shared_ptr<ISceneNode> parent,
+CShadowVolumeSceneNode::CShadowVolumeSceneNode(boost::shared_ptr<const IMesh> shadowMesh, boost::shared_ptr<ISceneNode> parent,
 		boost::shared_ptr<scene::ISceneManager> mgr, s32 id, bool zfailmethod, f32 infinity)
 : IShadowVolumeSceneNode(parent, mgr, id),
 	ShadowMesh(0), IndexCount(0), VertexCount(0), ShadowVolumesUsed(0),
@@ -35,8 +35,6 @@ CShadowVolumeSceneNode::CShadowVolumeSceneNode(const IMesh* shadowMesh, boost::s
 //! destructor
 CShadowVolumeSceneNode::~CShadowVolumeSceneNode()
 {
-	if (ShadowMesh)
-		ShadowMesh->drop();
 }
 
 
@@ -201,16 +199,15 @@ u32 CShadowVolumeSceneNode::createEdgesAndCaps(const core::vector3df& light,
 }
 
 
-void CShadowVolumeSceneNode::setShadowMesh(const IMesh* mesh)
+void CShadowVolumeSceneNode::setShadowMesh(boost::shared_ptr<const IMesh> mesh)
 {
 	if (ShadowMesh == mesh)
 		return;
-	if (ShadowMesh)
-		ShadowMesh->drop();
+	
 	ShadowMesh = mesh;
+
 	if (ShadowMesh)
 	{
-		ShadowMesh->grab();
 		Box = ShadowMesh->getBoundingBox();
 	}
 }
@@ -221,7 +218,7 @@ void CShadowVolumeSceneNode::updateShadowVolumes()
 	const u32 oldIndexCount = IndexCount;
 	const u32 oldVertexCount = VertexCount;
 
-	const IMesh* const mesh = ShadowMesh;
+	boost::shared_ptr<const IMesh> const mesh = ShadowMesh;
 	if (!mesh)
 		return;
 

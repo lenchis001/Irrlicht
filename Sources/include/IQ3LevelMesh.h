@@ -33,10 +33,10 @@ namespace scene
 		/** \param num The number from the model key of the entity.
 
 		Use this interface if you parse the entities yourself.*/
-		virtual IMesh* getBrushEntityMesh(s32 num) const = 0;
+		virtual boost::shared_ptr<IMesh> getBrushEntityMesh(s32 num) const = 0;
 
 		//! returns the requested brush entity
-		virtual IMesh* getBrushEntityMesh(quake3::IEntity &ent) const = 0;
+		virtual boost::shared_ptr<IMesh> getBrushEntityMesh(quake3::IEntity &ent) const = 0;
 	};
 
 } // end namespace scene

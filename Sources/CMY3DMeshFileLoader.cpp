@@ -76,7 +76,7 @@ bool CMY3DMeshFileLoader::isALoadableFileExtension(const io::path& filename) con
 }
 
 
-IAnimatedMesh* CMY3DMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CMY3DMeshFileLoader::createMesh(io::IReadFile* file)
 {
 	MaterialEntry.clear();
 	MeshBufferEntry.clear();
@@ -633,7 +633,7 @@ IAnimatedMesh* CMY3DMeshFileLoader::createMesh(io::IReadFile* file)
 	}
 
 	// creating mesh
-	SMesh* mesh = new SMesh();
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 
 	for (u32 num=0; num<MeshBufferEntry.size(); ++num)
 	{
@@ -653,10 +653,9 @@ IAnimatedMesh* CMY3DMeshFileLoader::createMesh(io::IReadFile* file)
 	if (id != MY3D_FILE_END_ID)
 		os::Printer::log("Loading finished, but can not find MY3D_FILE_END_ID token.", ELL_WARNING);
 
-	SAnimatedMesh* am = new SAnimatedMesh();
+	boost::shared_ptr<SAnimatedMesh> am = boost::make_shared<SAnimatedMesh>();
 
 	am->addMesh(mesh);
-	mesh->drop();
 	am->recalculateBoundingBox();
 
 	return am;

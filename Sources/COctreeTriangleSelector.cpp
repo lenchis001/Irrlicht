@@ -13,7 +13,7 @@ namespace scene
 {
 
 //! constructor
-COctreeTriangleSelector::COctreeTriangleSelector(const IMesh* mesh,
+COctreeTriangleSelector::COctreeTriangleSelector(const boost::shared_ptr<IMesh> mesh,
 		boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode)
 	: CTriangleSelector(mesh, node), Root(0), NodeCount(0),
 	 MinimalPolysPerNode(minimalPolysPerNode)

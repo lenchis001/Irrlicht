@@ -58,7 +58,7 @@ s32 CParticleAnimatedMeshSceneNodeEmitter::emitt(u32 now, u32 timeSinceLastCall,
 			amount = MaxParticlesPerSecond * 2;
 
 		// Get Mesh for this frame
-		IMesh* frameMesh = AnimatedMesh->getMesh( core::floor32(Node->getFrameNr()),
+		boost::shared_ptr<IMesh> frameMesh = AnimatedMesh->getMesh( core::floor32(Node->getFrameNr()),
 				255, Node->getStartFrame(), Node->getEndFrame() );
 		for(u32 i=0; i<amount; ++i)
 		{

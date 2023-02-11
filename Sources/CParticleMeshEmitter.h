@@ -22,7 +22,7 @@ public:
 
 	//! constructor
 	CParticleMeshEmitter(
-		IMesh* mesh, bool useNormalDirection = true,
+		boost::shared_ptr<IMesh> mesh, bool useNormalDirection = true,
 		const core::vector3df& direction = core::vector3df(0.0f,0.0f,0.0f),
 		f32 normalDirectionModifier = 100.0f,
 		s32 mbNumber = -1,
@@ -43,7 +43,7 @@ public:
 	virtual s32 emitt(u32 now, u32 timeSinceLastCall, SParticle*& outArray);
 
 	//! Set Mesh to emit particles from
-	virtual void setMesh( IMesh* mesh );
+	virtual void setMesh( boost::shared_ptr<IMesh> mesh );
 
 	//! Set whether to use vertex normal for direction, or direction specified
 	virtual void setUseNormalDirection( bool useNormalDirection ) { UseNormalDirection = useNormalDirection; }
@@ -86,7 +86,7 @@ public:
 	virtual void setMaxAngleDegrees( s32 maxAngleDegrees ) { MaxAngleDegrees = maxAngleDegrees; }
 
 	//! Get Mesh we're emitting particles from
-	virtual const IMesh* getMesh() const { return Mesh; }
+	virtual boost::shared_ptr<const IMesh> getMesh() const { return Mesh; }
 
 	//! Get whether to use vertex normal for direciton, or direction specified
 	virtual bool isUsingNormalDirection() const { return UseNormalDirection; }
@@ -130,7 +130,7 @@ public:
 
 private:
 
-	const IMesh* Mesh;
+	boost::shared_ptr<const IMesh> Mesh;
 	core::array<s32>	VertexPerMeshBufferList;
 	s32 TotalVertices;
 	u32 MBCount;

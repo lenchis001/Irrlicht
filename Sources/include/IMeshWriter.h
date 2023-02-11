@@ -39,14 +39,14 @@ namespace scene
 		\param mesh Pointer to mesh to be written.
 		\param flags Optional flags to set properties of the writer.
 		\return True if sucessful */
-		virtual bool writeMesh(io::IWriteFile* file, scene::IMesh* mesh,
+		virtual bool writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh,
 							s32 flags=EMWF_NONE) = 0;
 
 		// Writes an animated mesh
 		// for future use, no writer is able to write animated meshes currently
 		/* \return Returns true if sucessful */
 		//virtual bool writeAnimatedMesh(io::IWriteFile* file,
-		// scene::IAnimatedMesh* mesh,
+		// boost::shared_ptr<scene::IAnimatedMesh> mesh,
 		// s32 flags=EMWF_NONE) = 0;
 	};
 

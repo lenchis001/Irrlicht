@@ -139,7 +139,7 @@ CIrrDeviceConsole::CIrrDeviceConsole(const SIrrlichtCreationParameters& params)
 
 
 #ifdef _IRR_WINDOWS_NT_CONSOLE_
-	CursorControl = new CCursorControl(CreationParams.WindowSize);
+	CursorControl = boost::make_shared<CCursorControl>(CreationParams.WindowSize);
 #endif
 
 	if (VideoDriver)
@@ -166,7 +166,6 @@ CIrrDeviceConsole::~CIrrDeviceConsole()
 	// GUI and scene are dropped in the stub
 	if (CursorControl)
 	{
-		CursorControl->drop();
 		CursorControl = 0;
 	}
 	if (ConsoleFont)

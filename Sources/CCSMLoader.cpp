@@ -375,23 +375,22 @@ namespace scene
 
 
 	//! creates/loads an animated mesh from the file.
-	IAnimatedMesh* CCSMLoader::createMesh(io::IReadFile* file)
+	boost::shared_ptr<IAnimatedMesh> CCSMLoader::createMesh(io::IReadFile* file)
 	{
-		scene::IMesh* m = createCSMMesh(file);
+		boost::shared_ptr<scene::IMesh> m = createCSMMesh(file);
 
 		if (!m)
 			return 0;
 
-		SAnimatedMesh* am = new SAnimatedMesh();
+		boost::shared_ptr<SAnimatedMesh> am = boost::make_shared<SAnimatedMesh>();
 		am->Type = EAMT_CSM;
 		am->addMesh(m);
-		m->drop();
 
 		am->recalculateBoundingBox();
 		return am;
 	}
 
-	scene::IMesh* CCSMLoader::createCSMMesh(io::IReadFile* file)
+	boost::shared_ptr<scene::IMesh> CCSMLoader::createCSMMesh(io::IReadFile* file)
 	{
 		if (!file)
 			return 0;
@@ -406,10 +405,10 @@ namespace scene
 	}
 
 
-	scene::IMesh* CCSMLoader::createIrrlichtMesh(const CSMFile* csmFile,
+	boost::shared_ptr<scene::IMesh> CCSMLoader::createIrrlichtMesh(const CSMFile* csmFile,
 		const core::stringc& textureRoot, const io::path& lmprefix)
 	{
-		scene::SMesh *pMesh = new scene::SMesh();
+		boost::shared_ptr<scene::SMesh> pMesh = boost::make_shared<scene::SMesh>();
 		video::IVideoDriver* driver = SceneManager->getVideoDriver();
 
 		for(u32 l = 0; l<csmFile->getLightMapCount(); l++)

@@ -15,7 +15,7 @@ namespace irr
 namespace scene
 {
 
-IMesh* CGeometryCreator::createCubeMesh(const core::vector3df& size) const
+boost::shared_ptr<IMesh> CGeometryCreator::createCubeMesh(const core::vector3df& size) const
 {
 	SMeshBuffer* buffer = new SMeshBuffer();
 
@@ -57,7 +57,7 @@ IMesh* CGeometryCreator::createCubeMesh(const core::vector3df& size) const
 		buffer->BoundingBox.addInternalPoint(buffer->Vertices[i].Pos);
 	}
 
-	SMesh* mesh = new SMesh;
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 	mesh->addMeshBuffer(buffer);
 	buffer->drop();
 
@@ -67,7 +67,7 @@ IMesh* CGeometryCreator::createCubeMesh(const core::vector3df& size) const
 
 
 // creates a hill plane
-IMesh* CGeometryCreator::createHillPlaneMesh(
+boost::shared_ptr<IMesh> CGeometryCreator::createHillPlaneMesh(
 		const core::dimension2d<f32>& tileSize,
 		const core::dimension2d<u32>& tc, video::SMaterial* material,
 		f32 hillHeight, const core::dimension2d<f32>& ch,
@@ -159,7 +159,7 @@ IMesh* CGeometryCreator::createHillPlaneMesh(
 	buffer->recalculateBoundingBox();
 	buffer->setHardwareMappingHint(EHM_STATIC);
 
-	SMesh* mesh = new SMesh();
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 	mesh->addMeshBuffer(buffer);
 	mesh->recalculateBoundingBox();
 	buffer->drop();
@@ -167,7 +167,7 @@ IMesh* CGeometryCreator::createHillPlaneMesh(
 }
 
 
-IMesh* CGeometryCreator::createTerrainMesh(video::IImage* texture,
+boost::shared_ptr<IMesh> CGeometryCreator::createTerrainMesh(video::IImage* texture,
 		video::IImage* heightmap, const core::dimension2d<f32>& stretchSize,
 		f32 maxHeight, video::IVideoDriver* driver,
 		const core::dimension2d<u32>& maxVtxBlockSize,
@@ -182,7 +182,7 @@ IMesh* CGeometryCreator::createTerrainMesh(video::IImage* texture,
 	video::S3DVertex vtx;
 	vtx.Color.set(255,255,255,255);
 
-	SMesh* mesh = new SMesh();
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 
 	const u32 tm = os::Timer::getRealTime()/1000;
 	const core::dimension2d<u32> hMapSize= heightmap->getDimension();
@@ -310,7 +310,7 @@ IMesh* CGeometryCreator::createTerrainMesh(video::IImage* texture,
 	a cylinder, a cone and a cross
 	point up on (0,1.f, 0.f )
 */
-IMesh* CGeometryCreator::createArrowMesh(const u32 tesselationCylinder,
+boost::shared_ptr<IMesh> CGeometryCreator::createArrowMesh(const u32 tesselationCylinder,
 						const u32 tesselationCone,
 						const f32 height,
 						const f32 cylinderHeight,
@@ -319,9 +319,9 @@ IMesh* CGeometryCreator::createArrowMesh(const u32 tesselationCylinder,
 						const video::SColor vtxColor0,
 						const video::SColor vtxColor1) const
 {
-	SMesh* mesh = (SMesh*)createCylinderMesh(width0, cylinderHeight, tesselationCylinder, vtxColor0, false);
+	boost::shared_ptr<SMesh> mesh = boost::static_pointer_cast<SMesh>(createCylinderMesh(width0, cylinderHeight, tesselationCylinder, vtxColor0, false));
 
-	IMesh* mesh2 = createConeMesh(width1, height-cylinderHeight, tesselationCone, vtxColor1, vtxColor0);
+	boost::shared_ptr<IMesh> mesh2 = createConeMesh(width1, height-cylinderHeight, tesselationCone, vtxColor1, vtxColor0);
 	for (u32 i=0; i<mesh2->getMeshBufferCount(); ++i)
 	{
 		scene::IMeshBuffer* buffer = mesh2->getMeshBuffer(i);
@@ -331,7 +331,6 @@ IMesh* CGeometryCreator::createArrowMesh(const u32 tesselationCylinder,
 		buffer->recalculateBoundingBox();
 		mesh->addMeshBuffer(buffer);
 	}
-	mesh2->drop();
 	mesh->setHardwareMappingHint(EHM_STATIC);
 
 	mesh->recalculateBoundingBox();
@@ -340,7 +339,7 @@ IMesh* CGeometryCreator::createArrowMesh(const u32 tesselationCylinder,
 
 
 /* A sphere with proper normals and texture coords */
-IMesh* CGeometryCreator::createSphereMesh(f32 radius, u32 polyCountX, u32 polyCountY) const
+boost::shared_ptr<IMesh> CGeometryCreator::createSphereMesh(f32 radius, u32 polyCountX, u32 polyCountY) const
 {
 	// thanks to Alfaz93 who made his code available for Irrlicht on which
 	// this one is based!
@@ -494,7 +493,7 @@ IMesh* CGeometryCreator::createSphereMesh(f32 radius, u32 polyCountX, u32 polyCo
 	buffer->BoundingBox.addInternalPoint(0.0f,0.0f,radius);
 	buffer->BoundingBox.addInternalPoint(0.0f,0.0f,-radius);
 
-	SMesh* mesh = new SMesh();
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 	mesh->addMeshBuffer(buffer);
 	buffer->drop();
 
@@ -505,7 +504,7 @@ IMesh* CGeometryCreator::createSphereMesh(f32 radius, u32 polyCountX, u32 polyCo
 
 
 /* A cylinder with proper normals and texture coords */
-IMesh* CGeometryCreator::createCylinderMesh(f32 radius, f32 length, 
+boost::shared_ptr<IMesh> CGeometryCreator::createCylinderMesh(f32 radius, f32 length, 
 			u32 tesselation, const video::SColor& color, 
 			bool closeTop, f32 oblique) const
 {
@@ -633,7 +632,7 @@ IMesh* CGeometryCreator::createCylinderMesh(f32 radius, f32 length,
 	}
 
 	buffer->recalculateBoundingBox();
-	SMesh* mesh = new SMesh();
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 	mesh->addMeshBuffer(buffer);
 	mesh->setHardwareMappingHint(EHM_STATIC);
 	mesh->recalculateBoundingBox();
@@ -643,7 +642,7 @@ IMesh* CGeometryCreator::createCylinderMesh(f32 radius, f32 length,
 
 
 /* A cone with proper normals and texture coords */
-IMesh* CGeometryCreator::createConeMesh(f32 radius, f32 length, u32 tesselation,
+boost::shared_ptr<IMesh> CGeometryCreator::createConeMesh(f32 radius, f32 length, u32 tesselation,
 					const video::SColor& colorTop, 
 					const video::SColor& colorBottom,
 					f32 oblique) const
@@ -724,7 +723,7 @@ IMesh* CGeometryCreator::createConeMesh(f32 radius, f32 length, u32 tesselation,
 	buffer->Indices.push_back(0);
 
 	buffer->recalculateBoundingBox();
-	SMesh* mesh = new SMesh();
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 	mesh->addMeshBuffer(buffer);
 	buffer->drop();
 
@@ -750,7 +749,7 @@ void CGeometryCreator::addToBuffer(const video::S3DVertex& v, SMeshBuffer* Buffe
 }
 
 
-IMesh* CGeometryCreator::createVolumeLightMesh(
+boost::shared_ptr<IMesh> CGeometryCreator::createVolumeLightMesh(
 		const u32 subdivideU, const u32 subdivideV,
 		const video::SColor footColor, const video::SColor tailColor,
 		const f32 lpDistance, const core::vector3df& lightDim) const
@@ -878,7 +877,7 @@ IMesh* CGeometryCreator::createVolumeLightMesh(
 	Buffer->setDirty(EBT_VERTEX_AND_INDEX);
 
 	Buffer->recalculateBoundingBox();
-	SMesh* mesh = new SMesh();
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 	mesh->addMeshBuffer(Buffer);
 	Buffer->drop();
 

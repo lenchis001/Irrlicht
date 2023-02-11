@@ -432,7 +432,7 @@ namespace video
 		//! Create occlusion query.
 		/** Use node for identification and mesh for occlusion test. */
 		virtual void addOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node,
-				const scene::IMesh* mesh=0);
+				boost::shared_ptr<const scene::IMesh> mesh=0);
 
 		//! Remove occlusion query.
 		virtual void removeOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node);
@@ -754,22 +754,16 @@ namespace video
 
 		struct SOccQuery
 		{
-			SOccQuery(boost::shared_ptr<scene::ISceneNode> node, const scene::IMesh* mesh=0) : Node(node), Mesh(mesh), PID(0), Result(~0), Run(~0)
+			SOccQuery(boost::shared_ptr<scene::ISceneNode> node, boost::shared_ptr<const scene::IMesh> mesh=0) : Node(node), Mesh(mesh), PID(0), Result(~0), Run(~0)
 			{
-				if (Mesh)
-					Mesh->grab();
 			}
 
 			SOccQuery(const SOccQuery& other) : Node(other.Node), Mesh(other.Mesh), PID(other.PID), Result(other.Result), Run(other.Run)
 			{
-				if (Mesh)
-					Mesh->grab();
 			}
 
 			~SOccQuery()
 			{
-				if (Mesh)
-					Mesh->drop();
 			}
 
 			SOccQuery& operator=(const SOccQuery& other)
@@ -779,8 +773,7 @@ namespace video
 				PID=other.PID;
 				Result=other.Result;
 				Run=other.Run;
-				if (Mesh)
-					Mesh->grab();
+
 				return *this;
 			}
 
@@ -790,7 +783,7 @@ namespace video
 			}
 
 			boost::shared_ptr<scene::ISceneNode> Node;
-			const scene::IMesh* Mesh;
+			boost::shared_ptr<const scene::IMesh> Mesh;
 			union
 			{
 				void* PID;

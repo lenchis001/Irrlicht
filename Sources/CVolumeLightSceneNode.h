@@ -70,7 +70,7 @@ namespace scene
 	private:
 		void constructLight();
 
-		IMesh* Mesh;
+		boost::shared_ptr<IMesh> Mesh;
 
 		f32  LPDistance;		// Distance to hypothetical lightsource point -- affects fov angle
 

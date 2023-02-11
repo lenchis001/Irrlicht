@@ -193,7 +193,7 @@ public:
 	//! \return Pointer to the created mesh. Returns 0 if loading failed.
 	//! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 	//! See IReferenceCounted::drop() for more information.
-	virtual IAnimatedMesh* createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
 
 private:
 
@@ -217,7 +217,7 @@ private:
 
 	//! reads a <node> section and its content
 	//! if a prefab pointer is passed the nodes are created as scene prefabs children of that prefab
-	void readNodeSection(io::IXMLReaderUTF8* reader, boost::shared_ptr<scene::ISceneNode> parent, CScenePrefab* p=0);
+	void readNodeSection(io::IXMLReaderUTF8* reader, boost::shared_ptr<scene::ISceneNode> parent, boost::shared_ptr<CScenePrefab> p=0);
 
 	//! reads a <lookat> element and its content and creates a matrix from it
 	core::matrix4 readLookAtNode(io::IXMLReaderUTF8* reader);
@@ -252,11 +252,11 @@ private:
 	//! reads a <instance> node
 	void readInstanceNode(io::IXMLReaderUTF8* reader,
 			boost::shared_ptr<scene::ISceneNode> parent, boost::shared_ptr<scene::ISceneNode>* outNode,
-			CScenePrefab* p=0, const core::stringc& type=core::stringc());
+			boost::shared_ptr<CScenePrefab> p=0, const core::stringc& type=core::stringc());
 
 	//! creates a scene node from Prefabs (with name given in 'url')
 	void instantiateNode(boost::shared_ptr<scene::ISceneNode> parent, boost::shared_ptr<scene::ISceneNode>* outNode=0,
-			CScenePrefab* p=0, const core::stringc& url="",
+			boost::shared_ptr<CScenePrefab> p=0, const core::stringc& url="",
 			const core::stringc& type=core::stringc());
 
 	//! reads a <light> element and stores it as prefab
@@ -324,7 +324,7 @@ private:
 
 	//! reads a polygons section and creates a mesh from it
 	void readPolygonSection(io::IXMLReaderUTF8* reader,
-			core::array<SSource>& sources, scene::SMesh* mesh,
+			core::array<SSource>& sources, boost::shared_ptr<scene::SMesh> mesh,
 			const core::stringc& geometryId);
 
 	//! finds a material, possible instancing it
@@ -342,16 +342,16 @@ private:
 	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IFileSystem* FileSystem;
 
-	scene::IAnimatedMesh* DummyMesh;
+	boost::shared_ptr<scene::IAnimatedMesh> DummyMesh;
 	core::stringc CurrentlyLoadingMesh;
 
-	scene::IAnimatedMesh* FirstLoadedMesh;
+	boost::shared_ptr<scene::IAnimatedMesh> FirstLoadedMesh;
 	io::path FirstLoadedMeshName;
 	s32 LoadedMeshCount;
 	u32 Version;
 	bool FlipAxis;
 
-	core::array<IColladaPrefab*> Prefabs;
+	core::array<boost::shared_ptr<IColladaPrefab>> Prefabs;
 	core::array<SColladaParam> ColladaParameters;
 	core::array<SColladaImage> Images;
 	core::array<SColladaTexture> Textures;
@@ -370,7 +370,7 @@ private:
 
 //! following class is for holding and createing instances of library objects,
 //! named prefabs in this loader.
-class IColladaPrefab : public virtual IReferenceCounted
+class IColladaPrefab : public virtual IDebugable
 {
 public:
 	//! creates an instance of this prefab

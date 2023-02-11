@@ -773,7 +773,7 @@ CIrrDeviceWin32::CIrrDeviceWin32(const SIrrlichtCreationParameters& params)
 
 	// create cursor control
 
-	Win32CursorControl = new CCursorControl(this, CreationParams.WindowSize, HWnd, CreationParams.Fullscreen);
+	Win32CursorControl = boost::make_shared<CCursorControl>(this, CreationParams.WindowSize, HWnd, CreationParams.Fullscreen);
 	CursorControl = Win32CursorControl;
 	JoyControl = new SJoystickWin32Control(this);
 
@@ -868,7 +868,7 @@ bool CIrrDeviceWin32::run()
 {
 	os::Timer::tick();
 
-	static_cast<CCursorControl*>(CursorControl)->update();
+	boost::static_pointer_cast<CCursorControl>(CursorControl)->update();
 
 	handleSystemMessages();
 
@@ -1117,7 +1117,7 @@ bool CIrrDeviceWin32::switchToFullScreen(bool reset)
 
 
 //! returns the win32 cursor control
-CIrrDeviceWin32::CCursorControl* CIrrDeviceWin32::getWin32CursorControl()
+boost::shared_ptr<CIrrDeviceWin32::CCursorControl> CIrrDeviceWin32::getWin32CursorControl()
 {
 	return Win32CursorControl;
 }
@@ -1408,7 +1408,7 @@ void CIrrDeviceWin32::setResizable(bool resize)
 	SetWindowPos(HWnd, HWND_TOP, windowLeft, windowTop, realWidth, realHeight,
 		SWP_FRAMECHANGED | SWP_NOMOVE | SWP_SHOWWINDOW);
 
-	static_cast<CCursorControl*>(CursorControl)->updateBorderSize(CreationParams.Fullscreen, resize);
+	boost::static_pointer_cast<CCursorControl>(CursorControl)->updateBorderSize(CreationParams.Fullscreen, resize);
 }
 
 

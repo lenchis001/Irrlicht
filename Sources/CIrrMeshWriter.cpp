@@ -53,7 +53,7 @@ EMESH_WRITER_TYPE CIrrMeshWriter::getType() const
 
 
 //! writes a mesh
-bool CIrrMeshWriter::writeMesh(io::IWriteFile* file, scene::IMesh* mesh, s32 flags)
+bool CIrrMeshWriter::writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
 {
 	if (!file)
 		return false;

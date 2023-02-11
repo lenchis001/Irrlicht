@@ -35,7 +35,7 @@ namespace scene
 
 		// IAnimatedMeshMD3
 		virtual void setInterpolationShift(u32 shift, u32 loopMode);
-		virtual SMD3Mesh* getOriginalMesh();
+		virtual boost::shared_ptr<SMD3Mesh> getOriginalMesh();
 		virtual SMD3QuaternionTagList* getTagList(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop);
 
 		//IAnimatedMesh
@@ -56,7 +56,7 @@ namespace scene
 			FramesPerSecond=fps;
 		}
 
-		virtual IMesh* getMesh(s32 frame, s32 detailLevel,
+		virtual boost::shared_ptr<IMesh> getMesh(s32 frame, s32 detailLevel,
 				s32 startFrameLoop, s32 endFrameLoop);
 		virtual const core::aabbox3d<f32>& getBoundingBox() const;
 		virtual E_ANIMATED_MESH_TYPE getMeshType() const;
@@ -88,7 +88,7 @@ namespace scene
 		video::SMaterial Material;
 
 		//! hold original compressed MD3 Info
-		SMD3Mesh *Mesh;
+		boost::shared_ptr<SMD3Mesh> Mesh;
 
 		u32 IPolShift;
 		u32 LoopMode;
@@ -113,14 +113,14 @@ namespace scene
 		SCacheInfo Current;
 
 		//! return a Mesh per frame
-		SMesh* MeshIPol;
+		boost::shared_ptr<SMesh> MeshIPol;
 		SMD3QuaternionTagList TagListIPol;
 
-		IMeshBuffer* createMeshBuffer(const SMD3MeshBuffer* source,
+		IMeshBuffer* createMeshBuffer(const boost::shared_ptr<SMD3MeshBuffer> source,
 				io::IFileSystem* fs, video::IVideoDriver* driver);
 
 		void buildVertexArray(u32 frameA, u32 frameB, f32 interpolate,
-					const SMD3MeshBuffer* source,
+					const boost::shared_ptr<SMD3MeshBuffer> source,
 					SMeshBufferLightMap* dest);
 
 		void buildTagArray(u32 frameA, u32 frameB, f32 interpolate);

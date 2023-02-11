@@ -90,8 +90,6 @@ COgreMeshFileLoader::~COgreMeshFileLoader()
 	if (Driver)
 		Driver->drop();
 
-	if (Mesh)
-		Mesh->drop();
 }
 
 
@@ -107,7 +105,7 @@ bool COgreMeshFileLoader::isALoadableFileExtension(const io::path& filename) con
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-IAnimatedMesh* COgreMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> COgreMeshFileLoader::createMesh(io::IReadFile* file)
 {
 	s16 id;
 
@@ -125,8 +123,6 @@ IAnimatedMesh* COgreMeshFileLoader::createMesh(io::IReadFile* file)
 		return 0;
 
 	clearMeshes();
-	if (Mesh)
-		Mesh->drop();
 
 	CurrentlyLoadingFromPath = FileSystem->getFileDir(file->getFileName());
 	loadMaterials(file);
@@ -138,8 +134,8 @@ IAnimatedMesh* COgreMeshFileLoader::createMesh(io::IReadFile* file)
 
 		if (Skeleton.Bones.size())
 		{
-			ISkinnedMesh* tmp = static_cast<CSkinnedMesh*>(Mesh);
-			static_cast<CSkinnedMesh*>(Mesh)->updateBoundingBox();
+			boost::shared_ptr<ISkinnedMesh> tmp = boost::static_pointer_cast<CSkinnedMesh>(Mesh);
+			boost::static_pointer_cast<CSkinnedMesh>(Mesh)->updateBoundingBox();
 			Skeleton.Animations.clear();
 			Skeleton.Bones.clear();
 			Mesh=0;
@@ -150,18 +146,16 @@ IAnimatedMesh* COgreMeshFileLoader::createMesh(io::IReadFile* file)
 			for (u32 i=0; i<Mesh->getMeshBufferCount(); ++i)
 				((SMeshBuffer*)Mesh->getMeshBuffer(i))->recalculateBoundingBox();
 
-			((SMesh*)Mesh)->recalculateBoundingBox();
-			SAnimatedMesh* am = new SAnimatedMesh();
+			boost::static_pointer_cast<SMesh>(Mesh)->recalculateBoundingBox();
+			boost::shared_ptr<SAnimatedMesh> am = boost::make_shared<SAnimatedMesh>();
 			am->Type = EAMT_3DS;
 			am->addMesh(Mesh);
 			am->recalculateBoundingBox();
-			Mesh->drop();
 			Mesh = 0;
         	return am;
 		}
 	}
 
-	Mesh->drop();
 	Mesh = 0;
 
 	return 0;
@@ -181,10 +175,13 @@ bool COgreMeshFileLoader::readChunk(io::IReadFile* file)
 			{
 				Meshes.push_back(OgreMesh());
 				readObjectChunk(file, data, Meshes.getLast());
-				if (Skeleton.Bones.size())
-					Mesh = new CSkinnedMesh();
-				else
-					Mesh = new SMesh();
+				if (Skeleton.Bones.size()) {
+					boost::shared_ptr<CSkinnedMesh> skinnedMesh = boost::make_shared<CSkinnedMesh>();
+					skinnedMesh->setWeakThis(skinnedMesh);
+
+					Mesh = skinnedMesh;
+				} else
+					Mesh = boost::make_shared<SMesh>();
 				composeObject();
 			}
 			break;
@@ -726,7 +723,7 @@ void COgreMeshFileLoader::composeObject(void)
 			{
 				if (Skeleton.Bones.size())
 				{
-					mb = composeMeshBufferSkinned(*(CSkinnedMesh*)Mesh, Meshes[i].SubMeshes[j].Indices, Meshes[i].Geometry);
+					mb = composeMeshBufferSkinned(*boost::static_pointer_cast<CSkinnedMesh>(Mesh), Meshes[i].SubMeshes[j].Indices, Meshes[i].Geometry);
 				}
 				else if (NumUV < 2)
 				{
@@ -741,7 +738,7 @@ void COgreMeshFileLoader::composeObject(void)
 			{
 				if (Skeleton.Bones.size())
 				{
-					mb = composeMeshBufferSkinned(*(CSkinnedMesh*)Mesh, Meshes[i].SubMeshes[j].Indices, Meshes[i].SubMeshes[j].Geometry);
+					mb = composeMeshBufferSkinned(*boost::static_pointer_cast<CSkinnedMesh>(Mesh), Meshes[i].SubMeshes[j].Indices, Meshes[i].SubMeshes[j].Geometry);
 				}
 				else if (NumUV < 2)
 				{
@@ -758,7 +755,7 @@ void COgreMeshFileLoader::composeObject(void)
 				composeMeshBufferMaterial(mb, Meshes[i].SubMeshes[j].Material);
 				if (!Skeleton.Bones.size())
 				{
-					((SMesh*)Mesh)->addMeshBuffer(mb);
+					boost::static_pointer_cast<SMesh>(Mesh)->addMeshBuffer(mb);
 					mb->drop();
 				}
 			}
@@ -766,7 +763,7 @@ void COgreMeshFileLoader::composeObject(void)
 	}
 	if (Skeleton.Bones.size())
 	{
-		CSkinnedMesh* m = (CSkinnedMesh*)Mesh;
+		boost::shared_ptr<CSkinnedMesh> m = boost::static_pointer_cast<CSkinnedMesh>(Mesh);
 		// Create Joints
 		for (u32 i=0; i<Skeleton.Bones.size(); ++i)
 		{

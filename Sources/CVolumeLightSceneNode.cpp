@@ -36,15 +36,11 @@ CVolumeLightSceneNode::CVolumeLightSceneNode(boost::shared_ptr<ISceneNode> paren
 
 CVolumeLightSceneNode::~CVolumeLightSceneNode()
 {
-	if (Mesh)
-		Mesh->drop();
 }
 
 
 void CVolumeLightSceneNode::constructLight()
 {
-	if (Mesh)
-		Mesh->drop();
 	Mesh = SceneManager->getGeometryCreator()->createVolumeLightMesh(SubdivideU, SubdivideV, FootColor, TailColor, LPDistance, LightDimensions);
 }
 

@@ -118,7 +118,7 @@ public:
 	direction then the normal of the vertex that is being emitted from is
 	divided by this number.
 	\param mbNumber: This allows you to specify a specific meshBuffer for
-	the IMesh* to emit particles from. The default value is -1, which
+	the boost::shared_ptr<IMesh> to emit particles from. The default value is -1, which
 	means a random meshBuffer picked from all of the meshes meshBuffers
 	will be selected to pick a random vertex from. If the value is 0 or
 	greater, it will only pick random vertices from the meshBuffer
@@ -258,7 +258,7 @@ public:
 	direction then the normal of the vertex that is being emitted from is
 	divided by this number.
 	\param mbNumber: This allows you to specify a specific meshBuffer for
-	the IMesh* to emit particles from. The default value is -1, which
+	the boost::shared_ptr<IMesh> to emit particles from. The default value is -1, which
 	means a random meshBuffer picked from all of the meshes meshBuffers
 	will be selected to pick a random vertex from. If the value is 0 or
 	greater, it will only pick random vertices from the meshBuffer
@@ -291,7 +291,7 @@ public:
 	that you'll have to drop() the returned pointer, after you don't need
 	it any more, see IReferenceCounted::drop() for more informations. */
 	virtual boost::shared_ptr<IParticleMeshEmitter> createMeshEmitter(
-		scene::IMesh* mesh, bool useNormalDirection = true,
+		boost::shared_ptr<scene::IMesh> mesh, bool useNormalDirection = true,
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		f32 normalDirectionModifier = 100.0f, s32 mbNumber = -1,
 		bool everyMeshVertex = false,

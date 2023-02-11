@@ -31,7 +31,7 @@ public:
 	\param size Dimensions of the cube.
 	\return Generated mesh.
 	*/
-	virtual IMesh* createCubeMesh(const core::vector3df& size=core::vector3df(5.f,5.f,5.f)) const =0;
+	virtual boost::shared_ptr<IMesh> createCubeMesh(const core::vector3df& size=core::vector3df(5.f,5.f,5.f)) const =0;
 
 	//! Create a pseudo-random mesh representing a hilly terrain.
 	/**
@@ -43,7 +43,7 @@ public:
 	\param textureRepeatCount The number of times to repeat the material texture along each dimension.
 	\return Generated mesh.
 	*/
-	virtual IMesh* createHillPlaneMesh(
+	virtual boost::shared_ptr<IMesh> createHillPlaneMesh(
 			const core::dimension2d<f32>& tileSize,
 			const core::dimension2d<u32>& tileCount,
 			video::SMaterial* material, f32 hillHeight,
@@ -58,7 +58,7 @@ public:
 	\param textureRepeatCount The number of times to repeat the material texture along each dimension.
 	\return Generated mesh.
 	*/
-	IMesh* createPlaneMesh(
+	boost::shared_ptr<IMesh> createPlaneMesh(
 			const core::dimension2d<f32>& tileSize,
 			const core::dimension2d<u32>& tileCount=core::dimension2du(1,1),
 			video::SMaterial* material=0,
@@ -83,7 +83,7 @@ public:
 	\param debugBorders (to be documented)
 	\return Generated mesh.
 	*/
-	virtual IMesh* createTerrainMesh(video::IImage* texture,
+	virtual boost::shared_ptr<IMesh> createTerrainMesh(video::IImage* texture,
 			video::IImage* heightmap,
 			const core::dimension2d<f32>& stretchSize,
 			f32 maxHeight, video::IVideoDriver* driver,
@@ -104,7 +104,7 @@ public:
 	\param colorCone color of the cone
 	\return Generated mesh.
 	*/
-	virtual IMesh* createArrowMesh(const u32 tesselationCylinder = 4,
+	virtual boost::shared_ptr<IMesh> createArrowMesh(const u32 tesselationCylinder = 4,
 			const u32 tesselationCone = 8, const f32 height = 1.f,
 			const f32 cylinderHeight = 0.6f, const f32 widthCylinder = 0.05f,
 			const f32 widthCone = 0.3f, const video::SColor colorCylinder = 0xFFFFFFFF,
@@ -118,7 +118,7 @@ public:
 	\param polyCountY Number of quads used for the vertical tiling
 	\return Generated mesh.
 	*/
-	virtual IMesh* createSphereMesh(f32 radius = 5.f,
+	virtual boost::shared_ptr<IMesh> createSphereMesh(f32 radius = 5.f,
 			u32 polyCountX = 16, u32 polyCountY = 16) const =0;
 
 	//! Create a cylinder mesh.
@@ -131,7 +131,7 @@ public:
 	\param oblique (to be documented)
 	\return Generated mesh.
 	*/
-	virtual IMesh* createCylinderMesh(f32 radius, f32 length,
+	virtual boost::shared_ptr<IMesh> createCylinderMesh(f32 radius, f32 length,
 			u32 tesselation,
 			const video::SColor& color=video::SColor(0xffffffff),
 			bool closeTop=true, f32 oblique=0.f) const =0;
@@ -146,7 +146,7 @@ public:
 	\param oblique (to be documented)
 	\return Generated mesh.
 	*/
-	virtual IMesh* createConeMesh(f32 radius, f32 length, u32 tesselation,
+	virtual boost::shared_ptr<IMesh> createConeMesh(f32 radius, f32 length, u32 tesselation,
 			const video::SColor& colorTop=video::SColor(0xffffffff),
 			const video::SColor& colorBottom=video::SColor(0xffffffff),
 			f32 oblique=0.f) const =0;
@@ -161,7 +161,7 @@ public:
 	\param lightDim Dimensions of the light.
 	\return Generated mesh.
 	*/
-	virtual IMesh* createVolumeLightMesh(
+	virtual boost::shared_ptr<IMesh> createVolumeLightMesh(
 			const u32 subdivideU=32, const u32 subdivideV=32,
 			const video::SColor footColor = 0xffffffff,
 			const video::SColor tailColor = 0xffffffff,

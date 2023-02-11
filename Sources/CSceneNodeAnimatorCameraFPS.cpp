@@ -16,7 +16,7 @@ namespace scene
 {
 
 //! constructor
-CSceneNodeAnimatorCameraFPS::CSceneNodeAnimatorCameraFPS(gui::ICursorControl* cursorControl,
+CSceneNodeAnimatorCameraFPS::CSceneNodeAnimatorCameraFPS(boost::shared_ptr<gui::ICursorControl> cursorControl,
 		f32 rotateSpeed, f32 moveSpeed, f32 jumpSpeed,
 		SKeyMap* keyMapArray, u32 keyMapSize, bool noVerticalMovement, bool invertY)
 : CursorControl(cursorControl), MaxVerticalAngle(88.0f),
@@ -27,9 +27,6 @@ CSceneNodeAnimatorCameraFPS::CSceneNodeAnimatorCameraFPS(gui::ICursorControl* cu
 	#ifdef _DEBUG
 	setDebugName("CCameraSceneNodeAnimatorFPS");
 	#endif
-
-	if (CursorControl)
-		CursorControl->grab();
 
 	allKeysUp();
 
@@ -54,8 +51,6 @@ CSceneNodeAnimatorCameraFPS::CSceneNodeAnimatorCameraFPS(gui::ICursorControl* cu
 //! destructor
 CSceneNodeAnimatorCameraFPS::~CSceneNodeAnimatorCameraFPS()
 {
-	if (CursorControl)
-		CursorControl->drop();
 }
 
 

@@ -70,7 +70,7 @@ namespace scene
 
 		//! Get pointer to the mesh
 		/** \return Pointer to the mesh. */
-		virtual IMesh* getMesh() =0;
+		virtual boost::shared_ptr<IMesh> getMesh() =0;
 
 		//! Get pointer to the buffer used by the terrain (most users will not need this)
 		virtual IMeshBuffer* getRenderBuffer() =0;

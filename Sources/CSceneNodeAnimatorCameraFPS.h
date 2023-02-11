@@ -27,7 +27,7 @@ namespace scene
 	public:
 
 		//! Constructor
-		CSceneNodeAnimatorCameraFPS(gui::ICursorControl* cursorControl,
+		CSceneNodeAnimatorCameraFPS(boost::shared_ptr<gui::ICursorControl> cursorControl,
 			f32 rotateSpeed = 100.0f, f32 moveSpeed = .5f, f32 jumpSpeed=0.f,
 			SKeyMap* keyMapArray=0, u32 keyMapSize=0, bool noVerticalMovement=false,
 			bool invertY=false);
@@ -94,7 +94,7 @@ namespace scene
 	private:
 		void allKeysUp();
 
-		gui::ICursorControl *CursorControl;
+		boost::shared_ptr<gui::ICursorControl> CursorControl;
 
 		f32 MaxVerticalAngle;
 

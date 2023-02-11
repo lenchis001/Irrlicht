@@ -21,7 +21,7 @@ namespace scene
 
 
 //! constructor
-CMeshSceneNode::CMeshSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
+CMeshSceneNode::CMeshSceneNode(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 			const core::vector3df& position, const core::vector3df& rotation,
 			const core::vector3df& scale)
 : IMeshSceneNode(parent, mgr, id, position, rotation, scale), Mesh(0), Shadow(0),
@@ -38,8 +38,6 @@ CMeshSceneNode::CMeshSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent
 //! destructor
 CMeshSceneNode::~CMeshSceneNode()
 {
-	if (Mesh)
-		Mesh->drop();
 }
 
 
@@ -277,14 +275,10 @@ u32 CMeshSceneNode::getMaterialCount() const
 
 
 //! Sets a new mesh
-void CMeshSceneNode::setMesh(IMesh* mesh)
+void CMeshSceneNode::setMesh(boost::shared_ptr<IMesh> mesh)
 {
 	if (mesh)
 	{
-		mesh->grab();
-		if (Mesh)
-			Mesh->drop();
-
 		Mesh = mesh;
 		copyMaterials();
 	}
@@ -294,7 +288,7 @@ void CMeshSceneNode::setMesh(IMesh* mesh)
 //! Creates shadow volume scene node as child of this node
 //! and returns a pointer to it.
 boost::shared_ptr<IShadowVolumeSceneNode> CMeshSceneNode::addShadowVolumeSceneNode(
-		const IMesh* shadowMesh, s32 id, bool zfailmethod, f32 infinity)
+		boost::shared_ptr<const IMesh> shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
 	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
 		return 0;
@@ -354,8 +348,8 @@ void CMeshSceneNode::deserializeAttributes(io::IAttributes* in, io::SAttributeRe
 
 	if (newMeshStr != "" && oldMeshStr != newMeshStr)
 	{
-		IMesh* newMesh = 0;
-		IAnimatedMesh* newAnimatedMesh = SceneManager->getMesh(newMeshStr.c_str());
+		boost::shared_ptr<IMesh> newMesh = 0;
+		boost::shared_ptr<IAnimatedMesh> newAnimatedMesh = SceneManager->getMesh(newMeshStr.c_str());
 
 		if (newAnimatedMesh)
 			newMesh = newAnimatedMesh->getMesh(0);
@@ -387,7 +381,7 @@ void CMeshSceneNode::deserializeAttributes(io::IAttributes* in, io::SAttributeRe
 		else if (sbufferType.equals_ignore_case("vertexindex"))
 			bufferType = scene::EBT_VERTEX_AND_INDEX;
 
-		IMesh* mesh = getMesh();
+		boost::shared_ptr<IMesh> mesh = getMesh();
 		if (mesh)
 			mesh->setHardwareMappingHint(mapping, bufferType);
 	}

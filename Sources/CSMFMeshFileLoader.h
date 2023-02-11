@@ -30,10 +30,10 @@ public:
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 
 	//! Creates/loads an animated mesh from the file.
-	virtual IAnimatedMesh* createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
 private:
 
-	void loadLimb(io::IReadFile* file, scene::SMesh* mesh, const core::matrix4 &parentTransformation);
+	void loadLimb(io::IReadFile* file, boost::shared_ptr<scene::SMesh> mesh, const core::matrix4 &parentTransformation);
 
 	video::IVideoDriver* Driver;
 };

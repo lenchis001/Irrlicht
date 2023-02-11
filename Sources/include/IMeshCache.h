@@ -47,14 +47,14 @@ namespace scene
 		set by this method.
 		\param mesh Pointer to a mesh which will now be referenced by
 		this name. */
-		virtual void addMesh(const io::path& name, IAnimatedMesh* mesh) = 0;
+		virtual void addMesh(const io::path& name, boost::shared_ptr<IAnimatedMesh> mesh) = 0;
 
 		//! Removes the mesh from the cache.
 		/** After loading a mesh with getMesh(), the mesh can be
 		removed from the cache using this method, freeing a lot of
 		memory.
 		\param mesh Pointer to the mesh which shall be removed. */
-		virtual void removeMesh(const IMesh* const mesh) = 0;
+		virtual void removeMesh(boost::shared_ptr<const IMesh> const mesh) = 0;
 
 		//! Returns amount of loaded meshes in the cache.
 		/** You can load new meshes into the cache using getMesh() and
@@ -67,7 +67,7 @@ namespace scene
 		//! Returns current index number of the mesh or -1 when not found.
 		/** \param mesh Pointer to the mesh to search for.
 		\return Index of the mesh in the cache, or -1 if not found. */
-		virtual s32 getMeshIndex(const IMesh* const mesh) const = 0;
+		virtual s32 getMeshIndex(boost::shared_ptr<const IMesh> const mesh) const = 0;
 
 		//! Returns a mesh based on its index number.
 		/** \param index: Index of the mesh, number between 0 and
@@ -76,12 +76,12 @@ namespace scene
 		or removed.
 		\return Pointer to the mesh or 0 if there is none with this
 		number. */
-		virtual IAnimatedMesh* getMeshByIndex(u32 index) = 0;
+		virtual boost::shared_ptr<IAnimatedMesh> getMeshByIndex(u32 index) = 0;
 
 		//! Returns a mesh based on its name (often a filename).
 		/** \deprecated Use getMeshByName() instead. This method may be removed by
 		Irrlicht 1.9 */
-		_IRR_DEPRECATED_ IAnimatedMesh* getMeshByFilename(const io::path& filename)
+		_IRR_DEPRECATED_ boost::shared_ptr<IAnimatedMesh> getMeshByFilename(const io::path& filename)
 		{
 			return getMeshByName(filename);
 		}
@@ -97,7 +97,7 @@ namespace scene
 		//! Get the name of a loaded mesh, if there is any. (Name is often identical to the filename).
 		/** \deprecated Use getMeshName() instead. This method may be removed by
 		Irrlicht 1.9 */
-		_IRR_DEPRECATED_ const io::path& getMeshFilename(const IMesh* const mesh) const
+		_IRR_DEPRECATED_ const io::path& getMeshFilename(boost::shared_ptr<const IMesh> const mesh) const
 		{
 			return getMeshName(mesh).getInternalName();
 		}
@@ -113,7 +113,7 @@ namespace scene
 		//! Renames a loaded mesh.
 		/** \deprecated Use renameMesh() instead. This method may be removed by
 		Irrlicht 1.9 */
-		_IRR_DEPRECATED_ bool setMeshFilename(const IMesh* const mesh, const io::path& filename)
+		_IRR_DEPRECATED_ bool setMeshFilename(boost::shared_ptr<const IMesh> const mesh, const io::path& filename)
 		{
 			return renameMesh(mesh, filename);
 		}
@@ -121,7 +121,7 @@ namespace scene
 		//! Returns a mesh based on its name.
 		/** \param name Name of the mesh. Usually a filename.
 		\return Pointer to the mesh or 0 if there is none with this number. */
-		virtual IAnimatedMesh* getMeshByName(const io::path& name) = 0;
+		virtual boost::shared_ptr<IAnimatedMesh> getMeshByName(const io::path& name) = 0;
 
 		//! Get the name of a loaded mesh, based on its index.
 		/** \param index: Index of the mesh, number between 0 and getMeshCount()-1.
@@ -131,7 +131,7 @@ namespace scene
 		//! Get the name of the loaded mesh if there is any.
 		/** \param mesh Pointer to mesh to query.
 		\return The name if mesh was found and has a name, else	the path is empty. */
-		virtual const io::SNamedPath& getMeshName(const IMesh* const mesh) const = 0;
+		virtual const io::SNamedPath& getMeshName(boost::shared_ptr<const IMesh> const mesh) const = 0;
 
 		//! Renames a loaded mesh.
 		/** Note that renaming meshes might change the ordering of the
@@ -149,7 +149,7 @@ namespace scene
 		\param mesh Mesh to be renamed.
 		\param name New name for the mesh.
 		\return True if mesh was renamed. */
-		virtual bool renameMesh(const IMesh* const mesh, const io::path& name) = 0;
+		virtual bool renameMesh(boost::shared_ptr<const IMesh> const mesh, const io::path& name) = 0;
 
 		//! Check if a mesh was already loaded.
 		/** \param name Name of the mesh. Usually a filename.

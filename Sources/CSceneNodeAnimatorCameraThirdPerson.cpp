@@ -57,7 +57,7 @@ namespace irr::scene {
 
 	float CSceneNodeAnimatorCameraThirdPerson::getRadius() { return _radius; }
 
-	CSceneNodeAnimatorCameraThirdPerson::CSceneNodeAnimatorCameraThirdPerson(irr::gui::ICursorControl* cursorControl)
+	CSceneNodeAnimatorCameraThirdPerson::CSceneNodeAnimatorCameraThirdPerson(boost::shared_ptr<irr::gui::ICursorControl> cursorControl)
 	{
 		_fi = 0;
 		_teta = 0;

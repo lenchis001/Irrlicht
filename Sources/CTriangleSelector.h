@@ -27,7 +27,7 @@ public:
 	CTriangleSelector(boost::shared_ptr<ISceneNode> node);
 
 	//! Constructs a selector based on a mesh
-	CTriangleSelector(const IMesh* mesh, boost::shared_ptr<ISceneNode> node);
+	CTriangleSelector(const boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> node);
 
 	//! Constructs a selector based on an animated mesh scene node
 	//!\param node An animated mesh scene node, which must have a valid mesh
@@ -66,10 +66,10 @@ public:
 
 protected:
 	//! Create from a mesh
-	virtual void createFromMesh(const IMesh* mesh);
+	virtual void createFromMesh(const boost::shared_ptr<IMesh> mesh);
 
 	//! Update when the mesh has changed
-	virtual void updateFromMesh(const IMesh* mesh) const;
+	virtual void updateFromMesh(const boost::shared_ptr<IMesh> mesh) const;
 
 	//! Update the triangle selector, which will only have an effect if it
 	//! was built from an animated mesh and that mesh's frame has changed

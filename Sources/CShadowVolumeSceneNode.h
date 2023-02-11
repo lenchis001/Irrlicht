@@ -18,7 +18,7 @@ namespace scene
 	public:
 
 		//! constructor
-		CShadowVolumeSceneNode(const IMesh* shadowMesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, 
+		CShadowVolumeSceneNode(boost::shared_ptr<const IMesh> shadowMesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,
 			s32 id,  bool zfailmethod=true, f32 infinity=10000.0f);
 
 		//! destructor
@@ -27,7 +27,7 @@ namespace scene
 		//! Sets the mesh from which the shadow volume should be generated.
 		/** To optimize shadow rendering, use a simpler mesh for shadows.
 		*/
-		virtual void setShadowMesh(const IMesh* mesh);
+		virtual void setShadowMesh(boost::shared_ptr<const IMesh> mesh);
 
 		//! Updates the shadow volumes for current light positions.
 		/** Called each render cycle from Animated Mesh SceneNode render method. */
@@ -70,7 +70,7 @@ namespace scene
 		// tells if face is front facing
 		core::array<bool> FaceData;
 
-		const scene::IMesh* ShadowMesh;
+		boost::shared_ptr<const scene::IMesh> ShadowMesh;
 
 		u32 IndexCount;
 		u32 VertexCount;

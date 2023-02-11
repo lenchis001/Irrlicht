@@ -47,7 +47,7 @@ namespace scene
 		}
 
 		//! returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail. Note, that some Meshes will ignore the detail level.
-		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1);
+		virtual boost::shared_ptr<IMesh> getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1);
 
 		//! returns amount of mesh buffers.
 		virtual u32 getMeshBufferCount() const;
@@ -94,6 +94,7 @@ namespace scene
 		//! \param nr: Zero based index of animation.
 		virtual const c8* getAnimationName(s32 nr) const;
 
+		void setWeakThis(boost::shared_ptr<CAnimatedMeshMD2> value);
 
 		//
 		// exposed for loader
@@ -140,11 +141,19 @@ namespace scene
 		u32 FrameCount;
 
 	private:
+		inline boost::shared_ptr<CAnimatedMeshMD2> getSharedThis() {
+			assert(!WeakThis.expired());
+
+			return WeakThis.lock();
+		}
 
 		//! updates the interpolation buffer
 		void updateInterpolationBuffer(s32 frame, s32 startFrame, s32 endFrame);
 
 		f32 FramesPerSecond;
+
+		//! Weak pointer to this object
+		boost::weak_ptr<CAnimatedMeshMD2> WeakThis;
 	};
 
 } // end namespace scene

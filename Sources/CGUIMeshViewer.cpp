@@ -32,19 +32,12 @@ CGUIMeshViewer::CGUIMeshViewer(IGUIEnvironment* environment, IGUIElement* parent
 //! destructor
 CGUIMeshViewer::~CGUIMeshViewer()
 {
-	if (Mesh)
-		Mesh->drop();
 }
 
 
 //! sets the mesh to be shown
-void CGUIMeshViewer::setMesh(scene::IAnimatedMesh* mesh)
+void CGUIMeshViewer::setMesh(boost::shared_ptr<scene::IAnimatedMesh> mesh)
 {
-	if (mesh)
-		mesh->grab();
-	if (Mesh)
-		Mesh->drop();
-
 	Mesh = mesh;
 
 	/* This might be used for proper transformation etc.
@@ -58,7 +51,7 @@ void CGUIMeshViewer::setMesh(scene::IAnimatedMesh* mesh)
 
 
 //! Gets the displayed mesh
-scene::IAnimatedMesh* CGUIMeshViewer::getMesh() const
+boost::shared_ptr<scene::IAnimatedMesh> CGUIMeshViewer::getMesh() const
 {
 	return Mesh;
 }
@@ -147,7 +140,7 @@ void CGUIMeshViewer::draw()
 		u32 frame = 0;
 		if(Mesh->getFrameCount())
 			frame = (os::Timer::getTime()/20)%Mesh->getFrameCount();
-		const scene::IMesh* const m = Mesh->getMesh(frame);
+		const boost::shared_ptr<scene::IMesh> const m = Mesh->getMesh(frame);
 		for (u32 i=0; i<m->getMeshBufferCount(); ++i)
 		{
 			scene::IMeshBuffer* mb = m->getMeshBuffer(i);

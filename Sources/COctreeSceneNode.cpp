@@ -301,7 +301,7 @@ bool COctreeSceneNode::removeChild(boost::shared_ptr<ISceneNode> child)
 //! Creates shadow volume scene node as child of this node
 //! and returns a pointer to it.
 boost::shared_ptr<IShadowVolumeSceneNode> COctreeSceneNode::addShadowVolumeSceneNode(
-		const IMesh* shadowMesh, s32 id, bool zfailmethod, f32 infinity)
+		boost::shared_ptr<const IMesh> shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
 	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
 		return 0;
@@ -324,14 +324,13 @@ const core::aabbox3d<f32>& COctreeSceneNode::getBoundingBox() const
 //! creates the tree
 /* This method has a lot of duplication and overhead. Moreover, the tangents mesh conversion does not really work. I think we need a a proper mesh implementation for octrees, which handle all vertex types internally. Converting all structures to just one vertex type is always problematic.
 Thanks to Auria for fixing major parts of this method. */
-bool COctreeSceneNode::createTree(IMesh* mesh)
+bool COctreeSceneNode::createTree(boost::shared_ptr<IMesh> mesh)
 {
 	if (!mesh)
 		return false;
 
 	MeshName = SceneManager->getMeshCache()->getMeshName(mesh);
 
-    mesh->grab();
 	deleteTree();
 
 	Mesh = mesh;
@@ -564,12 +563,12 @@ void COctreeSceneNode::deserializeAttributes(io::IAttributes* in, io::SAttribute
 	MinimalPolysPerNode = in->getAttributeAsInt("MinimalPolysPerNode");
 	io::path newMeshStr = in->getAttributeAsString("Mesh");
 
-	IMesh* newMesh = 0;
+	boost::shared_ptr<IMesh> newMesh = 0;
 
 	if (newMeshStr == "")
 		newMeshStr = MeshName;
 
-	IAnimatedMesh* newAnimatedMesh = SceneManager->getMesh(newMeshStr.c_str());
+	boost::shared_ptr<IAnimatedMesh> newAnimatedMesh = SceneManager->getMesh(newMeshStr.c_str());
 
 	if (newAnimatedMesh)
 		newMesh = newAnimatedMesh->getMesh(0);
@@ -599,17 +598,14 @@ void COctreeSceneNode::deleteTree()
 	TangentsMeshes.clear();
 
 	Materials.clear();
-
-	if(Mesh)
-		Mesh->drop();
 }
 
-void COctreeSceneNode::setMesh(IMesh* mesh)
+void COctreeSceneNode::setMesh(boost::shared_ptr<IMesh> mesh)
 {
 	createTree(mesh);
 }
 
-IMesh* COctreeSceneNode::getMesh(void)
+boost::shared_ptr<IMesh> COctreeSceneNode::getMesh(void)
 {
 	return Mesh;
 }

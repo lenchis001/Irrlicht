@@ -63,9 +63,6 @@ CIrrDeviceStub::~CIrrDeviceStub()
 	if (VideoDriver)
 		VideoDriver->drop();
 
-	if (CursorControl)
-		CursorControl->drop();
-
 	if (Operator)
 		Operator->drop();
 
@@ -142,7 +139,7 @@ const char* CIrrDeviceStub::getVersion() const
 }
 
 //! \return Returns a pointer to the mouse cursor control interface.
-gui::ICursorControl* CIrrDeviceStub::getCursorControl()
+boost::shared_ptr<gui::ICursorControl> CIrrDeviceStub::getCursorControl()
 {
 	return CursorControl;
 }

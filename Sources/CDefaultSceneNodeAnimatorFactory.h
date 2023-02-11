@@ -23,7 +23,7 @@ namespace scene
 	{
 	public:
 
-		CDefaultSceneNodeAnimatorFactory(boost::shared_ptr<scene::ISceneManager> mgr, gui::ICursorControl* crs);
+		CDefaultSceneNodeAnimatorFactory(boost::shared_ptr<scene::ISceneManager> mgr, boost::shared_ptr<gui::ICursorControl> crs);
 
 		virtual ~CDefaultSceneNodeAnimatorFactory();
 
@@ -64,7 +64,7 @@ namespace scene
 		ESCENE_NODE_ANIMATOR_TYPE getTypeFromName(const c8* name) const;
 
 		boost::shared_ptr<scene::ISceneManager> Manager;
-		gui::ICursorControl* CursorControl;
+		boost::shared_ptr<gui::ICursorControl> CursorControl;
 	};
 
 

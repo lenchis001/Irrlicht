@@ -34,12 +34,12 @@ namespace scene
 		/** Changes backfacing triangles to frontfacing
 		triangles and vice versa.
 		\param mesh Mesh on which the operation is performed. */
-		virtual void flipSurfaces(IMesh* mesh) const = 0;
+		virtual void flipSurfaces(boost::shared_ptr<IMesh> mesh) const = 0;
 
 		//! Sets the alpha vertex color value of the whole mesh to a new value.
 		/** \param mesh Mesh on which the operation is performed.
 		\param alpha New alpha value. Must be a value between 0 and 255. */
-		void setVertexColorAlpha(IMesh* mesh, s32 alpha) const
+		void setVertexColorAlpha(boost::shared_ptr<IMesh> mesh, s32 alpha) const
 		{
 			apply(scene::SVertexColorSetAlphaManipulator(alpha), mesh);
 		}
@@ -55,7 +55,7 @@ namespace scene
 		//! Sets the colors of all vertices to one color
 		/** \param mesh Mesh on which the operation is performed.
 		\param color New color. */
-		void setVertexColors(IMesh* mesh, video::SColor color) const
+		void setVertexColors(boost::shared_ptr<IMesh> mesh, video::SColor color) const
 		{
 			apply(scene::SVertexColorSetManipulator(color), mesh);
 		}
@@ -72,7 +72,7 @@ namespace scene
 		/** \param mesh: Mesh on which the operation is performed.
 		\param smooth: If the normals shall be smoothed.
 		\param angleWeighted: If the normals shall be smoothed in relation to their angles. More expensive, but also higher precision. */
-		virtual void recalculateNormals(IMesh* mesh, bool smooth = false,
+		virtual void recalculateNormals(boost::shared_ptr<IMesh> mesh, bool smooth = false,
 				bool angleWeighted = false) const=0;
 
 		//! Recalculates all normals of the mesh buffer.
@@ -88,7 +88,7 @@ namespace scene
 		\param smooth If the normals shall be smoothed.
 		\param angleWeighted If the normals shall be smoothed in relation to their angles. More expensive, but also higher precision.
 		*/
-		virtual void recalculateTangents(IMesh* mesh,
+		virtual void recalculateTangents(boost::shared_ptr<IMesh> mesh,
 				bool recalculateNormals=false, bool smooth=false,
 				bool angleWeighted=false) const=0;
 
@@ -105,7 +105,7 @@ namespace scene
 		//! Scales the actual mesh, not a scene node.
 		/** \param mesh Mesh on which the operation is performed.
 		\param factor Scale factor for each axis. */
-		void scale(IMesh* mesh, const core::vector3df& factor) const
+		void scale(boost::shared_ptr<IMesh> mesh, const core::vector3df& factor) const
 		{
 			apply(SVertexPositionScaleManipulator(factor), mesh, true);
 		}
@@ -122,13 +122,13 @@ namespace scene
 		/** \deprecated Use scale() instead. This method may be removed by Irrlicht 1.9 
 		\param mesh Mesh on which the operation is performed.
 		\param factor Scale factor for each axis. */
-		_IRR_DEPRECATED_ void scaleMesh(IMesh* mesh, const core::vector3df& factor) const {return scale(mesh,factor);}
+		_IRR_DEPRECATED_ void scaleMesh(boost::shared_ptr<IMesh> mesh, const core::vector3df& factor) const {return scale(mesh,factor);}
 
 		//! Scale the texture coords of a mesh.
 		/** \param mesh Mesh on which the operation is performed.
 		\param factor Vector which defines the scale for each axis.
 		\param level Number of texture coord, starting from 1. Support for level 2 exists for LightMap buffers. */
-		void scaleTCoords(scene::IMesh* mesh, const core::vector2df& factor, u32 level=1) const
+		void scaleTCoords(boost::shared_ptr<scene::IMesh> mesh, const core::vector2df& factor, u32 level=1) const
 		{
 			apply(SVertexTCoordsScaleManipulator(factor, level), mesh);
 		}
@@ -145,7 +145,7 @@ namespace scene
 		//! Applies a transformation to a mesh
 		/** \param mesh Mesh on which the operation is performed.
 		\param m transformation matrix. */
-		void transform(IMesh* mesh, const core::matrix4& m) const
+		void transform(boost::shared_ptr<IMesh> mesh, const core::matrix4& m) const
 		{
 			apply(SVertexPositionTransformManipulator(m), mesh, true);
 		}
@@ -162,14 +162,14 @@ namespace scene
 		/** \deprecated Use transform() instead. This method may be removed by Irrlicht 1.9 
 		\param mesh Mesh on which the operation is performed.
 		\param m transformation matrix. */
-		_IRR_DEPRECATED_ virtual void transformMesh(IMesh* mesh, const core::matrix4& m) const {return transform(mesh,m);}
+		_IRR_DEPRECATED_ virtual void transformMesh(boost::shared_ptr<IMesh> mesh, const core::matrix4& m) const {return transform(mesh,m);}
 
 		//! Creates a planar texture mapping on the mesh
 		/** \param mesh: Mesh on which the operation is performed.
 		\param resolution: resolution of the planar mapping. This is
 		the value specifying which is the relation between world space
 		and texture coordinate space. */
-		virtual void makePlanarTextureMapping(IMesh* mesh, f32 resolution=0.001f) const=0;
+		virtual void makePlanarTextureMapping(boost::shared_ptr<IMesh> mesh, f32 resolution=0.001f) const=0;
 
 		//! Creates a planar texture mapping on the meshbuffer
 		/** \param meshbuffer: Buffer on which the operation is performed.
@@ -186,7 +186,7 @@ namespace scene
 		\param axis The axis along which the texture is projected. The allowed values are 0 (X), 1(Y), and 2(Z).
 		\param offset Vector added to the vertex positions (in object coordinates).
 		*/
-		virtual void makePlanarTextureMapping(scene::IMesh* mesh,
+		virtual void makePlanarTextureMapping(boost::shared_ptr<scene::IMesh> mesh,
 				f32 resolutionS, f32 resolutionT,
 				u8 axis, const core::vector3df& offset) const=0;
 
@@ -209,7 +209,7 @@ namespace scene
 		\return Cloned mesh. If you no longer need the
 		cloned mesh, you should call SMesh::drop(). See
 		IReferenceCounted::drop() for more information. */
-		virtual SMesh* createMeshCopy(IMesh* mesh) const = 0;
+		virtual boost::shared_ptr<SMesh> createMeshCopy(boost::shared_ptr<IMesh> mesh) const = 0;
 
 		//! Creates a copy of the mesh, which will only consist of S3DVertexTangents vertices.
 		/** This is useful if you want to draw tangent space normal
@@ -228,7 +228,7 @@ namespace scene
 		you no longer need the cloned mesh, you should call
 		IMesh::drop(). See IReferenceCounted::drop() for more
 		information. */
-		virtual IMesh* createMeshWithTangents(IMesh* mesh,
+		virtual boost::shared_ptr<IMesh> createMeshWithTangents(boost::shared_ptr<IMesh> mesh,
 				bool recalculateNormals=false, bool smooth=false,
 				bool angleWeighted=false, bool recalculateTangents=true) const=0;
 
@@ -238,7 +238,7 @@ namespace scene
 		you no longer need the cloned mesh, you should call
 		IMesh::drop(). See IReferenceCounted::drop() for more
 		information. */
-		virtual IMesh* createMeshWith2TCoords(IMesh* mesh) const = 0;
+		virtual boost::shared_ptr<IMesh> createMeshWith2TCoords(boost::shared_ptr<IMesh> mesh) const = 0;
 
 		//! Creates a copy of the mesh, which will only consist of S3DVertex vertices.
 		/** \param mesh Input mesh
@@ -246,7 +246,7 @@ namespace scene
 		you no longer need the cloned mesh, you should call
 		IMesh::drop(). See IReferenceCounted::drop() for more
 		information. */
-		virtual IMesh* createMeshWith1TCoords(IMesh* mesh) const = 0;
+		virtual boost::shared_ptr<IMesh> createMeshWith1TCoords(boost::shared_ptr<IMesh> mesh) const = 0;
 
 		//! Creates a copy of a mesh with all vertices unwelded
 		/** \param mesh Input mesh
@@ -254,7 +254,7 @@ namespace scene
 		which were previously shared are now duplicated. If you no
 		longer need the cloned mesh, you should call IMesh::drop(). See
 		IReferenceCounted::drop() for more information. */
-		virtual IMesh* createMeshUniquePrimitives(IMesh* mesh) const = 0;
+		virtual boost::shared_ptr<IMesh> createMeshUniquePrimitives(boost::shared_ptr<IMesh> mesh) const = 0;
 
 		//! Creates a copy of a mesh with vertices welded
 		/** \param mesh Input mesh
@@ -262,17 +262,17 @@ namespace scene
 		\return Mesh without redundant vertices. If you no longer need
 		the cloned mesh, you should call IMesh::drop(). See
 		IReferenceCounted::drop() for more information. */
-		virtual IMesh* createMeshWelded(IMesh* mesh, f32 tolerance=core::ROUNDING_ERROR_f32) const = 0;
+		virtual boost::shared_ptr<IMesh> createMeshWelded(boost::shared_ptr<IMesh> mesh, f32 tolerance=core::ROUNDING_ERROR_f32) const = 0;
 
 		//! Get amount of polygons in mesh.
 		/** \param mesh Input mesh
 		\return Number of polygons in mesh. */
-		virtual s32 getPolyCount(IMesh* mesh) const = 0;
+		virtual s32 getPolyCount(boost::shared_ptr<IMesh> mesh) const = 0;
 
 		//! Get amount of polygons in mesh.
 		/** \param mesh Input mesh
 		\return Number of polygons in mesh. */
-		virtual s32 getPolyCount(IAnimatedMesh* mesh) const = 0;
+		virtual s32 getPolyCount(boost::shared_ptr<IAnimatedMesh> mesh) const = 0;
 
 		//! Create a new AnimatedMesh and adds the mesh to it
 		/** \param mesh Input mesh
@@ -281,7 +281,7 @@ namespace scene
 		content. When you don't need the animated mesh anymore, you
 		should call IAnimatedMesh::drop(). See
 		IReferenceCounted::drop() for more information. */
-		virtual IAnimatedMesh * createAnimatedMesh(IMesh* mesh,
+		virtual IAnimatedMesh * createAnimatedMesh(boost::shared_ptr<IMesh> mesh,
 			scene::E_ANIMATED_MESH_TYPE type = scene::EAMT_UNKNOWN) const = 0;
 
 		//! Vertex cache optimization according to the Forsyth paper
@@ -293,7 +293,7 @@ namespace scene
 
 		\param mesh Source mesh for the operation.
 		\return A new mesh optimized for the vertex cache. */
-		virtual IMesh* createForsythOptimizedMesh(const IMesh *mesh) const = 0;
+		virtual boost::shared_ptr<IMesh> createForsythOptimizedMesh(const boost::shared_ptr<IMesh> mesh) const = 0;
 
 		//! Apply a manipulator on the Meshbuffer
 		/** \param func A functor defining the mesh manipulation.
@@ -313,7 +313,7 @@ namespace scene
 		\param boundingBoxUpdate Specifies if the bounding box should be updated during manipulation.
 		\return True if the functor was successfully applied, else false. */
 		template <typename Functor>
-		bool apply(const Functor& func, IMesh* mesh, bool boundingBoxUpdate=false) const
+		bool apply(const Functor& func, boost::shared_ptr<IMesh> mesh, bool boundingBoxUpdate=false) const
 		{
 			if (!mesh)
 				return true;

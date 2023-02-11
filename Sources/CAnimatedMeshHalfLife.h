@@ -489,7 +489,7 @@ namespace scene
 
 		//IAnimatedMesh
 		virtual u32 getFrameCount() const;
-		virtual IMesh* getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop);
+		virtual boost::shared_ptr<IMesh> getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop);
 		virtual const core::aabbox3d<f32>& getBoundingBox() const;
 		virtual E_ANIMATED_MESH_TYPE getMeshType() const;
 		virtual void renderModel ( u32 param, video::IVideoDriver * driver, const core::matrix4 &absoluteTransformation);
@@ -544,7 +544,7 @@ namespace scene
 		IBodyList BodyList;
 
 		//! return a Mesh per frame
-		SMesh* MeshIPol;
+		boost::shared_ptr<SMesh> MeshIPol;
 
 		boost::shared_ptr<ISceneManager> SceneManager;
 
@@ -616,7 +616,7 @@ namespace scene
 		If you no longer need the mesh, you should call IAnimatedMesh::drop().
 		See IReferenceCounted::drop() for more information.
 		*/
-		virtual IAnimatedMesh* createMesh(io::IReadFile* file);
+		virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
 
 	private:
 		boost::shared_ptr<scene::ISceneManager> SceneManager;

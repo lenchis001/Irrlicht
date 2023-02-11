@@ -129,7 +129,7 @@ bool CLMTSMeshFileLoader::isALoadableFileExtension(const io::path& filename) con
 }
 
 
-IAnimatedMesh* CLMTSMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CLMTSMeshFileLoader::createMesh(io::IReadFile* file)
 {
 	u32 i;
 	u32 id;
@@ -242,7 +242,7 @@ IAnimatedMesh* CLMTSMeshFileLoader::createMesh(io::IReadFile* file)
 
 	/////////////////////////////////////////////////////////////////
 
-	SMesh* mesh = new SMesh();
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 
 	constructMesh(mesh);
 
@@ -250,17 +250,17 @@ IAnimatedMesh* CLMTSMeshFileLoader::createMesh(io::IReadFile* file)
 
 	cleanup();
 
-	SAnimatedMesh* am = new SAnimatedMesh();
+	boost::shared_ptr<SAnimatedMesh> am = boost::make_shared<SAnimatedMesh>();
 	am->Type = EAMT_LMTS; // not unknown to irrlicht anymore
 
 	am->addMesh(mesh);
 	am->recalculateBoundingBox();
-	mesh->drop();
+	
 	return am;
 }
 
 
-void CLMTSMeshFileLoader::constructMesh(SMesh* mesh)
+void CLMTSMeshFileLoader::constructMesh(boost::shared_ptr<SMesh> mesh)
 {
 	for (s32 i=0; i<Header.SubsetCount; ++i)
 	{
@@ -311,7 +311,7 @@ void CLMTSMeshFileLoader::constructMesh(SMesh* mesh)
 }
 
 
-void CLMTSMeshFileLoader::loadTextures(SMesh* mesh)
+void CLMTSMeshFileLoader::loadTextures(boost::shared_ptr<SMesh> mesh)
 {
 	if (!Driver || !FileSystem)
 		return;

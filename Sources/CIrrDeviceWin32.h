@@ -389,7 +389,7 @@ namespace irr
 		};
 
 		//! returns the win32 cursor control
-		CCursorControl* getWin32CursorControl();
+		boost::shared_ptr<CCursorControl> getWin32CursorControl();
 
 	private:
 
@@ -408,7 +408,7 @@ namespace irr
 		bool ChangedToFullScreen;
 		bool Resized;
 		bool ExternalWindow;
-		CCursorControl* Win32CursorControl;
+		boost::shared_ptr<CCursorControl> Win32CursorControl;
 		DEVMODE DesktopMode;
 
 		SJoystickWin32Control* JoyControl;

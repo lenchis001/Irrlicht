@@ -22,7 +22,7 @@ namespace scene
 	public:
 
 		//! constructor
-		CAnimatedMeshSceneNode(IAnimatedMesh* mesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,	s32 id,
+		CAnimatedMeshSceneNode(boost::shared_ptr<IAnimatedMesh> mesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,	s32 id,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f));
@@ -58,7 +58,7 @@ namespace scene
 
 		//! Sets a callback interface which will be called if an animation
 		//! playback has ended. Set this to 0 to disable the callback again.
-		virtual void setAnimationEndCallback(IAnimationEndCallBack* callback=0);
+		virtual void setAnimationEndCallback(boost::shared_ptr<IAnimationEndCallBack>  callback=0);
 
 		//! sets the speed with which the animation is played
 		virtual void setAnimationSpeed(f32 framesPerSecond);
@@ -78,7 +78,7 @@ namespace scene
 
 		//! Creates shadow volume scene node as child of this node
 		//! and returns a pointer to it.
-		virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(const IMesh* shadowMesh,
+		virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(boost::shared_ptr<const IMesh> shadowMesh,
 			s32 id, bool zfailmethod=true, f32 infinity=1000.0f);
 
 		//! Returns a pointer to a child node, which has the same transformation as
@@ -124,10 +124,10 @@ namespace scene
 		virtual bool isReadOnlyMaterials() const;
 
 		//! Sets a new mesh
-		virtual void setMesh(IAnimatedMesh* mesh);
+		virtual void setMesh(boost::shared_ptr<IAnimatedMesh> mesh);
 
 		//! Returns the current mesh
-		virtual IAnimatedMesh* getMesh(void) { return Mesh; }
+		virtual boost::shared_ptr<IAnimatedMesh> getMesh(void) { return Mesh; }
 
 		//! Writes attributes of the scene node.
 		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const;
@@ -168,7 +168,7 @@ namespace scene
 	private:
 
 		//! Get a static mesh for the current frame of this animated mesh
-		IMesh* getMeshForCurrentFrame();
+		boost::shared_ptr<IMesh> getMeshForCurrentFrame();
 
 		void buildFrameNr(u32 timeMs);
 		void checkJoints();
@@ -176,7 +176,7 @@ namespace scene
 
 		core::array<video::SMaterial> Materials;
 		core::aabbox3d<f32> Box;
-		IAnimatedMesh* Mesh;
+		boost::shared_ptr<IAnimatedMesh> Mesh;
 
 		s32 StartFrame;
 		s32 EndFrame;
@@ -196,7 +196,7 @@ namespace scene
 		bool ReadOnlyMaterials;
 		bool RenderFromIdentity;
 
-		IAnimationEndCallBack* LoopCallBack;
+		boost::shared_ptr<IAnimationEndCallBack>  LoopCallBack;
 		s32 PassCount;
 
 		boost::shared_ptr<IShadowVolumeSceneNode> Shadow;
@@ -205,7 +205,7 @@ namespace scene
 		core::array<core::matrix4> PretransitingSave;
 
 		// Quake3 Model
-		struct SMD3Special : public virtual IReferenceCounted
+		struct SMD3Special : public virtual IDebugable
 		{
 			core::stringc Tagname;
 			SMD3QuaternionTagList AbsoluteTagList;
@@ -217,7 +217,7 @@ namespace scene
 				return *this;
 			}
 		};
-		SMD3Special *MD3Special;
+		boost::shared_ptr<SMD3Special> MD3Special;
 	};
 
 } // end namespace scene

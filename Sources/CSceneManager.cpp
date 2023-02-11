@@ -182,7 +182,7 @@ namespace scene
 
 //! constructor
 CSceneManager::CSceneManager(video::IVideoDriver* driver, io::IFileSystem* fs,
-		gui::ICursorControl* cursorControl, IMeshCache* cache,
+		boost::shared_ptr<gui::ICursorControl> cursorControl, IMeshCache* cache,
 		gui::IGUIEnvironment* gui)
 : ISceneNode(0, 0), Driver(driver), FileSystem(fs), GUIEnvironment(gui),
 	CursorControl(cursorControl), CollisionManager(0),
@@ -212,9 +212,6 @@ void CSceneManager::setWeakThis(boost::shared_ptr<CSceneManager> value)
 
 	if (FileSystem)
 		FileSystem->grab();
-
-	if (CursorControl)
-		CursorControl->grab();
 
 	if (GUIEnvironment)
 		GUIEnvironment->grab();
@@ -332,9 +329,6 @@ CSceneManager::~CSceneManager()
 	if (FileSystem)
 		FileSystem->drop();
 
-	if (CursorControl)
-		CursorControl->drop();
-
 	if (CollisionManager)
 		CollisionManager->drop();
 
@@ -377,9 +371,9 @@ CSceneManager::~CSceneManager()
 
 
 //! gets an animateable mesh. loads it if needed. returned pointer must not be dropped.
-IAnimatedMesh* CSceneManager::getMesh(const io::path& filename)
+boost::shared_ptr<IAnimatedMesh> CSceneManager::getMesh(const io::path& filename)
 {
-	IAnimatedMesh* msh = MeshCache->getMeshByName(filename);
+	boost::shared_ptr<IAnimatedMesh> msh = MeshCache->getMeshByName(filename);
 	if (msh)
 		return msh;
 
@@ -402,7 +396,6 @@ IAnimatedMesh* CSceneManager::getMesh(const io::path& filename)
 			if (msh)
 			{
 				MeshCache->addMesh(filename, msh);
-				msh->drop();
 				break;
 			}
 		}
@@ -420,13 +413,13 @@ IAnimatedMesh* CSceneManager::getMesh(const io::path& filename)
 
 
 //! gets an animateable mesh. loads it if needed. returned pointer must not be dropped.
-IAnimatedMesh* CSceneManager::getMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CSceneManager::getMesh(io::IReadFile* file)
 {
 	if (!file)
 		return 0;
 
 	io::path name = file->getFileName();
-	IAnimatedMesh* msh = MeshCache->getMeshByName(file->getFileName());
+	boost::shared_ptr<IAnimatedMesh> msh = MeshCache->getMeshByName(file->getFileName());
 	if (msh)
 		return msh;
 
@@ -442,7 +435,6 @@ IAnimatedMesh* CSceneManager::getMesh(io::IReadFile* file)
 			if (msh)
 			{
 				MeshCache->addMesh(file->getFileName(), msh);
-				msh->drop();
 				break;
 			}
 		}
@@ -598,7 +590,7 @@ boost::shared_ptr<IMeshSceneNode> CSceneManager::addSphereSceneNode(f32 radius, 
 
 //! adds a scene node for rendering a static mesh
 //! the returned pointer must not be dropped.
-boost::shared_ptr<IMeshSceneNode> CSceneManager::addMeshSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent, s32 id,
+boost::shared_ptr<IMeshSceneNode> CSceneManager::addMeshSceneNode(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> parent, s32 id,
 	const core::vector3df& position, const core::vector3df& rotation,
 	const core::vector3df& scale, bool alsoAddIfMeshPointerZero)
 {
@@ -616,7 +608,7 @@ boost::shared_ptr<IMeshSceneNode> CSceneManager::addMeshSceneNode(IMesh* mesh, b
 
 
 //! Adds a scene node for rendering a animated water surface mesh.
-boost::shared_ptr<ISceneNode> CSceneManager::addWaterSurfaceSceneNode(IMesh* mesh, f32 waveHeight, f32 waveSpeed, f32 waveLength,
+boost::shared_ptr<ISceneNode> CSceneManager::addWaterSurfaceSceneNode(boost::shared_ptr<IMesh> mesh, f32 waveHeight, f32 waveSpeed, f32 waveLength,
 	boost::shared_ptr<ISceneNode> parent, s32 id, const core::vector3df& position,
 	const core::vector3df& rotation, const core::vector3df& scale)
 {
@@ -632,7 +624,7 @@ boost::shared_ptr<ISceneNode> CSceneManager::addWaterSurfaceSceneNode(IMesh* mes
 
 
 //! adds a scene node for rendering an animated mesh model
-boost::shared_ptr<scene::IAnimatedMeshSceneNode> CSceneManager::addAnimatedMeshSceneNode(IAnimatedMesh* mesh, boost::shared_ptr<ISceneNode> parent, s32 id,
+boost::shared_ptr<scene::IAnimatedMeshSceneNode> CSceneManager::addAnimatedMeshSceneNode(boost::shared_ptr<IAnimatedMesh> mesh, boost::shared_ptr<ISceneNode> parent, s32 id,
 	const core::vector3df& position, const core::vector3df& rotation,
 	const core::vector3df& scale, bool alsoAddIfMeshPointerZero)
 {
@@ -653,7 +645,7 @@ boost::shared_ptr<scene::IAnimatedMeshSceneNode> CSceneManager::addAnimatedMeshS
 //! Adds a scene node for rendering using a octree to the scene graph. This a good method for rendering
 //! scenes with lots of geometry. The Octree is built on the fly from the mesh, much
 //! faster then a bsp tree.
-boost::shared_ptr<IMeshSceneNode> CSceneManager::addOctreeSceneNode(IAnimatedMesh* mesh, boost::shared_ptr<ISceneNode> parent,
+boost::shared_ptr<IMeshSceneNode> CSceneManager::addOctreeSceneNode(boost::shared_ptr<IAnimatedMesh> mesh, boost::shared_ptr<ISceneNode> parent,
 			s32 id, s32 minimalPolysPerNode, bool alsoAddIfMeshPointerZero)
 {
 	if (!alsoAddIfMeshPointerZero && (!mesh || !mesh->getFrameCount()))
@@ -668,7 +660,7 @@ boost::shared_ptr<IMeshSceneNode> CSceneManager::addOctreeSceneNode(IAnimatedMes
 //! Adds a scene node for rendering using a octree. This a good method for rendering
 //! scenes with lots of geometry. The Octree is built on the fly from the mesh, much
 //! faster then a bsp tree.
-boost::shared_ptr<IMeshSceneNode> CSceneManager::addOctreeSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent,
+boost::shared_ptr<IMeshSceneNode> CSceneManager::addOctreeSceneNode(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> parent,
 		s32 id, s32 minimalPolysPerNode, bool alsoAddIfMeshPointerZero)
 {
 	if (!alsoAddIfMeshPointerZero && !mesh)
@@ -965,7 +957,7 @@ boost::shared_ptr<IDummyTransformationSceneNode> CSceneManager::addDummyTransfor
 //! specify a name for the mesh, because the mesh is added to the mesh pool,
 //! and can be retrieved again using ISceneManager::getMesh with the name as
 //! parameter.
-IAnimatedMesh* CSceneManager::addHillPlaneMesh(const io::path& name,
+boost::shared_ptr<IAnimatedMesh> CSceneManager::addHillPlaneMesh(const io::path& name,
 		const core::dimension2d<f32>& tileSize,
 		const core::dimension2d<u32>& tileCount,
 		video::SMaterial* material, f32 hillHeight,
@@ -975,32 +967,29 @@ IAnimatedMesh* CSceneManager::addHillPlaneMesh(const io::path& name,
 	if (MeshCache->isMeshLoaded(name))
 		return MeshCache->getMeshByName(name);
 
-	IMesh* mesh = GeometryCreator->createHillPlaneMesh(tileSize,
+	boost::shared_ptr<IMesh> mesh = GeometryCreator->createHillPlaneMesh(tileSize,
 			tileCount, material, hillHeight, countHills,
 			textureRepeatCount);
 	if (!mesh)
 		return 0;
 
-	SAnimatedMesh* animatedMesh = new SAnimatedMesh();
+	boost::shared_ptr<SAnimatedMesh> animatedMesh = boost::make_shared<SAnimatedMesh>();
 	if (!animatedMesh)
 	{
-		mesh->drop();
 		return 0;
 	}
 
 	animatedMesh->addMesh(mesh);
-	mesh->drop();
 	animatedMesh->recalculateBoundingBox();
 
 	MeshCache->addMesh(name, animatedMesh);
-	animatedMesh->drop();
 
 	return animatedMesh;
 }
 
 
 //! Adds a terrain mesh to the mesh pool.
-IAnimatedMesh* CSceneManager::addTerrainMesh(const io::path& name,
+boost::shared_ptr<IAnimatedMesh> CSceneManager::addTerrainMesh(const io::path& name,
 	video::IImage* texture, video::IImage* heightmap,
 	const core::dimension2d<f32>& stretchSize,
 	f32 maxHeight,
@@ -1010,32 +999,29 @@ IAnimatedMesh* CSceneManager::addTerrainMesh(const io::path& name,
 		return MeshCache->getMeshByName(name);
 
 	const bool debugBorders=false;
-	IMesh* mesh = GeometryCreator->createTerrainMesh(texture, heightmap,
+	boost::shared_ptr<IMesh> mesh = GeometryCreator->createTerrainMesh(texture, heightmap,
 			stretchSize, maxHeight, Driver,
 			defaultVertexBlockSize, debugBorders);
 	if (!mesh)
 		return 0;
 
-	SAnimatedMesh* animatedMesh = new SAnimatedMesh();
+	boost::shared_ptr<SAnimatedMesh> animatedMesh = boost::make_shared<SAnimatedMesh>();
 	if (!animatedMesh)
 	{
-		mesh->drop();
 		return 0;
 	}
 
 	animatedMesh->addMesh(mesh);
-	mesh->drop();
 	animatedMesh->recalculateBoundingBox();
 
 	MeshCache->addMesh(name, animatedMesh);
-	animatedMesh->drop();
 
 	return animatedMesh;
 }
 
 
 //! Adds an arrow mesh to the mesh pool.
-IAnimatedMesh* CSceneManager::addArrowMesh(const io::path& name,
+boost::shared_ptr<IAnimatedMesh> CSceneManager::addArrowMesh(const io::path& name,
 		video::SColor vtxColor0, video::SColor vtxColor1,
 		u32 tesselationCylinder, u32 tesselationCone, f32 height,
 		f32 cylinderHeight, f32 width0,f32 width1)
@@ -1043,54 +1029,48 @@ IAnimatedMesh* CSceneManager::addArrowMesh(const io::path& name,
 	if (MeshCache->isMeshLoaded(name))
 		return MeshCache->getMeshByName(name);
 
-	IMesh* mesh = GeometryCreator->createArrowMesh( tesselationCylinder,
+	boost::shared_ptr<IMesh> mesh = GeometryCreator->createArrowMesh( tesselationCylinder,
 			tesselationCone, height, cylinderHeight, width0,width1,
 			vtxColor0, vtxColor1);
 	if (!mesh)
 		return 0;
 
-	SAnimatedMesh* animatedMesh = new SAnimatedMesh();
+	boost::shared_ptr<SAnimatedMesh> animatedMesh = boost::make_shared<SAnimatedMesh>();
 	if (!animatedMesh)
 	{
-		mesh->drop();
 		return 0;
 	}
 
 	animatedMesh->addMesh(mesh);
-	mesh->drop();
 	animatedMesh->recalculateBoundingBox();
 
 	MeshCache->addMesh(name, animatedMesh);
-	animatedMesh->drop();
 
 	return animatedMesh;
 }
 
 
 //! Adds a static sphere mesh to the mesh pool.
-IAnimatedMesh* CSceneManager::addSphereMesh(const io::path& name,
+boost::shared_ptr<IAnimatedMesh> CSceneManager::addSphereMesh(const io::path& name,
 		f32 radius, u32 polyCountX, u32 polyCountY)
 {
 	if (MeshCache->isMeshLoaded(name))
 		return MeshCache->getMeshByName(name);
 
-	IMesh* mesh = GeometryCreator->createSphereMesh(radius, polyCountX, polyCountY);
+	boost::shared_ptr<IMesh> mesh = GeometryCreator->createSphereMesh(radius, polyCountX, polyCountY);
 	if (!mesh)
 		return 0;
 
-	SAnimatedMesh* animatedMesh = new SAnimatedMesh();
+	boost::shared_ptr<SAnimatedMesh> animatedMesh = boost::make_shared<SAnimatedMesh>();
 	if (!animatedMesh)
 	{
-		mesh->drop();
 		return 0;
 	}
 
 	animatedMesh->addMesh(mesh);
-	mesh->drop();
 	animatedMesh->recalculateBoundingBox();
 
 	MeshCache->addMesh(name, animatedMesh);
-	animatedMesh->drop();
 
 	return animatedMesh;
 }
@@ -1098,30 +1078,27 @@ IAnimatedMesh* CSceneManager::addSphereMesh(const io::path& name,
 
 
 //! Adds a static volume light mesh to the mesh pool.
-IAnimatedMesh* CSceneManager::addVolumeLightMesh(const io::path& name,
+boost::shared_ptr<IAnimatedMesh> CSceneManager::addVolumeLightMesh(const io::path& name,
 		const u32 SubdivideU, const u32 SubdivideV,
 		const video::SColor FootColor, const video::SColor TailColor)
 {
 	if (MeshCache->isMeshLoaded(name))
 		return MeshCache->getMeshByName(name);
 
-	IMesh* mesh = GeometryCreator->createVolumeLightMesh(SubdivideU, SubdivideV, FootColor, TailColor);
+	boost::shared_ptr<IMesh> mesh = GeometryCreator->createVolumeLightMesh(SubdivideU, SubdivideV, FootColor, TailColor);
 	if (!mesh)
 		return 0;
 
-	SAnimatedMesh* animatedMesh = new SAnimatedMesh();
+	boost::shared_ptr<SAnimatedMesh> animatedMesh = boost::make_shared<SAnimatedMesh>();
 	if (!animatedMesh)
 	{
-		mesh->drop();
 		return 0;
 	}
 
 	animatedMesh->addMesh(mesh);
-	mesh->drop();
 	animatedMesh->recalculateBoundingBox();
 
 	MeshCache->addMesh(name, animatedMesh);
-	animatedMesh->drop();
 
 	return animatedMesh;
 }
@@ -1813,7 +1790,7 @@ IMeshManipulator* CSceneManager::getMeshManipulator()
 
 
 //! Creates a simple ITriangleSelector, based on a mesh.
-ITriangleSelector* CSceneManager::createTriangleSelector(IMesh* mesh, boost::shared_ptr<ISceneNode> node)
+ITriangleSelector* CSceneManager::createTriangleSelector(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> node)
 {
 	if (!mesh)
 		return 0;
@@ -1844,7 +1821,7 @@ ITriangleSelector* CSceneManager::createTriangleSelectorFromBoundingBox(boost::s
 
 
 //! Creates a simple ITriangleSelector, based on a mesh.
-ITriangleSelector* CSceneManager::createOctreeTriangleSelector(IMesh* mesh,
+ITriangleSelector* CSceneManager::createOctreeTriangleSelector(boost::shared_ptr<IMesh> mesh,
 							boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode)
 {
 	if (!mesh)
@@ -2473,10 +2450,13 @@ const video::SColorf& CSceneManager::getAmbientLight() const
 
 
 //! Get a skinned mesh, which is not available as header-only code
-ISkinnedMesh* CSceneManager::createSkinnedMesh()
+boost::shared_ptr<ISkinnedMesh> CSceneManager::createSkinnedMesh()
 {
 #ifdef _IRR_COMPILE_WITH_SKINNED_MESH_SUPPORT_
-	return new CSkinnedMesh();
+	boost::shared_ptr<CSkinnedMesh> result = boost::make_shared<CSkinnedMesh>();
+	result->setWeakThis(result);
+
+	return result;
 #else
 	return 0;
 #endif
@@ -2526,7 +2506,7 @@ IMeshWriter* CSceneManager::createMeshWriter(EMESH_WRITER_TYPE type)
 
 // creates a scenemanager
 boost::shared_ptr<scene::ISceneManager> createSceneManager(video::IVideoDriver* driver,
-		io::IFileSystem* fs, gui::ICursorControl* cursorcontrol,
+		io::IFileSystem* fs, boost::shared_ptr<gui::ICursorControl> cursorcontrol,
 		gui::IGUIEnvironment *guiEnvironment)
 {
 	boost::shared_ptr<scene::CSceneManager> sceneManager = boost::make_shared<CSceneManager>(driver, fs, cursorcontrol, nullptr, guiEnvironment);

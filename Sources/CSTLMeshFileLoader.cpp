@@ -34,13 +34,13 @@ bool CSTLMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-IAnimatedMesh* CSTLMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CSTLMeshFileLoader::createMesh(io::IReadFile* file)
 {
 	const long filesize = file->getSize();
 	if (filesize < 6) // we need a header
 		return 0;
 
-	SMesh* mesh = new SMesh();
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 	SMeshBuffer* meshBuffer = new SMeshBuffer();
 	mesh->addMeshBuffer(meshBuffer);
 	meshBuffer->drop();
@@ -76,13 +76,11 @@ IAnimatedMesh* CSTLMeshFileLoader::createMesh(io::IReadFile* file)
 			{
 				if (token=="endsolid")
 					break;
-				mesh->drop();
 				return 0;
 			}
 			if (getNextToken(file, token) != "normal")
 			{
-				mesh->drop();
-				return 0;
+				return nullptr;
 			}
 		}
 		getNextVector(file, normal, binary);
@@ -90,13 +88,11 @@ IAnimatedMesh* CSTLMeshFileLoader::createMesh(io::IReadFile* file)
 		{
 			if (getNextToken(file, token) != "outer")
 			{
-				mesh->drop();
-				return 0;
+				return nullptr;
 			}
 			if (getNextToken(file, token) != "loop")
 			{
-				mesh->drop();
-				return 0;
+				return nullptr;
 			}
 		}
 		for (u32 i=0; i<3; ++i)
@@ -105,7 +101,6 @@ IAnimatedMesh* CSTLMeshFileLoader::createMesh(io::IReadFile* file)
 			{
 				if (getNextToken(file, token) != "vertex")
 				{
-					mesh->drop();
 					return 0;
 				}
 			}
@@ -115,12 +110,10 @@ IAnimatedMesh* CSTLMeshFileLoader::createMesh(io::IReadFile* file)
 		{
 			if (getNextToken(file, token) != "endloop")
 			{
-				mesh->drop();
 				return 0;
 			}
 			if (getNextToken(file, token) != "endfacet")
 			{
-				mesh->drop();
 				return 0;
 			}
 		}
@@ -149,17 +142,15 @@ IAnimatedMesh* CSTLMeshFileLoader::createMesh(io::IReadFile* file)
 	mesh->getMeshBuffer(0)->recalculateBoundingBox();
 
 	// Create the Animated mesh if there's anything in the mesh
-	SAnimatedMesh* pAM = 0;
+	boost::shared_ptr<SAnimatedMesh> pAM = 0;
 	if ( 0 != mesh->getMeshBufferCount() )
 	{
 		mesh->recalculateBoundingBox();
-		pAM = new SAnimatedMesh();
+		pAM = boost::make_shared<SAnimatedMesh>();
 		pAM->Type = EAMT_OBJ;
 		pAM->addMesh(mesh);
 		pAM->recalculateBoundingBox();
 	}
-
-	mesh->drop();
 
 	return pAM;
 }

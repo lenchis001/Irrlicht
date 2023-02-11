@@ -105,7 +105,7 @@ public:
 
 	//! Creates a mesh particle emitter.
 	virtual boost::shared_ptr<IParticleMeshEmitter> createMeshEmitter(
-		scene::IMesh* mesh, bool useNormalDirection = true,
+		boost::shared_ptr<scene::IMesh> mesh, bool useNormalDirection = true,
 		const core::vector3df& direction = core::vector3df(0.0f,0.03f,0.0f),
 		f32 normalDirectionModifier = 100.0f, s32 mbNumber = -1,
 		bool everyMeshVertex = false,

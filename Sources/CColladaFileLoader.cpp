@@ -206,7 +206,7 @@ namespace
 		{
 		}
 
-		scene::IMesh* Mesh;
+		boost::shared_ptr<scene::IMesh> Mesh;
 
 		//! creates an instance of this prefab
 		virtual boost::shared_ptr<scene::ISceneNode> addInstance(boost::shared_ptr<scene::ISceneNode> parent,
@@ -314,7 +314,7 @@ namespace
 			return s;
 		}
 
-		core::array<IColladaPrefab*> Children;
+		core::array<boost::shared_ptr<IColladaPrefab>> Children;
 		core::matrix4 Transformation;
 	};
 
@@ -334,11 +334,6 @@ CColladaFileLoader::CColladaFileLoader(boost::shared_ptr<scene::ISceneManager> s
 //! destructor
 CColladaFileLoader::~CColladaFileLoader()
 {
-	if (DummyMesh)
-		DummyMesh->drop();
-
-	if (FirstLoadedMesh)
-		FirstLoadedMesh->drop();
 }
 
 
@@ -354,7 +349,7 @@ bool CColladaFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-IAnimatedMesh* CColladaFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CColladaFileLoader::createMesh(io::IReadFile* file)
 {
 	io::IXMLReaderUTF8* reader = FileSystem->createXMLReaderUTF8(file);
 	if (!reader)
@@ -387,8 +382,8 @@ IAnimatedMesh* CColladaFileLoader::createMesh(io::IReadFile* file)
 	// a single mesh, return an empty dummy mesh to make the scene manager
 	// know that everything went well.
 	if (!DummyMesh)
-		DummyMesh = new SAnimatedMesh();
-	scene::IAnimatedMesh* returnMesh = DummyMesh;
+		DummyMesh = boost::make_shared<SAnimatedMesh>();
+	boost::shared_ptr<scene::IAnimatedMesh> returnMesh = DummyMesh;
 
 	if (Version < 10400)
 		instantiateNode(SceneManager->getRootSceneNode());
@@ -404,13 +399,8 @@ IAnimatedMesh* CColladaFileLoader::createMesh(io::IReadFile* file)
 	// clean up temporary loaded data
 	clearData();
 
-	returnMesh->grab(); // store until this loader is destroyed
-
-	DummyMesh->drop();
 	DummyMesh = 0;
 
-	if (FirstLoadedMesh)
-		FirstLoadedMesh->drop();
 	FirstLoadedMesh = 0;
 	LoadedMeshCount = 0;
 
@@ -544,9 +534,9 @@ void CColladaFileLoader::readLibrarySection(io::IXMLReaderUTF8* reader)
 			else
 			if (nodeSectionName == reader->getNodeName())
 			{
-				CScenePrefab p("");
+				boost::shared_ptr<CScenePrefab> p = boost::make_shared<CScenePrefab>("");
 
-				readNodeSection(reader, SceneManager->getRootSceneNode(), &p);
+				readNodeSection(reader, SceneManager->getRootSceneNode(), p);
 			}
 			else
 			if (effectSectionName == reader->getNodeName())
@@ -585,13 +575,13 @@ void CColladaFileLoader::readLibrarySection(io::IXMLReaderUTF8* reader)
 //! reads a <visual_scene> element and stores it as a prefab
 void CColladaFileLoader::readVisualScene(io::IXMLReaderUTF8* reader)
 {
-	CScenePrefab* p = 0;
+	boost::shared_ptr<CScenePrefab> p = 0;
 	while(reader->read())
 	{
 		if (reader->getNodeType() == io::EXN_ELEMENT)
 		{
 			if (visualSceneSectionName == reader->getNodeName())
-				p = new CScenePrefab(readId(reader));
+				p = boost::make_shared<CScenePrefab>(readId(reader));
 			else
 			if (p && nodeSectionName == reader->getNodeName()) // as a child of visual_scene
 				readNodeSection(reader, SceneManager->getRootSceneNode(), p);
@@ -726,7 +716,7 @@ void CColladaFileLoader::readAssetSection(io::IXMLReaderUTF8* reader)
 
 
 //! reads a <node> section and its content
-void CColladaFileLoader::readNodeSection(io::IXMLReaderUTF8* reader, boost::shared_ptr<scene::ISceneNode> parent, CScenePrefab* p)
+void CColladaFileLoader::readNodeSection(io::IXMLReaderUTF8* reader, boost::shared_ptr<scene::ISceneNode> parent, boost::shared_ptr<CScenePrefab> p)
 {
 	if (reader->isEmptyElement())
 	{
@@ -744,11 +734,11 @@ void CColladaFileLoader::readNodeSection(io::IXMLReaderUTF8* reader, boost::shar
 	core::matrix4 transform; // transformation of this node
 	core::aabbox3df bbox;
 	boost::shared_ptr<scene::ISceneNode> node = 0; // instance
-	CScenePrefab* nodeprefab = 0; // prefab for library_nodes usage
+	boost::shared_ptr<CScenePrefab> nodeprefab = 0; // prefab for library_nodes usage
 
 	if (p)
 	{
-		nodeprefab = new CScenePrefab(readId(reader));
+		nodeprefab = boost::make_shared<CScenePrefab>(readId(reader));
 		p->Children.push_back(nodeprefab);
 		Prefabs.push_back(nodeprefab); // in order to delete them later on
 	}
@@ -1100,7 +1090,7 @@ core::matrix4 CColladaFileLoader::readTranslateNode(io::IXMLReaderUTF8* reader)
 //! reads any kind of <instance*> node
 void CColladaFileLoader::readInstanceNode(io::IXMLReaderUTF8* reader,
 		boost::shared_ptr<scene::ISceneNode> parent, boost::shared_ptr<scene::ISceneNode>* outNode,
-		CScenePrefab* p, const core::stringc& type)
+		boost::shared_ptr<CScenePrefab> p, const core::stringc& type)
 {
 	// find prefab of the specified id
 	core::stringc url = reader->getAttributeValue("url");
@@ -1132,7 +1122,7 @@ void CColladaFileLoader::readInstanceNode(io::IXMLReaderUTF8* reader,
 
 
 void CColladaFileLoader::instantiateNode(boost::shared_ptr<scene::ISceneNode> parent,
-		boost::shared_ptr<scene::ISceneNode>* outNode, CScenePrefab* p, const core::stringc& url,
+		boost::shared_ptr<scene::ISceneNode>* outNode, boost::shared_ptr<CScenePrefab> p, const core::stringc& url,
 		const core::stringc& type)
 {
 	#ifdef COLLADA_READER_DEBUG
@@ -1164,7 +1154,7 @@ void CColladaFileLoader::instantiateNode(boost::shared_ptr<scene::ISceneNode> pa
 	{
 		if (instanceGeometryName==type)
 		{
-			Prefabs.push_back(new CGeometryPrefab(url));
+			Prefabs.push_back(boost::make_shared<CGeometryPrefab>(url));
 			p->Children.push_back(Prefabs.getLast());
 		}
 	}
@@ -1178,7 +1168,7 @@ void CColladaFileLoader::readCameraPrefab(io::IXMLReaderUTF8* reader)
 	os::Printer::log("COLLADA reading camera prefab", ELL_DEBUG);
 	#endif
 
-	CCameraPrefab* prefab = new CCameraPrefab(readId(reader));
+	boost::shared_ptr<CCameraPrefab> prefab = boost::make_shared<CCameraPrefab>(readId(reader));
 
 	if (!reader->isEmptyElement())
 	{
@@ -1645,11 +1635,11 @@ void CColladaFileLoader::readBindMaterialSection(io::IXMLReaderUTF8* reader, con
 				os::Printer::log("Material binding now ",material->Id.c_str(), ELL_DEBUG);
 				os::Printer::log("#meshbuffers",core::stringc(toBind.size()).c_str(), ELL_DEBUG);
 #endif
-					SMesh tmpmesh;
+					boost::shared_ptr<SMesh> tmpmesh = boost::make_shared<SMesh>();
 					for (u32 i = 0; i < toBind.size(); ++i)
 					{
 						toBind[i]->getMaterial() = material->Mat;
-						tmpmesh.addMeshBuffer(toBind[i]);
+						tmpmesh->addMeshBuffer(toBind[i]);
 
 						if ((material->Transparency!=0.0f) && (material->Transparency!=1.0f))
 						{
@@ -1657,13 +1647,13 @@ void CColladaFileLoader::readBindMaterialSection(io::IXMLReaderUTF8* reader, con
 							toBind[i]->getMaterial().ZWriteEnable = false;
 						}
 					}
-					SceneManager->getMeshManipulator()->setVertexColors(&tmpmesh,material->Mat.DiffuseColor);
+					SceneManager->getMeshManipulator()->setVertexColors(tmpmesh,material->Mat.DiffuseColor);
 					if ((material->Transparency!=0.0f) && (material->Transparency!=1.0f))
 					{
 						#ifdef COLLADA_READER_DEBUG
 						os::Printer::log("COLLADA found transparency material", core::stringc(material->Transparency).c_str(), ELL_DEBUG);
 						#endif
-						SceneManager->getMeshManipulator()->setVertexColorAlpha(&tmpmesh, core::floor32(material->Transparency*255.0f));
+						SceneManager->getMeshManipulator()->setVertexColorAlpha(tmpmesh, core::floor32(material->Transparency*255.0f));
 					}
 				}
 			}
@@ -1684,8 +1674,8 @@ void CColladaFileLoader::readGeometry(io::IXMLReaderUTF8* reader)
 	os::Printer::log("COLLADA reading geometry", id, ELL_DEBUG);
 	#endif
 
-	SAnimatedMesh* amesh = new SAnimatedMesh();
-	scene::SMesh* mesh = new SMesh();
+	boost::shared_ptr<SAnimatedMesh> amesh = boost::make_shared<SAnimatedMesh>();
+	boost::shared_ptr<scene::SMesh> mesh = boost::make_shared<SMesh>();
 	amesh->addMesh(mesh);
 	core::array<SSource> sources;
 	bool okToReadArray = false;
@@ -1859,12 +1849,9 @@ void CColladaFileLoader::readGeometry(io::IXMLReaderUTF8* reader)
 	{
 		FirstLoadedMeshName = filename;
 		FirstLoadedMesh = amesh;
-		FirstLoadedMesh->grab();
 	}
 
 	++LoadedMeshCount;
-	mesh->drop();
-	amesh->drop();
 
 	// create geometry prefab
 	u32 i;
@@ -1872,13 +1859,13 @@ void CColladaFileLoader::readGeometry(io::IXMLReaderUTF8* reader)
 	{
 		if (Prefabs[i]->getId()==id)
 		{
-			((CGeometryPrefab*)Prefabs[i])->Mesh=mesh;
+			boost::static_pointer_cast<CGeometryPrefab>(Prefabs[i])->Mesh=mesh;
 			break;
 		}
 	}
 	if (i==Prefabs.size())
 	{
-		CGeometryPrefab* prefab = new CGeometryPrefab(id);
+		boost::shared_ptr<CGeometryPrefab> prefab = boost::make_shared<CGeometryPrefab>(id);
 		prefab->Mesh = mesh;
 		Prefabs.push_back(prefab);
 	}
@@ -1887,7 +1874,6 @@ void CColladaFileLoader::readGeometry(io::IXMLReaderUTF8* reader)
 	if (!CreateInstances && !DummyMesh)
 	{
 		DummyMesh = amesh;
-		DummyMesh->grab();
 	}
 }
 
@@ -1899,7 +1885,7 @@ struct SPolygon
 
 //! reads a polygons section and creates a mesh from it
 void CColladaFileLoader::readPolygonSection(io::IXMLReaderUTF8* reader,
-		core::array<SSource>& sources, scene::SMesh* mesh,
+		core::array<SSource>& sources, boost::shared_ptr<scene::SMesh> mesh,
 		const core::stringc& geometryId)
 {
 	#ifdef COLLADA_READER_DEBUG
@@ -2342,11 +2328,11 @@ void CColladaFileLoader::readPolygonSection(io::IXMLReaderUTF8* reader,
 	if (m)
 	{
 		buffer->getMaterial() = m->Mat;
-		SMesh tmpmesh;
-		tmpmesh.addMeshBuffer(buffer);
-		SceneManager->getMeshManipulator()->setVertexColors(&tmpmesh,m->Mat.DiffuseColor);
+		boost::shared_ptr<SMesh> tmpmesh = boost::make_shared<SMesh>();
+		tmpmesh->addMeshBuffer(buffer);
+		SceneManager->getMeshManipulator()->setVertexColors(tmpmesh,m->Mat.DiffuseColor);
 		if (m->Transparency != 1.0f)
-			SceneManager->getMeshManipulator()->setVertexColorAlpha(&tmpmesh,core::floor32(m->Transparency*255.0f));
+			SceneManager->getMeshManipulator()->setVertexColorAlpha(tmpmesh,core::floor32(m->Transparency*255.0f));
 	}
 	// add future bind reference for the material
 	core::stringc meshbufferReference = geometryId+"/"+materialName;
@@ -2382,7 +2368,7 @@ void CColladaFileLoader::readLightPrefab(io::IXMLReaderUTF8* reader)
 	os::Printer::log("COLLADA reading light prefab", ELL_DEBUG);
 	#endif
 
-	CLightPrefab* prefab = new CLightPrefab(readId(reader));
+	boost::shared_ptr<CLightPrefab> prefab = boost::make_shared<CLightPrefab>(readId(reader));
 
 	if (!reader->isEmptyElement())
 	{
@@ -2725,10 +2711,6 @@ f32 CColladaFileLoader::readFloatNode(io::IXMLReaderUTF8* reader)
 void CColladaFileLoader::clearData()
 {
 	// delete all prefabs
-
-	for (u32 i=0; i<Prefabs.size(); ++i)
-		Prefabs[i]->drop();
-
 	Prefabs.clear();
 
 	// clear all parameters

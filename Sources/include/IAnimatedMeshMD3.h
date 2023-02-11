@@ -137,7 +137,7 @@ namespace scene
 #include "irrunpack.h"
 
 	//! Holding Frame Data for a Mesh
-	struct SMD3MeshBuffer : public IReferenceCounted
+	struct SMD3MeshBuffer : public IDebugable
 	{
 		SMD3MeshHeader MeshHeader;
 
@@ -262,7 +262,7 @@ namespace scene
 
 
 	//! Holding Frames Buffers and Tag Infos
-	struct SMD3Mesh: public IReferenceCounted
+	struct SMD3Mesh: public IDebugable
 	{
 		SMD3Mesh ()
 		{
@@ -271,12 +271,10 @@ namespace scene
 
 		virtual ~SMD3Mesh()
 		{
-			for (u32 i=0; i<Buffer.size(); ++i)
-				Buffer[i]->drop();
 		}
 
 		core::stringc Name;
-		core::array<SMD3MeshBuffer*> Buffer;
+		core::array<boost::shared_ptr<SMD3MeshBuffer>> Buffer;
 		SMD3QuaternionTagList TagList;
 		SMD3Header MD3Header;
 	};
@@ -294,7 +292,7 @@ namespace scene
 		virtual SMD3QuaternionTagList* getTagList(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop) =0;
 
 		//! get the original md3 mesh.
-		virtual SMD3Mesh* getOriginalMesh() =0;
+		virtual boost::shared_ptr<SMD3Mesh> getOriginalMesh() =0;
 	};
 
 } // end namespace scene

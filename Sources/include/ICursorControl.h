@@ -94,7 +94,7 @@ namespace gui
 	};
 
 	//! Interface to manipulate the mouse cursor.
-	class ICursorControl : public virtual IReferenceCounted
+	class ICursorControl : public virtual IDebugable
 	{
 	public:
 

@@ -49,7 +49,7 @@ CQuake3ShaderSceneNode::CQuake3ShaderSceneNode(
 	// take lightmap vertex type
 	MeshBuffer = new SMeshBuffer();
 
-	Mesh = new SMesh ();
+	Mesh = boost::make_shared<SMesh> ();
 	Mesh->addMeshBuffer ( MeshBuffer );
 	MeshBuffer->drop ();
 
@@ -72,8 +72,6 @@ CQuake3ShaderSceneNode::CQuake3ShaderSceneNode(
 */
 CQuake3ShaderSceneNode::~CQuake3ShaderSceneNode()
 {
-	if (Mesh)
-		Mesh->drop();
 
 	if (Original)
 		Original->drop();
@@ -407,7 +405,7 @@ void CQuake3ShaderSceneNode::render()
 	{
 		video::SMaterial deb_m;
 
-		IAnimatedMesh * arrow = SceneManager->addArrowMesh (
+		boost::shared_ptr<IAnimatedMesh> arrow = SceneManager->addArrowMesh (
 				"__debugnormalq3", 
 				0xFFECEC00,0xFF999900, 
 				4, 8,
@@ -416,9 +414,9 @@ void CQuake3ShaderSceneNode::render()
 			);
 		if ( 0 == arrow )
 		{
-			arrow = SceneManager->getMesh ( "__debugnormalq3" );
+			arrow = SceneManager->getMesh( "__debugnormalq3" );
 		}
-		const IMesh *mesh = arrow->getMesh ( 0 );
+		const boost::shared_ptr<IMesh> mesh = arrow->getMesh ( 0 );
 
 		// find a good scaling factor
 
@@ -510,7 +508,7 @@ bool CQuake3ShaderSceneNode::removeChild(boost::shared_ptr<ISceneNode> child)
 //! Creates shadow volume scene node as child of this node
 //! and returns a pointer to it.
 boost::shared_ptr<IShadowVolumeSceneNode> CQuake3ShaderSceneNode::addShadowVolumeSceneNode(
-		const IMesh* shadowMesh, s32 id, bool zfailmethod, f32 infinity)
+		boost::shared_ptr<const IMesh> shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
 	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
 		return 0;

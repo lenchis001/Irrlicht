@@ -13,7 +13,7 @@ namespace scene
 
 //! constructor
 CParticleMeshEmitter::CParticleMeshEmitter(
-	IMesh* mesh, bool useNormalDirection,
+	boost::shared_ptr<IMesh> mesh, bool useNormalDirection,
 	const core::vector3df& direction, f32 normalDirectionModifier,
 	s32 mbNumber, bool everyMeshVertex,
 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
@@ -164,7 +164,7 @@ s32 CParticleMeshEmitter::emitt(u32 now, u32 timeSinceLastCall, SParticle*& outA
 
 
 //! Set Mesh to emit particles from
-void CParticleMeshEmitter::setMesh(IMesh* mesh)
+void CParticleMeshEmitter::setMesh(boost::shared_ptr<IMesh> mesh)
 {
 	Mesh = mesh;
 

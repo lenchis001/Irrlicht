@@ -48,15 +48,15 @@ bool CBSPMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-IAnimatedMesh* CBSPMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CBSPMeshFileLoader::createMesh(io::IReadFile* file)
 {
 	s32 type = core::isFileExtension ( file->getFileName(), "bsp", "shader", "cfg" );
-	CQ3LevelMesh* q = 0;
+	boost::shared_ptr<CQ3LevelMesh> q = 0;
 
 	switch ( type )
 	{
 		case 1:
-			q = new CQ3LevelMesh(FileSystem, SceneManager, LoadParam);
+			q = boost::make_shared<CQ3LevelMesh>(FileSystem, SceneManager, LoadParam);
 
 			// determine real shaders in LoadParam
 			if ( 0 == LoadParam.loadAllShaders )
@@ -73,11 +73,10 @@ IAnimatedMesh* CBSPMeshFileLoader::createMesh(io::IReadFile* file)
 			if ( q->loadFile(file) )
 				return q;
 
-			q->drop();
 			break;
 
 		case 2:
-			q = new CQ3LevelMesh(FileSystem, SceneManager,LoadParam);
+			q = boost::make_shared<CQ3LevelMesh>(FileSystem, SceneManager,LoadParam);
 			q->getShader( file );
 			return q;
 			break;
@@ -90,7 +89,7 @@ IAnimatedMesh* CBSPMeshFileLoader::createMesh(io::IReadFile* file)
 			}
 			else
 			{
-				q = new CQ3LevelMesh(FileSystem, SceneManager,LoadParam);
+				q = boost::make_shared<CQ3LevelMesh>(FileSystem, SceneManager,LoadParam);
 				q->getConfiguration( file );
 				return q;
 			}

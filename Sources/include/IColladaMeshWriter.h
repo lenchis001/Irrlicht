@@ -140,7 +140,7 @@ namespace scene
 		//! Return the mesh for the given node. If it has no mesh or shouldn't export it's mesh 
 		//! you can return 0 in which case only the transformation matrix of the node will be used.
 		// Note: Function is not const because there is no const getMesh() function.
-		virtual IMesh* getMesh(boost::shared_ptr<irr::scene::ISceneNode>  node) = 0;
+		virtual boost::shared_ptr<IMesh> getMesh(boost::shared_ptr<irr::scene::ISceneNode>  node) = 0;
 
 		//! Return if the node has it's own material overwriting the mesh-materials
 		/** Usually true except for mesh-nodes which have isReadOnlyMaterials set.
@@ -171,7 +171,7 @@ namespace scene
 		\param instance When E_COLLADA_GEOMETRY_WRITING is not ECGI_PER_MESH then 
 		several instances of the same mesh can be written and this counts them.
 		*/
-		virtual irr::core::stringw nameForMesh(const scene::IMesh* mesh, int instance) = 0;
+		virtual irr::core::stringw nameForMesh(const boost::shared_ptr<scene::IMesh> mesh, int instance) = 0;
 
 		//! Return a unique name for the given node
 		/** Note that names really must be unique here per node-pointer, so 
@@ -193,7 +193,7 @@ namespace scene
 		Names must follow the xs::NCName standard to be valid, you can run them 
 		through	IColladaMeshWriter::toNCName to ensure that.
 		*/
-		virtual irr::core::stringw nameForMaterial(const video::SMaterial & material, int materialId, const scene::IMesh* mesh, const boost::shared_ptr<scene::ISceneNode> node) = 0;
+		virtual irr::core::stringw nameForMaterial(const video::SMaterial & material, int materialId, const boost::shared_ptr<scene::IMesh> mesh, const boost::shared_ptr<scene::ISceneNode> node) = 0;
 	};
 
 

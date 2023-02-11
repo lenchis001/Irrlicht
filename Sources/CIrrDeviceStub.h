@@ -27,7 +27,7 @@ namespace irr
 	namespace scene
 	{
 		boost::shared_ptr<scene::ISceneManager> createSceneManager(video::IVideoDriver* driver,
-			io::IFileSystem* fs, gui::ICursorControl* cc, gui::IGUIEnvironment *gui);
+			io::IFileSystem* fs, boost::shared_ptr<gui::ICursorControl> cc, gui::IGUIEnvironment *gui);
 	}
 
 	namespace io
@@ -71,7 +71,7 @@ namespace irr
 		virtual boost::shared_ptr<scene::ISceneManager> getSceneManager();
 
 		//! \return Returns a pointer to the mouse cursor control interface.
-		virtual gui::ICursorControl* getCursorControl();
+		virtual boost::shared_ptr<gui::ICursorControl> getCursorControl();
 
 		//! Returns a pointer to a list with all video modes supported by the gfx adapter.
 		virtual video::IVideoModeList* getVideoModeList();
@@ -154,7 +154,7 @@ namespace irr
 		gui::IGUIEnvironment* GUIEnvironment;
 		boost::shared_ptr<scene::ISceneManager> SceneManager;
 		ITimer* Timer;
-		gui::ICursorControl* CursorControl;
+		boost::shared_ptr<gui::ICursorControl> CursorControl;
 		IEventReceiver* UserReceiver;
 		CLogger* Logger;
 		IOSOperator* Operator;

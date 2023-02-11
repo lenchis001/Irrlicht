@@ -14,7 +14,7 @@ namespace scene
 {
 
 //! constructor
-CSceneNodeAnimatorCameraMaya::CSceneNodeAnimatorCameraMaya(gui::ICursorControl* cursor,
+CSceneNodeAnimatorCameraMaya::CSceneNodeAnimatorCameraMaya(boost::shared_ptr<gui::ICursorControl> cursor,
 	f32 rotateSpeed, f32 zoomSpeed, f32 translateSpeed, f32 distance)
 	: CursorControl(cursor), OldCamera(0), MousePos(0.5f, 0.5f),
 	ZoomSpeed(zoomSpeed), RotateSpeed(rotateSpeed), TranslateSpeed(translateSpeed),
@@ -27,7 +27,6 @@ CSceneNodeAnimatorCameraMaya::CSceneNodeAnimatorCameraMaya(gui::ICursorControl* 
 
 	if (CursorControl)
 	{
-		CursorControl->grab();
 		MousePos = CursorControl->getRelativePosition();
 	}
 
@@ -38,8 +37,6 @@ CSceneNodeAnimatorCameraMaya::CSceneNodeAnimatorCameraMaya(gui::ICursorControl* 
 //! destructor
 CSceneNodeAnimatorCameraMaya::~CSceneNodeAnimatorCameraMaya()
 {
-	if (CursorControl)
-		CursorControl->drop();
 }
 
 

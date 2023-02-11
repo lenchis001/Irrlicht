@@ -246,7 +246,7 @@ u32 CAnimatedMeshMD2::getFrameCount() const
 
 
 //! returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail. Note, that some Meshes will ignore the detail level.
-IMesh* CAnimatedMeshMD2::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
+boost::shared_ptr<IMesh> CAnimatedMeshMD2::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
 {
 	if ((u32)frame > getFrameCount())
 		frame = (frame % getFrameCount());
@@ -258,7 +258,7 @@ IMesh* CAnimatedMeshMD2::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop,
 	}
 
 	updateInterpolationBuffer(frame, startFrameLoop, endFrameLoop);
-	return this;
+	return getSharedThis();
 }
 
 
@@ -448,6 +448,13 @@ const c8* CAnimatedMeshMD2::getAnimationName(s32 nr) const
 		return 0;
 
 	return AnimationData[nr].name.c_str();
+}
+
+void CAnimatedMeshMD2::setWeakThis(boost::shared_ptr<CAnimatedMeshMD2> value) {
+#if _DEBUG
+	assert(this == value.get());
+#endif
+	WeakThis = value;
 }
 
 

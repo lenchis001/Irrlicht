@@ -42,14 +42,14 @@ public:
 	//! Returns type of the scene node
 	virtual ESCENE_NODE_TYPE getType() const { return ESNT_Q3SHADER_SCENE_NODE; }
 
-	virtual void setMesh(IMesh* mesh){}
-	virtual IMesh* getMesh() { return Mesh; }
+	virtual void setMesh(boost::shared_ptr<IMesh> mesh){}
+	virtual boost::shared_ptr<IMesh> getMesh() { return Mesh; }
 	virtual void setReadOnlyMaterials(bool readonly) {}
 	virtual bool isReadOnlyMaterials() const { return true; }
 
 	//! Creates shadow volume scene node as child of this node
 	//! and returns a pointer to it.
-	virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(const IMesh* shadowMesh,
+	virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(boost::shared_ptr<const IMesh> shadowMesh,
 		s32 id, bool zfailmethod=true, f32 infinity=10000.0f);
 
 	//! Removes a child from this scene node.
@@ -59,7 +59,7 @@ public:
 
 private:
 	const quake3::IShader* Shader;
-	SMesh *Mesh;
+	boost::shared_ptr<SMesh> Mesh;
 	boost::shared_ptr<IShadowVolumeSceneNode> Shadow;
 	const SMeshBufferLightMap* Original;
 	SMeshBuffer* MeshBuffer;

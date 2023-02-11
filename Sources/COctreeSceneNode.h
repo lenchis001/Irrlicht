@@ -33,7 +33,7 @@ namespace scene
 		virtual const core::aabbox3d<f32>& getBoundingBox() const;
 
 		//! creates the tree
-		bool createTree(IMesh* mesh);
+		bool createTree(boost::shared_ptr<IMesh> mesh);
 
 		//! returns the material based on the zero based index i. To get the amount
 		//! of materials used by this scene node, use getMaterialCount().
@@ -55,10 +55,10 @@ namespace scene
 		virtual ESCENE_NODE_TYPE getType() const { return ESNT_OCTREE; }
 
 		//! Sets a new mesh to display
-		virtual void setMesh(IMesh* mesh);
+		virtual void setMesh(boost::shared_ptr<IMesh> mesh);
 
 		//! Get the currently defined mesh for display.
-		virtual IMesh* getMesh(void);
+		virtual boost::shared_ptr<IMesh> getMesh(void);
 
 		//! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
 		virtual void setReadOnlyMaterials(bool readonly);
@@ -68,7 +68,7 @@ namespace scene
 
 		//! Creates shadow volume scene node as child of this node
 		//! and returns a pointer to it.
-		virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(const IMesh* shadowMesh,
+		virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(boost::shared_ptr<const IMesh> shadowMesh,
 			s32 id, bool zfailmethod=true, f32 infinity=10000.0f);
 
 		//! Removes a child from this scene node.
@@ -98,7 +98,7 @@ namespace scene
 		s32 MinimalPolysPerNode;
 		s32 PassCount;
 
-		IMesh * Mesh;
+		boost::shared_ptr<IMesh> Mesh;
 		boost::shared_ptr<IShadowVolumeSceneNode> Shadow;
 		//! use VBOs for rendering where possible
 		bool UseVBOs;

@@ -20,7 +20,7 @@ class COctreeTriangleSelector : public CTriangleSelector
 public:
 
 	//! Constructs a selector based on a mesh
-	COctreeTriangleSelector(const IMesh* mesh, boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode);
+	COctreeTriangleSelector(const boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode);
 
 	virtual ~COctreeTriangleSelector();
 

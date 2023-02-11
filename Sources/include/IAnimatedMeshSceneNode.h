@@ -36,7 +36,7 @@ namespace scene
 	IAnimatedMeshSceneNode::setAnimationEndCallback to be able to
 	be notified if an animation playback has ended.
 	**/
-	class IAnimationEndCallBack : public virtual IReferenceCounted
+	class IAnimationEndCallBack : public virtual IDebugable
 	{
 	public:
 
@@ -104,7 +104,7 @@ namespace scene
 		\return Pointer to the created shadow scene node. This pointer
 		should not be dropped. See IReferenceCounted::drop() for more
 		information. */
-		virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(const IMesh* shadowMesh=0,
+		virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(boost::shared_ptr<const IMesh> shadowMesh=0,
 			s32 id=-1, bool zfailmethod=true, f32 infinity=1000.0f) = 0;
 
 
@@ -176,7 +176,7 @@ namespace scene
 		/** Set this to 0 to disable the callback again.
 		Please note that this will only be called when in non looped
 		mode, see IAnimatedMeshSceneNode::setLoopMode(). */
-		virtual void setAnimationEndCallback(IAnimationEndCallBack* callback=0) = 0;
+		virtual void setAnimationEndCallback(boost::shared_ptr<IAnimationEndCallBack>  callback=0) = 0;
 
 		//! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
 		/** In this way it is possible to change the materials a mesh
@@ -188,10 +188,10 @@ namespace scene
 		virtual bool isReadOnlyMaterials() const = 0;
 
 		//! Sets a new mesh
-		virtual void setMesh(IAnimatedMesh* mesh) = 0;
+		virtual void setMesh(boost::shared_ptr<IAnimatedMesh> mesh) = 0;
 
 		//! Returns the current mesh
-		virtual IAnimatedMesh* getMesh(void) = 0;
+		virtual boost::shared_ptr<IAnimatedMesh> getMesh(void) = 0;
 
 		//! Get the absolute transformation for a special MD3 Tag if the mesh is a md3 mesh, or the absolutetransformation if it's a normal scenenode
 		virtual const SMD3QuaternionTag* getMD3TagTransformation( const core::stringc & tagname) = 0;

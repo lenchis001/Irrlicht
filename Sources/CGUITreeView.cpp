@@ -520,7 +520,7 @@ CGUITreeView::~CGUITreeView()
 
 void CGUITreeView::recalculateItemHeight()
 {
-	boost::shared_ptr<IGUISkin>		skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
 	IGUITreeViewNode*	node;
 
 	if( Font != skin->getFont() )

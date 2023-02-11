@@ -77,7 +77,7 @@ public:
 
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 
-	virtual IAnimatedMesh* createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
 
 	//! getting access to the nodes (with transparent material), creating
 	//! while loading .my3d file

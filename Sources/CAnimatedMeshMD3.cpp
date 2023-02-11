@@ -55,8 +55,8 @@ CAnimatedMeshMD3::CAnimatedMeshMD3()
 	setDebugName("CAnimatedMeshMD3");
 #endif
 
-	Mesh = new SMD3Mesh();
-	MeshIPol = new SMesh();
+	Mesh = boost::make_shared<SMD3Mesh>();
+	MeshIPol = boost::make_shared<SMesh>();
 	setInterpolationShift(0, 0);
 }
 
@@ -64,10 +64,6 @@ CAnimatedMeshMD3::CAnimatedMeshMD3()
 //! Destructor
 CAnimatedMeshMD3::~CAnimatedMeshMD3()
 {
-	if (Mesh)
-		Mesh->drop();
-	if (MeshIPol)
-		MeshIPol->drop();
 }
 
 
@@ -147,7 +143,7 @@ SMD3QuaternionTagList *CAnimatedMeshMD3::getTagList(s32 frame, s32 detailLevel, 
 
 
 //! Returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail.
-IMesh* CAnimatedMeshMD3::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
+boost::shared_ptr<IMesh> CAnimatedMeshMD3::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
 {
 	if (0 == Mesh)
 		return 0;
@@ -210,7 +206,7 @@ IMesh* CAnimatedMeshMD3::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop,
 
 
 //! create a Irrlicht MeshBuffer for a MD3 MeshBuffer
-IMeshBuffer * CAnimatedMeshMD3::createMeshBuffer(const SMD3MeshBuffer* source,
+IMeshBuffer * CAnimatedMeshMD3::createMeshBuffer(const boost::shared_ptr<SMD3MeshBuffer> source,
 							 io::IFileSystem* fs, video::IVideoDriver * driver)
 {
 	SMeshBufferLightMap * dest = new SMeshBufferLightMap();
@@ -252,7 +248,7 @@ IMeshBuffer * CAnimatedMeshMD3::createMeshBuffer(const SMD3MeshBuffer* source,
 
 //! build final mesh's vertices from frames frameA and frameB with linear interpolation.
 void CAnimatedMeshMD3::buildVertexArray(u32 frameA, u32 frameB, f32 interpolate,
-					const SMD3MeshBuffer* source,
+					const boost::shared_ptr<SMD3MeshBuffer> source,
 					SMeshBufferLightMap* dest)
 {
 	const u32 frameOffsetA = frameA * source->MeshHeader.numVertices;
@@ -378,7 +374,7 @@ bool CAnimatedMeshMD3::loadModelFile(u32 modelIndex, io::IReadFile* file,
 	for (i = 0; i != (u32)Mesh->MD3Header.numMeshes; ++i)
 	{
 		//! construct a new mesh buffer
-		SMD3MeshBuffer * buf = new SMD3MeshBuffer();
+		boost::shared_ptr<SMD3MeshBuffer>  buf = boost::make_shared<SMD3MeshBuffer>();
 
 		// !read mesh header info
 		SMD3MeshHeader &meshHeader = buf->MeshHeader;
@@ -442,7 +438,7 @@ bool CAnimatedMeshMD3::loadModelFile(u32 modelIndex, io::IReadFile* file,
 }
 
 
-SMD3Mesh * CAnimatedMeshMD3::getOriginalMesh()
+boost::shared_ptr<SMD3Mesh>  CAnimatedMeshMD3::getOriginalMesh()
 {
 	return Mesh;
 }

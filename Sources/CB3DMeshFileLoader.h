@@ -38,7 +38,7 @@ public:
 	//! \return Pointer to the created mesh. Returns 0 if loading failed.
 	//! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 	//! See IReferenceCounted::drop() for more information.
-	virtual IAnimatedMesh* createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
 
 private:
 
@@ -120,7 +120,7 @@ private:
 	core::array<video::S3DVertex2TCoords> BaseVertices;
 
 	boost::shared_ptr<scene::ISceneManager>	SceneManager;
-	CSkinnedMesh*	AnimatedMesh;
+	boost::shared_ptr<CSkinnedMesh>	AnimatedMesh;
 	io::IReadFile*	B3DFile;
 
 	//B3Ds have Vertex ID's local within the mesh I don't want this

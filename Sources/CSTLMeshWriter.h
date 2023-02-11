@@ -28,14 +28,14 @@ namespace scene
 		virtual EMESH_WRITER_TYPE getType() const;
 
 		//! writes a mesh 
-		virtual bool writeMesh(io::IWriteFile* file, scene::IMesh* mesh, s32 flags=EMWF_NONE);
+		virtual bool writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags=EMWF_NONE);
 
 	protected:
 		// write binary format
-		bool writeMeshBinary(io::IWriteFile* file, scene::IMesh* mesh, s32 flags);
+		bool writeMeshBinary(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags);
 
 		// write text format
-		bool writeMeshASCII(io::IWriteFile* file, scene::IMesh* mesh, s32 flags);
+		bool writeMeshASCII(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags);
 
 		// create vector output with line end into string
 		void getVectorAsStringLine(const core::vector3df& v,

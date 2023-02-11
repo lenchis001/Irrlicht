@@ -42,11 +42,11 @@ public:
 
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 
-	virtual IAnimatedMesh* createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
 
 private:
-	void constructMesh(SMesh* mesh);
-	void loadTextures(SMesh* mesh);
+	void constructMesh(boost::shared_ptr<SMesh> mesh);
+	void loadTextures(boost::shared_ptr<SMesh> mesh);
 	void cleanup();
 
 // byte-align structures

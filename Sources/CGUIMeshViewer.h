@@ -28,10 +28,10 @@ namespace gui
 		virtual ~CGUIMeshViewer();
 
 		//! sets the mesh to be shown
-		virtual void setMesh(scene::IAnimatedMesh* mesh);
+		virtual void setMesh(boost::shared_ptr<scene::IAnimatedMesh> mesh);
 
 		//! Gets the displayed mesh
-		virtual scene::IAnimatedMesh* getMesh() const;
+		virtual boost::shared_ptr<scene::IAnimatedMesh> getMesh() const;
 
 		//! sets the material
 		virtual void setMaterial(const video::SMaterial& material);
@@ -48,7 +48,7 @@ namespace gui
 	private:
 
 		video::SMaterial Material;
-		scene::IAnimatedMesh* Mesh;
+		boost::shared_ptr<scene::IAnimatedMesh> Mesh;
 	};
 
 

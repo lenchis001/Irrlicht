@@ -56,7 +56,7 @@ namespace scene
 		//! returns the animated mesh based on a detail level. 0 is the
 		//! lowest, 255 the highest detail. Note, that some Meshes will
 		//! ignore the detail level.
-		virtual IMesh* getMesh(s32 frameInMs, s32 detailLevel=255,
+		virtual boost::shared_ptr<IMesh> getMesh(s32 frameInMs, s32 detailLevel=255,
 				s32 startFrameLoop=-1, s32 endFrameLoop=-1);
 
 		//! Returns an axis aligned bounding box of the mesh.
@@ -84,10 +84,10 @@ namespace scene
 		virtual quake3::tQ3EntityList & getEntityList();
 
 		//! returns the requested brush entity
-		virtual IMesh* getBrushEntityMesh(s32 num) const;
+		virtual boost::shared_ptr<IMesh> getBrushEntityMesh(s32 num) const;
 
 		//! returns the requested brush entity
-		virtual IMesh* getBrushEntityMesh(quake3::IEntity &ent) const;
+		virtual boost::shared_ptr<IMesh> getBrushEntityMesh(quake3::IEntity &ent) const;
 
 		//Link to held meshes? ...
 
@@ -135,7 +135,7 @@ namespace scene
 		void constructMesh();
 		void solveTJunction();
 		void loadTextures();
-		scene::SMesh** buildMesh(s32 num);
+		boost::shared_array<boost::shared_ptr<scene::SMesh>> buildMesh(s32 num);
 
 		struct STexShader
 		{
@@ -413,9 +413,9 @@ namespace scene
 		tBSPBrush* Brushes;
 		s32 NumBrushes;
 
-		scene::SMesh** BrushEntities;
+		boost::shared_ptr<scene::SMesh>* BrushEntities;
 
-		scene::SMesh* Mesh[quake3::E_Q3_MESH_SIZE];
+		boost::shared_ptr<scene::SMesh> Mesh[quake3::E_Q3_MESH_SIZE];
 		video::IVideoDriver* Driver;
 		core::stringc LevelName;
 		io::IFileSystem* FileSystem; // needs because there are no file extenstions stored in .bsp files.
@@ -477,7 +477,7 @@ namespace scene
 		};
 
 		void cleanMeshes();
-		void cleanMesh(SMesh *m, const bool texture0important = false);
+		void cleanMesh(boost::shared_ptr<SMesh> m, const bool texture0important = false);
 		void cleanLoader ();
 		void calcBoundingBoxes();
 		c8 buf[128];

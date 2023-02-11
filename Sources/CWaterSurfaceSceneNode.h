@@ -18,7 +18,7 @@ namespace scene
 
 		//! constructor
 		CWaterSurfaceSceneNode(f32 waveHeight, f32 waveSpeed, f32 waveLength, 
-			IMesh* mesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,	s32 id,
+			boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,	s32 id,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f));
@@ -33,7 +33,7 @@ namespace scene
 		virtual void OnAnimate(u32 timeMs);
 
 		//! Update mesh
-		virtual void setMesh(IMesh* mesh);
+		virtual void setMesh(boost::shared_ptr<IMesh> mesh);
 
 		//! Returns type of the scene node
 		virtual ESCENE_NODE_TYPE getType() const { return ESNT_WATER_SURFACE; }
@@ -51,7 +51,7 @@ namespace scene
 		f32 WaveLength;
 		f32 WaveSpeed;
 		f32 WaveHeight;
-		IMesh* OriginalMesh;
+		boost::shared_ptr<IMesh> OriginalMesh;
 	};
 
 } // end namespace scene

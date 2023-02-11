@@ -50,7 +50,7 @@ bool CXMeshFileLoader::isALoadableFileExtension(const io::path& filename) const
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-IAnimatedMesh* CXMeshFileLoader::createMesh(io::IReadFile* f)
+boost::shared_ptr<IAnimatedMesh> CXMeshFileLoader::createMesh(io::IReadFile* f)
 {
 	if (!f)
 		return 0;
@@ -59,7 +59,8 @@ IAnimatedMesh* CXMeshFileLoader::createMesh(io::IReadFile* f)
 	u32 time = os::Timer::getRealTime();
 #endif
 
-	AnimatedMesh = new CSkinnedMesh();
+	AnimatedMesh = boost::make_shared<CSkinnedMesh>();
+	AnimatedMesh->setWeakThis(AnimatedMesh);
 
 	if (load(f))
 	{
@@ -67,7 +68,6 @@ IAnimatedMesh* CXMeshFileLoader::createMesh(io::IReadFile* f)
 	}
 	else
 	{
-		AnimatedMesh->drop();
 		AnimatedMesh = 0;
 	}
 #ifdef _XREADER_DEBUG

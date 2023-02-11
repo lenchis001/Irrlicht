@@ -75,7 +75,7 @@ void CDMFLoader::findFile(bool use_mat_dirs, const core::stringc& path, const co
  \return Pointer to the created mesh. Returns 0 if loading failed.
  If you no longer need the mesh, you should call IAnimatedMesh::drop().
  See IReferenceCounted::drop() for more information.*/
-IAnimatedMesh* CDMFLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CDMFLoader::createMesh(io::IReadFile* file)
 {
 	if (!file)
 		return 0;
@@ -88,7 +88,7 @@ IAnimatedMesh* CDMFLoader::createMesh(io::IReadFile* file)
 	if (dmfRawFile.size()==0)
 		return 0;
 
-	SMesh * mesh = new SMesh();
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 
 	u32 i;
 
@@ -410,11 +410,10 @@ IAnimatedMesh* CDMFLoader::createMesh(io::IReadFile* file)
 	mesh->recalculateBoundingBox();
 
 	// Set up an animated mesh to hold the mesh
-	SAnimatedMesh* AMesh = new SAnimatedMesh();
+	boost::shared_ptr<SAnimatedMesh> AMesh = boost::make_shared<SAnimatedMesh>();
 	AMesh->Type = EAMT_UNKNOWN;
 	AMesh->addMesh(mesh);
 	AMesh->recalculateBoundingBox();
-	mesh->drop();
 
 	return AMesh;
 }

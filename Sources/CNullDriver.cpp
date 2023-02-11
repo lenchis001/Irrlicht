@@ -1613,7 +1613,7 @@ bool CNullDriver::isHardwareBufferRecommend(const scene::IMeshBuffer* mb)
 
 //! Create occlusion query.
 /** Use node for identification and mesh for occlusion test. */
-void CNullDriver::addOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node, const scene::IMesh* mesh)
+void CNullDriver::addOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node, boost::shared_ptr<const scene::IMesh> mesh)
 {
 	if (!node)
 		return;
@@ -1635,9 +1635,7 @@ void CNullDriver::addOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node, c
 	{
 		if (OcclusionQueries[index].Mesh != mesh)
 		{
-			OcclusionQueries[index].Mesh->drop();
 			OcclusionQueries[index].Mesh = mesh;
-			mesh->grab();
 		}
 	}
 	else
@@ -1693,7 +1691,7 @@ void CNullDriver::runOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node, b
 		setMaterial(mat);
 	}
 	setTransform(video::ETS_WORLD, node->getAbsoluteTransformation());
-	const scene::IMesh* mesh = OcclusionQueries[index].Mesh;
+	boost::shared_ptr<const scene::IMesh> mesh = OcclusionQueries[index].Mesh;
 	for (u32 i=0; i<mesh->getMeshBufferCount(); ++i)
 	{
 		if (visible)

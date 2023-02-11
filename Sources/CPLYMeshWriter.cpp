@@ -32,7 +32,7 @@ EMESH_WRITER_TYPE CPLYMeshWriter::getType() const
 }
 
 //! writes a mesh
-bool CPLYMeshWriter::writeMesh(io::IWriteFile* file, scene::IMesh* mesh, s32 flags)
+bool CPLYMeshWriter::writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
 {
 	if (!file || !mesh)
 		return false;

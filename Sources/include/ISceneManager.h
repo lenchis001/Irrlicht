@@ -395,7 +395,7 @@ namespace scene
 		 * \return Null if failed, otherwise pointer to the mesh.
 		 * This pointer should not be dropped. See IReferenceCounted::drop() for more information.
 		 **/
-		virtual IAnimatedMesh* getMesh(const io::path& filename) = 0;
+		virtual boost::shared_ptr<IAnimatedMesh> getMesh(const io::path& filename) = 0;
 
 		//! Get pointer to an animateable mesh. Loads the file if not loaded already.
 		/** Works just as getMesh(const char* filename). If you want to
@@ -404,7 +404,7 @@ namespace scene
 		\return NULL if failed and pointer to the mesh if successful.
 		This pointer should not be dropped. See
 		IReferenceCounted::drop() for more information. */
-		virtual IAnimatedMesh* getMesh(io::IReadFile* file) = 0;
+		virtual boost::shared_ptr<IAnimatedMesh> getMesh(io::IReadFile* file) = 0;
 
 		//! Get interface to the mesh cache which is shared beween all existing scene managers.
 		/** With this interface, it is possible to manually add new loaded
@@ -497,7 +497,7 @@ namespace scene
 		\param alsoAddIfMeshPointerZero: Add the scene node even if a 0 pointer is passed.
 		\return Pointer to the created scene node.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual boost::shared_ptr<scene::IAnimatedMeshSceneNode> addAnimatedMeshSceneNode(IAnimatedMesh* mesh,
+		virtual boost::shared_ptr<scene::IAnimatedMeshSceneNode> addAnimatedMeshSceneNode(boost::shared_ptr<IAnimatedMesh> mesh,
 				boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 				const core::vector3df& position = core::vector3df(0,0,0),
 				const core::vector3df& rotation = core::vector3df(0,0,0),
@@ -515,7 +515,7 @@ namespace scene
 		\param alsoAddIfMeshPointerZero: Add the scene node even if a 0 pointer is passed.
 		\return Pointer to the created scene node.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual boost::shared_ptr<IMeshSceneNode> addMeshSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
+		virtual boost::shared_ptr<IMeshSceneNode> addMeshSceneNode(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f),
@@ -536,7 +536,7 @@ namespace scene
 		\param scale: Initial scale of the scene node.
 		\return Pointer to the created scene node.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual boost::shared_ptr<ISceneNode> addWaterSurfaceSceneNode(IMesh* mesh,
+		virtual boost::shared_ptr<ISceneNode> addWaterSurfaceSceneNode(boost::shared_ptr<IMesh> mesh,
 			f32 waveHeight=2.0f, f32 waveSpeed=300.0f, f32 waveLength=10.0f,
 			boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const core::vector3df& position = core::vector3df(0,0,0),
@@ -557,12 +557,12 @@ namespace scene
 		\param alsoAddIfMeshPointerZero: Add the scene node even if a 0 pointer is passed.
 		\return Pointer to the Octree if successful, otherwise 0.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual boost::shared_ptr<IMeshSceneNode> addOctreeSceneNode(IAnimatedMesh* mesh, boost::shared_ptr<ISceneNode> parent=0,
+		virtual boost::shared_ptr<IMeshSceneNode> addOctreeSceneNode(boost::shared_ptr<IAnimatedMesh> mesh, boost::shared_ptr<ISceneNode> parent=0,
 			s32 id=-1, s32 minimalPolysPerNode=512, bool alsoAddIfMeshPointerZero=false) = 0;
 
 		//! Adds a scene node for rendering using a octree to the scene graph.
 		/** \deprecated Use addOctreeSceneNode instead. This method may be removed by Irrlicht 1.9. */
-		_IRR_DEPRECATED_ boost::shared_ptr<IMeshSceneNode> addOctTreeSceneNode(IAnimatedMesh* mesh, boost::shared_ptr<ISceneNode> parent=0,
+		_IRR_DEPRECATED_ boost::shared_ptr<IMeshSceneNode> addOctTreeSceneNode(boost::shared_ptr<IAnimatedMesh> mesh, boost::shared_ptr<ISceneNode> parent=0,
 			s32 id=-1, s32 minimalPolysPerNode=512, bool alsoAddIfMeshPointerZero=false)
 		{
 			return addOctreeSceneNode(mesh, parent, id, minimalPolysPerNode, alsoAddIfMeshPointerZero);
@@ -581,12 +581,12 @@ namespace scene
 		\param alsoAddIfMeshPointerZero: Add the scene node even if a 0 pointer is passed.
 		\return Pointer to the octree if successful, otherwise 0.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual boost::shared_ptr<IMeshSceneNode> addOctreeSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent=0,
+		virtual boost::shared_ptr<IMeshSceneNode> addOctreeSceneNode(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> parent=0,
 			s32 id=-1, s32 minimalPolysPerNode=256, bool alsoAddIfMeshPointerZero=false) = 0;
 
 		//! Adds a scene node for rendering using a octree to the scene graph.
 		/** \deprecated Use addOctreeSceneNode instead. This method may be removed by Irrlicht 1.9. */
-		_IRR_DEPRECATED_ boost::shared_ptr<IMeshSceneNode> addOctTreeSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent=0,
+		_IRR_DEPRECATED_ boost::shared_ptr<IMeshSceneNode> addOctTreeSceneNode(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> parent=0,
 			s32 id=-1, s32 minimalPolysPerNode=256, bool alsoAddIfMeshPointerZero=false)
 		{
 			return addOctreeSceneNode(mesh, parent, id, minimalPolysPerNode, alsoAddIfMeshPointerZero);
@@ -996,7 +996,7 @@ namespace scene
 		specified some invalid parameters or that a mesh with that name already
 		exists. If successful, a pointer to the mesh is returned.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IAnimatedMesh* addHillPlaneMesh(const io::path& name,
+		virtual boost::shared_ptr<IAnimatedMesh> addHillPlaneMesh(const io::path& name,
 			const core::dimension2d<f32>& tileSize, const core::dimension2d<u32>& tileCount,
 			video::SMaterial* material = 0, f32 hillHeight = 0.0f,
 			const core::dimension2d<f32>& countHills = core::dimension2d<f32>(0.0f, 0.0f),
@@ -1025,7 +1025,7 @@ namespace scene
 		specified some invalid parameters, that a mesh with that name already
 		exists, or that a texture could not be found. If successful, a pointer to the mesh is returned.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IAnimatedMesh* addTerrainMesh(const io::path& meshname,
+		virtual boost::shared_ptr<IAnimatedMesh> addTerrainMesh(const io::path& meshname,
 			video::IImage* texture, video::IImage* heightmap,
 			const core::dimension2d<f32>& stretchSize = core::dimension2d<f32>(10.0f,10.0f),
 			f32 maxHeight=200.0f,
@@ -1043,7 +1043,7 @@ namespace scene
 		\param widthCone Diameter of the cone's base, should be not smaller than the cylinder's diameter
 		\return Pointer to the arrow mesh if successful, otherwise 0.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IAnimatedMesh* addArrowMesh(const io::path& name,
+		virtual boost::shared_ptr<IAnimatedMesh> addArrowMesh(const io::path& name,
 				video::SColor vtxColorCylinder=0xFFFFFFFF,
 				video::SColor vtxColorCone=0xFFFFFFFF,
 				u32 tesselationCylinder=4, u32 tesselationCone=8,
@@ -1057,7 +1057,7 @@ namespace scene
 		\param polyCountY Number of quads used for the vertical tiling
 		\return Pointer to the sphere mesh if successful, otherwise 0.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IAnimatedMesh* addSphereMesh(const io::path& name,
+		virtual boost::shared_ptr<IAnimatedMesh> addSphereMesh(const io::path& name,
 				f32 radius=5.f, u32 polyCountX = 16,
 				u32 polyCountY = 16) = 0;
 
@@ -1070,7 +1070,7 @@ namespace scene
 		\return Pointer to the volume light mesh if successful, otherwise 0.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information.
 		*/
-		virtual IAnimatedMesh* addVolumeLightMesh(const io::path& name,
+		virtual boost::shared_ptr<IAnimatedMesh> addVolumeLightMesh(const io::path& name,
 				const u32 SubdivideU = 32, const u32 SubdivideV = 32,
 				const video::SColor FootColor = video::SColor(51, 0, 230, 180),
 				const video::SColor TailColor = video::SColor(0, 0, 0, 0)) = 0;
@@ -1295,7 +1295,7 @@ namespace scene
 		\return The selector, or null if not successful.
 		If you no longer need the selector, you should call ITriangleSelector::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual ITriangleSelector* createTriangleSelector(IMesh* mesh, boost::shared_ptr<ISceneNode> node) = 0;
+		virtual ITriangleSelector* createTriangleSelector(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> node) = 0;
 
 		//! Creates a simple ITriangleSelector, based on an animated mesh scene node.
 		/** Details of the mesh associated with the node will be extracted internally.
@@ -1340,12 +1340,12 @@ namespace scene
 		\return The selector, or null if not successful.
 		If you no longer need the selector, you should call ITriangleSelector::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual ITriangleSelector* createOctreeTriangleSelector(IMesh* mesh,
+		virtual ITriangleSelector* createOctreeTriangleSelector(boost::shared_ptr<IMesh> mesh,
 			boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode=32) = 0;
 
 		//! //! Creates a Triangle Selector, optimized by an octree.
 		/** \deprecated Use createOctreeTriangleSelector instead. This method may be removed by Irrlicht 1.9. */
-		_IRR_DEPRECATED_ ITriangleSelector* createOctTreeTriangleSelector(IMesh* mesh,
+		_IRR_DEPRECATED_ ITriangleSelector* createOctTreeTriangleSelector(boost::shared_ptr<IMesh> mesh,
 			boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode=32)
 		{
 			return createOctreeTriangleSelector(mesh, node, minimalPolysPerNode);
@@ -1630,7 +1630,7 @@ namespace scene
 		//! Get a skinned mesh, which is not available as header-only code
 		/** Note: You need to drop() the pointer after use again, see IReferenceCounted::drop()
 		for details. */
-		virtual ISkinnedMesh* createSkinnedMesh() = 0;
+		virtual boost::shared_ptr<ISkinnedMesh> createSkinnedMesh() = 0;
 
 		//! Sets ambient color of the scene
 		virtual void setAmbientLight(const video::SColorf &ambientColor) = 0;

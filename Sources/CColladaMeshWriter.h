@@ -53,7 +53,7 @@ namespace scene
 		virtual bool isExportable(const boost::shared_ptr<irr::scene::ISceneNode>  node) const;
 
 		//! Return the mesh for the given nod. If it has no mesh or shouldn't export it's mesh return 0.
-		virtual irr::scene::IMesh* getMesh(boost::shared_ptr<irr::scene::ISceneNode>  node);
+		virtual boost::shared_ptr<irr::scene::IMesh> getMesh(boost::shared_ptr<irr::scene::ISceneNode>  node);
 
 		//! Return if the node has it's own material overwriting the mesh-materials
 		virtual bool useNodeMaterial(const boost::shared_ptr<scene::ISceneNode> node) const;
@@ -63,9 +63,9 @@ namespace scene
 	{
 	public:
 		CColladaMeshWriterNames(IColladaMeshWriter * writer);
-		virtual irr::core::stringw nameForMesh(const scene::IMesh* mesh, int instance);
+		virtual irr::core::stringw nameForMesh(const boost::shared_ptr<scene::IMesh> mesh, int instance);
 		virtual irr::core::stringw nameForNode(const boost::shared_ptr<scene::ISceneNode> node);
-		virtual irr::core::stringw nameForMaterial(const video::SMaterial & material, int materialId, const scene::IMesh* mesh, const boost::shared_ptr<scene::ISceneNode> node);
+		virtual irr::core::stringw nameForMaterial(const video::SMaterial & material, int materialId, const boost::shared_ptr<scene::IMesh> mesh, const boost::shared_ptr<scene::ISceneNode> node);
 	protected:
 		irr::core::stringw nameForPtr(const void* ptr) const;
 	private:
@@ -91,7 +91,7 @@ public:
 	virtual bool writeScene(io::IWriteFile* file, boost::shared_ptr<scene::ISceneNode> root);
 
 	//! writes a mesh
-	virtual bool writeMesh(io::IWriteFile* file, scene::IMesh* mesh, s32 flags=EMWF_NONE);
+	virtual bool writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags=EMWF_NONE);
 
 	// Restrict the characters of oldString a set of allowed characters in xs::NCName and add the prefix.
 	virtual irr::core::stringw toNCName(const irr::core::stringw& oldString, const irr::core::stringw& prefix=irr::core::stringw(L"_NC_")) const;
@@ -109,10 +109,10 @@ protected:
 	inline irr::core::stringw toString(const irr::scene::E_COLLADA_TRANSPARENT_FX opaque) const;
 	inline irr::core::stringw toRef(const irr::core::stringw& source) const;
 	bool isCamera(const boost::shared_ptr<scene::ISceneNode> node) const;
-	irr::core::stringw nameForMesh(const scene::IMesh* mesh, int instance) const;
+	irr::core::stringw nameForMesh(const boost::shared_ptr<scene::IMesh> mesh, int instance) const;
 	irr::core::stringw nameForNode(const boost::shared_ptr<scene::ISceneNode> node) const;
-	irr::core::stringw nameForMaterial(const video::SMaterial & material, int materialId, const scene::IMesh* mesh, const boost::shared_ptr<scene::ISceneNode> node);
-	irr::core::stringw nameForMaterialSymbol(const scene::IMesh* mesh, int materialId) const;
+	irr::core::stringw nameForMaterial(const video::SMaterial & material, int materialId, const boost::shared_ptr<scene::IMesh> mesh, const boost::shared_ptr<scene::ISceneNode> node);
+	irr::core::stringw nameForMaterialSymbol(const boost::shared_ptr<scene::IMesh> mesh, int materialId) const;
 	irr::core::stringw findCachedMaterialName(const irr::video::SMaterial& material) const;
 	irr::core::stringw minTexfilterToString(bool bilinear, bool trilinear) const;
 	irr::core::stringw magTexfilterToString(bool bilinear, bool trilinear) const;
@@ -129,11 +129,11 @@ protected:
 	void writeNodeCameras(boost::shared_ptr<irr::scene::ISceneNode>  node);
 	void writeAllMeshGeometries();
 	void writeSceneNode(boost::shared_ptr<irr::scene::ISceneNode>  node);
-	void writeMeshMaterials(scene::IMesh* mesh, irr::core::array<irr::core::stringw> * materialNamesOut=0);
-	void writeMeshEffects(scene::IMesh* mesh);
+	void writeMeshMaterials(boost::shared_ptr<scene::IMesh> mesh, irr::core::array<irr::core::stringw> * materialNamesOut=0);
+	void writeMeshEffects(boost::shared_ptr<scene::IMesh> mesh);
 	void writeMaterialEffect(const irr::core::stringw& materialname, const video::SMaterial & material);
-	void writeMeshGeometry(const irr::core::stringw& meshname, scene::IMesh* mesh);
-	void writeMeshInstanceGeometry(const irr::core::stringw& meshname, scene::IMesh* mesh, boost::shared_ptr<scene::ISceneNode> node=0);
+	void writeMeshGeometry(const irr::core::stringw& meshname, boost::shared_ptr<scene::IMesh> mesh);
+	void writeMeshInstanceGeometry(const irr::core::stringw& meshname, boost::shared_ptr<scene::IMesh> mesh, boost::shared_ptr<scene::ISceneNode> node=0);
 	void writeMaterial(const irr::core::stringw& materialname);
 	void writeLightInstance(const irr::core::stringw& lightName);
 	void writeCameraInstance(const irr::core::stringw& cameraName);
@@ -231,8 +231,8 @@ protected:
 
 		core::array<SGeometryMeshMaterials> GeometryMeshMaterials;
 	};
-	typedef core::map<IMesh*, SColladaMesh>::Node MeshNode;
-	core::map<IMesh*, SColladaMesh> Meshes;
+	typedef core::map<boost::shared_ptr<IMesh>, SColladaMesh>::Node MeshNode;
+	core::map<boost::shared_ptr<IMesh>, SColladaMesh> Meshes;
 
 	// structure for the lights library
 	struct SColladaLight

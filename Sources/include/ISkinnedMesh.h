@@ -54,7 +54,7 @@ namespace scene
 		\return True if all joints in this mesh were
 		matched up (empty names will not be matched, and it's case
 		sensitive). Unmatched joints will not be animated. */
-		virtual bool useAnimationFrom(const ISkinnedMesh *mesh) = 0;
+		virtual bool useAnimationFrom(const boost::shared_ptr<ISkinnedMesh> mesh) = 0;
 
 		//! Update Normals when Animating
 		/** \param on If false don't animate, which is faster.

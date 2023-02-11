@@ -129,8 +129,6 @@ CLWOMeshFileLoader::CLWOMeshFileLoader(boost::shared_ptr<scene::ISceneManager> s
 //! destructor
 CLWOMeshFileLoader::~CLWOMeshFileLoader()
 {
-	if (Mesh)
-		Mesh->drop();
 }
 
 
@@ -143,14 +141,11 @@ bool CLWOMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 
 
 //! creates/loads an animated mesh from the file.
-IAnimatedMesh* CLWOMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CLWOMeshFileLoader::createMesh(io::IReadFile* file)
 {
 	File = file;
 
-	if (Mesh)
-		Mesh->drop();
-
-	Mesh = new SMesh();
+	Mesh = boost::make_shared<SMesh>();
 
 	if (!readFileHeader())
 		return 0;
@@ -367,12 +362,11 @@ IAnimatedMesh* CLWOMeshFileLoader::createMesh(io::IReadFile* file)
 		// add bump maps
 		if (Materials[i]->Meshbuffer->Material.MaterialType==video::EMT_NORMAL_MAP_SOLID)
 		{
-			SMesh* tmpmesh = new SMesh();
+			boost::shared_ptr<SMesh> tmpmesh = boost::make_shared<SMesh>();
 			tmpmesh->addMeshBuffer(Materials[i]->Meshbuffer);
 			SceneManager->getMeshManipulator()->createMeshWithTangents(tmpmesh, true, true);
 			Mesh->addMeshBuffer(tmpmesh->getMeshBuffer(0));
 			tmpmesh->getMeshBuffer(0)->drop();
-			tmpmesh->drop();
 		}
 		else
 		{
@@ -385,11 +379,10 @@ IAnimatedMesh* CLWOMeshFileLoader::createMesh(io::IReadFile* file)
 	}
 	Mesh->recalculateBoundingBox();
 
-	SAnimatedMesh* am = new SAnimatedMesh();
+	boost::shared_ptr<SAnimatedMesh> am = boost::make_shared<SAnimatedMesh>();
 	am->Type = EAMT_3DS;
 	am->addMesh(Mesh);
 	am->recalculateBoundingBox();
-	Mesh->drop();
 	Mesh = 0;
 
 	Points.clear();

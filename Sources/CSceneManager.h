@@ -35,7 +35,7 @@ namespace scene
 
 		//! constructor
 		CSceneManager(video::IVideoDriver* driver, io::IFileSystem* fs,
-			gui::ICursorControl* cursorControl, IMeshCache* cache = 0,
+			boost::shared_ptr<gui::ICursorControl> cursorControl, IMeshCache* cache = 0,
 			gui::IGUIEnvironment *guiEnvironment = 0);
 
 		void setWeakThis(boost::shared_ptr<CSceneManager> value);
@@ -44,10 +44,10 @@ namespace scene
 		virtual ~CSceneManager();
 
 		//! gets an animateable mesh. loads it if needed. returned pointer must not be dropped.
-		virtual IAnimatedMesh* getMesh(const io::path& filename);
+		virtual boost::shared_ptr<IAnimatedMesh> getMesh(const io::path& filename);
 
 		//! gets an animateable mesh. loads it if needed. returned pointer must not be dropped.
-		virtual IAnimatedMesh* getMesh(io::IReadFile* file);
+		virtual boost::shared_ptr<IAnimatedMesh> getMesh(io::IReadFile* file);
 
 		//! Returns an interface to the mesh cache which is shared beween all existing scene managers.
 		virtual IMeshCache* getMeshCache();
@@ -83,7 +83,7 @@ namespace scene
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f));
 
 		//! adds a scene node for rendering an animated mesh model
-		virtual boost::shared_ptr<scene::IAnimatedMeshSceneNode> addAnimatedMeshSceneNode(IAnimatedMesh* mesh, boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
+		virtual boost::shared_ptr<scene::IAnimatedMeshSceneNode> addAnimatedMeshSceneNode(boost::shared_ptr<IAnimatedMesh> mesh, boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f),
@@ -91,14 +91,14 @@ namespace scene
 
 		//! adds a scene node for rendering a static mesh
 		//! the returned pointer must not be dropped.
-		virtual boost::shared_ptr<IMeshSceneNode> addMeshSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
+		virtual boost::shared_ptr<IMeshSceneNode> addMeshSceneNode(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f),
 			bool alsoAddIfMeshPointerZero=false);
 
 		//! Adds a scene node for rendering a animated water surface mesh.
-		virtual boost::shared_ptr<ISceneNode> addWaterSurfaceSceneNode(IMesh* mesh, f32 waveHeight, f32 waveSpeed, f32 wlenght, boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
+		virtual boost::shared_ptr<ISceneNode> addWaterSurfaceSceneNode(boost::shared_ptr<IMesh> mesh, f32 waveHeight, f32 waveSpeed, f32 wlenght, boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f));
@@ -118,13 +118,13 @@ namespace scene
 		//! Adds a scene node for rendering using a octree to the scene graph. This a good method for rendering
 		//! scenes with lots of geometry. The Octree is built on the fly from the mesh, much
 		//! faster then a bsp tree.
-		virtual boost::shared_ptr<IMeshSceneNode> addOctreeSceneNode(IAnimatedMesh* mesh, boost::shared_ptr<ISceneNode> parent=0,
+		virtual boost::shared_ptr<IMeshSceneNode> addOctreeSceneNode(boost::shared_ptr<IAnimatedMesh> mesh, boost::shared_ptr<ISceneNode> parent=0,
 			s32 id=-1, s32 minimalPolysPerNode=512, bool alsoAddIfMeshPointerZero=false);
 
 		//! Adss a scene node for rendering using a octree. This a good method for rendering
 		//! scenes with lots of geometry. The Octree is built on the fly from the mesh, much
 		//! faster then a bsp tree.
-		virtual boost::shared_ptr<IMeshSceneNode> addOctreeSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent=0,
+		virtual boost::shared_ptr<IMeshSceneNode> addOctreeSceneNode(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> parent=0,
 			s32 id=-1, s32 minimalPolysPerNode=128, bool alsoAddIfMeshPointerZero=false);
 
 		//! Adds a camera scene node to the tree and sets it as active camera.
@@ -214,31 +214,31 @@ namespace scene
 		//! for the mesh because the mesh is added to the mesh pool and
 		//! can be retrieved back using ISceneManager::getMesh with the
 		//! name as parameter.
-		virtual IAnimatedMesh* addHillPlaneMesh(const io::path& name,
+		virtual boost::shared_ptr<IAnimatedMesh> addHillPlaneMesh(const io::path& name,
 			const core::dimension2d<f32>& tileSize, const core::dimension2d<u32>& tileCount,
 			video::SMaterial* material = 0,	f32 hillHeight = 0.0f,
 			const core::dimension2d<f32>& countHills = core::dimension2d<f32>(1.0f, 1.0f),
 			const core::dimension2d<f32>& textureRepeatCount = core::dimension2d<f32>(1.0f, 1.0f));
 
 		//! Adds a terrain mesh to the mesh pool.
-		virtual IAnimatedMesh* addTerrainMesh(const io::path& meshname,	video::IImage* texture, video::IImage* heightmap,
+		virtual boost::shared_ptr<IAnimatedMesh> addTerrainMesh(const io::path& meshname,	video::IImage* texture, video::IImage* heightmap,
 			const core::dimension2d<f32>& stretchSize = core::dimension2d<f32>(10.0f,10.0f),
 			f32 maxHeight=200.0f,
 			const core::dimension2d<u32>& defaultVertexBlockSize = core::dimension2d<u32>(64,64));
 
 		//! Add a arrow mesh to the mesh pool
-		virtual IAnimatedMesh* addArrowMesh(const io::path& name,
+		virtual boost::shared_ptr<IAnimatedMesh> addArrowMesh(const io::path& name,
 				video::SColor vtxColor0, video::SColor vtxColor1,
 				u32 tesselationCylinder, u32 tesselationCone,
 				f32 height, f32 cylinderHeight, f32 width0,
 				f32 width1);
 
 		//! Adds a static sphere mesh to the mesh pool.
-		IAnimatedMesh* addSphereMesh(const io::path& name,
+		boost::shared_ptr<IAnimatedMesh> addSphereMesh(const io::path& name,
 				f32 radius=5.f, u32 polyCountX=16, u32 polyCountY=16);
 
 		//! Adds a static volume light mesh to the mesh pool.
-		IAnimatedMesh* addVolumeLightMesh(const io::path& name,
+		boost::shared_ptr<IAnimatedMesh> addVolumeLightMesh(const io::path& name,
 			const u32 SubdivideU = 32, const u32 SubdivideV = 32,
 			const video::SColor FootColor = video::SColor(51, 0, 230, 180),
 			const video::SColor TailColor = video::SColor(0, 0, 0, 0));
@@ -348,7 +348,7 @@ namespace scene
 
 
 		//! Creates a simple ITriangleSelector, based on a mesh.
-		virtual ITriangleSelector* createTriangleSelector(IMesh* mesh, boost::shared_ptr<ISceneNode> node);
+		virtual ITriangleSelector* createTriangleSelector(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> node);
 
 		//! Creates a simple ITriangleSelector, based on an animated mesh scene node.
 		//! Details of the mesh associated with the node will be extracted internally.
@@ -358,7 +358,7 @@ namespace scene
 		virtual ITriangleSelector* createTriangleSelector(boost::shared_ptr<scene::IAnimatedMeshSceneNode> node);
 
 		//! Creates a simple ITriangleSelector, based on a mesh.
-		virtual ITriangleSelector* createOctreeTriangleSelector(IMesh* mesh,
+		virtual ITriangleSelector* createOctreeTriangleSelector(boost::shared_ptr<IMesh> mesh,
 			boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode);
 
 		//! Creates a simple dynamic ITriangleSelector, based on a axis aligned bounding box.
@@ -504,7 +504,7 @@ namespace scene
 		virtual IMeshWriter* createMeshWriter(EMESH_WRITER_TYPE type);
 
 		//! Get a skinned mesh, which is not available as header-only code
-		virtual ISkinnedMesh* createSkinnedMesh();
+		virtual boost::shared_ptr<ISkinnedMesh> createSkinnedMesh();
 
 		//! Sets ambient color of the scene
 		virtual void setAmbientLight(const video::SColorf &ambientColor);
@@ -609,7 +609,7 @@ namespace scene
 		gui::IGUIEnvironment* GUIEnvironment;
 
 		//! cursor control
-		gui::ICursorControl* CursorControl;
+		boost::shared_ptr<gui::ICursorControl> CursorControl;
 
 		//! collision manager
 		ISceneCollisionManager* CollisionManager;

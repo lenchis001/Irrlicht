@@ -17,7 +17,7 @@ namespace scene
 
 //! constructor
 CWaterSurfaceSceneNode::CWaterSurfaceSceneNode(f32 waveHeight, f32 waveSpeed, f32 waveLength,
-		IMesh* mesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
+		boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 		const core::vector3df& position, const core::vector3df& rotation,
 		const core::vector3df& scale)
 	: CMeshSceneNode(mesh, parent, mgr, id, position, rotation, scale),
@@ -35,9 +35,6 @@ CWaterSurfaceSceneNode::CWaterSurfaceSceneNode(f32 waveHeight, f32 waveSpeed, f3
 //! destructor
 CWaterSurfaceSceneNode::~CWaterSurfaceSceneNode()
 {
-	// Mesh is dropped in CMeshSceneNode destructor
-	if (OriginalMesh)
-		OriginalMesh->drop();
 }
 
 
@@ -72,14 +69,13 @@ void CWaterSurfaceSceneNode::OnAnimate(u32 timeMs)
 }
 
 
-void CWaterSurfaceSceneNode::setMesh(IMesh* mesh)
+void CWaterSurfaceSceneNode::setMesh(boost::shared_ptr<IMesh> mesh)
 {
 	CMeshSceneNode::setMesh(mesh);
 	if (!mesh)
 		return;
-	if (OriginalMesh)
-		OriginalMesh->drop();
-	IMesh* clone = SceneManager->getMeshManipulator()->createMeshCopy(mesh);
+	
+	boost::shared_ptr<IMesh> clone = SceneManager->getMeshManipulator()->createMeshCopy(mesh);
 	OriginalMesh = mesh;
 	Mesh = clone;
 	Mesh->setHardwareMappingHint(scene::EHM_STATIC, scene::EBT_INDEX);
@@ -109,7 +105,6 @@ void CWaterSurfaceSceneNode::deserializeAttributes(io::IAttributes* in, io::SAtt
 
 	if (Mesh)
 	{
-		Mesh->drop();
 		Mesh = OriginalMesh;
 		OriginalMesh = 0;
 	}
@@ -118,7 +113,7 @@ void CWaterSurfaceSceneNode::deserializeAttributes(io::IAttributes* in, io::SAtt
 
 	if (Mesh)
 	{
-		IMesh* clone = SceneManager->getMeshManipulator()->createMeshCopy(Mesh);
+		boost::shared_ptr<IMesh> clone = SceneManager->getMeshManipulator()->createMeshCopy(Mesh);
 		OriginalMesh = Mesh;
 		Mesh = clone;
 	}

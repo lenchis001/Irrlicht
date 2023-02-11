@@ -169,7 +169,7 @@ boost::shared_ptr<IParticleCylinderEmitter> CParticleSystemSceneNode::createCyli
 
 //! Creates a mesh particle emitter.
 boost::shared_ptr<IParticleMeshEmitter> CParticleSystemSceneNode::createMeshEmitter(
-	scene::IMesh* mesh, bool useNormalDirection,
+	boost::shared_ptr<scene::IMesh> mesh, bool useNormalDirection,
 	const core::vector3df& direction, f32 normalDirectionModifier,
 	s32 mbNumber, bool everyMeshVertex,
 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,

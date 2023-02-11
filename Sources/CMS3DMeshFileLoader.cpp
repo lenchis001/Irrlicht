@@ -126,12 +126,13 @@ bool CMS3DMeshFileLoader::isALoadableFileExtension(const io::path& filename) con
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-IAnimatedMesh* CMS3DMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CMS3DMeshFileLoader::createMesh(io::IReadFile* file)
 {
 	if (!file)
 		return 0;
 
-	AnimatedMesh = new CSkinnedMesh();
+	AnimatedMesh = boost::make_shared<CSkinnedMesh>();
+	AnimatedMesh->setWeakThis(AnimatedMesh);
 
 	if ( load(file) )
 	{
@@ -139,7 +140,6 @@ IAnimatedMesh* CMS3DMeshFileLoader::createMesh(io::IReadFile* file)
 	}
 	else
 	{
-		AnimatedMesh->drop();
 		AnimatedMesh = 0;
 	}
 

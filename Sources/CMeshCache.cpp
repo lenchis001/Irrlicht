@@ -21,10 +21,8 @@ CMeshCache::~CMeshCache()
 
 
 //! adds a mesh to the list
-void CMeshCache::addMesh(const io::path& filename, IAnimatedMesh* mesh)
+void CMeshCache::addMesh(const io::path& filename, boost::shared_ptr<IAnimatedMesh> mesh)
 {
-	mesh->grab();
-
 	MeshEntry e ( filename );
 	e.Mesh = mesh;
 
@@ -33,7 +31,7 @@ void CMeshCache::addMesh(const io::path& filename, IAnimatedMesh* mesh)
 
 
 //! Removes a mesh from the cache.
-void CMeshCache::removeMesh(const IMesh* const mesh)
+void CMeshCache::removeMesh(boost::shared_ptr<const IMesh> const mesh)
 {
 	if ( !mesh )
 		return;
@@ -41,7 +39,6 @@ void CMeshCache::removeMesh(const IMesh* const mesh)
 	{
 		if (Meshes[i].Mesh == mesh || (Meshes[i].Mesh && Meshes[i].Mesh->getMesh(0) == mesh))
 		{
-			Meshes[i].Mesh->drop();
 			Meshes.erase(i);
 			return;
 		}
@@ -57,7 +54,7 @@ u32 CMeshCache::getMeshCount() const
 
 
 //! Returns current number of the mesh
-s32 CMeshCache::getMeshIndex(const IMesh* const mesh) const
+s32 CMeshCache::getMeshIndex(boost::shared_ptr<const IMesh> const mesh) const
 {
 	for (u32 i=0; i<Meshes.size(); ++i)
 	{
@@ -70,7 +67,7 @@ s32 CMeshCache::getMeshIndex(const IMesh* const mesh) const
 
 
 //! Returns a mesh based on its index number
-IAnimatedMesh* CMeshCache::getMeshByIndex(u32 number)
+boost::shared_ptr<IAnimatedMesh> CMeshCache::getMeshByIndex(u32 number)
 {
 	if (number >= Meshes.size())
 		return 0;
@@ -80,7 +77,7 @@ IAnimatedMesh* CMeshCache::getMeshByIndex(u32 number)
 
 
 //! Returns a mesh based on its name.
-IAnimatedMesh* CMeshCache::getMeshByName(const io::path& name)
+boost::shared_ptr<IAnimatedMesh> CMeshCache::getMeshByName(const io::path& name)
 {
 	MeshEntry e ( name );
 	s32 id = Meshes.binary_search(e);
@@ -99,7 +96,7 @@ const io::SNamedPath& CMeshCache::getMeshName(u32 index) const
 
 
 //! Get the name of a loaded mesh, if there is any.
-const io::SNamedPath& CMeshCache::getMeshName(const IMesh* const mesh) const
+const io::SNamedPath& CMeshCache::getMeshName(boost::shared_ptr<const IMesh> const mesh) const
 {
 	if (!mesh)
 		return emptyNamedPath;
@@ -126,7 +123,7 @@ bool CMeshCache::renameMesh(u32 index, const io::path& name)
 
 
 //! Renames a loaded mesh.
-bool CMeshCache::renameMesh(const IMesh* const mesh, const io::path& name)
+bool CMeshCache::renameMesh(boost::shared_ptr<const IMesh> const mesh, const io::path& name)
 {
 	for (u32 i=0; i<Meshes.size(); ++i)
 	{
@@ -152,9 +149,6 @@ bool CMeshCache::isMeshLoaded(const io::path& name)
 //! Clears the whole mesh cache, removing all meshes.
 void CMeshCache::clear()
 {
-	for (u32 i=0; i<Meshes.size(); ++i)
-		Meshes[i].Mesh->drop();
-
 	Meshes.clear();
 }
 
@@ -163,9 +157,8 @@ void CMeshCache::clearUnusedMeshes()
 {
 	for (u32 i=0; i<Meshes.size(); ++i)
 	{
-		if (Meshes[i].Mesh->getReferenceCount() == 1)
+		if (Meshes[i].Mesh.use_count() == 1)
 		{
-			Meshes[i].Mesh->drop();
 			Meshes.erase(i);
 			--i;
 		}

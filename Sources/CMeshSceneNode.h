@@ -18,7 +18,7 @@ namespace scene
 	public:
 
 		//! constructor
-		CMeshSceneNode(IMesh* mesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,	s32 id,
+		CMeshSceneNode(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,	s32 id,
 			const core::vector3df& position = core::vector3df(0,0,0),
 			const core::vector3df& rotation = core::vector3df(0,0,0),
 			const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f));
@@ -55,14 +55,14 @@ namespace scene
 		virtual ESCENE_NODE_TYPE getType() const { return ESNT_MESH; }
 
 		//! Sets a new mesh
-		virtual void setMesh(IMesh* mesh);
+		virtual void setMesh(boost::shared_ptr<IMesh> mesh);
 
 		//! Returns the current mesh
-		virtual IMesh* getMesh(void) { return Mesh; }
+		virtual boost::shared_ptr<IMesh> getMesh(void) { return Mesh; }
 
 		//! Creates shadow volume scene node as child of this node
 		//! and returns a pointer to it.
-		virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(const IMesh* shadowMesh,
+		virtual boost::shared_ptr<IShadowVolumeSceneNode> addShadowVolumeSceneNode(boost::shared_ptr<const IMesh> shadowMesh,
 			s32 id, bool zfailmethod=true, f32 infinity=10000.0f);
 
 		//! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
@@ -89,7 +89,7 @@ namespace scene
 		core::aabbox3d<f32> Box;
 		video::SMaterial ReadOnlyMaterial;
 
-		IMesh* Mesh;
+		boost::shared_ptr<IMesh> Mesh;
 		boost::shared_ptr<IShadowVolumeSceneNode> Shadow;
 
 		s32 PassCount;

@@ -19,7 +19,7 @@ class IParticleMeshEmitter : public IParticleEmitter
 public:
 
 	//! Set Mesh to emit particles from
-	virtual void setMesh( IMesh* mesh ) = 0;
+	virtual void setMesh( boost::shared_ptr<IMesh> mesh ) = 0;
 
 	//! Set whether to use vertex normal for direction, or direction specified
 	virtual void setUseNormalDirection( bool useNormalDirection = true ) = 0;
@@ -31,7 +31,7 @@ public:
 	virtual void setEveryMeshVertex( bool everyMeshVertex = true ) = 0;
 
 	//! Get Mesh we're emitting particles from
-	virtual const IMesh* getMesh() const = 0;
+	virtual boost::shared_ptr<const IMesh> getMesh() const = 0;
 
 	//! Get whether to use vertex normal for direction, or direction specified
 	virtual bool isUsingNormalDirection() const = 0;

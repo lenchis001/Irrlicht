@@ -116,7 +116,7 @@ CBillboardTextSceneNode::CBillboardTextSceneNode(boost::shared_ptr<ISceneNode> p
 			Font->grab();
 
 			// mesh with one buffer per texture
-			Mesh = new SMesh();
+			Mesh = boost::make_shared<SMesh>();
 			for (u32 i=0; i<Font->getSpriteBank()->getTextureCount(); ++i)
 			{
 				SMeshBuffer *mb = new SMeshBuffer();
@@ -145,8 +145,6 @@ CBillboardTextSceneNode::~CBillboardTextSceneNode()
 	if (Font)
 		Font->drop();
 
-	if (Mesh)
-		Mesh->drop();
 
 }
 

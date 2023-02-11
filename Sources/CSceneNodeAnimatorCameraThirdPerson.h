@@ -11,7 +11,7 @@ namespace irr::scene {
 	class CSceneNodeAnimatorCameraThirdPerson: public ISceneNodeAnimator
 	{
 	public:
-		CSceneNodeAnimatorCameraThirdPerson(irr::gui::ICursorControl* cursorControl);
+		CSceneNodeAnimatorCameraThirdPerson(boost::shared_ptr<irr::gui::ICursorControl> cursorControl);
 		~CSceneNodeAnimatorCameraThirdPerson();
 
 		bool isEventReceiverEnabled() const override;
@@ -32,7 +32,7 @@ namespace irr::scene {
 		void setRadius(short offset);
 		float getRadius();
 
-		irr::gui::ICursorControl* _cursorControl;
+		boost::shared_ptr<irr::gui::ICursorControl> _cursorControl;
 
 		float _fi, _teta, _radius;
 		irr::core::vector3df _targetPosition;

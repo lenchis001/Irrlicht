@@ -72,15 +72,15 @@ void CSkinnedMesh::setAnimationSpeed(f32 fps)
 
 
 //! returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail. Note, that some Meshes will ignore the detail level.
-IMesh* CSkinnedMesh::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
+boost::shared_ptr<IMesh> CSkinnedMesh::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
 {
 	//animate(frame,startFrameLoop, endFrameLoop);
 	if (frame==-1)
-		return this;
+		return getSharedThis();
 
 	animateMesh((f32)frame, 1.0f);
 	skinMesh();
-	return this;
+	return getSharedThis();
 }
 
 
@@ -645,7 +645,7 @@ void CSkinnedMesh::setDirty(E_BUFFER_TYPE buffer)
 
 
 //! uses animation from another mesh
-bool CSkinnedMesh::useAnimationFrom(const ISkinnedMesh *mesh)
+bool CSkinnedMesh::useAnimationFrom(const boost::shared_ptr<ISkinnedMesh> mesh)
 {
 	bool unmatched=false;
 
@@ -1294,7 +1294,7 @@ void CSkinnedMesh::transferJointsToMesh(const core::array<boost::shared_ptr<IBon
 {
 	for (u32 i=0; i<AllJoints.size(); ++i)
 	{
-		const boost::shared_ptr<IBoneSceneNode> const node=jointChildSceneNodes[i];
+		const boost::shared_ptr<IBoneSceneNode> node=jointChildSceneNodes[i];
 		SJoint *joint=AllJoints[i];
 
 		joint->LocalAnimatedMatrix.setRotationDegrees(node->getRotation());
@@ -1317,7 +1317,7 @@ void CSkinnedMesh::transferOnlyJointsHintsToMesh(const core::array<boost::shared
 {
 	for (u32 i=0; i<AllJoints.size(); ++i)
 	{
-		const boost::shared_ptr<IBoneSceneNode> const node=jointChildSceneNodes[i];
+		const boost::shared_ptr<IBoneSceneNode> node=jointChildSceneNodes[i];
 		SJoint *joint=AllJoints[i];
 
 		joint->positionHint=node->positionHint;
@@ -1367,6 +1367,14 @@ void CSkinnedMesh::addJoints(core::array<boost::shared_ptr<IBoneSceneNode>> &joi
 			bone->setParent(node);
 	}
 	SkinnedLastFrame=false;
+}
+
+void CSkinnedMesh::setWeakThis(boost::shared_ptr<CSkinnedMesh> value)
+{
+#if _DEBUG
+	assert(this == value.get());
+#endif
+	WeakThis = value;
 }
 
 

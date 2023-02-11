@@ -28,7 +28,7 @@ namespace scene
 	{
 	public:
 		//! Constructor
-		CSceneNodeAnimatorCameraMaya(gui::ICursorControl* cursor, f32 rotateSpeed = -1500.f, 
+		CSceneNodeAnimatorCameraMaya(boost::shared_ptr<gui::ICursorControl> cursor, f32 rotateSpeed = -1500.f, 
 			f32 zoomSpeed = 200.f, f32 translationSpeed = 1500.f, f32 distance=70.f);
 
 		//! Destructor
@@ -90,7 +90,7 @@ namespace scene
 
 		bool MouseKeys[3];
 
-		gui::ICursorControl *CursorControl;
+		boost::shared_ptr<gui::ICursorControl> CursorControl;
 		boost::shared_ptr<scene::ICameraSceneNode> OldCamera;
 		core::vector3df OldTarget;
 		core::vector3df LastCameraTarget;	// to find out if the camera target was moved outside this animator

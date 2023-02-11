@@ -38,7 +38,7 @@ static inline core::vector3df getAngleWeight(const core::vector3df& v1,
 //! Flips the direction of surfaces. Changes backfacing triangles to frontfacing
 //! triangles and vice versa.
 //! \param mesh: Mesh on which the operation is performed.
-void CMeshManipulator::flipSurfaces(scene::IMesh* mesh) const
+void CMeshManipulator::flipSurfaces(boost::shared_ptr<scene::IMesh> mesh) const
 {
 	if (!mesh)
 		return;
@@ -140,7 +140,7 @@ void CMeshManipulator::recalculateNormals(IMeshBuffer* buffer, bool smooth, bool
 
 //! Recalculates all normals of the mesh.
 //! \param mesh: Mesh on which the operation is performed.
-void CMeshManipulator::recalculateNormals(scene::IMesh* mesh, bool smooth, bool angleWeighted) const
+void CMeshManipulator::recalculateNormals(boost::shared_ptr<scene::IMesh> mesh, bool smooth, bool angleWeighted) const
 {
 	if (!mesh)
 		return;
@@ -421,7 +421,7 @@ void CMeshManipulator::recalculateTangents(IMeshBuffer* buffer, bool recalculate
 
 
 //! Recalculates tangents for all tangent mesh buffers
-void CMeshManipulator::recalculateTangents(IMesh* mesh, bool recalculateNormals, bool smooth, bool angleWeighted) const
+void CMeshManipulator::recalculateTangents(boost::shared_ptr<IMesh> mesh, bool recalculateNormals, bool smooth, bool angleWeighted) const
 {
 	if (!mesh)
 		return;
@@ -495,7 +495,7 @@ void CMeshManipulator::makePlanarTextureMapping(scene::IMeshBuffer* buffer, f32 
 
 
 //! Creates a planar texture mapping on the mesh
-void CMeshManipulator::makePlanarTextureMapping(scene::IMesh* mesh, f32 resolution) const
+void CMeshManipulator::makePlanarTextureMapping(boost::shared_ptr<scene::IMesh> mesh, f32 resolution) const
 {
 	if (!mesh)
 		return;
@@ -563,7 +563,7 @@ void CMeshManipulator::makePlanarTextureMapping(scene::IMeshBuffer* buffer, f32 
 
 
 //! Creates a planar texture mapping on the mesh
-void CMeshManipulator::makePlanarTextureMapping(scene::IMesh* mesh, f32 resolutionS, f32 resolutionT, u8 axis, const core::vector3df& offset) const
+void CMeshManipulator::makePlanarTextureMapping(boost::shared_ptr<scene::IMesh> mesh, f32 resolutionS, f32 resolutionT, u8 axis, const core::vector3df& offset) const
 {
 	if (!mesh)
 		return;
@@ -578,12 +578,12 @@ void CMeshManipulator::makePlanarTextureMapping(scene::IMesh* mesh, f32 resoluti
 
 //! Clones a static IMesh into a modifyable SMesh.
 // not yet 32bit
-SMesh* CMeshManipulator::createMeshCopy(scene::IMesh* mesh) const
+boost::shared_ptr<SMesh> CMeshManipulator::createMeshCopy(boost::shared_ptr<scene::IMesh> mesh) const
 {
 	if (!mesh)
 		return 0;
 
-	SMesh* clone = new SMesh();
+	boost::shared_ptr<SMesh> clone = boost::make_shared<SMesh>();
 
 	const u32 meshBufferCount = mesh->getMeshBufferCount();
 
@@ -657,12 +657,12 @@ SMesh* CMeshManipulator::createMeshCopy(scene::IMesh* mesh) const
 
 //! Creates a copy of the mesh, which will only consist of unique primitives
 // not yet 32bit
-IMesh* CMeshManipulator::createMeshUniquePrimitives(IMesh* mesh) const
+boost::shared_ptr<IMesh> CMeshManipulator::createMeshUniquePrimitives(boost::shared_ptr<IMesh> mesh) const
 {
 	if (!mesh)
 		return 0;
 
-	SMesh* clone = new SMesh();
+	boost::shared_ptr<SMesh> clone = boost::make_shared<SMesh>();
 
 	const u32 meshBufferCount = mesh->getMeshBufferCount();
 
@@ -762,9 +762,9 @@ IMesh* CMeshManipulator::createMeshUniquePrimitives(IMesh* mesh) const
 
 //! Creates a copy of a mesh, which will have identical vertices welded together
 // not yet 32bit
-IMesh* CMeshManipulator::createMeshWelded(IMesh *mesh, f32 tolerance) const
+boost::shared_ptr<IMesh> CMeshManipulator::createMeshWelded(boost::shared_ptr<IMesh> mesh, f32 tolerance) const
 {
-	SMesh* clone = new SMesh();
+	boost::shared_ptr<SMesh> clone = boost::make_shared<SMesh>();
 	clone->BoundingBox = mesh->getBoundingBox();
 
 	core::array<u16> redirects;
@@ -931,14 +931,14 @@ IMesh* CMeshManipulator::createMeshWelded(IMesh *mesh, f32 tolerance) const
 
 //! Creates a copy of the mesh, which will only consist of S3DVertexTangents vertices.
 // not yet 32bit
-IMesh* CMeshManipulator::createMeshWithTangents(IMesh* mesh, bool recalculateNormals, bool smooth, bool angleWeighted, bool calculateTangents) const
+boost::shared_ptr<IMesh> CMeshManipulator::createMeshWithTangents(boost::shared_ptr<IMesh> mesh, bool recalculateNormals, bool smooth, bool angleWeighted, bool calculateTangents) const
 {
 	if (!mesh)
 		return 0;
 
 	// copy mesh and fill data into SMeshBufferTangents
 
-	SMesh* clone = new SMesh();
+	boost::shared_ptr<SMesh> clone = boost::make_shared<SMesh>();
 	const u32 meshBufferCount = mesh->getMeshBufferCount();
 
 	for (u32 b=0; b<meshBufferCount; ++b)
@@ -1020,14 +1020,14 @@ IMesh* CMeshManipulator::createMeshWithTangents(IMesh* mesh, bool recalculateNor
 
 //! Creates a copy of the mesh, which will only consist of S3DVertex2TCoords vertices.
 // not yet 32bit
-IMesh* CMeshManipulator::createMeshWith2TCoords(IMesh* mesh) const
+boost::shared_ptr<IMesh> CMeshManipulator::createMeshWith2TCoords(boost::shared_ptr<IMesh> mesh) const
 {
 	if (!mesh)
 		return 0;
 
 	// copy mesh and fill data into SMeshBufferLightMap
 
-	SMesh* clone = new SMesh();
+	boost::shared_ptr<SMesh> clone = boost::make_shared<SMesh>();
 	const u32 meshBufferCount = mesh->getMeshBufferCount();
 
 	for (u32 b=0; b<meshBufferCount; ++b)
@@ -1105,13 +1105,13 @@ IMesh* CMeshManipulator::createMeshWith2TCoords(IMesh* mesh) const
 
 //! Creates a copy of the mesh, which will only consist of S3DVertex vertices.
 // not yet 32bit
-IMesh* CMeshManipulator::createMeshWith1TCoords(IMesh* mesh) const
+boost::shared_ptr<IMesh> CMeshManipulator::createMeshWith1TCoords(boost::shared_ptr<IMesh> mesh) const
 {
 	if (!mesh)
 		return 0;
 
 	// copy mesh and fill data into SMeshBuffer
-	SMesh* clone = new SMesh();
+	boost::shared_ptr<SMesh> clone = boost::make_shared<SMesh>();
 	const u32 meshBufferCount = mesh->getMeshBufferCount();
 
 	for (u32 b=0; b<meshBufferCount; ++b)
@@ -1186,7 +1186,7 @@ IMesh* CMeshManipulator::createMeshWith1TCoords(IMesh* mesh) const
 
 
 //! Returns amount of polygons in mesh.
-s32 CMeshManipulator::getPolyCount(scene::IMesh* mesh) const
+s32 CMeshManipulator::getPolyCount(boost::shared_ptr<scene::IMesh> mesh) const
 {
 	if (!mesh)
 		return 0;
@@ -1201,7 +1201,7 @@ s32 CMeshManipulator::getPolyCount(scene::IMesh* mesh) const
 
 
 //! Returns amount of polygons in mesh.
-s32 CMeshManipulator::getPolyCount(scene::IAnimatedMesh* mesh) const
+s32 CMeshManipulator::getPolyCount(boost::shared_ptr<scene::IAnimatedMesh> mesh) const
 {
 	if (mesh && mesh->getFrameCount() != 0)
 		return getPolyCount(mesh->getMesh(0));
@@ -1211,7 +1211,7 @@ s32 CMeshManipulator::getPolyCount(scene::IAnimatedMesh* mesh) const
 
 
 //! create a new AnimatedMesh and adds the mesh to it
-IAnimatedMesh * CMeshManipulator::createAnimatedMesh(scene::IMesh* mesh, scene::E_ANIMATED_MESH_TYPE type) const
+IAnimatedMesh * CMeshManipulator::createAnimatedMesh(boost::shared_ptr<scene::IMesh> mesh, scene::E_ANIMATED_MESH_TYPE type) const
 {
 	return new SAnimatedMesh(mesh, type);
 }
@@ -1391,12 +1391,12 @@ http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
 The function is thread-safe (read: you can optimize several meshes in different threads)
 
 \param mesh Source mesh for the operation.  */
-IMesh* CMeshManipulator::createForsythOptimizedMesh(const IMesh *mesh) const
+boost::shared_ptr<IMesh> CMeshManipulator::createForsythOptimizedMesh(const boost::shared_ptr<IMesh> mesh) const
 {
 	if (!mesh)
 		return 0;
 
-	SMesh *newmesh = new SMesh();
+	boost::shared_ptr<SMesh> newmesh = boost::make_shared<SMesh>();
 	newmesh->BoundingBox = mesh->getBoundingBox();
 
 	const u32 mbcount = mesh->getMeshBufferCount();
@@ -1408,7 +1408,6 @@ IMesh* CMeshManipulator::createForsythOptimizedMesh(const IMesh *mesh) const
 		if (mb->getIndexType() != video::EIT_16BIT)
 		{
 			os::Printer::log("Cannot optimize a mesh with 32bit indices", ELL_ERROR);
-			newmesh->drop();
 			return 0;
 		}
 

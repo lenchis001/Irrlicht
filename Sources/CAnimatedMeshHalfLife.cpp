@@ -183,14 +183,13 @@ bool CHalflifeMDLMeshFileLoader::isALoadableFileExtension(const io::path& filena
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-IAnimatedMesh* CHalflifeMDLMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CHalflifeMDLMeshFileLoader::createMesh(io::IReadFile* file)
 {
-	CAnimatedMeshHalfLife* msh = new CAnimatedMeshHalfLife();
+	boost::shared_ptr<CAnimatedMeshHalfLife> msh = boost::make_shared<CAnimatedMeshHalfLife>();
 	if (msh)
 	{
 		if (msh->loadModelFile(file, SceneManager))
 			return msh;
-		msh->drop();
 	}
 
 	return 0;
@@ -245,9 +244,6 @@ CAnimatedMeshHalfLife::~CAnimatedMeshHalfLife()
 
 	for (u32 i = 0; i < 32; ++i)
 		delete [] (u8*) AnimationHeader[i];
-
-	if (MeshIPol)
-		MeshIPol->drop();
 }
 
 
@@ -708,7 +704,7 @@ void CAnimatedMeshHalfLife::renderModel(u32 param, IVideoDriver * driver, const 
 
 
 //! Returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail.
-IMesh* CAnimatedMeshHalfLife::getMesh(s32 frameInt, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
+boost::shared_ptr<IMesh> CAnimatedMeshHalfLife::getMesh(s32 frameInt, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
 {
 	f32 frame = frameInt + (detailLevel * 0.001f);
 	u32 frameA = core::floor32 ( frame );
@@ -776,7 +772,7 @@ void CAnimatedMeshHalfLife::initData ()
 	FrameCount = 0;
 
 	if (!MeshIPol)
-		MeshIPol = new SMesh();
+		MeshIPol = boost::make_shared<SMesh>();
 	MeshIPol->clear();
 
 #ifdef HL_TEXTURE_ATLAS

@@ -469,7 +469,7 @@ namespace video
 		//! Create occlusion query.
 		/** Use node for identification and mesh for occlusion test. */
 		virtual void addOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node,
-				const scene::IMesh* mesh=0) =0;
+				boost::shared_ptr<const scene::IMesh> mesh=0) =0;
 
 		//! Remove occlusion query.
 		virtual void removeOcclusionQuery(boost::shared_ptr<scene::ISceneNode> node) =0;

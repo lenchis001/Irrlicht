@@ -26,7 +26,7 @@ namespace scene
 
 
 //! constructor
-CAnimatedMeshSceneNode::CAnimatedMeshSceneNode(IAnimatedMesh* mesh,
+CAnimatedMeshSceneNode::CAnimatedMeshSceneNode(boost::shared_ptr<IAnimatedMesh> mesh,
 		boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 		const core::vector3df& position,
 		const core::vector3df& rotation,
@@ -50,14 +50,6 @@ CAnimatedMeshSceneNode::CAnimatedMeshSceneNode(IAnimatedMesh* mesh,
 //! destructor
 CAnimatedMeshSceneNode::~CAnimatedMeshSceneNode()
 {
-	if (MD3Special)
-		MD3Special->drop();
-
-	if (Mesh)
-		Mesh->drop();
-
-	if (LoopCallBack)
-		LoopCallBack->drop();
 }
 
 
@@ -182,7 +174,7 @@ void CAnimatedMeshSceneNode::OnRegisterSceneNode()
 	}
 }
 
-IMesh * CAnimatedMeshSceneNode::getMeshForCurrentFrame()
+boost::shared_ptr<IMesh>  CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 {
 	if(Mesh->getMeshType() != EAMT_SKINNED)
 	{
@@ -199,7 +191,7 @@ IMesh * CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 		// As multiple scene nodes may be sharing the same skinned mesh, we have to
 		// re-animate it every frame to ensure that this node gets the mesh that it needs.
 
-		CSkinnedMesh* skinnedMesh = reinterpret_cast<CSkinnedMesh*>(Mesh);
+		boost::shared_ptr<CSkinnedMesh> skinnedMesh = boost::reinterpret_pointer_cast<CSkinnedMesh>(Mesh);
 
 		if (JointMode == EJUOR_CONTROL)//write to mesh
 			skinnedMesh->transferJointsToMesh(JointChildSceneNodes);
@@ -247,7 +239,7 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 	// update bbox
 	if (Mesh)
 	{
-		scene::IMesh * mesh = getMeshForCurrentFrame();
+		boost::shared_ptr<scene::IMesh>  mesh = getMeshForCurrentFrame();
 
 		if (mesh)
 			Box = mesh->getBoundingBox();
@@ -272,7 +264,7 @@ void CAnimatedMeshSceneNode::render()
 
 	++PassCount;
 
-	scene::IMesh* m = getMeshForCurrentFrame();
+	boost::shared_ptr<scene::IMesh> m = getMeshForCurrentFrame();
 
 	if(m)
 	{
@@ -392,9 +384,9 @@ void CAnimatedMeshSceneNode::render()
 			{
 				// draw skeleton
 
-				for (u32 g=0; g < ((ISkinnedMesh*)Mesh)->getAllJoints().size(); ++g)
+				for (u32 g=0; g < boost::static_pointer_cast<ISkinnedMesh>(Mesh)->getAllJoints().size(); ++g)
 				{
-					ISkinnedMesh::SJoint *joint=((ISkinnedMesh*)Mesh)->getAllJoints()[g];
+					ISkinnedMesh::SJoint *joint= boost::static_pointer_cast<ISkinnedMesh>(Mesh)->getAllJoints()[g];
 
 					for (u32 n=0;n<joint->Children.size();++n)
 					{
@@ -408,7 +400,7 @@ void CAnimatedMeshSceneNode::render()
 			// show tag for quake3 models
 			if (Mesh->getMeshType() == EAMT_MD3)
 			{
-				IAnimatedMesh * arrow =
+				boost::shared_ptr<IAnimatedMesh> arrow =
 					SceneManager->addArrowMesh (
 							"__tag_show",
 							0xFF0000FF, 0xFF000088,
@@ -418,11 +410,11 @@ void CAnimatedMeshSceneNode::render()
 				{
 					arrow = SceneManager->getMesh ( "__tag_show" );
 				}
-				IMesh *arrowMesh = arrow->getMesh(0);
+				boost::shared_ptr<IMesh> arrowMesh = arrow->getMesh(0);
 
 				core::matrix4 matr;
 
-				SMD3QuaternionTagList *taglist = ((IAnimatedMeshMD3*)Mesh)->getTagList(
+				SMD3QuaternionTagList *taglist = boost::static_pointer_cast<IAnimatedMeshMD3>(Mesh)->getTagList(
 						(s32)getFrameNr(), 255,
 						getStartFrame(), getEndFrame());
 				if (taglist)
@@ -545,7 +537,7 @@ u32 CAnimatedMeshSceneNode::getMaterialCount() const
 //! Creates shadow volume scene node as child of this node
 //! and returns a pointer to it.
 boost::shared_ptr<IShadowVolumeSceneNode> CAnimatedMeshSceneNode::addShadowVolumeSceneNode(
-		const IMesh* shadowMesh, s32 id, bool zfailmethod, f32 infinity)
+		boost::shared_ptr<const IMesh> shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
 	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
 		return 0;
@@ -576,7 +568,7 @@ boost::shared_ptr<IBoneSceneNode> CAnimatedMeshSceneNode::getJointNode(const c8*
 
 	checkJoints();
 
-	ISkinnedMesh *skinnedMesh=(ISkinnedMesh*)Mesh;
+	boost::shared_ptr<ISkinnedMesh> skinnedMesh=boost::static_pointer_cast<ISkinnedMesh>(Mesh);
 
 	const s32 number = skinnedMesh->getJointNumber(jointName);
 
@@ -635,7 +627,7 @@ u32 CAnimatedMeshSceneNode::getJointCount() const
 	if (!Mesh || Mesh->getMeshType() != EAMT_SKINNED)
 		return 0;
 
-	ISkinnedMesh *skinnedMesh=(ISkinnedMesh*)Mesh;
+	boost::shared_ptr<ISkinnedMesh> skinnedMesh= boost::static_pointer_cast<ISkinnedMesh>(Mesh);
 
 	return skinnedMesh->getJointCount();
 #endif
@@ -693,7 +685,7 @@ bool CAnimatedMeshSceneNode::setMD2Animation(EMD2_ANIMATION_TYPE anim)
 	if (!Mesh || Mesh->getMeshType() != EAMT_MD2)
 		return false;
 
-	IAnimatedMeshMD2* md = (IAnimatedMeshMD2*)Mesh;
+	boost::shared_ptr<IAnimatedMeshMD2> md = boost::static_pointer_cast<IAnimatedMeshMD2>(Mesh);
 
 	s32 begin, end, speed;
 	md->getFrameLoop(anim, begin, end, speed);
@@ -710,7 +702,7 @@ bool CAnimatedMeshSceneNode::setMD2Animation(const c8* animationName)
 	if (!Mesh || Mesh->getMeshType() != EAMT_MD2)
 		return false;
 
-	IAnimatedMeshMD2* md = (IAnimatedMeshMD2*)Mesh;
+	boost::shared_ptr<IAnimatedMeshMD2> md = boost::static_pointer_cast<IAnimatedMeshMD2>(Mesh);
 
 	s32 begin, end, speed;
 	if (!md->getFrameLoop(animationName, begin, end, speed))
@@ -738,18 +730,12 @@ bool CAnimatedMeshSceneNode::getLoopMode() const
 
 //! Sets a callback interface which will be called if an animation
 //! playback has ended. Set this to 0 to disable the callback again.
-void CAnimatedMeshSceneNode::setAnimationEndCallback(IAnimationEndCallBack* callback)
+void CAnimatedMeshSceneNode::setAnimationEndCallback(boost::shared_ptr<IAnimationEndCallBack>  callback)
 {
 	if (callback == LoopCallBack)
 		return;
 
-	if (LoopCallBack)
-		LoopCallBack->drop();
-
 	LoopCallBack = callback;
-
-	if (LoopCallBack)
-		LoopCallBack->grab();
 }
 
 
@@ -805,7 +791,7 @@ void CAnimatedMeshSceneNode::deserializeAttributes(io::IAttributes* in, io::SAtt
 
 	if (newMeshStr != "" && oldMeshStr != newMeshStr)
 	{
-		IAnimatedMesh* newAnimatedMesh = SceneManager->getMesh(newMeshStr.c_str());
+		boost::shared_ptr<IAnimatedMesh> newAnimatedMesh = SceneManager->getMesh(newMeshStr.c_str());
 
 		if (newAnimatedMesh)
 			setMesh(newAnimatedMesh);
@@ -816,26 +802,20 @@ void CAnimatedMeshSceneNode::deserializeAttributes(io::IAttributes* in, io::SAtt
 
 
 //! Sets a new mesh
-void CAnimatedMeshSceneNode::setMesh(IAnimatedMesh* mesh)
+void CAnimatedMeshSceneNode::setMesh(boost::shared_ptr<IAnimatedMesh> mesh)
 {
 	if (!mesh)
 		return; // won't set null mesh
 
 	if (Mesh != mesh)
 	{
-		if (Mesh)
-			Mesh->drop();
-
 		Mesh = mesh;
-
-		// grab the mesh (it's non-null!)
-		Mesh->grab();
 	}
 
 	// get materials and bounding box
 	Box = Mesh->getBoundingBox();
 
-	IMesh* m = Mesh->getMesh(0,0);
+	boost::shared_ptr<IMesh> m = Mesh->getMesh(0,0);
 	if (m)
 	{
 		Materials.clear();
@@ -881,12 +861,12 @@ void CAnimatedMeshSceneNode::updateAbsolutePosition()
 		return;
 
 	SMD3QuaternionTagList *taglist;
-	taglist = ( (IAnimatedMeshMD3*) Mesh )->getTagList ( (s32)getFrameNr(),255,getStartFrame (),getEndFrame () );
+	taglist = boost::static_pointer_cast<IAnimatedMeshMD3>(Mesh)->getTagList ( (s32)getFrameNr(),255,getStartFrame (),getEndFrame () );
 	if (taglist)
 	{
 		if (!MD3Special)
 		{
-			MD3Special = new SMD3Special();
+			MD3Special = boost::make_shared<SMD3Special>();
 		}
 
 		SMD3QuaternionTag parent ( MD3Special->Tagname );
@@ -950,7 +930,7 @@ void CAnimatedMeshSceneNode::animateJoints(bool CalculateAbsolutePositions)
 		checkJoints();
 		const f32 frame = getFrameNr(); //old?
 
-		CSkinnedMesh* skinnedMesh=reinterpret_cast<CSkinnedMesh*>(Mesh);
+		boost::shared_ptr<CSkinnedMesh> skinnedMesh=boost::reinterpret_pointer_cast<CSkinnedMesh>(Mesh);
 
 		skinnedMesh->transferOnlyJointsHintsToMesh( JointChildSceneNodes );
 		skinnedMesh->animateMesh(frame, 1.0f);
@@ -1037,8 +1017,8 @@ void CAnimatedMeshSceneNode::checkJoints()
 		JointChildSceneNodes.clear();
 
 		//Create joints for SkinnedMesh
-		((CSkinnedMesh*)Mesh)->addJoints(JointChildSceneNodes, getSharedThis<IAnimatedMeshSceneNode>(), SceneManager);
-		((CSkinnedMesh*)Mesh)->recoverJointsFromMesh(JointChildSceneNodes);
+		boost::static_pointer_cast<CSkinnedMesh>(Mesh)->addJoints(JointChildSceneNodes, getSharedThis<IAnimatedMeshSceneNode>(), SceneManager);
+		boost::static_pointer_cast<CSkinnedMesh>(Mesh)->recoverJointsFromMesh(JointChildSceneNodes);
 
 		JointsUsed=true;
 		JointMode=EJUOR_READ;
@@ -1108,8 +1088,6 @@ boost::shared_ptr<ISceneNode> CAnimatedMeshSceneNode::clone(boost::shared_ptr<IS
 	newNode->Looping = Looping;
 	newNode->ReadOnlyMaterials = ReadOnlyMaterials;
 	newNode->LoopCallBack = LoopCallBack;
-	if (newNode->LoopCallBack)
-		newNode->LoopCallBack->grab();
 	newNode->PassCount = PassCount;
 	newNode->Shadow = Shadow;
 	newNode->JointChildSceneNodes = JointChildSceneNodes;

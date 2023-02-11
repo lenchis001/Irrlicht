@@ -101,7 +101,7 @@ namespace irr
 
 		//! Provides access to the cursor control.
 		/** \return Pointer to the mouse cursor control interface. */
-		virtual gui::ICursorControl* getCursorControl() = 0;
+		virtual boost::shared_ptr<gui::ICursorControl> getCursorControl() = 0;
 
 		//! Provides access to the message logger.
 		/** \return Pointer to the logger. */

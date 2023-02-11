@@ -32,8 +32,6 @@ CSphereSceneNode::CSphereSceneNode(f32 radius, u32 polyCountX, u32 polyCountY, b
 //! destructor
 CSphereSceneNode::~CSphereSceneNode()
 {
-	if (Mesh)
-		Mesh->drop();
 }
 
 
@@ -78,7 +76,7 @@ bool CSphereSceneNode::removeChild(boost::shared_ptr<ISceneNode> child)
 //! Creates shadow volume scene node as child of this node
 //! and returns a pointer to it.
 boost::shared_ptr<IShadowVolumeSceneNode> CSphereSceneNode::addShadowVolumeSceneNode(
-		const IMesh* shadowMesh, s32 id, bool zfailmethod, f32 infinity)
+		boost::shared_ptr<const IMesh> shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
 	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
 		return 0;
@@ -158,8 +156,6 @@ void CSphereSceneNode::deserializeAttributes(io::IAttributes* in, io::SAttribute
 
 	if ( !core::equals(Radius, oldRadius) || PolyCountX != oldPolyCountX || PolyCountY != oldPolyCountY)
 	{
-		if (Mesh)
-			Mesh->drop();
 		Mesh = SceneManager->getGeometryCreator()->createSphereMesh(Radius, PolyCountX, PolyCountY);
 	}
 

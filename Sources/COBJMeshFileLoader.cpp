@@ -61,7 +61,7 @@ bool COBJMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> COBJMeshFileLoader::createMesh(io::IReadFile* file)
 {
 	const long filesize = file->getSize();
 	if (!filesize)
@@ -275,7 +275,7 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 		bufPtr = goNextLine(bufPtr, bufEnd);
 	}	// end while(bufPtr && (bufPtr-buf<filesize))
 
-	SMesh* mesh = new SMesh();
+	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
 
 	// Combine all the groups (meshbuffers) into the mesh
 	for ( u32 m = 0; m < Materials.size(); ++m )
@@ -287,11 +287,10 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 				SceneManager->getMeshManipulator()->recalculateNormals(Materials[m]->Meshbuffer);
 			if (Materials[m]->Meshbuffer->Material.MaterialType == video::EMT_PARALLAX_MAP_SOLID)
 			{
-				SMesh tmp;
-				tmp.addMeshBuffer(Materials[m]->Meshbuffer);
-				IMesh* tangentMesh = SceneManager->getMeshManipulator()->createMeshWithTangents(&tmp);
+				boost::shared_ptr<SMesh> tmp = boost::make_shared<SMesh>();
+				tmp->addMeshBuffer(Materials[m]->Meshbuffer);
+				boost::shared_ptr<IMesh> tangentMesh = SceneManager->getMeshManipulator()->createMeshWithTangents(tmp);
 				mesh->addMeshBuffer(tangentMesh->getMeshBuffer(0));
-				tangentMesh->drop();
 			}
 			else
 				mesh->addMeshBuffer( Materials[m]->Meshbuffer );
@@ -299,11 +298,11 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 	}
 
 	// Create the Animated mesh if there's anything in the mesh
-	SAnimatedMesh* animMesh = 0;
+	boost::shared_ptr<SAnimatedMesh> animMesh = 0;
 	if ( 0 != mesh->getMeshBufferCount() )
 	{
 		mesh->recalculateBoundingBox();
-		animMesh = new SAnimatedMesh();
+		animMesh = boost::make_shared<SAnimatedMesh>();
 		animMesh->Type = EAMT_OBJ;
 		animMesh->addMesh(mesh);
 		animMesh->recalculateBoundingBox();
@@ -313,7 +312,6 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 	delete [] buf;
 	// more cleaning up
 	cleanUp();
-	mesh->drop();
 
 	return animMesh;
 }
