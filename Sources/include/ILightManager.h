@@ -22,7 +22,7 @@ namespace scene
 	ILightManager implementation will store any data that it wishes to
 	retain, i.e. the ISceneManager to which it is assigned, the lightList,
 	the current render pass, and the current scene node. */
-	class ILightManager : public IReferenceCounted
+	class ILightManager : public IDebugable
 	{
 	public:
 		//! Called after the scene's light list has been built, but before rendering has begun.

@@ -60,25 +60,25 @@ IImageLoader* createImageLoaderRGB();
 
 
 //! creates a writer which is able to save bmp images
-IImageWriter* createImageWriterBMP();
+boost::shared_ptr<IImageWriter> createImageWriterBMP();
 
 //! creates a writer which is able to save jpg images
-IImageWriter* createImageWriterJPG();
+boost::shared_ptr<IImageWriter> createImageWriterJPG();
 
 //! creates a writer which is able to save tga images
-IImageWriter* createImageWriterTGA();
+boost::shared_ptr<IImageWriter> createImageWriterTGA();
 
 //! creates a writer which is able to save psd images
-IImageWriter* createImageWriterPSD();
+boost::shared_ptr<IImageWriter> createImageWriterPSD();
 
 //! creates a writer which is able to save pcx images
-IImageWriter* createImageWriterPCX();
+boost::shared_ptr<IImageWriter> createImageWriterPCX();
 
 //! creates a writer which is able to save png images
-IImageWriter* createImageWriterPNG();
+boost::shared_ptr<IImageWriter> createImageWriterPNG();
 
 //! creates a writer which is able to save ppm images
-IImageWriter* createImageWriterPPM();
+boost::shared_ptr<IImageWriter> createImageWriterPPM();
 
 //! constructor
 CNullDriver::CNullDriver(io::IFileSystem* io, const core::dimension2d<u32>& screenSize)
@@ -217,9 +217,6 @@ CNullDriver::~CNullDriver()
 	for (i=0; i<SurfaceLoader.size(); ++i)
 		SurfaceLoader[i]->drop();
 
-	for (i=0; i<SurfaceWriter.size(); ++i)
-		SurfaceWriter[i]->drop();
-
 	// delete material renderers
 	deleteMaterialRenders();
 
@@ -240,12 +237,11 @@ void CNullDriver::addExternalImageLoader(IImageLoader* loader)
 
 
 //! Adds an external surface writer to the engine.
-void CNullDriver::addExternalImageWriter(IImageWriter* writer)
+void CNullDriver::addExternalImageWriter(boost::shared_ptr<IImageWriter> writer)
 {
 	if (!writer)
 		return;
 
-	writer->grab();
 	SurfaceWriter.push_back(writer);
 }
 
@@ -274,7 +270,7 @@ u32 CNullDriver::getImageWriterCount() const
 
 
 //! Retrieve the given image writer
-IImageWriter* CNullDriver::getImageWriter(u32 n)
+boost::shared_ptr<IImageWriter> CNullDriver::getImageWriter(u32 n)
 {
 	if (n < SurfaceWriter.size())
 		return SurfaceWriter[n];

@@ -226,7 +226,7 @@ void CSceneManager::setWeakThis(boost::shared_ptr<CSceneManager> value)
 	CollisionManager = new CSceneCollisionManager(SceneManager, Driver);
 
 	// create geometry creator
-	GeometryCreator = new CGeometryCreator();
+	GeometryCreator = boost::make_shared<CGeometryCreator>();
 
 	// add file format loaders. add the least commonly used ones first,
 	// as these are checked last
@@ -332,9 +332,6 @@ CSceneManager::~CSceneManager()
 	if (CollisionManager)
 		CollisionManager->drop();
 
-	if (GeometryCreator)
-		GeometryCreator->drop();
-
 	if (GUIEnvironment)
 		GUIEnvironment->drop();
 
@@ -355,9 +352,6 @@ CSceneManager::~CSceneManager()
 
 	for (i=0; i<SceneNodeAnimatorFactoryList.size(); ++i)
 		SceneNodeAnimatorFactoryList[i]->drop();
-
-	if (LightManager)
-		LightManager->drop();
 
 	// remove all nodes and animators before dropping the driver
 	// as render targets may be destroyed twice
@@ -1608,13 +1602,8 @@ void CSceneManager::drawAll()
 	CurrentRendertime = ESNRP_NONE;
 }
 
-void CSceneManager::setLightManager(ILightManager* lightManager)
+void CSceneManager::setLightManager(boost::shared_ptr<ILightManager> lightManager)
 {
-	if (lightManager)
-		lightManager->grab();
-	if (LightManager)
-		LightManager->drop();
-
 	LightManager = lightManager;
 }
 

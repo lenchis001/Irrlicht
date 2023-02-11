@@ -194,9 +194,9 @@ namespace irr
 namespace video
 {
 
-IImageWriter* createImageWriterJPG()
+boost::shared_ptr<IImageWriter> createImageWriterJPG()
 {
-	return new CImageWriterJPG;
+	return boost::make_shared<CImageWriterJPG>();
 }
 
 CImageWriterJPG::CImageWriterJPG()

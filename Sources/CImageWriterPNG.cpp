@@ -25,9 +25,9 @@ namespace irr
 namespace video
 {
 
-IImageWriter* createImageWriterPNG()
+boost::shared_ptr<IImageWriter> createImageWriterPNG()
 {
-	return new CImageWriterPNG;
+	return boost::make_shared<CImageWriterPNG>();
 }
 
 #ifdef _IRR_COMPILE_WITH_LIBPNG_

@@ -24,7 +24,7 @@ namespace gui
 
 	public:
 		//! constructor
-		CGUITreeViewNode( CGUITreeView* owner, CGUITreeViewNode* parent );
+		CGUITreeViewNode( CGUITreeView* owner, boost::shared_ptr<CGUITreeViewNode> parent );
 
 		//! destructor
 		~CGUITreeViewNode();
@@ -33,7 +33,7 @@ namespace gui
 		virtual IGUITreeView* getOwner() const;
 
 		//! Returns the parent node of this node.
-		virtual IGUITreeViewNode* getParent() const;
+		virtual boost::shared_ptr<IGUITreeViewNode> getParent() const;
 
 		//! returns the text of the node
 		virtual const wchar_t* getText() const
@@ -111,7 +111,7 @@ namespace gui
 		//! \param data2 user data2 (IReferenceCounted*) of the new node
 		//! \return
 		//! returns the new node
-		virtual IGUITreeViewNode* addChildBack(
+		virtual boost::shared_ptr<IGUITreeViewNode> addChildBack(
 				const wchar_t* text,
 				const wchar_t* icon = 0,
 				s32 imageIndex = -1,
@@ -128,7 +128,7 @@ namespace gui
 		//! \param data2 user data2 (IReferenceCounted*) of the new node
 		//! \return
 		//! returns the new node
-		virtual IGUITreeViewNode* addChildFront(
+		virtual boost::shared_ptr<IGUITreeViewNode> addChildFront(
 				const wchar_t*		text,
 				const wchar_t*		icon = 0,
 				s32					imageIndex = -1,
@@ -146,8 +146,8 @@ namespace gui
 		//! \param data2 user data2 (IReferenceCounted*) of the new node
 		//! \return
 		//! returns the new node or 0 if other is no child node from this
-		virtual IGUITreeViewNode* insertChildAfter(
-				IGUITreeViewNode*	other,
+		virtual boost::shared_ptr<IGUITreeViewNode> insertChildAfter(
+				boost::shared_ptr<IGUITreeViewNode>	other,
 				const wchar_t*		text,
 				const wchar_t*		icon = 0,
 				s32					imageIndex = -1,
@@ -165,8 +165,8 @@ namespace gui
 		//! \param data2 user data2 (IReferenceCounted*) of the new node
 		//! \return
 		//! returns the new node or 0 if other is no child node from this
-		virtual IGUITreeViewNode* insertChildBefore(
-				IGUITreeViewNode*	other,
+		virtual boost::shared_ptr<IGUITreeViewNode> insertChildBefore(
+				boost::shared_ptr<IGUITreeViewNode>	other,
 				const wchar_t*		text,
 				const wchar_t*		icon = 0,
 				s32					imageIndex = -1,
@@ -175,28 +175,28 @@ namespace gui
 				IReferenceCounted*			data2 = 0 );
 
 		//! Return the first child note from this node.
-		virtual IGUITreeViewNode* getFirstChild() const;
+		virtual boost::shared_ptr<IGUITreeViewNode> getFirstChild() const;
 
 		//! Return the last child note from this node.
-		virtual IGUITreeViewNode* getLastChild() const;
+		virtual boost::shared_ptr<IGUITreeViewNode> getLastChild() const;
 
 		//! Returns the preverse sibling node from this node.
-		virtual IGUITreeViewNode* getPrevSibling() const;
+		virtual boost::shared_ptr<IGUITreeViewNode> getPrevSibling() const;
 
 		//! Returns the next sibling node from this node.
-		virtual IGUITreeViewNode* getNextSibling() const;
+		virtual boost::shared_ptr<IGUITreeViewNode> getNextSibling() const;
 
 		//! Returns the next visible (expanded, may be out of scrolling) node from this node.
-		virtual IGUITreeViewNode* getNextVisible() const;
+		virtual boost::shared_ptr<IGUITreeViewNode> getNextVisible() const;
 
 		//! Deletes a child node.
-		virtual bool deleteChild( IGUITreeViewNode* child );
+		virtual bool deleteChild( boost::shared_ptr<IGUITreeViewNode> child );
 
 		//! Moves a child node one position up.
-		virtual bool moveChildUp( IGUITreeViewNode* child );
+		virtual bool moveChildUp( boost::shared_ptr<IGUITreeViewNode> child );
 
 		//! Moves a child node one position down.
-		virtual bool moveChildDown( IGUITreeViewNode* child );
+		virtual bool moveChildDown( boost::shared_ptr<IGUITreeViewNode> child );
 
 		//! Returns true if the node is expanded (children are visible).
 		virtual bool getExpanded() const
@@ -220,10 +220,17 @@ namespace gui
 		//! Returns true if this node is visible (all parents are expanded).
 		virtual bool isVisible() const;
 
+		void setWeakThis(boost::shared_ptr<CGUITreeViewNode> value);
+
 	private:
+		inline boost::shared_ptr<CGUITreeViewNode> getSharedThis() const {
+			assert(!WeakThis.expired());
+
+			return WeakThis.lock();
+		}
 
 		CGUITreeView*			Owner;
-		CGUITreeViewNode*		Parent;
+		boost::shared_ptr<CGUITreeViewNode>		Parent;
 		core::stringw			Text;
 		core::stringw			Icon;
 		s32				ImageIndex;
@@ -231,7 +238,9 @@ namespace gui
 		void*				Data;
 		IReferenceCounted*		Data2;
 		bool				Expanded;
-		core::list<CGUITreeViewNode*>	Children;
+		core::list<boost::shared_ptr<CGUITreeViewNode>>	Children;
+
+		boost::weak_ptr<CGUITreeViewNode> WeakThis;
 	};
 
 
@@ -250,11 +259,11 @@ namespace gui
 		virtual ~CGUITreeView();
 
 		//! returns the root node (not visible) from the tree.
-		virtual IGUITreeViewNode* getRoot() const
+		virtual boost::shared_ptr<IGUITreeViewNode> getRoot() const
 		{ return Root; }
 
 		//! returns the selected node of the tree or 0 if none is selected
-		virtual IGUITreeViewNode* getSelected() const
+		virtual boost::shared_ptr<IGUITreeViewNode> getSelected() const
 		{ return Selected; }
 
 		//! returns true if the tree lines are visible
@@ -294,7 +303,7 @@ namespace gui
 		{ return ImageLeftOfIcon; }
 
 		//! Returns the node which is associated to the last event.
-		virtual IGUITreeViewNode* getLastEventNode() const
+		virtual boost::shared_ptr<IGUITreeViewNode> getLastEventNode() const
 		{ return LastEventNode; }
 
 	private:
@@ -304,8 +313,8 @@ namespace gui
 		//! executes an mouse action (like selectNew of CGUIListBox)
 		void mouseAction( s32 xpos, s32 ypos, bool onlyHover = false );
 
-		CGUITreeViewNode*	Root;
-		IGUITreeViewNode*	Selected;
+		boost::shared_ptr<CGUITreeViewNode>	Root;
+		boost::shared_ptr<IGUITreeViewNode>	Selected;
 		s32			ItemHeight;
 		s32			IndentWidth;
 		s32			TotalItemHeight;
@@ -315,7 +324,7 @@ namespace gui
 		IGUIScrollBar*		ScrollBarH;
 		IGUIScrollBar*		ScrollBarV;
 		IGUIImageList*		ImageList;
-		IGUITreeViewNode*	LastEventNode;
+		boost::shared_ptr<IGUITreeViewNode>	LastEventNode;
 		bool			LinesVisible;
 		bool			Selecting;
 		bool			Clip;

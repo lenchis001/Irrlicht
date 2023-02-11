@@ -16,9 +16,9 @@ namespace irr
 namespace video
 {
 
-IImageWriter* createImageWriterTGA()
+boost::shared_ptr<IImageWriter> createImageWriterTGA()
 {
-	return new CImageWriterTGA;
+	return boost::make_shared<CImageWriterTGA>();
 }
 
 CImageWriterTGA::CImageWriterTGA()

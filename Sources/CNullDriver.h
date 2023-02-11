@@ -77,7 +77,7 @@ namespace video
 		virtual u32 getImageWriterCount() const;
 
 		//! Retrieve the given image writer
-		virtual IImageWriter* getImageWriter(u32 n);
+		virtual boost::shared_ptr<IImageWriter> getImageWriter(u32 n);
 
 		//! sets a material
 		virtual void setMaterial(const SMaterial& material);
@@ -279,7 +279,7 @@ namespace video
 		virtual void addExternalImageLoader(IImageLoader* loader);
 
 		//! Adds an external image writer to the engine.
-		virtual void addExternalImageWriter(IImageWriter* writer);
+		virtual void addExternalImageWriter(boost::shared_ptr<IImageWriter> writer);
 
 		//! Draws a shadow volume into the stencil buffer. To draw a stencil shadow, do
 		//! this: Frist, draw all geometry. Then use this method, to draw the shadow
@@ -795,7 +795,7 @@ namespace video
 		core::array<SOccQuery> OcclusionQueries;
 
 		core::array<video::IImageLoader*> SurfaceLoader;
-		core::array<video::IImageWriter*> SurfaceWriter;
+		core::array<boost::shared_ptr<video::IImageWriter>> SurfaceWriter;
 		core::array<SLight> Lights;
 		core::array<SMaterialRenderer> MaterialRenderers;
 

@@ -22,7 +22,7 @@ namespace scene
 
 //! Helper class for creating geometry on the fly.
 /** You can get an instance of this class through ISceneManager::getGeometryCreator() */
-class IGeometryCreator : public IReferenceCounted
+class IGeometryCreator : public IDebugable
 {
 public:
 

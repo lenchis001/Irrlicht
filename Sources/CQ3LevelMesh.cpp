@@ -607,14 +607,14 @@ void CQ3LevelMesh::parser_parse( const void * data, const u32 size, CQ3LevelMesh
 	Parser.sourcesize = size;
 	Parser.index = 0;
 
-	SVarGroupList *groupList;
+	boost::shared_ptr<SVarGroupList> groupList;
 
 	s32 active;
 	s32 last;
 
 	SVariable entity ( "" );
 
-	groupList = new SVarGroupList();
+	groupList = boost::make_shared<SVarGroupList>();
 
 	groupList->VariableGroup.push_back( SVarGroup() );
 	active = last = 0;
@@ -677,8 +677,7 @@ void CQ3LevelMesh::parser_parse( const void * data, const u32 size, CQ3LevelMesh
 					(this->*callback)( groupList, Q3_TOKEN_END_LIST );
 
 					// new group
-					groupList->drop();
-					groupList = new SVarGroupList();
+					groupList = boost::make_shared<SVarGroupList>();
 					groupList->VariableGroup.push_back( SVarGroup() );
 					last = 0;
 				}
@@ -695,8 +694,6 @@ void CQ3LevelMesh::parser_parse( const void * data, const u32 size, CQ3LevelMesh
 	} while ( Parser.tokenresult != Q3_TOKEN_EOF );
 
 	(this->*callback)( groupList, Q3_TOKEN_EOF );
-
-	groupList->drop();
 }
 
 
@@ -1048,7 +1045,7 @@ void CQ3LevelMesh::constructMesh()
 
 	}
 
-	s32 i, j;
+	s32 i;
 
 	// First the main level
 	boost::shared_array<boost::shared_ptr<scene::SMesh>> tmp = buildMesh(0);
@@ -1616,7 +1613,7 @@ void CQ3LevelMesh::InitShader()
 
 	group.Variable.push_back( variable );
 
-	element.VarGroup = new SVarGroupList();
+	element.VarGroup = boost::make_shared<SVarGroupList>();
 	element.VarGroup->VariableGroup.push_back( group );
 	element.VarGroup->VariableGroup.push_back( SVarGroup() );
 	element.name = element.VarGroup->VariableGroup[0].Variable[0].name;
@@ -1662,10 +1659,6 @@ void CQ3LevelMesh::InitShader()
 //! i'm having troubles with the reference counting, during callback.. resorting..
 void CQ3LevelMesh::ReleaseShader()
 {
-	for ( u32 i = 0; i!= Shader.size(); ++i )
-	{
-		Shader[i].VarGroup->drop();
-	}
 	Shader.clear();
 	ShaderFile.clear();
 }
@@ -1675,16 +1668,12 @@ void CQ3LevelMesh::ReleaseShader()
 */
 void CQ3LevelMesh::ReleaseEntity()
 {
-	for ( u32 i = 0; i!= Entity.size(); ++i )
-	{
-		Entity[i].VarGroup->drop();
-	}
 	Entity.clear();
 }
 
 
 // config in simple (quake3) and advanced style
-void CQ3LevelMesh::scriptcallback_config( SVarGroupList *& grouplist, eToken token )
+void CQ3LevelMesh::scriptcallback_config( boost::shared_ptr<SVarGroupList> & grouplist, eToken token )
 {
 	IShader element;
 
@@ -1703,7 +1692,6 @@ void CQ3LevelMesh::scriptcallback_config( SVarGroupList *& grouplist, eToken tok
 		element.name = "configuration";
 	}
 
-	grouplist->grab();
 	element.VarGroup = grouplist;
 	element.ID = Entity.size();
 	Entity.push_back( element );
@@ -1711,12 +1699,10 @@ void CQ3LevelMesh::scriptcallback_config( SVarGroupList *& grouplist, eToken tok
 
 
 // entity only has only one valid level.. and no assoziative name..
-void CQ3LevelMesh::scriptcallback_entity( SVarGroupList *& grouplist, eToken token )
+void CQ3LevelMesh::scriptcallback_entity( boost::shared_ptr<SVarGroupList> & grouplist, eToken token )
 {
 	if ( token != Q3_TOKEN_END_LIST || grouplist->VariableGroup.size() != 2 )
 		return;
-
-	grouplist->grab();
 
 	IEntity element;
 	element.VarGroup = grouplist;
@@ -1729,7 +1715,7 @@ void CQ3LevelMesh::scriptcallback_entity( SVarGroupList *& grouplist, eToken tok
 
 
 //!. script callback for shaders
-void CQ3LevelMesh::scriptcallback_shader( SVarGroupList *& grouplist,eToken token )
+void CQ3LevelMesh::scriptcallback_shader( boost::shared_ptr<SVarGroupList> & grouplist,eToken token )
 {
 	if ( token != Q3_TOKEN_END_LIST || grouplist->VariableGroup[0].Variable.size()==0)
 		return;
@@ -1737,7 +1723,6 @@ void CQ3LevelMesh::scriptcallback_shader( SVarGroupList *& grouplist,eToken toke
 
 	IShader element;
 
-	grouplist->grab();
 	element.VarGroup = grouplist;
 	element.name = element.VarGroup->VariableGroup[0].Variable[0].name;
 	element.ID = Shader.size();

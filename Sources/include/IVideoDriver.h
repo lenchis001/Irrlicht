@@ -353,7 +353,7 @@ namespace video
 		/** \param n The index of the writer to retrieve. This parameter is an 0-based
 		array index.
 		\return A pointer to the specified writer, 0 if the index is incorrect. */
-		virtual IImageWriter* getImageWriter(u32 n) = 0;
+		virtual boost::shared_ptr<IImageWriter> getImageWriter(u32 n) = 0;
 
 		//! Sets a material.
 		/** All 3d drawing functions will draw geometry using this material thereafter.
@@ -1130,7 +1130,7 @@ namespace video
 		writing this file format. A pointer to the implementation can
 		be passed to the engine using this method.
 		\param writer: Pointer to the external writer created. */
-		virtual void addExternalImageWriter(IImageWriter* writer) =0;
+		virtual void addExternalImageWriter(boost::shared_ptr<IImageWriter> writer) =0;
 
 		//! Returns the maximum amount of primitives
 		/** (mostly vertices) which the device is able to render with

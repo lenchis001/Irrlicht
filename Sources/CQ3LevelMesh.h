@@ -447,15 +447,15 @@ namespace scene
 		SQ3Parser Parser;
 
 
-		typedef void( CQ3LevelMesh::*tParserCallback ) ( quake3::SVarGroupList *& groupList, eToken token );
+		typedef void( CQ3LevelMesh::*tParserCallback ) ( boost::shared_ptr<quake3::SVarGroupList> & groupList, eToken token );
 		void parser_parse( const void * data, u32 size, tParserCallback callback );
 		void parser_nextToken();
 
 		void dumpVarGroup( const quake3::SVarGroup * group, s32 stack ) const;
 
-		void scriptcallback_entity( quake3::SVarGroupList *& grouplist, eToken token );
-		void scriptcallback_shader( quake3::SVarGroupList *& grouplist, eToken token );
-		void scriptcallback_config( quake3::SVarGroupList *& grouplist, eToken token );
+		void scriptcallback_entity( boost::shared_ptr<quake3::SVarGroupList> & grouplist, eToken token );
+		void scriptcallback_shader( boost::shared_ptr<quake3::SVarGroupList> & grouplist, eToken token );
+		void scriptcallback_config( boost::shared_ptr<quake3::SVarGroupList> & grouplist, eToken token );
 
 		core::array < quake3::IShader > Shader;
 		core::array < quake3::IShader > Entity;		//quake3::tQ3EntityList Entity;

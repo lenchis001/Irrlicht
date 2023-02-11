@@ -16,9 +16,9 @@ namespace irr
 namespace video
 {
 
-IImageWriter* createImageWriterPCX()
+boost::shared_ptr<IImageWriter> createImageWriterPCX()
 {
-	return new CImageWriterPCX;
+	return boost::make_shared<CImageWriterPCX>();
 }
 
 CImageWriterPCX::CImageWriterPCX()

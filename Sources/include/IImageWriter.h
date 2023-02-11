@@ -22,7 +22,7 @@ namespace video
 
 
 //! Interface for writing software image data.
-class IImageWriter : public IReferenceCounted
+class IImageWriter : public IDebugable
 {
 public:
 	//! Check if this writer can write a file with the given extension

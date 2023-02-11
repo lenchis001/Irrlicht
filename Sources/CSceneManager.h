@@ -513,7 +513,7 @@ namespace scene
 		virtual const video::SColorf& getAmbientLight() const;
 
 		//! Register a custom callbacks manager which gets callbacks during scene rendering.
-		virtual void setLightManager(ILightManager* lightManager);
+		virtual void setLightManager(boost::shared_ptr<ILightManager> lightManager);
 
 		//! Get current render time.
 		virtual E_SCENE_NODE_RENDER_PASS getCurrentRendertime() const { return CurrentRendertime; }
@@ -522,7 +522,7 @@ namespace scene
 		virtual void setCurrentRendertime(E_SCENE_NODE_RENDER_PASS currentRendertime) { CurrentRendertime = currentRendertime; }
 
 		//! Get an instance of a geometry creator.
-		virtual const IGeometryCreator* getGeometryCreator(void) const { return GeometryCreator; }
+		virtual boost::shared_ptr<const IGeometryCreator> getGeometryCreator(void) const { return GeometryCreator; }
 
 		//! returns if node is culled
 		virtual bool isCulled(const boost::shared_ptr<ISceneNode> node) const;
@@ -647,7 +647,7 @@ namespace scene
 
 		//! An optional callbacks manager to allow the user app finer control
 		//! over the scene lighting and rendering.
-		ILightManager* LightManager;
+		boost::shared_ptr<ILightManager> LightManager;
 
 		//! constants for reading and writing XML.
 		//! Not made static due to portability problems.
@@ -655,7 +655,7 @@ namespace scene
 		const core::stringw IRR_XML_FORMAT_NODE;
 		const core::stringw IRR_XML_FORMAT_NODE_ATTR_TYPE;
 
-		IGeometryCreator* GeometryCreator;
+		boost::shared_ptr<IGeometryCreator> GeometryCreator;
 	};
 
 } // end namespace video

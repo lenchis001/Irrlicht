@@ -17,9 +17,9 @@ namespace video
 {
 
 
-IImageWriter* createImageWriterPPM()
+boost::shared_ptr<IImageWriter> createImageWriterPPM()
 {
-	return new CImageWriterPPM;
+	return boost::make_shared<CImageWriterPPM>();
 }
 
 

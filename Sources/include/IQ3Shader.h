@@ -622,7 +622,7 @@ namespace quake3
 	};
 
 	//! holding a group a variable
-	struct SVarGroupList: public IReferenceCounted
+	struct SVarGroupList: public IDebugable
 	{
 		SVarGroupList ()
 		{
@@ -677,7 +677,7 @@ namespace quake3
 
 		// id
 		s32 ID;
-		SVarGroupList *VarGroup; // reference
+		boost::shared_ptr<SVarGroupList> VarGroup; // reference
 
 		// Shader: shader name ( also first variable in first Vargroup )
 		// Entity: classname ( variable in Group(1) )
@@ -873,7 +873,7 @@ namespace quake3
 
 
 	//! Manages various Quake3 Shader Styles
-	class IShaderManager : public IReferenceCounted
+	class IShaderManager : public IDebugable
 	{
 	};
 

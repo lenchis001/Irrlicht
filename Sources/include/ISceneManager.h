@@ -1641,12 +1641,12 @@ namespace scene
 		//! Register a custom callbacks manager which gets callbacks during scene rendering.
 		/** \param[in] lightManager: the new callbacks manager. You may pass 0 to remove the
 			current callbacks manager and restore the default behavior. */
-		virtual void setLightManager(ILightManager* lightManager) = 0;
+		virtual void setLightManager(boost::shared_ptr<ILightManager> lightManager) = 0;
 
 		//! Get an instance of a geometry creator.
 		/** The geometry creator provides some helper methods to create various types of
 		basic geometry. This can be useful for custom scene nodes. */
-		virtual const IGeometryCreator* getGeometryCreator(void) const = 0;
+		virtual boost::shared_ptr<const IGeometryCreator> getGeometryCreator(void) const = 0;
 
 		//! Check if node is culled in current view frustum
 		/** Please note that depending on the used culling method this

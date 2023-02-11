@@ -18,7 +18,7 @@ namespace irr
 namespace gui
 {
 
-CGUITreeViewNode::CGUITreeViewNode( CGUITreeView* owner, CGUITreeViewNode* parent )
+CGUITreeViewNode::CGUITreeViewNode( CGUITreeView* owner, boost::shared_ptr<CGUITreeViewNode> parent )
 	: Owner(owner), Parent(parent), ImageIndex(-1), SelectedImageIndex(-1),
 	Data(0), Data2(0), Expanded(false)
 {
@@ -29,7 +29,7 @@ CGUITreeViewNode::CGUITreeViewNode( CGUITreeView* owner, CGUITreeViewNode* paren
 
 CGUITreeViewNode::~CGUITreeViewNode()
 {
-	if( Owner && this == Owner->getSelected() )
+	if( Owner && this == Owner->getSelected().get() )
 	{
 		setSelected( false );
 	}
@@ -47,7 +47,7 @@ IGUITreeView* CGUITreeViewNode::getOwner() const
 	return Owner;
 }
 
-IGUITreeViewNode* CGUITreeViewNode::getParent() const
+boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::getParent() const
 {
 	return Parent;
 }
@@ -64,16 +64,12 @@ void CGUITreeViewNode::setIcon( const wchar_t* icon )
 
 void CGUITreeViewNode::clearChildren()
 {
-	core::list<CGUITreeViewNode*>::Iterator	it;
+	core::list<boost::shared_ptr<CGUITreeViewNode>>::Iterator	it;
 
-	for( it = Children.begin(); it != Children.end(); it++ )
-	{
-		( *it )->drop();
-	}
 	Children.clear();
 }
 
-IGUITreeViewNode* CGUITreeViewNode::addChildBack(
+boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::addChildBack(
 	const wchar_t*		text,
 	const wchar_t*		icon /*= 0*/,
 	s32					imageIndex /*= -1*/,
@@ -81,7 +77,8 @@ IGUITreeViewNode* CGUITreeViewNode::addChildBack(
 	void*					data /*= 0*/,
 	IReferenceCounted*			data2 /*= 0*/ )
 {
-	CGUITreeViewNode*	newChild = new CGUITreeViewNode( Owner, this );
+	boost::shared_ptr<CGUITreeViewNode>	newChild = boost::make_shared<CGUITreeViewNode>( Owner, getSharedThis() );
+	newChild->setWeakThis(newChild);
 
 	Children.push_back( newChild );
 	newChild->Text = text;
@@ -97,7 +94,7 @@ IGUITreeViewNode* CGUITreeViewNode::addChildBack(
 	return newChild;
 }
 
-IGUITreeViewNode* CGUITreeViewNode::addChildFront(
+boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::addChildFront(
 	const wchar_t*		text,
 	const wchar_t*		icon /*= 0*/,
 	s32					imageIndex /*= -1*/,
@@ -105,7 +102,8 @@ IGUITreeViewNode* CGUITreeViewNode::addChildFront(
 	void*					data /*= 0*/,
 	IReferenceCounted*			data2 /*= 0*/ )
 {
-	CGUITreeViewNode*	newChild = new CGUITreeViewNode( Owner, this );
+	boost::shared_ptr<CGUITreeViewNode>	newChild = boost::make_shared<CGUITreeViewNode>( Owner, getSharedThis() );
+	newChild->setWeakThis(newChild);
 
 	Children.push_front( newChild );
 	newChild->Text = text;
@@ -121,8 +119,8 @@ IGUITreeViewNode* CGUITreeViewNode::addChildFront(
 	return newChild;
 }
 
-IGUITreeViewNode* CGUITreeViewNode::insertChildAfter(
-	IGUITreeViewNode*	other,
+boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::insertChildAfter(
+	boost::shared_ptr<IGUITreeViewNode>	other,
 	const wchar_t*		text,
 	const wchar_t*		icon /*= 0*/,
 	s32					imageIndex /*= -1*/,
@@ -130,14 +128,16 @@ IGUITreeViewNode* CGUITreeViewNode::insertChildAfter(
 	void*					data /*= 0*/,
 	IReferenceCounted*			data2/* = 0*/ )
 {
-	core::list<CGUITreeViewNode*>::Iterator	itOther;
-	CGUITreeViewNode*									newChild = 0;
+	core::list<boost::shared_ptr<CGUITreeViewNode>>::Iterator	itOther;
+	boost::shared_ptr<CGUITreeViewNode>									newChild = 0;
 
 	for( itOther = Children.begin(); itOther != Children.end(); itOther++ )
 	{
 		if( other == *itOther )
 		{
-			newChild = new CGUITreeViewNode( Owner, this );
+			newChild = boost::make_shared<CGUITreeViewNode>( Owner, getSharedThis() );
+			newChild->setWeakThis(newChild);
+
 			newChild->Text = text;
 			newChild->Icon = icon;
 			newChild->ImageIndex = imageIndex;
@@ -155,8 +155,8 @@ IGUITreeViewNode* CGUITreeViewNode::insertChildAfter(
 	return newChild;
 }
 
-IGUITreeViewNode* CGUITreeViewNode::insertChildBefore(
-	IGUITreeViewNode*	other,
+boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::insertChildBefore(
+	boost::shared_ptr<IGUITreeViewNode>	other,
 	const wchar_t*		text,
 	const wchar_t*		icon /*= 0*/,
 	s32					imageIndex /*= -1*/,
@@ -164,14 +164,16 @@ IGUITreeViewNode* CGUITreeViewNode::insertChildBefore(
 	void*					data /*= 0*/,
 	IReferenceCounted*			data2/* = 0*/ )
 {
-	core::list<CGUITreeViewNode*>::Iterator	itOther;
-	CGUITreeViewNode*									newChild = 0;
+	core::list<boost::shared_ptr<CGUITreeViewNode>>::Iterator	itOther;
+	boost::shared_ptr<CGUITreeViewNode>									newChild = 0;
 
 	for( itOther = Children.begin(); itOther != Children.end(); itOther++ )
 	{
 		if( other == *itOther )
 		{
-			newChild = new CGUITreeViewNode( Owner, this );
+			newChild = boost::make_shared<CGUITreeViewNode>( Owner, getSharedThis() );
+			newChild->setWeakThis(newChild);
+
 			newChild->Text = text;
 			newChild->Icon = icon;
 			newChild->ImageIndex = imageIndex;
@@ -189,7 +191,7 @@ IGUITreeViewNode* CGUITreeViewNode::insertChildBefore(
 	return newChild;
 }
 
-IGUITreeViewNode* CGUITreeViewNode::getFirstChild() const
+boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::getFirstChild() const
 {
 	if( Children.empty() )
 	{
@@ -201,7 +203,7 @@ IGUITreeViewNode* CGUITreeViewNode::getFirstChild() const
 	}
 }
 
-IGUITreeViewNode* CGUITreeViewNode::getLastChild() const
+boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::getLastChild() const
 {
 	if( Children.empty() )
 	{
@@ -213,17 +215,17 @@ IGUITreeViewNode* CGUITreeViewNode::getLastChild() const
 	}
 }
 
-IGUITreeViewNode* CGUITreeViewNode::getPrevSibling() const
+boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::getPrevSibling() const
 {
-	core::list<CGUITreeViewNode*>::Iterator	itThis;
-	core::list<CGUITreeViewNode*>::Iterator	itOther;
-	CGUITreeViewNode*									other = 0;
+	core::list<boost::shared_ptr<CGUITreeViewNode>>::Iterator	itThis;
+	core::list<boost::shared_ptr<CGUITreeViewNode>>::Iterator	itOther;
+	boost::shared_ptr<CGUITreeViewNode>									other = 0;
 
 	if( Parent )
 	{
 		for( itThis = Parent->Children.begin(); itThis != Parent->Children.end(); itThis++ )
 		{
-			if( this == *itThis )
+			if( this == (*itThis).get())
 			{
 				if( itThis != Parent->Children.begin() )
 				{
@@ -237,16 +239,16 @@ IGUITreeViewNode* CGUITreeViewNode::getPrevSibling() const
 	return other;
 }
 
-IGUITreeViewNode* CGUITreeViewNode::getNextSibling() const
+boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::getNextSibling() const
 {
-	core::list<CGUITreeViewNode*>::Iterator	itThis;
-	CGUITreeViewNode*									other = 0;
+	core::list<boost::shared_ptr<CGUITreeViewNode>>::Iterator	itThis;
+	boost::shared_ptr<CGUITreeViewNode>									other = 0;
 
 	if( Parent )
 	{
 		for( itThis = Parent->Children.begin(); itThis != Parent->Children.end(); itThis++ )
 		{
-			if( this == *itThis )
+			if( this == (*itThis).get())
 			{
 				if( itThis != Parent->Children.getLast() )
 				{
@@ -259,12 +261,12 @@ IGUITreeViewNode* CGUITreeViewNode::getNextSibling() const
 	return other;
 }
 
-IGUITreeViewNode* CGUITreeViewNode::getNextVisible() const
+boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::getNextVisible() const
 {
-	IGUITreeViewNode*	next = 0;
-	IGUITreeViewNode*	node = 0;
+	boost::shared_ptr<IGUITreeViewNode>	next = 0;
+	boost::shared_ptr<IGUITreeViewNode>	node = 0;
 
-	node = const_cast<CGUITreeViewNode*>( this );
+	node = getSharedThis();
 
 	if( node->getExpanded() && node->hasChildren() )
 	{
@@ -286,16 +288,15 @@ IGUITreeViewNode* CGUITreeViewNode::getNextVisible() const
 	return next;
 }
 
-bool CGUITreeViewNode::deleteChild( IGUITreeViewNode* child )
+bool CGUITreeViewNode::deleteChild( boost::shared_ptr<IGUITreeViewNode> child )
 {
-	core::list<CGUITreeViewNode*>::Iterator	itChild;
+	core::list<boost::shared_ptr<CGUITreeViewNode>>::Iterator	itChild;
 	bool	deleted = false;
 
 	for( itChild = Children.begin(); itChild != Children.end(); itChild++ )
 	{
 		if( child == *itChild )
 		{
-			child->drop();
 			Children.erase( itChild );
 			deleted = true;
 			break;
@@ -304,11 +305,11 @@ bool CGUITreeViewNode::deleteChild( IGUITreeViewNode* child )
 	return deleted;
 }
 
-bool CGUITreeViewNode::moveChildUp( IGUITreeViewNode* child )
+bool CGUITreeViewNode::moveChildUp( boost::shared_ptr<IGUITreeViewNode> child )
 {
-	core::list<CGUITreeViewNode*>::Iterator	itChild;
-	core::list<CGUITreeViewNode*>::Iterator	itOther;
-	CGUITreeViewNode*									nodeTmp;
+	core::list<boost::shared_ptr<CGUITreeViewNode>>::Iterator	itChild;
+	core::list<boost::shared_ptr<CGUITreeViewNode>>::Iterator	itOther;
+	boost::shared_ptr<CGUITreeViewNode>									nodeTmp;
 	bool													moved = false;
 
 	for( itChild = Children.begin(); itChild != Children.end(); itChild++ )
@@ -329,11 +330,11 @@ bool CGUITreeViewNode::moveChildUp( IGUITreeViewNode* child )
 	return moved;
 }
 
-bool CGUITreeViewNode::moveChildDown( IGUITreeViewNode* child )
+bool CGUITreeViewNode::moveChildDown( boost::shared_ptr<IGUITreeViewNode> child )
 {
-	core::list<CGUITreeViewNode*>::Iterator	itChild;
-	core::list<CGUITreeViewNode*>::Iterator	itOther;
-	CGUITreeViewNode*									nodeTmp;
+	core::list<boost::shared_ptr<CGUITreeViewNode>>::Iterator	itChild;
+	core::list<boost::shared_ptr<CGUITreeViewNode>>::Iterator	itOther;
+	boost::shared_ptr<CGUITreeViewNode>									nodeTmp;
 	bool													moved = false;
 
 	for( itChild = Children.begin(); itChild != Children.end(); itChild++ )
@@ -366,11 +367,11 @@ void CGUITreeViewNode::setSelected( bool selected )
 	{
 		if( selected )
 		{
-			Owner->Selected = this;
+			Owner->Selected = getSharedThis();
 		}
 		else
 		{
-			if( Owner->Selected == this )
+			if( Owner->Selected.get() == this)
 			{
 				Owner->Selected = 0;
 			}
@@ -382,7 +383,7 @@ bool CGUITreeViewNode::getSelected() const
 {
 	if( Owner )
 	{
-		return Owner->Selected == (IGUITreeViewNode*)this;
+		return Owner->Selected == getSharedThis();
 	}
 	else
 	{
@@ -392,7 +393,7 @@ bool CGUITreeViewNode::getSelected() const
 
 bool CGUITreeViewNode::isRoot() const
 {
-	return ( Owner && ( this == Owner->Root ) );
+	return ( Owner && ( this == Owner->Root.get() ) );
 }
 
 s32 CGUITreeViewNode::getLevel() const
@@ -417,6 +418,14 @@ bool CGUITreeViewNode::isVisible() const
 	{
 		return true;
 	}
+}
+
+void CGUITreeViewNode::setWeakThis(boost::shared_ptr<CGUITreeViewNode> value)
+{
+#if _DEBUG
+	assert(this == value.get());
+#endif
+	WeakThis = value;
 }
 
 
@@ -477,7 +486,9 @@ CGUITreeView::CGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
 		ScrollBarH->grab();
 	}
 
-	Root = new CGUITreeViewNode( this, 0 );
+	Root = boost::make_shared<CGUITreeViewNode>( this, nullptr );
+	Root->setWeakThis(Root);
+
 	Root->Expanded = true;
 
 	recalculateItemHeight();
@@ -511,17 +522,12 @@ CGUITreeView::~CGUITreeView()
 	{
 		ImageList->drop();
 	}
-
-	if( Root )
-	{
-		Root->drop();
-	}
 }
 
 void CGUITreeView::recalculateItemHeight()
 {
 	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	IGUITreeViewNode*	node;
+	boost::shared_ptr<IGUITreeViewNode>	node;
 
 	if( Font != skin->getFont() )
 	{
@@ -694,11 +700,11 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 */
 void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 {
-	IGUITreeViewNode*		oldSelected = Selected;
-	IGUITreeViewNode*		hitNode = 0;
+	boost::shared_ptr<IGUITreeViewNode>		oldSelected = Selected;
+	boost::shared_ptr<IGUITreeViewNode>		hitNode = 0;
 	s32						selIdx=-1;
 	s32						n;
-	IGUITreeViewNode*		node;
+	boost::shared_ptr<IGUITreeViewNode>		node;
 	SEvent					event;
 
 	event.EventType			= EET_GUI_EVENT;
@@ -865,7 +871,7 @@ void CGUITreeView::draw()
 		frameRect.LowerRightCorner.X -= ScrollBarH->getPos();
 	}
 
-	IGUITreeViewNode* node = Root->getFirstChild();
+	boost::shared_ptr<IGUITreeViewNode> node = Root->getFirstChild();
 	while( node )
 	{
 		frameRect.UpperLeftCorner.X = AbsoluteRect.UpperLeftCorner.X + 1 + node->getLevel() * IndentWidth;
@@ -970,7 +976,7 @@ void CGUITreeView::draw()
 						iconWidth += ImageList->getImageSize().Width + 3;
 						textRect.UpperLeftCorner.X += ImageList->getImageSize().Width + 3;
 					}
-					else if( ( IconFont && reinterpret_cast<CGUITreeViewNode*>( node )->Icon.size() )
+					else if( ( IconFont && boost::reinterpret_pointer_cast<CGUITreeViewNode>(node)->Icon.size() )
 						&& ( ( ImageLeftOfIcon && n == 1 )
 						|| ( !ImageLeftOfIcon && n == 0 ) ) )
 					{
@@ -1021,7 +1027,7 @@ void CGUITreeView::draw()
 						clipRect );
 
 					// the vertical lines of all parents
-					IGUITreeViewNode* nodeTmp = node->getParent();
+					boost::shared_ptr<IGUITreeViewNode> nodeTmp = node->getParent();
 					rc.UpperLeftCorner.Y = frameRect.UpperLeftCorner.Y - ( frameRect.getHeight() >> 1 );
 					for( s32 n = 0; n < node->getLevel() - 2; ++n )
 					{
