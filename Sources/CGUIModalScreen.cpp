@@ -16,22 +16,18 @@ namespace gui
 {
 
 //! constructor
-CGUIModalScreen::CGUIModalScreen(IGUIEnvironment* environment, IGUIElement* parent, s32 id)
+CGUIModalScreen::CGUIModalScreen(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id)
 : IGUIElement(EGUIET_MODAL_SCREEN, environment, parent, id, core::recti(0, 0, parent->getAbsolutePosition().getWidth(), parent->getAbsolutePosition().getHeight()) ),
 	MouseDownTime(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIModalScreen");
 	#endif
-	setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
-
-	// this element is a tab group
-	setTabGroup(true);
 }
 
-bool CGUIModalScreen::canTakeFocus(IGUIElement* target) const
+bool CGUIModalScreen::canTakeFocus(boost::shared_ptr<IGUIElement> target) const
 {
-    return (target && ((const IGUIElement*)target == this // this element can take it
+    return (target && (target.get() == this // this element can take it
                         || isMyChild(target)    // own children also
                         || (target->getType() == EGUIET_MODAL_SCREEN )	// other modals also fine (is now on top or explicitely requested)
                         || (target->getParent() && target->getParent()->getType() == EGUIET_MODAL_SCREEN )))   // children of other modals will do
@@ -41,7 +37,7 @@ bool CGUIModalScreen::canTakeFocus(IGUIElement* target) const
 bool CGUIModalScreen::isVisible() const
 {
     // any parent invisible?
-    IGUIElement * parentElement = getParent();
+    boost::shared_ptr<IGUIElement>  parentElement = getParent();
     while ( parentElement )
     {
         if ( !parentElement->isVisible() )
@@ -57,7 +53,7 @@ bool CGUIModalScreen::isVisible() const
 
     // any child visible?
     bool visible = false;
-    core::list<IGUIElement*>::ConstIterator it = Children.begin();
+    core::list<boost::shared_ptr<IGUIElement>>::ConstIterator it = Children.begin();
     for (; it != Children.end(); ++it)
     {
         if ( (*it)->isVisible() )
@@ -80,25 +76,28 @@ bool CGUIModalScreen::OnEvent(const SEvent& event)
     if (!isEnabled() || !isVisible() )
         return IGUIElement::OnEvent(event);
 
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
+
     switch(event.EventType)
 	{
 	case EET_GUI_EVENT:
 		switch(event.GUIEvent.EventType)
 		{
 		case EGET_ELEMENT_FOCUSED:
-			if ( event.GUIEvent.Caller == this && isMyChild(event.GUIEvent.Element) )
+			if ( event.GUIEvent.Caller.get() == this && isMyChild(event.GUIEvent.Element))
 			{
-				Environment->removeFocus(0);	// can't setFocus otherwise at it still has focus here
-				Environment->setFocus(event.GUIEvent.Element);
+				lockedEnvironment->removeFocus(0);	// can't setFocus otherwise at it still has focus here
+				lockedEnvironment->setFocus(event.GUIEvent.Element);
 				MouseDownTime = os::Timer::getTime();
 				return true;
 			}			
 			if ( !canTakeFocus(event.GUIEvent.Caller))
 			{
 				if ( !Children.empty() )
-					Environment->setFocus(*(Children.begin()));
+					lockedEnvironment->setFocus(*(Children.begin()));
 				else
-					Environment->setFocus(this);
+					lockedEnvironment->setFocus(lockedThis);
 			}
 			IGUIElement::OnEvent(event);
 			return false;
@@ -108,9 +107,9 @@ bool CGUIModalScreen::OnEvent(const SEvent& event)
             	if ( isMyChild(event.GUIEvent.Caller) )
 				{
 					if ( !Children.empty() )
-						Environment->setFocus(*(Children.begin()));
+						lockedEnvironment->setFocus(*(Children.begin()));
 					else
-						Environment->setFocus(this);
+						lockedEnvironment->setFocus(lockedThis);
 				}
 				else
 				{
@@ -147,7 +146,8 @@ bool CGUIModalScreen::OnEvent(const SEvent& event)
 //! draws the element and its children
 void CGUIModalScreen::draw()
 {
-	boost::shared_ptr<IGUISkin>skin = Environment->getSkin();
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUISkin>skin = lockedEnvironment->getSkin();
 
 	if (!skin)
 		return;
@@ -155,9 +155,9 @@ void CGUIModalScreen::draw()
 	u32 now = os::Timer::getTime();
 	if (now - MouseDownTime < 300 && (now / 70)%2)
 	{
-		core::list<IGUIElement*>::Iterator it = Children.begin();
+		core::list<boost::shared_ptr<IGUIElement>>::Iterator it = Children.begin();
 		core::rect<s32> r;
-		video::SColor c = Environment->getSkin()->getColor(gui::EGDC_3D_HIGH_LIGHT);
+		video::SColor c = lockedEnvironment->getSkin()->getColor(gui::EGDC_3D_HIGH_LIGHT);
 
 		for (; it != Children.end(); ++it)
 		{
@@ -169,7 +169,7 @@ void CGUIModalScreen::draw()
 				r.UpperLeftCorner.X -= 1;
 				r.UpperLeftCorner.Y -= 1;
 
-				skin->draw2DRectangle(this, c, r, &AbsoluteClippingRect);
+				skin->draw2DRectangle(getSharedThis(), c, r, &AbsoluteClippingRect);
 			}
 		}
 	}
@@ -179,7 +179,7 @@ void CGUIModalScreen::draw()
 
 
 //! Removes a child.
-void CGUIModalScreen::removeChild(IGUIElement* child)
+void CGUIModalScreen::removeChild(boost::shared_ptr<IGUIElement> child)
 {
 	IGUIElement::removeChild(child);
 
@@ -191,10 +191,10 @@ void CGUIModalScreen::removeChild(IGUIElement* child)
 
 
 //! adds a child
-void CGUIModalScreen::addChild(IGUIElement* child)
+void CGUIModalScreen::addChild(boost::shared_ptr<IGUIElement> child)
 {
 	IGUIElement::addChild(child);
-	Environment->setFocus(child);
+	getSharedEnvironment()->setFocus(child);
 }
 
 
@@ -202,9 +202,9 @@ void CGUIModalScreen::updateAbsolutePosition()
 {
 	core::rect<s32> parentRect(0,0,0,0);
 
-	if (Parent)
+	if (!Parent.expired())
 	{
-		parentRect = Parent->getAbsolutePosition();
+		parentRect = getParent()->getAbsolutePosition();
 		RelativeRect.UpperLeftCorner.X = 0;
 		RelativeRect.UpperLeftCorner.Y = 0;
 		RelativeRect.LowerRightCorner.X = parentRect.getWidth();
@@ -225,6 +225,16 @@ void CGUIModalScreen::serializeAttributes(io::IAttributes* out, io::SAttributeRe
 void CGUIModalScreen::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0)
 {
 	IGUIElement::deserializeAttributes(in, options);
+}
+
+void CGUIModalScreen::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
+
+	// this element is a tab group
+	setTabGroup(true);
 }
 
 

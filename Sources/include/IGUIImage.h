@@ -22,7 +22,7 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUIImage(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUIImage(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_IMAGE, environment, parent, id, rectangle) {}
 
 		//! Sets an image texture

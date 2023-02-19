@@ -25,22 +25,22 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUIEditBox(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUIEditBox(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_EDIT_BOX, environment, parent, id, rectangle) {}
 
 		//! Sets another skin independent font.
 		/** If this is set to zero, the button uses the font of the skin.
 		\param font: New font to set. */
-		virtual void setOverrideFont(IGUIFont* font=0) = 0;
+		virtual void setOverrideFont(boost::shared_ptr<IGUIFont> font=0) = 0;
 
 		//! Gets the override font (if any)
 		/** \return The override font (may be 0) */
-		virtual IGUIFont* getOverrideFont() const = 0;
+		virtual boost::shared_ptr<IGUIFont> getOverrideFont() const = 0;
 
 		//! Get the font which is used right now for drawing
 		/** Currently this is the override font when one is set and the
 		font of the active skin otherwise */
-		virtual IGUIFont* getActiveFont() const = 0;
+		virtual boost::shared_ptr<IGUIFont> getActiveFont() = 0;
 
 		//! Sets another color for the text.
 		/** If set, the edit box does not use the EGDC_BUTTON_TEXT color defined

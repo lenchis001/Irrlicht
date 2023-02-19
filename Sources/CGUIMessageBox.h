@@ -22,9 +22,9 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIMessageBox(IGUIEnvironment* environment, const wchar_t* caption,
+		CGUIMessageBox(boost::shared_ptr<IGUIEnvironment> environment, const wchar_t* caption,
 			const wchar_t* text, s32 flag,
-			IGUIElement* parent, s32 id, core::rect<s32> rectangle, video::ITexture* image=0);
+			boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle, video::ITexture* image=0);
 
 		//! destructor
 		virtual ~CGUIMessageBox();
@@ -38,17 +38,19 @@ namespace gui
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
+
 	private:
 
 		void refreshControls();
-		void setButton(IGUIButton*& button, bool isAvailable, const core::rect<s32> & btnRect, const wchar_t * text, IGUIElement*& focusMe);
+		void setButton(boost::shared_ptr<IGUIButton>& button, bool isAvailable, const core::rect<s32> & btnRect, const wchar_t * text, boost::shared_ptr<IGUIElement>& focusMe);
 
-		IGUIButton* OkButton;
-		IGUIButton* CancelButton;
-		IGUIButton* YesButton;
-		IGUIButton* NoButton;
-		IGUIStaticText* StaticText;
-		IGUIImage * Icon;
+		boost::shared_ptr<IGUIButton> OkButton;
+		boost::shared_ptr<IGUIButton> CancelButton;
+		boost::shared_ptr<IGUIButton> YesButton;
+		boost::shared_ptr<IGUIButton> NoButton;
+		boost::shared_ptr<IGUIStaticText> StaticText;
+		boost::shared_ptr<IGUIImage>  Icon;
 		video::ITexture * IconTexture;
 
 		s32 Flags;

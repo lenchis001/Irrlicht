@@ -20,7 +20,7 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIInOutFader(IGUIEnvironment* environment, IGUIElement* parent,
+		CGUIInOutFader(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 			s32 id, core::rect<s32> rectangle);
 
 		//! draws the element and its children
@@ -47,6 +47,8 @@ namespace gui
 
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
+
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
 
 	private:
 

@@ -75,16 +75,16 @@ public:
 					core::dimension2d<s32> imageSize, bool useAlphaChannel );
 
 	//! returns the font
-	virtual IGUIFont* getFont(const io::path& filename);
+	virtual boost::shared_ptr<IGUIFont> getFont(const io::path& filename);
 
 	//! add an externally loaded font
-	virtual IGUIFont* addFont(const io::path& name, IGUIFont* font);
+	virtual boost::shared_ptr<IGUIFont> addFont(const io::path& name, boost::shared_ptr<IGUIFont> font);
 
 	//! remove loaded font
-	virtual void removeFont(IGUIFont* font);
+	virtual void removeFont(boost::shared_ptr<IGUIFont> font);
 
 	//! returns default font
-	virtual IGUIFont* getBuiltInFont() const;
+	virtual boost::shared_ptr<IGUIFont> getBuiltInFont() const;
 
 	//! returns the sprite bank
 	virtual IGUISpriteBank* getSpriteBank(const io::path& filename);
@@ -93,116 +93,116 @@ public:
 	virtual IGUISpriteBank* addEmptySpriteBank(const io::path& name);
 
 	//! adds an button. The returned pointer must not be dropped.
-	virtual IGUIButton* addButton(const core::rect<s32>& rectangle, IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0,const wchar_t* tooltiptext = 0);
+	virtual boost::shared_ptr<IGUIButton> addButton(const core::rect<s32>& rectangle, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, const wchar_t* text=0,const wchar_t* tooltiptext = 0);
 
 	//! adds a window. The returned pointer must not be dropped.
-	virtual IGUIWindow* addWindow(const core::rect<s32>& rectangle, bool modal = false,
-		const wchar_t* text=0, IGUIElement* parent=0, s32 id=-1);
+	virtual boost::shared_ptr<IGUIWindow> addWindow(const core::rect<s32>& rectangle, bool modal = false,
+		const wchar_t* text=0, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1);
 
 	//! adds a modal screen. The returned pointer must not be dropped.
-	virtual IGUIElement* addModalScreen(IGUIElement* parent);
+	virtual boost::shared_ptr<IGUIElement> addModalScreen(boost::shared_ptr<IGUIElement> parent);
 
 	//! Adds a message box.
-	virtual IGUIWindow* addMessageBox(const wchar_t* caption, const wchar_t* text=0,
-		bool modal = true, s32 flag = EMBF_OK, IGUIElement* parent=0, s32 id=-1, video::ITexture* image=0);
+	virtual boost::shared_ptr<IGUIWindow> addMessageBox(const wchar_t* caption, const wchar_t* text=0,
+		bool modal = true, s32 flag = EMBF_OK, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, video::ITexture* image=0);
 
 	//! adds a scrollbar. The returned pointer must not be dropped.
-	virtual IGUIScrollBar* addScrollBar(bool horizontal, const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1);
+	virtual boost::shared_ptr<IGUIScrollBar> addScrollBar(bool horizontal, const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1);
 
 	//! Adds an image element.
-	virtual IGUIImage* addImage(video::ITexture* image, core::position2d<s32> pos,
-		bool useAlphaChannel=true, IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0);
+	virtual boost::shared_ptr<IGUIImage> addImage(video::ITexture* image, core::position2d<s32> pos,
+		bool useAlphaChannel=true, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, const wchar_t* text=0);
 
 	//! adds an image. The returned pointer must not be dropped.
-	virtual IGUIImage* addImage(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0, bool useAlphaChannel=true);
+	virtual boost::shared_ptr<IGUIImage> addImage(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, const wchar_t* text=0, bool useAlphaChannel=true);
 
 	//! adds a checkbox
-	virtual IGUICheckBox* addCheckBox(bool checked, const core::rect<s32>& rectangle, IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0);
+	virtual boost::shared_ptr<IGUICheckBox> addCheckBox(bool checked, const core::rect<s32>& rectangle, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, const wchar_t* text=0);
 
 	//! adds a list box
-	virtual IGUIListBox* addListBox(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1, bool drawBackground=false);
+	virtual boost::shared_ptr<IGUIListBox> addListBox(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, bool drawBackground=false);
 
 	//! adds a tree view
-	virtual IGUITreeView* addTreeView(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1, bool drawBackground=false,
+	virtual boost::shared_ptr<IGUITreeView> addTreeView(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, bool drawBackground=false,
 		bool scrollBarVertical = true, bool scrollBarHorizontal = false);
 
 	//! adds an mesh viewer. The returned pointer must not be dropped.
-	virtual IGUIMeshViewer* addMeshViewer(const core::rect<s32>& rectangle, IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0);
+	virtual boost::shared_ptr<IGUIMeshViewer> addMeshViewer(const core::rect<s32>& rectangle, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, const wchar_t* text=0);
 
 	//! Adds a file open dialog.
-	virtual IGUIFileOpenDialog* addFileOpenDialog(const wchar_t* title = 0,
-			bool modal=true, IGUIElement* parent=0, s32 id=-1,
+	virtual boost::shared_ptr<IGUIFileOpenDialog> addFileOpenDialog(const wchar_t* title = 0,
+			bool modal=true, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1,
 			bool restoreCWD=false, io::path::char_type* startDir=0);
 
 	//! Adds a color select dialog.
-	virtual IGUIColorSelectDialog* addColorSelectDialog(const wchar_t* title = 0, bool modal=true, IGUIElement* parent=0, s32 id=-1);
+	virtual boost::shared_ptr<IGUIColorSelectDialog> addColorSelectDialog(const wchar_t* title = 0, bool modal=true, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1);
 
 	//! adds a static text. The returned pointer must not be dropped.
-	virtual IGUIStaticText* addStaticText(const wchar_t* text, const core::rect<s32>& rectangle,
-		bool border=false, bool wordWrap=true, IGUIElement* parent=0, s32 id=-1, bool drawBackground = false);
+	virtual boost::shared_ptr<IGUIStaticText> addStaticText(const wchar_t* text, const core::rect<s32>& rectangle,
+		bool border=false, bool wordWrap=true, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, bool drawBackground = false);
 
 	//! Adds an edit box. The returned pointer must not be dropped.
-	virtual IGUIEditBox* addEditBox(const wchar_t* text, const core::rect<s32>& rectangle,
-		bool border=false, IGUIElement* parent=0, s32 id=-1);
+	virtual boost::shared_ptr<IGUIEditBox> addEditBox(const wchar_t* text, const core::rect<s32>& rectangle,
+		bool border=false, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1);
 
 	//! Adds a spin box to the environment
-	virtual IGUISpinBox* addSpinBox(const wchar_t* text, const core::rect<s32>& rectangle,
-		bool border=false,IGUIElement* parent=0, s32 id=-1);
+	virtual boost::shared_ptr<IGUISpinBox> addSpinBox(const wchar_t* text, const core::rect<s32>& rectangle,
+		bool border=false,boost::shared_ptr<IGUIElement> parent=0, s32 id=-1);
 
 	//! Adds a tab control to the environment.
-	virtual IGUITabControl* addTabControl(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, bool fillbackground=false, bool border=true, s32 id=-1);
+	virtual boost::shared_ptr<IGUITabControl> addTabControl(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, bool fillbackground=false, bool border=true, s32 id=-1);
 
 	//! Adds tab to the environment.
-	virtual IGUITab* addTab(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1);
+	virtual boost::shared_ptr<IGUITab> addTab(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1);
 
 	//! Adds a context menu to the environment.
-	virtual IGUIContextMenu* addContextMenu(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1);
+	virtual boost::shared_ptr<IGUIContextMenu> addContextMenu(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1);
 
 	//! Adds a menu to the environment.
-	virtual IGUIContextMenu* addMenu(IGUIElement* parent=0, s32 id=-1);
+	virtual boost::shared_ptr<IGUIContextMenu> addMenu(boost::shared_ptr<IGUIElement> parent=0, s32 id=-1);
 
 	//! Adds a toolbar to the environment. It is like a menu is always placed on top
 	//! in its parent, and contains buttons.
-	virtual IGUIToolBar* addToolBar(IGUIElement* parent=0, s32 id=-1);
+	virtual boost::shared_ptr<IGUIToolBar> addToolBar(boost::shared_ptr<IGUIElement> parent=0, s32 id=-1);
 
 	//! Adds a combo box to the environment.
-	virtual IGUIComboBox* addComboBox(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1);
+	virtual boost::shared_ptr<IGUIComboBox> addComboBox(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1);
 
 	//! Adds a table element.
-	virtual IGUITable* addTable(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1, bool drawBackground=false);
+	virtual boost::shared_ptr<IGUITable> addTable(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, bool drawBackground=false);
 
 	//! Adds a empty element to the environment
-	IGUIElement* addEmpty(IGUIElement* parent=nullptr, s32 id=-1) override;
+	boost::shared_ptr<IGUIElement> addEmpty(boost::shared_ptr<IGUIElement> parent=nullptr, s32 id=-1) override;
 
 	//! sets the focus to an element
-	virtual bool setFocus(IGUIElement* element);
+	virtual bool setFocus(boost::shared_ptr<IGUIElement> element);
 
 	//! removes the focus from an element
-	virtual bool removeFocus(IGUIElement* element);
+	virtual bool removeFocus(boost::shared_ptr<IGUIElement> element);
 
 	//! Returns if the element has focus
-	virtual bool hasFocus(IGUIElement* element) const;
+	virtual bool hasFocus(boost::shared_ptr<IGUIElement> element) const;
 
 	//! Returns the element with the focus
-	virtual IGUIElement* getFocus() const;
+	virtual boost::shared_ptr<IGUIElement> getFocus() const;
 
 	//! Returns the element last known to be under the mouse
-	virtual IGUIElement* getHovered() const;
+	virtual boost::shared_ptr<IGUIElement> getHovered() const;
 
 	//! Adds an element for fading in or out.
-	virtual IGUIInOutFader* addInOutFader(const core::rect<s32>* rectangle=0, IGUIElement* parent=0, s32 id=-1);
+	virtual boost::shared_ptr<IGUIInOutFader> addInOutFader(const core::rect<s32>* rectangle=0, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1);
 
 	//! Returns the root gui element.
-	virtual IGUIElement* getRootGUIElement();
+	virtual boost::shared_ptr<IGUIElement> getRootGUIElement();
 
 	virtual void OnPostRender( u32 time );
 
@@ -221,31 +221,31 @@ public:
 	virtual IGUIElementFactory* getGUIElementFactory(u32 index) const;
 
 	//! Adds a GUI Element by its name
-	virtual IGUIElement* addGUIElement(const c8* elementName, IGUIElement* parent=0);
+	virtual boost::shared_ptr<IGUIElement> addGUIElement(const c8* elementName, boost::shared_ptr<IGUIElement> parent=0);
 
 	//! Saves the current gui into a file.
 	/** \param filename: Name of the file.
 	\param start: The element to start saving from.
 	if not specified, the root element will be used */
-	virtual bool saveGUI( const io::path& filename, IGUIElement* start=0);
+	virtual bool saveGUI( const io::path& filename, boost::shared_ptr<IGUIElement> start=0);
 
 	//! Saves the current gui into a file.
 	/** \param file: The file to save the GUI to.
 	\param start: The element to start saving from.
 	if not specified, the root element will be used */
-	virtual bool saveGUI(io::IWriteFile* file, IGUIElement* start=0);
+	virtual bool saveGUI(io::IWriteFile* file, boost::shared_ptr<IGUIElement> start=0);
 
 	//! Loads the gui. Note that the current gui is not cleared before.
 	/** \param filename: Name of the file.
 	\param parent: The parent of all loaded GUI elements,
 	if not specified, the root element will be used */
-	virtual bool loadGUI(const io::path& filename, IGUIElement* parent=0);
+	virtual bool loadGUI(const io::path& filename, boost::shared_ptr<IGUIElement> parent=0);
 
 	//! Loads the gui. Note that the current gui is not cleared before.
 	/** \param file: IReadFile to load the GUI from
 	\param parent: The parent of all loaded GUI elements,
 	if not specified, the root element will be used */
-	virtual bool loadGUI(io::IReadFile* file, IGUIElement* parent=0);
+	virtual bool loadGUI(io::IReadFile* file, boost::shared_ptr<IGUIElement> parent=0);
 
 	//! Writes attributes of the environment
 	virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const;
@@ -254,14 +254,15 @@ public:
 	virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0);
 
 	//! writes an element
-	virtual void writeGUIElement(io::IXMLWriter* writer, IGUIElement* node);
+	virtual void writeGUIElement(io::IXMLWriter* writer, boost::shared_ptr<IGUIElement> node);
 
 	//! reads an element
-	virtual void readGUIElement(io::IXMLReader* reader, IGUIElement* node);
+	virtual void readGUIElement(io::IXMLReader* reader, boost::shared_ptr<IGUIElement> node);
 
+	virtual void setWeakThis(boost::shared_ptr<IGUIElement> value);
 private:
 
-	IGUIElement* getNextElement(bool reverse=false, bool group=false);
+	boost::shared_ptr<IGUIElement> getNextElement(bool reverse=false, bool group=false);
 
 	void updateHoveredElement(core::position2d<s32> mousePos);
 
@@ -270,7 +271,7 @@ private:
 	struct SFont
 	{
 		io::SNamedPath NamedPath;
-		IGUIFont* Font;
+		boost::shared_ptr<IGUIFont> Font;
 
 		bool operator < (const SFont& other) const
 		{
@@ -291,7 +292,7 @@ private:
 
 	struct SToolTip
 	{
-		IGUIStaticText* Element;
+		boost::shared_ptr<IGUIStaticText> Element;
 		u32 LastTime;
 		u32 EnterTime;
 		u32 LaunchTime;
@@ -305,9 +306,9 @@ private:
 	core::array<SFont> Fonts;
 	core::array<SSpriteBank> Banks;
 	video::IVideoDriver* Driver;
-	IGUIElement* Hovered;
-	IGUIElement* HoveredNoSubelement;	// subelements replaced by their parent, so you only have 'real' elements here
-	IGUIElement* Focus;
+	boost::shared_ptr<IGUIElement> Hovered;
+	boost::shared_ptr<IGUIElement> HoveredNoSubelement;	// subelements replaced by their parent, so you only have 'real' elements here
+	boost::shared_ptr<IGUIElement> Focus;
 	core::position2d<s32> LastHoveredMousePos;
 	boost::shared_ptr<IGUISkin> CurrentSkin;
 	io::IFileSystem* FileSystem;

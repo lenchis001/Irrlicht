@@ -16,7 +16,7 @@ namespace gui
 
 
 //! constructor
-CGUIImage::CGUIImage(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+CGUIImage::CGUIImage(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 : IGUIImage(environment, parent, id, rectangle), Texture(0), Color(255,255,255,255),
 	UseAlphaChannel(false), ScaleImage(false)
 {
@@ -73,8 +73,9 @@ void CGUIImage::draw()
 	if (!IsVisible)
 		return;
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	video::IVideoDriver* driver = Environment->getVideoDriver();
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
+	video::IVideoDriver* driver = lockedEnvironment->getVideoDriver();
 
 	if (Texture)
 	{
@@ -95,7 +96,7 @@ void CGUIImage::draw()
 	}
 	else
 	{
-		skin->draw2DRectangle(this, skin->getColor(EGDC_3D_DARK_SHADOW), AbsoluteRect, &AbsoluteClippingRect);
+		skin->draw2DRectangle(getSharedThis(), skin->getColor(EGDC_3D_DARK_SHADOW), AbsoluteRect, &AbsoluteClippingRect);
 	}
 
 	IGUIElement::draw();
@@ -154,7 +155,6 @@ void CGUIImage::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWri
 	setColor(in->getAttributeAsColor("Color"));
 	setScaleImage(in->getAttributeAsBool("ScaleImage"));
 }
-
 
 } // end namespace gui
 } // end namespace irr

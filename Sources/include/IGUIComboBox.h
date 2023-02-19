@@ -21,7 +21,7 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUIComboBox(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUIComboBox(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_COMBO_BOX, environment, parent, id, rectangle) {}
 
 		//! Returns amount of items in box

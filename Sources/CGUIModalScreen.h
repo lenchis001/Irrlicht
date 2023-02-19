@@ -20,16 +20,16 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIModalScreen(IGUIEnvironment* environment, IGUIElement* parent, s32 id);
+		CGUIModalScreen(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id);
 
 		//! called if an event happened.
 		virtual bool OnEvent(const SEvent& event);
 
 		//! Removes a child.
-		virtual void removeChild(IGUIElement* child);
+		virtual void removeChild(boost::shared_ptr<IGUIElement> child);
 
 		//! Adds a child
-		virtual void addChild(IGUIElement* child);
+		virtual void addChild(boost::shared_ptr<IGUIElement> child);
 
 
 		//! draws the element and its children
@@ -52,8 +52,10 @@ namespace gui
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
+
     protected:
-        virtual bool canTakeFocus(IGUIElement* target) const;
+        virtual bool canTakeFocus(boost::shared_ptr<IGUIElement> target) const;
 
 	private:
 

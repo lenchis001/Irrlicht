@@ -39,7 +39,7 @@ namespace gui
 	{
 	public:
 		//! constructor
-		IGUIListBox(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUIListBox(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_LIST_BOX, environment, parent, id, rectangle) {}
 
 		//! returns amount of list items
@@ -111,7 +111,7 @@ namespace gui
 		virtual video::SColor getItemOverrideColor(u32 index, EGUI_LISTBOX_COLOR colorType) const = 0;
 
 		//! return the default color which is used for the given colorType
-		virtual video::SColor getItemDefaultColor(EGUI_LISTBOX_COLOR colorType) const = 0;
+		virtual video::SColor getItemDefaultColor(EGUI_LISTBOX_COLOR colorType) = 0;
 
 		//! set the item at the given index
 		virtual void setItem(u32 index, const wchar_t* text, s32 icon) = 0;

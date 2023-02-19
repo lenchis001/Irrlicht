@@ -18,49 +18,12 @@ namespace gui
 {
 
 //! constructor
-CGUIToolBar::CGUIToolBar(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+CGUIToolBar::CGUIToolBar(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 :IGUIToolBar(environment, parent, id, rectangle), ButtonX(5)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIToolBar");
 	#endif
-
-	// calculate position and find other menubars
-	s32 y = 0;
-	s32 parentwidth = 100;
-
-	if (parent)
-	{
-		parentwidth = Parent->getAbsolutePosition().getWidth();
-
-		const core::list<IGUIElement*>& children = parent->getChildren();
-		core::list<IGUIElement*>::ConstIterator it = children.begin();
-		for (; it != children.end(); ++it)
-		{
-			core::rect<s32> r = (*it)->getAbsolutePosition();
-			if (r.UpperLeftCorner.X == 0 && r.UpperLeftCorner.Y <= y &&
-				r.LowerRightCorner.X == parentwidth)
-				y = r.LowerRightCorner.Y;
-		}
-	}
-
-	core::rect<s32> rr;
-	rr.UpperLeftCorner.X = 0;
-	rr.UpperLeftCorner.Y = y;
-	s32 height = Environment->getSkin()->getSize ( EGDS_MENU_HEIGHT );
-
-	/*boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	IGUIFont* font = skin->getFont();
-	if (font)
-	{
-		s32 t = font->getDimension(L"A").Height + 5;
-		if (t > height)
-			height = t;
-	}*/
-
-	rr.LowerRightCorner.X = parentwidth;
-	rr.LowerRightCorner.Y = rr.UpperLeftCorner.Y + height;
-	setRelativePosition(rr);
 }
 
 
@@ -87,7 +50,7 @@ void CGUIToolBar::draw()
 	if (!IsVisible)
 		return;
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 	if (!skin)
 		return;
 
@@ -95,7 +58,7 @@ void CGUIToolBar::draw()
 	core::rect<s32>* clip = &AbsoluteClippingRect;
 
 	// draw frame
-	skin->draw3DToolBar(this, rect, clip);
+	skin->draw3DToolBar(getSharedThis(), rect, clip);
 
 	IGUIElement::draw();
 }
@@ -104,10 +67,10 @@ void CGUIToolBar::draw()
 //! Updates the absolute position.
 void CGUIToolBar::updateAbsolutePosition()
 {
-	if (Parent)
+	if (!Parent.expired())
 	{
 		DesiredRect.UpperLeftCorner.X = 0;
-		DesiredRect.LowerRightCorner.X = Parent->getAbsolutePosition().getWidth();
+		DesiredRect.LowerRightCorner.X = getParent()->getAbsolutePosition().getWidth();
 	}
 
 	IGUIElement::updateAbsolutePosition();
@@ -115,7 +78,7 @@ void CGUIToolBar::updateAbsolutePosition()
 
 
 //! Adds a button to the tool bar
-IGUIButton* CGUIToolBar::addButton(s32 id, const wchar_t* text,const wchar_t* tooltiptext,
+boost::shared_ptr<IGUIButton> CGUIToolBar::addButton(s32 id, const wchar_t* text,const wchar_t* tooltiptext,
 	video::ITexture* img, video::ITexture* pressed, bool isPushButton,
 	bool useAlphaChannel)
 {
@@ -129,10 +92,12 @@ IGUIButton* CGUIToolBar::addButton(s32 id, const wchar_t* text,const wchar_t* to
 		rectangle.LowerRightCorner.Y = rectangle.UpperLeftCorner.Y + size.Height + 6;
 	}
 
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+
 	if ( text )
 	{
-		boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-		IGUIFont * font = skin->getFont(EGDF_BUTTON);
+		boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
+		boost::shared_ptr<IGUIFont>  font = skin->getFont(EGDF_BUTTON);
 		if ( font )
 		{
 			core::dimension2d<u32> dim = font->getDimension(text);
@@ -145,8 +110,7 @@ IGUIButton* CGUIToolBar::addButton(s32 id, const wchar_t* text,const wchar_t* to
 
 	ButtonX += rectangle.getWidth();
 
-	IGUIButton* button = new CGUIButton(Environment, this, id, rectangle);
-	button->drop();
+	boost::shared_ptr<IGUIButton> button = boost::make_shared<CGUIButton>(lockedEnvironment, getSharedThis(), id, rectangle);
 
 	if (text)
 		button->setText(text);
@@ -167,6 +131,50 @@ IGUIButton* CGUIToolBar::addButton(s32 id, const wchar_t* text,const wchar_t* to
 		button->setUseAlphaChannel(useAlphaChannel);
 
 	return button;
+}
+
+void CGUIToolBar::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	// calculate position and find other menubars
+	s32 y = 0;
+	s32 parentwidth = 100;
+
+	if (!Parent.expired())
+	{
+		boost::shared_ptr<IGUIElement> lockedParent = getParent();
+
+		parentwidth = lockedParent->getAbsolutePosition().getWidth();
+
+		const core::list<boost::shared_ptr<IGUIElement>>& children = lockedParent->getChildren();
+		core::list<boost::shared_ptr<IGUIElement>>::ConstIterator it = children.begin();
+		for (; it != children.end(); ++it)
+		{
+			core::rect<s32> r = (*it)->getAbsolutePosition();
+			if (r.UpperLeftCorner.X == 0 && r.UpperLeftCorner.Y <= y &&
+				r.LowerRightCorner.X == parentwidth)
+				y = r.LowerRightCorner.Y;
+		}
+	}
+
+	core::rect<s32> rr;
+	rr.UpperLeftCorner.X = 0;
+	rr.UpperLeftCorner.Y = y;
+	s32 height = getSharedEnvironment()->getSkin()->getSize(EGDS_MENU_HEIGHT);
+
+	/*boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUIFont> font = skin->getFont();
+	if (font)
+	{
+		s32 t = font->getDimension(L"A").Height + 5;
+		if (t > height)
+			height = t;
+	}*/
+
+	rr.LowerRightCorner.X = parentwidth;
+	rr.LowerRightCorner.Y = rr.UpperLeftCorner.Y + height;
+	setRelativePosition(rr);
 }
 
 } // end namespace gui

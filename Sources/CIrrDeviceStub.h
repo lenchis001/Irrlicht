@@ -20,14 +20,14 @@ namespace irr
 	namespace gui
 	{
 		class IGUIEnvironment;
-		IGUIEnvironment* createGUIEnvironment(io::IFileSystem* fs,
+		boost::shared_ptr<IGUIEnvironment> createGUIEnvironment(io::IFileSystem* fs,
 			video::IVideoDriver* Driver, IOSOperator* op);
 	}
 
 	namespace scene
 	{
 		boost::shared_ptr<scene::ISceneManager> createSceneManager(video::IVideoDriver* driver,
-			io::IFileSystem* fs, boost::shared_ptr<gui::ICursorControl> cc, gui::IGUIEnvironment *gui);
+			io::IFileSystem* fs, boost::shared_ptr<gui::ICursorControl> cc, boost::shared_ptr<gui::IGUIEnvironment> gui);
 	}
 
 	namespace io
@@ -65,7 +65,7 @@ namespace irr
 		virtual io::IFileSystem* getFileSystem();
 
 		//! returns the gui environment
-		virtual gui::IGUIEnvironment* getGUIEnvironment();
+		virtual boost::shared_ptr<gui::IGUIEnvironment> getGUIEnvironment();
 
 		//! returns the scene manager
 		virtual boost::shared_ptr<scene::ISceneManager> getSceneManager();
@@ -151,7 +151,7 @@ namespace irr
 		void calculateGammaFromRamp ( f32 &gamma, const u16 *ramp );
 
 		video::IVideoDriver* VideoDriver;
-		gui::IGUIEnvironment* GUIEnvironment;
+		boost::shared_ptr<gui::IGUIEnvironment> GUIEnvironment;
 		boost::shared_ptr<scene::ISceneManager> SceneManager;
 		ITimer* Timer;
 		boost::shared_ptr<gui::ICursorControl> CursorControl;

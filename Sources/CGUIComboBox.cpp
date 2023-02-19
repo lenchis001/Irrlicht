@@ -20,56 +20,16 @@ namespace gui
 {
 
 //! constructor
-CGUIComboBox::CGUIComboBox(IGUIEnvironment* environment, IGUIElement* parent,
+CGUIComboBox::CGUIComboBox(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 	s32 id, core::rect<s32> rectangle)
 	: IGUIComboBox(environment, parent, id, rectangle),
 	ListButton(0), SelectedText(0), ListBox(0), LastFocus(0),
-	Selected(-1), HAlign(EGUIA_UPPERLEFT), VAlign(EGUIA_CENTER), MaxSelectionRows(5), HasFocus(false)
+	Selected(-1), HAlign(EGUIA_UPPERLEFT), VAlign(EGUIA_CENTER), MaxSelectionRows(5), HasFocus(false),
+	_rectangle(rectangle)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIComboBox");
 	#endif
-
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-
-	s32 width = 15;
-	if (skin)
-		width = skin->getSize(EGDS_WINDOW_BUTTON_WIDTH);
-
-	core::rect<s32> r;
-	r.UpperLeftCorner.X = rectangle.getWidth() - width - 2;
-	r.LowerRightCorner.X = rectangle.getWidth() - 2;
-
-	r.UpperLeftCorner.Y = 2;
-	r.LowerRightCorner.Y = rectangle.getHeight() - 2;
-
-	ListButton = Environment->addButton(r, this, -1, L"");
-	if (skin && skin->getSpriteBank())
-	{
-		ListButton->setSpriteBank(skin->getSpriteBank());
-		ListButton->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(EGDC_WINDOW_SYMBOL));
-		ListButton->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(EGDC_WINDOW_SYMBOL));
-	}
-	ListButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
-	ListButton->setSubElement(true);
-	ListButton->setTabStop(false);
-
-	r.UpperLeftCorner.X = 2;
-	r.UpperLeftCorner.Y = 2;
-	r.LowerRightCorner.X = RelativeRect.getWidth() - (ListButton->getAbsolutePosition().getWidth() + 2);
-	r.LowerRightCorner.Y = RelativeRect.getHeight() - 2;
-
-	SelectedText = Environment->addStaticText(L"", r, false, false, this, -1, false);
-	SelectedText->setSubElement(true);
-	SelectedText->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
-	SelectedText->setTextAlignment(EGUIA_UPPERLEFT, EGUIA_CENTER);
-	if (skin)
-		SelectedText->setOverrideColor(skin->getColor(EGDC_BUTTON_TEXT));
-	SelectedText->enableOverrideColor(true);
-
-	// this element can be tabbed to
-	setTabStop(true);
-	setTabOrder(-1);
 }
 
 
@@ -274,8 +234,8 @@ bool CGUIComboBox::OnEvent(const SEvent& event)
 			{
 			case EGET_ELEMENT_FOCUS_LOST:
 				if (ListBox &&
-					(Environment->hasFocus(ListBox) || ListBox->isMyChild(event.GUIEvent.Caller) ) &&
-					event.GUIEvent.Element != this &&
+					(getSharedEnvironment()->hasFocus(ListBox) || ListBox->isMyChild(event.GUIEvent.Caller)) &&
+					event.GUIEvent.Element.get() != this &&
 					!isMyChild(event.GUIEvent.Element) &&
 					!ListBox->isMyChild(event.GUIEvent.Element))
 				{
@@ -364,15 +324,15 @@ bool CGUIComboBox::OnEvent(const SEvent& event)
 
 void CGUIComboBox::sendSelectionChangedEvent()
 {
-	if (Parent)
+	if (!Parent.expired())
 	{
 		SEvent event;
 
 		event.EventType = EET_GUI_EVENT;
-		event.GUIEvent.Caller = this;
+		event.GUIEvent.Caller = getSharedThis();
 		event.GUIEvent.Element = 0;
 		event.GUIEvent.EventType = EGET_COMBO_BOX_CHANGED;
-		Parent->OnEvent(event);
+		getParent()->OnEvent(event);
 	}
 }
 
@@ -383,11 +343,12 @@ void CGUIComboBox::draw()
 	if (!IsVisible)
 		return;
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	IGUIElement *currentFocus = Environment->getFocus();
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
+	boost::shared_ptr<IGUIElement> currentFocus = lockedEnvironment->getFocus();
 	if (currentFocus != LastFocus)
 	{
-		HasFocus = currentFocus == this || isMyChild(currentFocus);
+		HasFocus = currentFocus.get() == this || isMyChild(currentFocus);
 		LastFocus = currentFocus;
 	}
 
@@ -411,7 +372,7 @@ void CGUIComboBox::draw()
 
 	// draw the border
 
-	skin->draw3DSunkenPane(this, skin->getColor(EGDC_3D_HIGH_LIGHT),
+	skin->draw3DSunkenPane(getSharedThis(), skin->getColor(EGDC_3D_HIGH_LIGHT),
 		true, true, frameRect, &AbsoluteClippingRect);
 
 	// draw children
@@ -421,19 +382,21 @@ void CGUIComboBox::draw()
 
 void CGUIComboBox::openCloseMenu()
 {
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+
 	if (ListBox)
 	{
 		// close list box
-		Environment->setFocus(this);
+		lockedEnvironment->setFocus(getSharedThis());
 		ListBox->remove();
 		ListBox = 0;
 	}
 	else
 	{
-		if (Parent)
-			Parent->bringToFront(this);
+		if (!Parent.expired())
+			getParent()->bringToFront(getSharedThis());
 
-		boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+		boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
 		u32 h = Items.size();
 
 		if (h > getMaxSelectionRows())
@@ -441,7 +404,7 @@ void CGUIComboBox::openCloseMenu()
 		if (h == 0)
 			h = 1;
 
-		IGUIFont* font = skin->getFont();
+		boost::shared_ptr<IGUIFont> font = skin->getFont();
 		if (font)
 			h *= (font->getDimension(L"A").Height + 4);
 
@@ -449,13 +412,14 @@ void CGUIComboBox::openCloseMenu()
 		core::rect<s32> r(0, AbsoluteRect.getHeight(),
 			AbsoluteRect.getWidth(), AbsoluteRect.getHeight() + h);
 
-		ListBox = new CGUIListBox(Environment, this, -1, r, false, true, true);
+		ListBox = boost::make_shared<CGUIListBox>(lockedEnvironment, getSharedThis(), -1, r, false, true, true);
+		ListBox->setWeakThis(ListBox);
+
 		ListBox->setSubElement(true);
 		ListBox->setNotClipped(true);
-		ListBox->drop();
 
 		// ensure that list box is always completely visible
-		if (ListBox->getAbsolutePosition().LowerRightCorner.Y > Environment->getRootGUIElement()->getAbsolutePosition().getHeight())
+		if (ListBox->getAbsolutePosition().LowerRightCorner.Y > lockedEnvironment->getRootGUIElement()->getAbsolutePosition().getHeight())
 			ListBox->setRelativePosition( core::rect<s32>(0, -ListBox->getAbsolutePosition().getHeight(), AbsoluteRect.getWidth(), 0) );
 
 		for (s32 i=0; i<(s32)Items.size(); ++i)
@@ -464,7 +428,7 @@ void CGUIComboBox::openCloseMenu()
 		ListBox->setSelected(Selected);
 
 		// set focus
-		Environment->setFocus(ListBox);
+		lockedEnvironment->setFocus(ListBox);
 	}
 }
 
@@ -513,6 +477,53 @@ void CGUIComboBox::deserializeAttributes(io::IAttributes* in, io::SAttributeRead
 	}
 
 	setSelected(in->getAttributeAsInt("Selected"));
+}
+
+void CGUIComboBox::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
+
+	s32 width = 15;
+	if (skin)
+		width = skin->getSize(EGDS_WINDOW_BUTTON_WIDTH);
+
+	core::rect<s32> r;
+	r.UpperLeftCorner.X = _rectangle.getWidth() - width - 2;
+	r.LowerRightCorner.X = _rectangle.getWidth() - 2;
+
+	r.UpperLeftCorner.Y = 2;
+	r.LowerRightCorner.Y = _rectangle.getHeight() - 2;
+
+	ListButton = lockedEnvironment->addButton(r, getSharedThis(), -1, L"");
+	if (skin && skin->getSpriteBank())
+	{
+		ListButton->setSpriteBank(skin->getSpriteBank());
+		ListButton->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(EGDC_WINDOW_SYMBOL));
+		ListButton->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(EGDC_WINDOW_SYMBOL));
+	}
+	ListButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
+	ListButton->setSubElement(true);
+	ListButton->setTabStop(false);
+
+	r.UpperLeftCorner.X = 2;
+	r.UpperLeftCorner.Y = 2;
+	r.LowerRightCorner.X = RelativeRect.getWidth() - (ListButton->getAbsolutePosition().getWidth() + 2);
+	r.LowerRightCorner.Y = RelativeRect.getHeight() - 2;
+
+	SelectedText = lockedEnvironment->addStaticText(L"", r, false, false, getSharedThis(), -1, false);
+	SelectedText->setSubElement(true);
+	SelectedText->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
+	SelectedText->setTextAlignment(EGUIA_UPPERLEFT, EGUIA_CENTER);
+	if (skin)
+		SelectedText->setOverrideColor(skin->getColor(EGDC_BUTTON_TEXT));
+	SelectedText->enableOverrideColor(true);
+
+	// this element can be tabbed to
+	setTabStop(true);
+	setTabOrder(-1);
 }
 
 } // end namespace gui

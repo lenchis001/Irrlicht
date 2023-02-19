@@ -183,7 +183,7 @@ namespace scene
 //! constructor
 CSceneManager::CSceneManager(video::IVideoDriver* driver, io::IFileSystem* fs,
 		boost::shared_ptr<gui::ICursorControl> cursorControl, IMeshCache* cache,
-		gui::IGUIEnvironment* gui)
+		boost::shared_ptr<gui::IGUIEnvironment> gui)
 : ISceneNode(0, 0), Driver(driver), FileSystem(fs), GUIEnvironment(gui),
 	CursorControl(cursorControl), CollisionManager(0),
 	ActiveCamera(0), ShadowColor(150,0,0,0), AmbientLight(0,0,0,0),
@@ -212,9 +212,6 @@ void CSceneManager::setWeakThis(boost::shared_ptr<CSceneManager> value)
 
 	if (FileSystem)
 		FileSystem->grab();
-
-	if (GUIEnvironment)
-		GUIEnvironment->grab();
 
 	// create mesh cache if not there already
 	if (!MeshCache)
@@ -332,9 +329,6 @@ CSceneManager::~CSceneManager()
 	if (CollisionManager)
 		CollisionManager->drop();
 
-	if (GUIEnvironment)
-		GUIEnvironment->drop();
-
 	u32 i;
 	for (i=0; i<MeshLoaderList.size(); ++i)
 		MeshLoaderList[i]->drop();
@@ -451,7 +445,7 @@ video::IVideoDriver* CSceneManager::getVideoDriver()
 
 
 //! returns the GUI Environment
-gui::IGUIEnvironment* CSceneManager::getGUIEnvironment()
+boost::shared_ptr<gui::IGUIEnvironment> CSceneManager::getGUIEnvironment()
 {
 	return GUIEnvironment;
 }
@@ -466,7 +460,7 @@ io::IFileSystem* CSceneManager::getFileSystem()
 
 //! Adds a text scene node, which is able to display
 //! 2d text at a position in three dimensional space
-boost::shared_ptr<ITextSceneNode> CSceneManager::addTextSceneNode(gui::IGUIFont* font,
+boost::shared_ptr<ITextSceneNode> CSceneManager::addTextSceneNode(boost::shared_ptr<gui::IGUIFont> font,
 		const wchar_t* text, video::SColor color, boost::shared_ptr<ISceneNode> parent,
 		const core::vector3df& position, s32 id)
 {
@@ -485,7 +479,7 @@ boost::shared_ptr<ITextSceneNode> CSceneManager::addTextSceneNode(gui::IGUIFont*
 
 
 //! Adds a text scene node, which uses billboards
-boost::shared_ptr<IBillboardTextSceneNode> CSceneManager::addBillboardTextSceneNode(gui::IGUIFont* font,
+boost::shared_ptr<IBillboardTextSceneNode> CSceneManager::addBillboardTextSceneNode(boost::shared_ptr<gui::IGUIFont> font,
 		const wchar_t* text, boost::shared_ptr<ISceneNode> parent,
 		const core::dimension2d<f32>& size,
 		const core::vector3df& position, s32 id,
@@ -2496,7 +2490,7 @@ IMeshWriter* CSceneManager::createMeshWriter(EMESH_WRITER_TYPE type)
 // creates a scenemanager
 boost::shared_ptr<scene::ISceneManager> createSceneManager(video::IVideoDriver* driver,
 		io::IFileSystem* fs, boost::shared_ptr<gui::ICursorControl> cursorcontrol,
-		gui::IGUIEnvironment *guiEnvironment)
+		boost::shared_ptr<gui::IGUIEnvironment> guiEnvironment)
 {
 	boost::shared_ptr<scene::CSceneManager> sceneManager = boost::make_shared<CSceneManager>(driver, fs, cursorcontrol, nullptr, guiEnvironment);
 	sceneManager->setWeakThis(sceneManager);

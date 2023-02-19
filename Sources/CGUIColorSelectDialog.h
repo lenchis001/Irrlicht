@@ -25,7 +25,7 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIColorSelectDialog(const wchar_t* title, IGUIEnvironment* environment, IGUIElement* parent, s32 id);
+		CGUIColorSelectDialog(const wchar_t* title, boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id);
 
 		//! destructor
 		virtual ~CGUIColorSelectDialog();
@@ -39,6 +39,8 @@ namespace gui
 		virtual video::SColor getColor();
 		virtual video::SColorHSL getColorHSL();
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
+
 	private:
 
 		//! sends the event that the file has been selected.
@@ -49,15 +51,15 @@ namespace gui
 
 		core::position2d<s32> DragStart;
 		bool Dragging;
-		IGUIButton* CloseButton;
-		IGUIButton* OKButton;
-		IGUIButton* CancelButton;
+		boost::shared_ptr<IGUIButton> CloseButton;
+		boost::shared_ptr<IGUIButton> OKButton;
+		boost::shared_ptr<IGUIButton> CancelButton;
 
-		core::array<IGUISpinBox*> Battery;
+		core::array<boost::shared_ptr<IGUISpinBox>> Battery;
 
 		struct SColorCircle
 		{
-			IGUIImage * Control;
+			boost::shared_ptr<IGUIImage>  Control;
 			video::ITexture * Texture;
 		};
 		SColorCircle ColorRing;

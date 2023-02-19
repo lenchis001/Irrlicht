@@ -33,7 +33,7 @@ namespace irr
 namespace gui
 {
 
-CDefaultGUIElementFactory::CDefaultGUIElementFactory(IGUIEnvironment* env)
+CDefaultGUIElementFactory::CDefaultGUIElementFactory(boost::shared_ptr<IGUIEnvironment> env)
 : Environment(env)
 {
 
@@ -46,7 +46,7 @@ CDefaultGUIElementFactory::CDefaultGUIElementFactory(IGUIEnvironment* env)
 
 
 //! adds an element to the env based on its type id
-IGUIElement* CDefaultGUIElementFactory::addGUIElement(EGUI_ELEMENT_TYPE type, IGUIElement* parent)
+boost::shared_ptr<IGUIElement> CDefaultGUIElementFactory::addGUIElement(EGUI_ELEMENT_TYPE type, boost::shared_ptr<IGUIElement> parent)
 {
 	switch(type)
 	{
@@ -105,7 +105,7 @@ IGUIElement* CDefaultGUIElementFactory::addGUIElement(EGUI_ELEMENT_TYPE type, IG
 
 
 //! adds an element to the environment based on its type name
-IGUIElement* CDefaultGUIElementFactory::addGUIElement(const c8* typeName, IGUIElement* parent)
+boost::shared_ptr<IGUIElement> CDefaultGUIElementFactory::addGUIElement(const c8* typeName, boost::shared_ptr<IGUIElement> parent)
 {
 	return addGUIElement( getTypeFromName(typeName), parent );
 }

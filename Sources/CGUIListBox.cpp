@@ -20,7 +20,7 @@ namespace gui
 {
 
 //! constructor
-CGUIListBox::CGUIListBox(IGUIEnvironment* environment, IGUIElement* parent,
+CGUIListBox::CGUIListBox(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 			s32 id, core::rect<s32> rectangle, bool clip,
 			bool drawBack, bool moveOverSelect)
 : IGUIListBox(environment, parent, id, rectangle), Selected(-1),
@@ -33,37 +33,13 @@ CGUIListBox::CGUIListBox(IGUIEnvironment* environment, IGUIElement* parent,
 	setDebugName("CGUIListBox");
 	#endif
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	const s32 s = skin->getSize(EGDS_SCROLLBAR_SIZE);
-
-	ScrollBar = new CGUIScrollBar(false, Environment, this, -1,
-		core::rect<s32>(RelativeRect.getWidth() - s, 0, RelativeRect.getWidth(), RelativeRect.getHeight()),
-		!clip);
-	ScrollBar->setSubElement(true);
-	ScrollBar->setTabStop(false);
-	ScrollBar->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
-	ScrollBar->setVisible(false);
-	ScrollBar->setPos(0);
-
-	setNotClipped(!clip);
-
-	// this element can be tabbed to
-	setTabStop(true);
-	setTabOrder(-1);
-
-	updateAbsolutePosition();
+	_clip = clip;
 }
 
 
 //! destructor
 CGUIListBox::~CGUIListBox()
 {
-	if (ScrollBar)
-		ScrollBar->drop();
-
-	if (Font)
-		Font->drop();
-
 	if (IconBank)
 		IconBank->drop();
 }
@@ -158,13 +134,10 @@ void CGUIListBox::clear()
 
 void CGUIListBox::recalculateItemHeight()
 {
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 
 	if (Font != skin->getFont())
 	{
-		if (Font)
-			Font->drop();
-
 		Font = skin->getFont();
 		if ( 0 == ItemHeightOverride )
 			ItemHeight = 0;
@@ -173,8 +146,6 @@ void CGUIListBox::recalculateItemHeight()
 		{
 			if ( 0 == ItemHeightOverride )
 				ItemHeight = Font->getDimension(L"A").Height + 4;
-
-			Font->grab();
 		}
 	}
 
@@ -277,14 +248,14 @@ bool CGUIListBox::OnEvent(const SEvent& event)
 
 				// post the news
 
-				if (oldSelected != Selected && Parent && !Selecting && !MoveOverSelect)
+				if (oldSelected != Selected && !Parent.expired() && !Selecting && !MoveOverSelect)
 				{
 					SEvent e;
 					e.EventType = EET_GUI_EVENT;
-					e.GUIEvent.Caller = this;
+					e.GUIEvent.Caller = getSharedThis();
 					e.GUIEvent.Element = 0;
 					e.GUIEvent.EventType = EGET_LISTBOX_CHANGED;
-					Parent->OnEvent(e);
+					getParent()->OnEvent(e);
 				}
 
 				return true;
@@ -292,14 +263,14 @@ bool CGUIListBox::OnEvent(const SEvent& event)
 			else
 			if (!event.KeyInput.PressedDown && ( event.KeyInput.Key == KEY_RETURN || event.KeyInput.Key == KEY_SPACE ) )
 			{
-				if (Parent)
+				if (!Parent.expired())
 				{
 					SEvent e;
 					e.EventType = EET_GUI_EVENT;
-					e.GUIEvent.Caller = this;
+					e.GUIEvent.Caller = getSharedThis();
 					e.GUIEvent.Element = 0;
 					e.GUIEvent.EventType = EGET_LISTBOX_SELECTED_AGAIN;
-					Parent->OnEvent(e);
+					getParent()->OnEvent(e);
 				}
 				return true;
 			}
@@ -341,14 +312,14 @@ bool CGUIListBox::OnEvent(const SEvent& event)
 					{
 						if (KeyBuffer.equals_ignore_case(Items[current].text.subString(0,KeyBuffer.size())))
 						{
-							if (Parent && Selected != current && !Selecting && !MoveOverSelect)
+							if (!Parent.expired() && Selected != current && !Selecting && !MoveOverSelect)
 							{
 								SEvent e;
 								e.EventType = EET_GUI_EVENT;
-								e.GUIEvent.Caller = this;
+								e.GUIEvent.Caller = getSharedThis();
 								e.GUIEvent.Element = 0;
 								e.GUIEvent.EventType = EGET_LISTBOX_CHANGED;
-								Parent->OnEvent(e);
+								getParent()->OnEvent(e);
 							}
 							setSelected(current);
 							return true;
@@ -361,15 +332,15 @@ bool CGUIListBox::OnEvent(const SEvent& event)
 					{
 						if (KeyBuffer.equals_ignore_case(Items[current].text.subString(0,KeyBuffer.size())))
 						{
-							if (Parent && Selected != current && !Selecting && !MoveOverSelect)
+							if (!Parent.expired() && Selected != current && !Selecting && !MoveOverSelect)
 							{
 								Selected = current;
 								SEvent e;
 								e.EventType = EET_GUI_EVENT;
-								e.GUIEvent.Caller = this;
+								e.GUIEvent.Caller = getSharedThis();
 								e.GUIEvent.Element = 0;
 								e.GUIEvent.EventType = EGET_LISTBOX_CHANGED;
-								Parent->OnEvent(e);
+								getParent()->OnEvent(e);
 							}
 							setSelected(current);
 							return true;
@@ -390,7 +361,7 @@ bool CGUIListBox::OnEvent(const SEvent& event)
 				break;
 			case gui::EGET_ELEMENT_FOCUS_LOST:
 				{
-					if (event.GUIEvent.Caller == this)
+					if (event.GUIEvent.Caller.get() == this)
 						Selecting = false;
 				}
 			default:
@@ -464,14 +435,14 @@ void CGUIListBox::selectNew(s32 ypos, bool onlyHover)
 	gui::EGUI_EVENT_TYPE eventType = (Selected == oldSelected && now < selectTime + 500) ? EGET_LISTBOX_SELECTED_AGAIN : EGET_LISTBOX_CHANGED;
 	selectTime = now;
 	// post the news
-	if (Parent && !onlyHover)
+	if (!Parent.expired() && !onlyHover)
 	{
 		SEvent event;
 		event.EventType = EET_GUI_EVENT;
-		event.GUIEvent.Caller = this;
+		event.GUIEvent.Caller = getSharedThis();
 		event.GUIEvent.Element = 0;
 		event.GUIEvent.EventType = eventType;
-		Parent->OnEvent(event);
+		getParent()->OnEvent(event);
 	}
 }
 
@@ -493,7 +464,8 @@ void CGUIListBox::draw()
 
 	recalculateItemHeight(); // if the font changed
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
 
 	core::rect<s32>* clipRect = 0;
 
@@ -510,7 +482,9 @@ void CGUIListBox::draw()
 	clientClip.LowerRightCorner.Y -= 1;
 	clientClip.clipAgainst(AbsoluteClippingRect);
 
-	skin->draw3DSunkenPane(this, skin->getColor(EGDC_3D_HIGH_LIGHT), true,
+	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
+
+	skin->draw3DSunkenPane(lockedThis, skin->getColor(EGDC_3D_HIGH_LIGHT), true,
 		DrawBack, frameRect, &AbsoluteClippingRect);
 
 	if (clipRect)
@@ -526,7 +500,7 @@ void CGUIListBox::draw()
 	frameRect.UpperLeftCorner.Y -= ScrollBar->getPos();
 	frameRect.LowerRightCorner.Y -= ScrollBar->getPos();
 
-	bool hl = (HighlightWhenNotFocused || Environment->hasFocus(this) || Environment->hasFocus(ScrollBar));
+	bool hl = (HighlightWhenNotFocused || lockedEnvironment->hasFocus(lockedThis) || lockedEnvironment->hasFocus(ScrollBar));
 
 	for (s32 i=0; i<(s32)Items.size(); ++i)
 	{
@@ -534,7 +508,7 @@ void CGUIListBox::draw()
 			frameRect.UpperLeftCorner.Y <= AbsoluteRect.LowerRightCorner.Y)
 		{
 			if (i == Selected && hl)
-				skin->draw2DRectangle(this, skin->getColor(EGDC_HIGH_LIGHT), frameRect, &clientClip);
+				skin->draw2DRectangle(lockedThis, skin->getColor(EGDC_HIGH_LIGHT), frameRect, &clientClip);
 
 			core::rect<s32> textRect = frameRect;
 			textRect.UpperLeftCorner.X += 3;
@@ -867,9 +841,9 @@ video::SColor CGUIListBox::getItemOverrideColor(u32 index, EGUI_LISTBOX_COLOR co
 }
 
 
-video::SColor CGUIListBox::getItemDefaultColor(EGUI_LISTBOX_COLOR colorType) const
+video::SColor CGUIListBox::getItemDefaultColor(EGUI_LISTBOX_COLOR colorType)
 {
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 	if ( !skin )
 		return video::SColor();
 
@@ -900,6 +874,32 @@ void CGUIListBox::setItemHeight( s32 height )
 void CGUIListBox::setDrawBackground(bool draw)
 {
     DrawBack = draw;
+}
+
+void CGUIListBox::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
+	const s32 s = skin->getSize(EGDS_SCROLLBAR_SIZE);
+
+	ScrollBar = boost::make_shared<CGUIScrollBar>(false, lockedEnvironment, getSharedThis(), -1,
+		core::rect<s32>(RelativeRect.getWidth() - s, 0, RelativeRect.getWidth(), RelativeRect.getHeight()),
+		!_clip);
+	ScrollBar->setSubElement(true);
+	ScrollBar->setTabStop(false);
+	ScrollBar->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
+	ScrollBar->setVisible(false);
+	ScrollBar->setPos(0);
+
+	setNotClipped(!_clip);
+
+	// this element can be tabbed to
+	setTabStop(true);
+	setTabOrder(-1);
+
+	updateAbsolutePosition();
 }
 
 

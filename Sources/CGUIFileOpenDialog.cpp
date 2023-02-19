@@ -28,7 +28,7 @@ const s32 FOD_HEIGHT = 250;
 
 //! constructor
 CGUIFileOpenDialog::CGUIFileOpenDialog(const wchar_t* title,
-		IGUIEnvironment* environment, IGUIElement* parent, s32 id,
+		boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id,
 		bool restoreCWD, io::path::char_type* startDir)
 : IGUIFileOpenDialog(environment, parent, id,
 		core::rect<s32>((parent->getAbsolutePosition().getWidth()-FOD_WIDTH)/2,
@@ -43,96 +43,14 @@ CGUIFileOpenDialog::CGUIFileOpenDialog(const wchar_t* title,
 
 	Text = title;
 
-	FileSystem = Environment?Environment->getFileSystem():0;
-
-	if (FileSystem)
-	{
-		FileSystem->grab();
-
-		if (restoreCWD)
-			RestoreDirectory = FileSystem->getWorkingDirectory();
-		if (startDir)
-		{
-			StartDirectory = startDir;
-			FileSystem->changeWorkingDirectoryTo(startDir);
-		}
-	}
-	else
-		return;
-
-	IGUISpriteBank* sprites = 0;
-	video::SColor color(255,255,255,255);
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	if (skin)
-	{
-		sprites = skin->getSpriteBank();
-		color = skin->getColor(EGDC_WINDOW_SYMBOL);
-	}
-
-	const s32 buttonw = skin->getSize(EGDS_WINDOW_BUTTON_WIDTH);
-	const s32 posx = RelativeRect.getWidth() - buttonw - 4;
-
-	CloseButton = Environment->addButton(core::rect<s32>(posx, 3, posx + buttonw, 3 + buttonw), this, -1,
-		L"", skin ? skin->getDefaultText(EGDT_WINDOW_CLOSE) : L"Close");
-	CloseButton->setSubElement(true);
-	CloseButton->setTabStop(false);
-	if (sprites)
-	{
-		CloseButton->setSpriteBank(sprites);
-		CloseButton->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_WINDOW_CLOSE), color);
-		CloseButton->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_WINDOW_CLOSE), color);
-	}
-	CloseButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
-	CloseButton->grab();
-
-	OKButton = Environment->addButton(
-		core::rect<s32>(RelativeRect.getWidth()-80, 30, RelativeRect.getWidth()-10, 50),
-		this, -1, skin ? skin->getDefaultText(EGDT_MSG_BOX_OK) : L"OK");
-	OKButton->setSubElement(true);
-	OKButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
-	OKButton->grab();
-
-	CancelButton = Environment->addButton(
-		core::rect<s32>(RelativeRect.getWidth()-80, 55, RelativeRect.getWidth()-10, 75),
-		this, -1, skin ? skin->getDefaultText(EGDT_MSG_BOX_CANCEL) : L"Cancel");
-	CancelButton->setSubElement(true);
-	CancelButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
-	CancelButton->grab();
-
-	FileBox = Environment->addListBox(core::rect<s32>(10, 55, RelativeRect.getWidth()-90, 230), this, -1, true);
-	FileBox->setSubElement(true);
-	FileBox->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
-	FileBox->grab();
-
-	FileNameText = Environment->addEditBox(0, core::rect<s32>(10, 30, RelativeRect.getWidth()-90, 50), true, this);
-	FileNameText->setSubElement(true);
-	FileNameText->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
-	FileNameText->grab();
-
-	setTabGroup(true);
-
-	fillListBox();
+	_restoreCWD = restoreCWD;
+	_startDir = startDir;
 }
 
 
 //! destructor
 CGUIFileOpenDialog::~CGUIFileOpenDialog()
 {
-	if (CloseButton)
-		CloseButton->drop();
-
-	if (OKButton)
-		OKButton->drop();
-
-	if (CancelButton)
-		CancelButton->drop();
-
-	if (FileBox)
-		FileBox->drop();
-
-	if (FileNameText)
-		FileNameText->drop();
-
 	if (FileSystem)
 	{
 		// revert to original CWD if path was set in constructor
@@ -262,7 +180,7 @@ bool CGUIFileOpenDialog::OnEvent(const SEvent& event)
 				DragStart.X = event.MouseInput.X;
 				DragStart.Y = event.MouseInput.Y;
 				Dragging = true;
-				Environment->setFocus(this);
+				getSharedEnvironment()->setFocus(getSharedThis());
 				return true;
 			case EMIE_LMOUSE_LEFT_UP:
 				Dragging = false;
@@ -274,12 +192,14 @@ bool CGUIFileOpenDialog::OnEvent(const SEvent& event)
 
 				if (Dragging)
 				{
+					boost::shared_ptr<IGUIElement> lockedParent = getParent();
+
 					// gui window should not be dragged outside its parent
-					if (Parent)
-						if (event.MouseInput.X < Parent->getAbsolutePosition().UpperLeftCorner.X +1 ||
-							event.MouseInput.Y < Parent->getAbsolutePosition().UpperLeftCorner.Y +1 ||
-							event.MouseInput.X > Parent->getAbsolutePosition().LowerRightCorner.X -1 ||
-							event.MouseInput.Y > Parent->getAbsolutePosition().LowerRightCorner.Y -1)
+					if (lockedParent)
+						if (event.MouseInput.X < lockedParent->getAbsolutePosition().UpperLeftCorner.X +1 ||
+							event.MouseInput.Y < lockedParent->getAbsolutePosition().UpperLeftCorner.Y +1 ||
+							event.MouseInput.X > lockedParent->getAbsolutePosition().LowerRightCorner.X -1 ||
+							event.MouseInput.Y > lockedParent->getAbsolutePosition().LowerRightCorner.Y -1)
 
 							return true;
 
@@ -307,11 +227,11 @@ void CGUIFileOpenDialog::draw()
 	if (!IsVisible)
 		return;
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 
 	core::rect<s32> rect = AbsoluteRect;
 
-	rect = skin->draw3DWindowBackground(this, true, skin->getColor(EGDC_ACTIVE_BORDER),
+	rect = skin->draw3DWindowBackground(getSharedThis(), true, skin->getColor(EGDC_ACTIVE_BORDER),
 		rect, &AbsoluteClippingRect);
 
 	if (Text.size())
@@ -319,7 +239,7 @@ void CGUIFileOpenDialog::draw()
 		rect.UpperLeftCorner.X += 2;
 		rect.LowerRightCorner.X -= skin->getSize(EGDS_WINDOW_BUTTON_WIDTH) + 5;
 
-		IGUIFont* font = skin->getFont(EGDF_WINDOW);
+		boost::shared_ptr<IGUIFont> font = skin->getFont(EGDF_WINDOW);
 		if (font)
 			font->draw(Text.c_str(), rect,
 					skin->getColor(EGDC_ACTIVE_CAPTION),
@@ -359,11 +279,84 @@ void CGUIFileOpenDialog::deserializeAttributes(io::IAttributes* in, io::SAttribu
 	IGUIFileOpenDialog::deserializeAttributes(in,options);
 }
 
+void CGUIFileOpenDialog::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	FileSystem = lockedEnvironment ? lockedEnvironment->getFileSystem() : 0;
+
+	if (FileSystem)
+	{
+		FileSystem->grab();
+
+		if (_restoreCWD)
+			RestoreDirectory = FileSystem->getWorkingDirectory();
+		if (_startDir)
+		{
+			StartDirectory = _startDir;
+			FileSystem->changeWorkingDirectoryTo(_startDir);
+		}
+	}
+	else
+		return;
+
+	IGUISpriteBank* sprites = 0;
+	video::SColor color(255, 255, 255, 255);
+	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
+	if (skin)
+	{
+		sprites = skin->getSpriteBank();
+		color = skin->getColor(EGDC_WINDOW_SYMBOL);
+	}
+
+	const s32 buttonw = skin->getSize(EGDS_WINDOW_BUTTON_WIDTH);
+	const s32 posx = RelativeRect.getWidth() - buttonw - 4;
+
+	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
+
+	CloseButton = lockedEnvironment->addButton(core::rect<s32>(posx, 3, posx + buttonw, 3 + buttonw), lockedThis, -1,
+		L"", skin ? skin->getDefaultText(EGDT_WINDOW_CLOSE) : L"Close");
+	CloseButton->setSubElement(true);
+	CloseButton->setTabStop(false);
+	if (sprites)
+	{
+		CloseButton->setSpriteBank(sprites);
+		CloseButton->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_WINDOW_CLOSE), color);
+		CloseButton->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_WINDOW_CLOSE), color);
+	}
+	CloseButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
+
+	OKButton = lockedEnvironment->addButton(
+		core::rect<s32>(RelativeRect.getWidth() - 80, 30, RelativeRect.getWidth() - 10, 50),
+		lockedThis, -1, skin ? skin->getDefaultText(EGDT_MSG_BOX_OK) : L"OK");
+	OKButton->setSubElement(true);
+	OKButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
+
+	CancelButton = lockedEnvironment->addButton(
+		core::rect<s32>(RelativeRect.getWidth() - 80, 55, RelativeRect.getWidth() - 10, 75),
+		lockedThis, -1, skin ? skin->getDefaultText(EGDT_MSG_BOX_CANCEL) : L"Cancel");
+	CancelButton->setSubElement(true);
+	CancelButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
+
+	FileBox = lockedEnvironment->addListBox(core::rect<s32>(10, 55, RelativeRect.getWidth() - 90, 230), lockedThis, -1, true);
+	FileBox->setSubElement(true);
+	FileBox->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
+
+	FileNameText = lockedEnvironment->addEditBox(0, core::rect<s32>(10, 30, RelativeRect.getWidth() - 90, 50), true, lockedThis);
+	FileNameText->setSubElement(true);
+	FileNameText->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
+
+	setTabGroup(true);
+
+	fillListBox();
+}
+
 
 //! fills the listbox with files.
 void CGUIFileOpenDialog::fillListBox()
 {
-	boost::shared_ptr<IGUISkin>skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin>skin = getSharedEnvironment()->getSkin();
 
 	if (!FileSystem || !FileBox || !skin)
 		return;
@@ -420,10 +413,10 @@ void CGUIFileOpenDialog::sendSelectedEvent( EGUI_EVENT_TYPE type)
 {
 	SEvent event;
 	event.EventType = EET_GUI_EVENT;
-	event.GUIEvent.Caller = this;
+	event.GUIEvent.Caller = getSharedThis();
 	event.GUIEvent.Element = 0;
 	event.GUIEvent.EventType = type;
-	Parent->OnEvent(event);
+	getParent()->OnEvent(event);
 }
 
 
@@ -432,10 +425,10 @@ void CGUIFileOpenDialog::sendCancelEvent()
 {
 	SEvent event;
 	event.EventType = EET_GUI_EVENT;
-	event.GUIEvent.Caller = this;
+	event.GUIEvent.Caller = getSharedThis();
 	event.GUIEvent.Element = 0;
 	event.GUIEvent.EventType = EGET_FILE_CHOOSE_DIALOG_CANCELLED;
-	Parent->OnEvent(event);
+	getParent()->OnEvent(event);
 }
 
 } // end namespace gui

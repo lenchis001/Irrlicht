@@ -23,7 +23,7 @@ namespace gui
 	{
 	public:
 		//! constructor
-		CGUIListBox(IGUIEnvironment* environment, IGUIElement* parent,
+		CGUIListBox(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 			s32 id, core::rect<s32> rectangle, bool clip=true,
 			bool drawBack=false, bool moveOverSelect=false);
 
@@ -113,7 +113,7 @@ namespace gui
 		virtual video::SColor getItemOverrideColor(u32 index, EGUI_LISTBOX_COLOR colorType) const;
 
 		//! return the default color which is used for the given colorType
-		virtual video::SColor getItemDefaultColor(EGUI_LISTBOX_COLOR colorType) const;
+		virtual video::SColor getItemDefaultColor(EGUI_LISTBOX_COLOR colorType);
 
 		//! set the item at the given index
 		virtual void setItem(u32 index, const wchar_t* text, s32 icon);
@@ -131,6 +131,7 @@ namespace gui
         //! Sets whether to draw the background
         virtual void setDrawBackground(bool draw);
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
 
 	private:
 
@@ -168,9 +169,9 @@ namespace gui
 		s32 ItemHeightOverride;
 		s32 TotalItemHeight;
 		s32 ItemsIconWidth;
-		gui::IGUIFont* Font;
+		boost::shared_ptr<gui::IGUIFont> Font;
 		gui::IGUISpriteBank* IconBank;
-		gui::IGUIScrollBar* ScrollBar;
+		boost::shared_ptr<gui::IGUIScrollBar> ScrollBar;
 		u32 selectTime;
 		u32 LastKeyTime;
 		core::stringw KeyBuffer;
@@ -179,6 +180,7 @@ namespace gui
 		bool MoveOverSelect;
 		bool AutoScroll;
 		bool HighlightWhenNotFocused;
+		bool _clip;
 	};
 
 

@@ -26,7 +26,7 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIComboBox(IGUIEnvironment* environment, IGUIElement* parent,
+		CGUIComboBox(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 			s32 id, core::rect<s32> rectangle);
 
 		//! Returns amount of items in box
@@ -80,15 +80,17 @@ namespace gui
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
+
 	private:
 
 		void openCloseMenu();
 		void sendSelectionChangedEvent();
 
-		IGUIButton* ListButton;
-		IGUIStaticText* SelectedText;
-		IGUIListBox* ListBox;
-		IGUIElement *LastFocus;
+		boost::shared_ptr<IGUIButton> ListButton;
+		boost::shared_ptr<IGUIStaticText> SelectedText;
+		boost::shared_ptr<IGUIListBox> ListBox;
+		boost::shared_ptr<IGUIElement> LastFocus;
 
 
 		struct SComboData
@@ -105,6 +107,7 @@ namespace gui
 		EGUI_ALIGNMENT HAlign, VAlign;
 		u32 MaxSelectionRows;
 		bool HasFocus;
+		core::rect<s32> _rectangle;
 	};
 
 

@@ -36,9 +36,9 @@ namespace scene
 		//! constructor
 		CSceneManager(video::IVideoDriver* driver, io::IFileSystem* fs,
 			boost::shared_ptr<gui::ICursorControl> cursorControl, IMeshCache* cache = 0,
-			gui::IGUIEnvironment *guiEnvironment = 0);
+			boost::shared_ptr<gui::IGUIEnvironment> guiEnvironment = 0);
 
-		void setWeakThis(boost::shared_ptr<CSceneManager> value);
+		virtual void setWeakThis(boost::shared_ptr<CSceneManager> value);
 
 		//! destructor
 		virtual ~CSceneManager();
@@ -56,7 +56,7 @@ namespace scene
 		virtual video::IVideoDriver* getVideoDriver();
 
 		//! return the gui environment
-		virtual gui::IGUIEnvironment* getGUIEnvironment();
+		virtual boost::shared_ptr<gui::IGUIEnvironment> getGUIEnvironment();
 
 		//! return the filesystem
 		virtual io::IFileSystem* getFileSystem();
@@ -189,13 +189,13 @@ namespace scene
 
 		//! Adds a text scene node, which is able to display
 		//! 2d text at a position in three dimensional space
-		virtual boost::shared_ptr<ITextSceneNode> addTextSceneNode(gui::IGUIFont* font, const wchar_t* text,
+		virtual boost::shared_ptr<ITextSceneNode> addTextSceneNode(boost::shared_ptr<gui::IGUIFont> font, const wchar_t* text,
 			video::SColor color=video::SColor(100,255,255,255),
 			boost::shared_ptr<ISceneNode> parent = 0,	const core::vector3df& position = core::vector3df(0,0,0),
 			s32 id=-1);
 
 		//! Adds a text scene node, which uses billboards
-		virtual boost::shared_ptr<IBillboardTextSceneNode> addBillboardTextSceneNode(gui::IGUIFont* font, const wchar_t* text,
+		virtual boost::shared_ptr<IBillboardTextSceneNode> addBillboardTextSceneNode(boost::shared_ptr<gui::IGUIFont> font, const wchar_t* text,
 			boost::shared_ptr<ISceneNode> parent = 0,
 			const core::dimension2d<f32>& size = core::dimension2d<f32>(10.0f, 10.0f),
 			const core::vector3df& position = core::vector3df(0,0,0), s32 id=-1,
@@ -606,7 +606,7 @@ namespace scene
 		io::IFileSystem* FileSystem;
 
 		//! GUI Enviroment ( Debug Purpose )
-		gui::IGUIEnvironment* GUIEnvironment;
+		boost::shared_ptr<gui::IGUIEnvironment> GUIEnvironment;
 
 		//! cursor control
 		boost::shared_ptr<gui::ICursorControl> CursorControl;

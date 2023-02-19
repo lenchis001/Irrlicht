@@ -20,7 +20,7 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUITab(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUITab(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_TAB, environment, parent, id, rectangle) {}
 
 		//! Returns zero based index of tab if in tabcontrol.
@@ -57,15 +57,15 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUITabControl(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUITabControl(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_TAB_CONTROL, environment, parent, id, rectangle) {}
 
 		//! Adds a tab
-		virtual IGUITab* addTab(const wchar_t* caption, s32 id=-1) = 0;
+		virtual boost::shared_ptr<IGUITab> addTab(const wchar_t* caption, s32 id=-1) = 0;
 
 		//! Insert the tab at the given index
 		/** \return The tab on success or NULL on failure. */
-		virtual IGUITab* insertTab(s32 idx, const wchar_t* caption, s32 id=-1) = 0;
+		virtual boost::shared_ptr<IGUITab> insertTab(s32 idx, const wchar_t* caption, s32 id=-1) = 0;
 
 		//! Removes a tab from the tabcontrol
 		virtual void removeTab(s32 idx) = 0;
@@ -80,7 +80,7 @@ namespace gui
 		/** \param idx: zero based index of tab. Is a value betwenn 0 and getTabcount()-1;
 		\return Returns pointer to the Tab. Returns 0 if no tab
 		is corresponding to this tab. */
-		virtual IGUITab* getTab(s32 idx) const = 0;
+		virtual boost::shared_ptr<IGUITab> getTab(s32 idx) const = 0;
 
 		//! Brings a tab to front.
 		/** \param idx: number of the tab.
@@ -90,14 +90,14 @@ namespace gui
 		//! Brings a tab to front.
 		/** \param tab: pointer to the tab.
 		\return Returns true if successful. */
-		virtual bool setActiveTab(IGUITab *tab) = 0;
+		virtual bool setActiveTab(boost::shared_ptr<IGUITab> tab) = 0;
 
 		//! Returns which tab is currently active
 		virtual s32 getActiveTab() const = 0;
 
 		//! get the the id of the tab at the given absolute coordinates
 		/** \return The id of the tab or -1 when no tab is at those coordinates*/
-		virtual s32 getTabAt(s32 xpos, s32 ypos) const = 0;
+		virtual s32 getTabAt(s32 xpos, s32 ypos) = 0;
 
 		//! Set the height of the tabs
 		virtual void setTabHeight( s32 height ) = 0;

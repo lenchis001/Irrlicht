@@ -18,7 +18,7 @@ namespace gui
 
 //! constructor
 CGUIStaticText::CGUIStaticText(const wchar_t* text, bool border,
-			IGUIEnvironment* environment, IGUIElement* parent,
+			boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 			s32 id, const core::rect<s32>& rectangle,
 			bool background)
 : IGUIStaticText(environment, parent, id, rectangle),
@@ -33,6 +33,7 @@ CGUIStaticText::CGUIStaticText(const wchar_t* text, bool border,
 	#endif
 
 	Text = text;
+
 	if (environment && environment->getSkin())
 	{
 		BGColor = environment->getSkin()->getColor(gui::EGDC_3D_FACE);
@@ -43,8 +44,6 @@ CGUIStaticText::CGUIStaticText(const wchar_t* text, bool border,
 //! destructor
 CGUIStaticText::~CGUIStaticText()
 {
-	if (OverrideFont)
-		OverrideFont->drop();
 }
 
 
@@ -54,10 +53,12 @@ void CGUIStaticText::draw()
 	if (!IsVisible)
 		return;
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+
+	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
 	if (!skin)
 		return;
-	video::IVideoDriver* driver = Environment->getVideoDriver();
+	video::IVideoDriver* driver = lockedEnvironment->getVideoDriver();
 
 	core::rect<s32> frameRect(AbsoluteRect);
 
@@ -75,14 +76,14 @@ void CGUIStaticText::draw()
 
 	if (Border)
 	{
-		skin->draw3DSunkenPane(this, 0, true, false, frameRect, &AbsoluteClippingRect);
+		skin->draw3DSunkenPane(getSharedThis(), 0, true, false, frameRect, &AbsoluteClippingRect);
 		frameRect.UpperLeftCorner.X += skin->getSize(EGDS_TEXT_DISTANCE_X);
 	}
 
 	// draw the text
 	if (Text.size())
 	{
-		IGUIFont* font = getActiveFont();
+		boost::shared_ptr<IGUIFont> font = getActiveFont();
 
 		if (font)
 		{
@@ -144,34 +145,28 @@ void CGUIStaticText::draw()
 
 
 //! Sets another skin independent font.
-void CGUIStaticText::setOverrideFont(IGUIFont* font)
+void CGUIStaticText::setOverrideFont(boost::shared_ptr<IGUIFont> font)
 {
 	if (OverrideFont == font)
 		return;
 
-	if (OverrideFont)
-		OverrideFont->drop();
-
 	OverrideFont = font;
-
-	if (OverrideFont)
-		OverrideFont->grab();
 
 	breakText();
 }
 
 //! Gets the override font (if any)
-IGUIFont * CGUIStaticText::getOverrideFont() const
+boost::shared_ptr<IGUIFont>  CGUIStaticText::getOverrideFont() const
 {
 	return OverrideFont;
 }
 
 //! Get the font which is used right now for drawing
-IGUIFont* CGUIStaticText::getActiveFont() const
+boost::shared_ptr<IGUIFont> CGUIStaticText::getActiveFont()
 {
 	if ( OverrideFont )
 		return OverrideFont;
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 	if (skin)
 		return skin->getFont();
 	return 0;
@@ -311,8 +306,8 @@ void CGUIStaticText::breakText()
 
 	BrokenText.clear();
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	IGUIFont* font = getActiveFont();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
+	boost::shared_ptr<IGUIFont> font = getActiveFont();
 	if (!font)
 		return;
 
@@ -536,9 +531,9 @@ void CGUIStaticText::updateAbsolutePosition()
 
 
 //! Returns the height of the text in pixels when it is drawn.
-s32 CGUIStaticText::getTextHeight() const
+s32 CGUIStaticText::getTextHeight()
 {
-	IGUIFont* font = getActiveFont();
+	boost::shared_ptr<IGUIFont> font = getActiveFont();
 	if (!font)
 		return 0;
 
@@ -557,9 +552,9 @@ s32 CGUIStaticText::getTextHeight() const
 }
 
 
-s32 CGUIStaticText::getTextWidth() const
+s32 CGUIStaticText::getTextWidth()
 {
-	IGUIFont * font = getActiveFont();
+	boost::shared_ptr<IGUIFont>  font = getActiveFont();
 	if(!font)
 		return 0;
 

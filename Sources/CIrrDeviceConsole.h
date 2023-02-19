@@ -228,7 +228,7 @@ namespace irr
 		bool IsWindowFocused;
 
 		core::array<core::stringc> OutputBuffer;
-		gui::IGUIFont  *ConsoleFont;
+		boost::shared_ptr<gui::IGUIFont> ConsoleFont;
 		core::array<SPostPresentText> Text;
 
 		FILE *OutFile;

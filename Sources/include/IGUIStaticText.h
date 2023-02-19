@@ -20,22 +20,22 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUIStaticText(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUIStaticText(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_STATIC_TEXT, environment, parent, id, rectangle) {}
 
 		//! Sets another skin independent font.
 		/** If this is set to zero, the button uses the font of the skin.
 		\param font: New font to set. */
-		virtual void setOverrideFont(IGUIFont* font=0) = 0;
+		virtual void setOverrideFont(boost::shared_ptr<IGUIFont> font=0) = 0;
 
 		//! Gets the override font (if any)
 		/** \return The override font (may be 0) */
-		virtual IGUIFont* getOverrideFont(void) const = 0;
+		virtual boost::shared_ptr<IGUIFont> getOverrideFont(void) const = 0;
 
 		//! Get the font which is used right now for drawing
 		/** Currently this is the override font when one is set and the
 		font of the active skin otherwise */
-		virtual IGUIFont* getActiveFont() const = 0;
+		virtual boost::shared_ptr<IGUIFont> getActiveFont()  = 0;
 
 		//! Sets another color for the text.
 		/** If set, the static text does not use the EGDC_BUTTON_TEXT color defined
@@ -102,12 +102,12 @@ namespace gui
 		/** This is useful for adjusting the layout of gui elements based on the height
 		of the multiline text in this element.
 		\return Height of text in pixels. */
-		virtual s32 getTextHeight() const = 0;
+		virtual s32 getTextHeight() = 0;
 
 		//! Returns the width of the current text, in the current font
 		/** If the text is broken, this returns the width of the widest line
 		\return The width of the text, or the widest broken line. */
-		virtual s32 getTextWidth(void) const = 0;
+		virtual s32 getTextWidth(void) = 0;
 
 		//! Set whether the text in this label should be clipped if it goes outside bounds
 		virtual void setTextRestrainedInside(bool restrainedInside) = 0;

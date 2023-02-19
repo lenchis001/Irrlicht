@@ -37,7 +37,7 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUIContextMenu(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUIContextMenu(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_CONTEXT_MENU, environment, parent, id, rectangle) {}
 
 		//! set behavior when menus are closed
@@ -143,7 +143,7 @@ namespace gui
 		/** 0 is returned if there is no submenu
 		\param idx: Zero based index of the menu item
 		\return Returns a pointer to the submenu of an item. */
-		virtual IGUIContextMenu* getSubMenu(u32 idx) const = 0;
+		virtual boost::shared_ptr<IGUIContextMenu> getSubMenu(u32 idx) const = 0;
 
 		//! should the element change the checked status on clicking
 		virtual void setItemAutoChecking(u32 idx, bool autoChecking) = 0;
@@ -152,7 +152,7 @@ namespace gui
 		virtual bool getItemAutoChecking(u32 idx) const = 0;
 
 		//! When an eventparent is set it receives events instead of the usual parent element
-		virtual void setEventParent(IGUIElement *parent) = 0;
+		virtual void setEventParent(boost::shared_ptr<IGUIElement> parent) = 0;
 	};
 
 } // end namespace gui

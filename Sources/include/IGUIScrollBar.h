@@ -21,7 +21,7 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUIScrollBar(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUIScrollBar(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_SCROLL_BAR, environment, parent, id, rectangle) {}
 
 		//! sets the maximum value of the scrollbar.

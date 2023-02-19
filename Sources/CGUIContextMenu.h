@@ -24,8 +24,8 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIContextMenu(IGUIEnvironment* environment,
-			IGUIElement* parent, s32 id, core::rect<s32> rectangle,
+		CGUIContextMenu(boost::shared_ptr<IGUIEnvironment> environment,
+			boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle,
 			bool getFocus = true, bool allowFocus = true);
 
 		//! destructor
@@ -89,7 +89,7 @@ namespace gui
 
 		//! Returns a pointer to the submenu of an item.
 		//! \return Pointer to the submenu of an item.
-		virtual IGUIContextMenu* getSubMenu(u32 idx) const;
+		virtual boost::shared_ptr<IGUIContextMenu> getSubMenu(u32 idx) const;
 
 		//! Sets the visible state of this element.
 		virtual void setVisible(bool visible);
@@ -107,16 +107,18 @@ namespace gui
 		virtual void setItemCommandId(u32 idx, s32 id);
 
 		//! Adds a sub menu from an element that already exists.
-		virtual void setSubMenu(u32 index, CGUIContextMenu* menu);
+		virtual void setSubMenu(u32 index, boost::shared_ptr<gui::CGUIContextMenu> menu);
 
 		//! When an eventparent is set it receives events instead of the usual parent element
-		virtual void setEventParent(IGUIElement *parent);
+		virtual void setEventParent(boost::shared_ptr<IGUIElement> parent);
 
 		//! Writes attributes of the element.
 		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const;
 
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
+
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
 
 	protected:
 
@@ -132,7 +134,7 @@ namespace gui
 			bool AutoChecking;
 			core::dimension2d<u32> Dim;
 			s32 PosY;
-			CGUIContextMenu* SubMenu;
+			boost::shared_ptr<gui::CGUIContextMenu> SubMenu;
 			s32 CommandId;
 		};
 
@@ -156,12 +158,13 @@ namespace gui
 
 		core::array<SItem> Items;
 		core::position2d<s32> Pos;
-		IGUIElement* EventParent;
-		IGUIFont *LastFont;
+		boost::shared_ptr<IGUIElement> EventParent;
+		boost::shared_ptr<IGUIFont> LastFont;
 		ECONTEXT_MENU_CLOSE CloseHandling;
 		s32 HighLighted;
 		u32 ChangeTime;
 		bool AllowFocus;
+		bool _getFocus;
 	};
 
 

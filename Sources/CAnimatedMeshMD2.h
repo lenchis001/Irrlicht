@@ -94,7 +94,7 @@ namespace scene
 		//! \param nr: Zero based index of animation.
 		virtual const c8* getAnimationName(s32 nr) const;
 
-		void setWeakThis(boost::shared_ptr<CAnimatedMeshMD2> value);
+		virtual void setWeakThis(boost::shared_ptr<CAnimatedMeshMD2> value);
 
 		//
 		// exposed for loader

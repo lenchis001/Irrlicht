@@ -22,19 +22,19 @@ namespace gui
 	{
 	public:
 
-		CDefaultGUIElementFactory(IGUIEnvironment* env);
+		CDefaultGUIElementFactory(boost::shared_ptr<IGUIEnvironment> env);
 
 		//! Adds an element to the gui environment based on its type id.
 		/** \param type: Type of the element to add.
 		\param parent: Parent scene node of the new element. A value of 0 adds it to the root.
 		\return Returns pointer to the new element or 0 if unsuccessful. */
-		virtual IGUIElement* addGUIElement(EGUI_ELEMENT_TYPE type, IGUIElement* parent=0);
+		virtual boost::shared_ptr<IGUIElement> addGUIElement(EGUI_ELEMENT_TYPE type, boost::shared_ptr<IGUIElement> parent=0);
 
 		//! Adds a GUI element to the GUI Environment based on its type name.
 		/** \param typeName: Type name of the element to add. Taken from the GUIElementTypeNames c8* array.
 		\param parent: Parent scene node of the new element. A value of 0 adds it to the root.
 		\return Returns pointer to the new element or 0 if unsuccessful. */
-		virtual IGUIElement* addGUIElement(const c8* typeName, IGUIElement* parent=0);
+		virtual boost::shared_ptr<IGUIElement> addGUIElement(const c8* typeName, boost::shared_ptr<IGUIElement> parent=0);
 
 		//! Returns the amount of GUI element types this factory is able to create.
 		virtual s32 getCreatableGUIElementTypeCount() const;
@@ -58,7 +58,7 @@ namespace gui
 
 		EGUI_ELEMENT_TYPE getTypeFromName(const c8* name) const;
 
-		IGUIEnvironment* Environment;
+		boost::shared_ptr<IGUIEnvironment> Environment;
 	};
 
 

@@ -18,16 +18,12 @@ namespace gui
 {
 
 //! constructor
-CGUICheckBox::CGUICheckBox(bool checked, IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+CGUICheckBox::CGUICheckBox(bool checked, boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 : IGUICheckBox(environment, parent, id, rectangle), checkTime(0), Pressed(false), Checked(checked)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUICheckBox");
 	#endif
-
-	// this element can be tabbed into
-	setTabStop(true);
-	setTabOrder(-1);
 }
 
 
@@ -56,15 +52,15 @@ bool CGUICheckBox::OnEvent(const SEvent& event)
 				(event.KeyInput.Key == KEY_RETURN || event.KeyInput.Key == KEY_SPACE))
 			{
 				Pressed = false;
-				if (Parent)
+				if (!Parent.expired())
 				{
 					SEvent newEvent;
 					newEvent.EventType = EET_GUI_EVENT;
-					newEvent.GUIEvent.Caller = this;
+					newEvent.GUIEvent.Caller = getSharedThis();
 					newEvent.GUIEvent.Element = 0;
 					Checked = !Checked;
 					newEvent.GUIEvent.EventType = EGET_CHECKBOX_CHANGED;
-					Parent->OnEvent(newEvent);
+					getParent()->OnEvent(newEvent);
 				}
 				return true;
 			}
@@ -72,45 +68,48 @@ bool CGUICheckBox::OnEvent(const SEvent& event)
 		case EET_GUI_EVENT:
 			if (event.GUIEvent.EventType == EGET_ELEMENT_FOCUS_LOST)
 			{
-				if (event.GUIEvent.Caller == this)
+				if (event.GUIEvent.Caller.get() == this)
 					Pressed = false;
 			}
 			break;
-		case EET_MOUSE_INPUT_EVENT:
+		case EET_MOUSE_INPUT_EVENT: {
+			boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+
 			if (event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN)
 			{
 				Pressed = true;
 				checkTime = os::Timer::getTime();
-				Environment->setFocus(this);
+				lockedEnvironment->setFocus(getSharedThis());
 				return true;
 			}
 			else
-			if (event.MouseInput.Event == EMIE_LMOUSE_LEFT_UP)
-			{
-				bool wasPressed = Pressed;
-				Environment->removeFocus(this);
-				Pressed = false;
-
-				if (wasPressed && Parent)
+				if (event.MouseInput.Event == EMIE_LMOUSE_LEFT_UP)
 				{
-					if ( !AbsoluteClippingRect.isPointInside( core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y) ) )
+					bool wasPressed = Pressed;
+					lockedEnvironment->removeFocus(getSharedThis());
+					Pressed = false;
+
+					if (wasPressed && !Parent.expired())
 					{
-						Pressed = false;
-						return true;
+						if (!AbsoluteClippingRect.isPointInside(core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y)))
+						{
+							Pressed = false;
+							return true;
+						}
+
+						SEvent newEvent;
+						newEvent.EventType = EET_GUI_EVENT;
+						newEvent.GUIEvent.Caller = getSharedThis();
+						newEvent.GUIEvent.Element = 0;
+						Checked = !Checked;
+						newEvent.GUIEvent.EventType = EGET_CHECKBOX_CHANGED;
+						getParent()->OnEvent(newEvent);
 					}
 
-					SEvent newEvent;
-					newEvent.EventType = EET_GUI_EVENT;
-					newEvent.GUIEvent.Caller = this;
-					newEvent.GUIEvent.Element = 0;
-					Checked = !Checked;
-					newEvent.GUIEvent.EventType = EGET_CHECKBOX_CHANGED;
-					Parent->OnEvent(newEvent);
+					return true;
 				}
-
-				return true;
-			}
 			break;
+		}
 		default:
 			break;
 		}
@@ -126,7 +125,7 @@ void CGUICheckBox::draw()
 	if (!IsVisible)
 		return;
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 	if (skin)
 	{
 		const s32 height = skin->getSize(EGDS_CHECK_BOX_WIDTH);
@@ -141,12 +140,12 @@ void CGUICheckBox::draw()
 		EGUI_DEFAULT_COLOR col = EGDC_GRAY_EDITABLE;
 		if ( isEnabled() )
 			col = Pressed ? EGDC_FOCUSED_EDITABLE : EGDC_EDITABLE;
-		skin->draw3DSunkenPane(this, skin->getColor(col),
+		skin->draw3DSunkenPane(getSharedThis(), skin->getColor(col),
 			false, true, checkRect, &AbsoluteClippingRect);
 
 		if (Checked)
 		{
-			skin->drawIcon(this, EGDI_CHECK_BOX_CHECKED, checkRect.getCenter(),
+			skin->drawIcon(getSharedThis(), EGDI_CHECK_BOX_CHECKED, checkRect.getCenter(),
 				checkTime, os::Timer::getTime(), false, &AbsoluteClippingRect);
 		}
 		if (Text.size())
@@ -154,7 +153,7 @@ void CGUICheckBox::draw()
 			checkRect = AbsoluteRect;
 			checkRect.UpperLeftCorner.X += height + 5;
 
-			IGUIFont* font = skin->getFont();
+			boost::shared_ptr<IGUIFont> font = skin->getFont();
 			if (font)
 			{
 				font->draw(Text.c_str(), checkRect,
@@ -195,6 +194,15 @@ void CGUICheckBox::deserializeAttributes(io::IAttributes* in, io::SAttributeRead
 	Checked = in->getAttributeAsBool ("Checked");
 
 	IGUICheckBox::deserializeAttributes(in,options);
+}
+
+void CGUICheckBox::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	// this element can be tabbed into
+	setTabStop(true);
+	setTabOrder(-1);
 }
 
 

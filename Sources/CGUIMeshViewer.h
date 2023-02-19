@@ -22,7 +22,7 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIMeshViewer(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle);
+		CGUIMeshViewer(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle);
 
 		//! destructor
 		virtual ~CGUIMeshViewer();

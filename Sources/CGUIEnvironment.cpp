@@ -72,54 +72,26 @@ CGUIEnvironment::CGUIEnvironment(io::IFileSystem* fs, video::IVideoDriver* drive
 	#ifdef _DEBUG
 	IGUIEnvironment::setDebugName("CGUIEnvironment");
 	#endif
-
-	// gui factory
-	IGUIElementFactory* factory = new CDefaultGUIElementFactory(this);
-	registerGUIElementFactory(factory);
-	factory->drop();
-
-	loadBuiltInFont();
-
-	boost::shared_ptr<IGUISkin> skin = createSkin( gui::EGST_WINDOWS_METALLIC );
-	setSkin(skin);
-
-	//set tooltip default
-	ToolTip.LastTime = 0;
-	ToolTip.EnterTime = 0;
-	ToolTip.LaunchTime = 1000;
-	ToolTip.RelaunchTime = 500;
-	ToolTip.Element = 0;
-
-	// environment is root tab group
-	Environment = this;
-	setTabGroup(true);
 }
 
 
 //! destructor
 CGUIEnvironment::~CGUIEnvironment()
 {
-	if ( HoveredNoSubelement && HoveredNoSubelement != this )
+	if ( HoveredNoSubelement && HoveredNoSubelement.get() != this )
 	{
-		HoveredNoSubelement->drop();
 		HoveredNoSubelement = 0;
 	}
 
-	if (Hovered && Hovered != this)
+	if (Hovered && Hovered.get() != this)
 	{
-		Hovered->drop();
 		Hovered = 0;
 	}
 
-	if (Focus)
-	{
-		Focus->drop();
-		Focus = 0;
-	}
+	Focus.reset();
 
 	if (ToolTip.Element)
 	{
-		ToolTip.Element->drop();
 		ToolTip.Element = 0;
 	}
 
@@ -135,10 +107,6 @@ CGUIEnvironment::~CGUIEnvironment()
 	for (i=0; i<Banks.size(); ++i)
 		if (Banks[i].Bank)
 			Banks[i].Bank->drop();
-
-	// delete all fonts
-	for (i=0; i<Fonts.size(); ++i)
-		Fonts[i].Font->drop();
 
 	// remove all factories
 	for (i=0; i<GUIElementFactoryList.size(); ++i)
@@ -168,11 +136,11 @@ void CGUIEnvironment::loadBuiltInFont()
 {
 	io::IReadFile* file = io::createMemoryReadFile(BuiltInFontData, BuiltInFontDataSize, DefaultFontName, false);
 
-	CGUIFont* font = new CGUIFont(this, DefaultFontName );
+	boost::shared_ptr<CGUIFont> font = boost::make_shared<CGUIFont>(getSharedEnvironment(), DefaultFontName);
+
 	if (!font->load(file))
 	{
 		os::Printer::log("Error: Could not load built-in Font. Did you compile without the BMP loader?", ELL_ERROR);
-		font->drop();
 		file->drop();
 		return;
 	}
@@ -213,7 +181,7 @@ void CGUIEnvironment::drawAll()
 
 
 //! sets the focus to an element
-bool CGUIEnvironment::setFocus(IGUIElement* element)
+bool CGUIEnvironment::setFocus(boost::shared_ptr<IGUIElement> element)
 {
 	if (Focus == element)
 	{
@@ -222,19 +190,14 @@ bool CGUIEnvironment::setFocus(IGUIElement* element)
 	}
 
 	// GUI Environment should not get the focus
-	if (element == this)
+	if (element.get() == this)
 		element = 0;
 
-	// stop element from being deleted
-	if (element)
-		element->grab();
-
 	// focus may change or be removed in this call
-	IGUIElement *currentFocus = 0;
+	boost::shared_ptr<IGUIElement> currentFocus = 0;
 	if (Focus)
 	{
 		currentFocus = Focus;
-		currentFocus->grab();
 		SEvent e;
 		e.EventType = EET_GUI_EVENT;
 		e.GUIEvent.Caller = Focus;
@@ -242,21 +205,15 @@ bool CGUIEnvironment::setFocus(IGUIElement* element)
 		e.GUIEvent.EventType = EGET_ELEMENT_FOCUS_LOST;
 		if (Focus->OnEvent(e))
 		{
-			if (element)
-				element->drop();
-			currentFocus->drop();
 			_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 			return false;
 		}
-		currentFocus->drop();
 		currentFocus = 0;
 	}
 
 	if (element)
 	{
 		currentFocus = Focus;
-		if (currentFocus)
-			currentFocus->grab();
 
 		// send focused event
 		SEvent e;
@@ -266,20 +223,10 @@ bool CGUIEnvironment::setFocus(IGUIElement* element)
 		e.GUIEvent.EventType = EGET_ELEMENT_FOCUSED;
 		if (element->OnEvent(e))
 		{
-			if (element)
-				element->drop();
-			if (currentFocus)
-				currentFocus->drop();
 			_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 			return false;
 		}
 	}
-
-	if (currentFocus)
-		currentFocus->drop();
-
-	if (Focus)
-		Focus->drop();
 
 	// element is the new focus so it doesn't have to be dropped
 	Focus = element;
@@ -289,20 +236,20 @@ bool CGUIEnvironment::setFocus(IGUIElement* element)
 
 
 //! returns the element with the focus
-IGUIElement* CGUIEnvironment::getFocus() const
+boost::shared_ptr<IGUIElement> CGUIEnvironment::getFocus() const
 {
 	return Focus;
 }
 
 //! returns the element last known to be under the mouse cursor
-IGUIElement* CGUIEnvironment::getHovered() const
+boost::shared_ptr<IGUIElement> CGUIEnvironment::getHovered() const
 {
 	return Hovered;
 }
 
 
 //! removes the focus from an element
-bool CGUIEnvironment::removeFocus(IGUIElement* element)
+bool CGUIEnvironment::removeFocus(boost::shared_ptr<IGUIElement> element)
 {
 	if (Focus && Focus==element)
 	{
@@ -319,7 +266,6 @@ bool CGUIEnvironment::removeFocus(IGUIElement* element)
 	}
 	if (Focus)
 	{
-		Focus->drop();
 		Focus = 0;
 	}
 
@@ -328,7 +274,7 @@ bool CGUIEnvironment::removeFocus(IGUIElement* element)
 
 
 //! Returns if the element has focus
-bool CGUIEnvironment::hasFocus(IGUIElement* element) const
+bool CGUIEnvironment::hasFocus(boost::shared_ptr<IGUIElement> element) const
 {
 	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return (element == Focus);
@@ -362,23 +308,20 @@ void CGUIEnvironment::clear()
 	// Remove the focus
 	if (Focus)
 	{
-		Focus->drop();
 		Focus = 0;
 	}
 
-	if (Hovered && Hovered != this)
+	if (Hovered && Hovered.get() != this)
 	{
-		Hovered->drop();
 		Hovered = 0;
 	}
-	if ( HoveredNoSubelement && HoveredNoSubelement != this)
+	if ( HoveredNoSubelement && HoveredNoSubelement.get() != this)
 	{
-		HoveredNoSubelement->drop();
 		HoveredNoSubelement = 0;
 	}
 
 	// get the root's children in case the root changes in future
-	const core::list<IGUIElement*>& children = getRootGUIElement()->getChildren();
+	const core::list<boost::shared_ptr<IGUIElement>>& children = getRootGUIElement()->getChildren();
 
 	while (!children.empty())
 		(*children.getLast())->remove();
@@ -392,7 +335,7 @@ bool CGUIEnvironment::OnEvent(const SEvent& event)
 	if (UserReceiver
 		&& (event.EventType != EET_MOUSE_INPUT_EVENT)
 		&& (event.EventType != EET_KEY_INPUT_EVENT)
-		&& (event.EventType != EET_GUI_EVENT || event.GUIEvent.Caller != this))
+		&& (event.EventType != EET_GUI_EVENT || event.GUIEvent.Caller.get() != this))
 	{
 		ret = UserReceiver->OnEvent(event);
 	}
@@ -406,7 +349,7 @@ void CGUIEnvironment::OnPostRender( u32 time )
 {
 	// launch tooltip
 	if ( ToolTip.Element == 0 &&
-		HoveredNoSubelement && HoveredNoSubelement != this &&
+		HoveredNoSubelement && HoveredNoSubelement.get() != this &&
 		(time - ToolTip.EnterTime >= ToolTip.LaunchTime
 		|| (time - ToolTip.LastTime >= ToolTip.RelaunchTime && time - ToolTip.LastTime < ToolTip.LaunchTime)) &&
 		HoveredNoSubelement->getToolTipText().size() &&
@@ -427,12 +370,11 @@ void CGUIEnvironment::OnPostRender( u32 time )
 
 		pos.constrainTo(getAbsolutePosition());
 
-		ToolTip.Element = addStaticText(HoveredNoSubelement->getToolTipText().c_str(), pos, true, true, this, -1, true);
+		ToolTip.Element = addStaticText(HoveredNoSubelement->getToolTipText().c_str(), pos, true, true, getSharedThis(), -1, true);
 		ToolTip.Element->setOverrideColor(getSkin()->getColor(EGDC_TOOLTIP));
 		ToolTip.Element->setBackgroundColor(getSkin()->getColor(EGDC_TOOLTIP_BACKGROUND));
 		ToolTip.Element->setOverrideFont(getSkin()->getFont(EGDF_TOOLTIP));
 		ToolTip.Element->setSubElement(true);
-		ToolTip.Element->grab();
 
 		s32 textHeight = ToolTip.Element->getTextHeight();
 		pos = ToolTip.Element->getRelativePosition();
@@ -451,7 +393,6 @@ void CGUIEnvironment::OnPostRender( u32 time )
 			)	// got invisible or removed in the meantime?
 		{
 			ToolTip.Element->remove();
-			ToolTip.Element->drop();
 			ToolTip.Element = 0;
 		}
 	}
@@ -463,8 +404,8 @@ void CGUIEnvironment::OnPostRender( u32 time )
 //
 void CGUIEnvironment::updateHoveredElement(core::position2d<s32> mousePos)
 {
-	IGUIElement* lastHovered = Hovered;
-	IGUIElement* lastHoveredNoSubelement = HoveredNoSubelement;
+	boost::shared_ptr<IGUIElement> lastHovered = Hovered;
+	boost::shared_ptr<IGUIElement> lastHoveredNoSubelement = HoveredNoSubelement;
 	LastHoveredMousePos = mousePos;
 
 	Hovered = getElementFromPoint(mousePos);
@@ -474,7 +415,6 @@ void CGUIEnvironment::updateHoveredElement(core::position2d<s32> mousePos)
 		// When the mouse is over the ToolTip we remove that so it will be re-created at a new position.
 		// Note that ToolTip.EnterTime does not get changed here, so it will be re-created at once.
 		ToolTip.Element->remove();
-		ToolTip.Element->drop();
 		ToolTip.Element = 0;
 
 		// Get the real Hovered
@@ -487,11 +427,6 @@ void CGUIEnvironment::updateHoveredElement(core::position2d<s32> mousePos)
 	{
 		HoveredNoSubelement = HoveredNoSubelement->getParent();
 	}
-
-	if (Hovered && Hovered != this)
-		Hovered->grab();
-	if ( HoveredNoSubelement && HoveredNoSubelement != this)
-		HoveredNoSubelement->grab();
 
 	if (Hovered != lastHovered)
 	{
@@ -520,7 +455,6 @@ void CGUIEnvironment::updateHoveredElement(core::position2d<s32> mousePos)
 		if (ToolTip.Element)
 		{
 			ToolTip.Element->remove();
-			ToolTip.Element->drop();
 			ToolTip.Element = 0;
 		}
 
@@ -530,11 +464,6 @@ void CGUIEnvironment::updateHoveredElement(core::position2d<s32> mousePos)
 			ToolTip.EnterTime = now;
 		}
 	}
-
-	if (lastHovered && lastHovered != this)
-		lastHovered->drop();
-	if (lastHoveredNoSubelement && lastHoveredNoSubelement != this)
-		lastHoveredNoSubelement->drop();
 }
 
 
@@ -587,7 +516,7 @@ bool CGUIEnvironment::postEventFromUser(const SEvent& event)
 				event.KeyInput.PressedDown &&
 				event.KeyInput.Key == KEY_TAB)
 			{
-				IGUIElement *next = getNextElement(event.KeyInput.Shift, event.KeyInput.Control);
+				boost::shared_ptr<IGUIElement> next = getNextElement(event.KeyInput.Shift, event.KeyInput.Control);
 				if (next && next != Focus)
 				{
 					if (setFocus(next))
@@ -631,10 +560,10 @@ boost::shared_ptr<IGUISkin> CGUIEnvironment::createSkin(EGUI_SKIN_TYPE type)
 {
 	boost::shared_ptr<IGUISkin> skin = boost::make_shared<CGUISkin>(type, Driver);
 
-	IGUIFont* builtinfont = getBuiltInFont();
-	IGUIFontBitmap* bitfont = 0;
+	boost::shared_ptr<IGUIFont> builtinfont = getBuiltInFont();
+	boost::shared_ptr<IGUIFontBitmap> bitfont = 0;
 	if (builtinfont && builtinfont->getType() == EGFT_BITMAP)
-		bitfont = (IGUIFontBitmap*)builtinfont;
+		bitfont = boost::static_pointer_cast<IGUIFontBitmap>(builtinfont);
 
 	IGUISpriteBank* bank = 0;
 	skin->setFont(builtinfont);
@@ -686,12 +615,12 @@ IGUIElementFactory* CGUIEnvironment::getGUIElementFactory(u32 index) const
 
 
 //! adds a GUI Element using its name
-IGUIElement* CGUIEnvironment::addGUIElement(const c8* elementName, IGUIElement* parent)
+boost::shared_ptr<IGUIElement> CGUIEnvironment::addGUIElement(const c8* elementName, boost::shared_ptr<IGUIElement> parent)
 {
-	IGUIElement* node=0;
+	boost::shared_ptr<IGUIElement> node=0;
 
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
 	for (s32 i=GUIElementFactoryList.size()-1; i>=0 && !node; --i)
 		node = GUIElementFactoryList[i]->addGUIElement(elementName, parent);
@@ -703,7 +632,7 @@ IGUIElement* CGUIEnvironment::addGUIElement(const c8* elementName, IGUIElement* 
 
 //! Saves the current gui into a file.
 //! \param filename: Name of the file .
-bool CGUIEnvironment::saveGUI(const io::path& filename, IGUIElement* start)
+bool CGUIEnvironment::saveGUI(const io::path& filename, boost::shared_ptr<IGUIElement> start)
 {
 	io::IWriteFile* file = FileSystem->createAndWriteFile(filename);
 	if (!file)
@@ -720,7 +649,7 @@ bool CGUIEnvironment::saveGUI(const io::path& filename, IGUIElement* start)
 
 
 //! Saves the current gui into a file.
-bool CGUIEnvironment::saveGUI(io::IWriteFile* file, IGUIElement* start)
+bool CGUIEnvironment::saveGUI(io::IWriteFile* file, boost::shared_ptr<IGUIElement> start)
 {
 	if (!file)
 	{
@@ -736,7 +665,7 @@ bool CGUIEnvironment::saveGUI(io::IWriteFile* file, IGUIElement* start)
 	}
 
 	writer->writeXMLHeader();
-	writeGUIElement(writer, start ? start : this);
+	writeGUIElement(writer, start ? start : getSharedThis());
 	writer->drop();
 
 	return true;
@@ -745,7 +674,7 @@ bool CGUIEnvironment::saveGUI(io::IWriteFile* file, IGUIElement* start)
 
 //! Loads the gui. Note that the current gui is not cleared before.
 //! \param filename: Name of the file.
-bool CGUIEnvironment::loadGUI(const io::path& filename, IGUIElement* parent)
+bool CGUIEnvironment::loadGUI(const io::path& filename, boost::shared_ptr<IGUIElement> parent)
 {
 	io::IReadFile* read = FileSystem->createAndOpenFile(filename);
 	if (!read)
@@ -764,7 +693,7 @@ bool CGUIEnvironment::loadGUI(const io::path& filename, IGUIElement* parent)
 
 
 //! Loads the gui. Note that the current gui is not cleared before.
-bool CGUIEnvironment::loadGUI(io::IReadFile* file, IGUIElement* parent)
+bool CGUIEnvironment::loadGUI(io::IReadFile* file, boost::shared_ptr<IGUIElement> parent)
 {
 	if (!file)
 	{
@@ -795,7 +724,7 @@ bool CGUIEnvironment::loadGUI(io::IReadFile* file, IGUIElement* parent)
 
 
 //! reads an element
-void CGUIEnvironment::readGUIElement(io::IXMLReader* reader, IGUIElement* node)
+void CGUIEnvironment::readGUIElement(io::IXMLReader* reader, boost::shared_ptr<IGUIElement> node)
 {
 	if (!reader)
 		return;
@@ -805,14 +734,14 @@ void CGUIEnvironment::readGUIElement(io::IXMLReader* reader, IGUIElement* node)
 	if (nodeType == io::EXN_NONE || nodeType == io::EXN_UNKNOWN || nodeType == io::EXN_ELEMENT_END)
 		return;
 
-	IGUIElement* deferedNode = 0;
+	boost::shared_ptr<IGUIElement> deferedNode = 0;
 	if (!wcscmp(IRR_XML_FORMAT_GUI_ENV, reader->getNodeName()))
 	{
 		// GuiEnvironment always must be this as it would serialize into a wrong element otherwise.
 		// So we use the given node next time
-		if ( node && node != this )
+		if ( node && node.get() != this )
 			deferedNode = node;
-		node = this; // root
+		node = getSharedThis(); // root
 	}
 	else if	(!wcscmp(IRR_XML_FORMAT_GUI_ELEMENT, reader->getNodeName()))
 	{
@@ -877,9 +806,35 @@ void CGUIEnvironment::readGUIElement(io::IXMLReader* reader, IGUIElement* node)
 	}
 }
 
+void CGUIEnvironment::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	// environment is root tab group
+	Environment = boost::dynamic_pointer_cast<IGUIEnvironment>(getSharedThis());
+	setTabGroup(true);
+
+	// gui factory
+	IGUIElementFactory* factory = new CDefaultGUIElementFactory(getSharedEnvironment());
+	registerGUIElementFactory(factory);
+	factory->drop();
+
+	loadBuiltInFont();
+
+	boost::shared_ptr<IGUISkin> skin = createSkin(gui::EGST_WINDOWS_METALLIC);
+	setSkin(skin);
+
+	//set tooltip default
+	ToolTip.LastTime = 0;
+	ToolTip.EnterTime = 0;
+	ToolTip.LaunchTime = 1000;
+	ToolTip.RelaunchTime = 500;
+	ToolTip.Element = 0;
+}
+
 
 //! writes an element
-void CGUIEnvironment::writeGUIElement(io::IXMLWriter* writer, IGUIElement* node)
+void CGUIEnvironment::writeGUIElement(io::IXMLWriter* writer, boost::shared_ptr<IGUIElement> node)
 {
 	if (!writer || !node )
 		return;
@@ -897,7 +852,7 @@ void CGUIEnvironment::writeGUIElement(io::IXMLWriter* writer, IGUIElement* node)
 		// if they have nothing then we ignore them.
 		if (attr->getAttributeCount() != 0)
 		{
-			if (node == this)
+			if (node.get() == this)
 			{
 				name = IRR_XML_FORMAT_GUI_ENV;
 				writer->writeElement(name, false);
@@ -919,7 +874,7 @@ void CGUIEnvironment::writeGUIElement(io::IXMLWriter* writer, IGUIElement* node)
 
 	// write children
 
-	core::list<IGUIElement*>::ConstIterator it = node->getChildren().begin();
+	core::list<boost::shared_ptr<IGUIElement>>::ConstIterator it = node->getChildren().begin();
 	for (; it != node->getChildren().end(); ++it)
 	{
 		if (!(*it)->isSubElement())
@@ -983,37 +938,40 @@ void CGUIEnvironment::deserializeAttributes(io::IAttributes* in, io::SAttributeR
 
 
 //! adds a button. The returned pointer must not be dropped.
-IGUIButton* CGUIEnvironment::addButton(const core::rect<s32>& rectangle, IGUIElement* parent, s32 id, const wchar_t* text, const wchar_t *tooltiptext)
+boost::shared_ptr<IGUIButton> CGUIEnvironment::addButton(const core::rect<s32>& rectangle, boost::shared_ptr<IGUIElement> parent, s32 id, const wchar_t* text, const wchar_t *tooltiptext)
 {
-	IGUIButton* button = new CGUIButton(this, parent ? parent : this, id, rectangle);
+	boost::shared_ptr<IGUIButton> button = boost::make_shared<CGUIButton>(getSharedEnvironment(), parent ? parent : getSharedThis(), id, rectangle);
+	button->setWeakThis(button);
+
 	if (text)
 		button->setText(text);
 
 	if ( tooltiptext )
 		button->setToolTipText ( tooltiptext );
 
-	button->drop();
 	return button;
 }
 
 
 //! adds a window. The returned pointer must not be dropped.
-IGUIWindow* CGUIEnvironment::addWindow(const core::rect<s32>& rectangle, bool modal,
-		const wchar_t* text, IGUIElement* parent, s32 id)
+boost::shared_ptr<IGUIWindow> CGUIEnvironment::addWindow(const core::rect<s32>& rectangle, bool modal,
+		const wchar_t* text, boost::shared_ptr<IGUIElement> parent, s32 id)
 {
-	parent = parent ? parent : this;
+	parent = parent ? parent : getSharedThis();
 
-	IGUIWindow* win = new CGUIWindow(this, parent, id, rectangle);
+	boost::shared_ptr<IGUIWindow> win = boost::make_shared<CGUIWindow>(getSharedEnvironment(), parent, id, rectangle);
+	win->setWeakThis(win);
+
 	if (text)
 		win->setText(text);
-	win->drop();
-
+	
 	if (modal)
 	{
 		// Careful, don't just set the modal as parent above. That will mess up the focus (and is hard to change because we have to be very
 		// careful not to get virtual function call, like OnEvent, in the window.
-		CGUIModalScreen * modalScreen = new CGUIModalScreen(this, parent, -1);
-		modalScreen->drop();
+		boost::shared_ptr<CGUIModalScreen>  modalScreen = boost::make_shared<CGUIModalScreen>(getSharedEnvironment(), parent, -1);
+		modalScreen->setWeakThis(modalScreen);
+
 		modalScreen->addChild(win);
 	}
 
@@ -1022,25 +980,25 @@ IGUIWindow* CGUIEnvironment::addWindow(const core::rect<s32>& rectangle, bool mo
 
 
 //! adds a modal screen. The returned pointer must not be dropped.
-IGUIElement* CGUIEnvironment::addModalScreen(IGUIElement* parent)
+boost::shared_ptr<IGUIElement> CGUIEnvironment::addModalScreen(boost::shared_ptr<IGUIElement> parent)
 {
-	parent = parent ? parent : this;
+	parent = parent ? parent : getSharedThis();
 
-	IGUIElement *win = new CGUIModalScreen(this, parent, -1);
-	win->drop();
+	boost::shared_ptr<IGUIElement> win = boost::make_shared<CGUIModalScreen>(getSharedEnvironment(), parent, -1);
+	win->setWeakThis(win);
 
 	return win;
 }
 
 
 //! Adds a message box.
-IGUIWindow* CGUIEnvironment::addMessageBox(const wchar_t* caption, const wchar_t* text,
-	bool modal, s32 flag, IGUIElement* parent, s32 id, video::ITexture* image)
+boost::shared_ptr<IGUIWindow> CGUIEnvironment::addMessageBox(const wchar_t* caption, const wchar_t* text,
+	bool modal, s32 flag, boost::shared_ptr<IGUIElement> parent, s32 id, video::ITexture* image)
 {
 	if (!CurrentSkin)
 		return 0;
 
-	parent = parent ? parent : this;
+	parent = parent ? parent : getSharedThis();
 
 	core::rect<s32> rect;
 	core::dimension2d<u32> screenDim, msgBoxDim;
@@ -1055,16 +1013,17 @@ IGUIWindow* CGUIEnvironment::addMessageBox(const wchar_t* caption, const wchar_t
 	rect.LowerRightCorner.X = rect.UpperLeftCorner.X + msgBoxDim.Width;
 	rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + msgBoxDim.Height;
 
-	IGUIWindow* win = new CGUIMessageBox(this, caption, text, flag,
+	boost::shared_ptr<IGUIWindow> win = boost::make_shared<CGUIMessageBox>(getSharedEnvironment(), caption, text, flag,
 		parent, id, rect, image);
-	win->drop();
+	win->setWeakThis(win);
 
 	if (modal)
 	{
 		// Careful, don't just set the modal as parent above. That will mess up the focus (and is hard to change because we have to be very
 		// careful not to get virtual function call, like OnEvent, in the CGUIMessageBox.
-		CGUIModalScreen * modalScreen = new CGUIModalScreen(this, parent, -1);
-		modalScreen->drop();
+		boost::shared_ptr<CGUIModalScreen>  modalScreen = boost::make_shared<CGUIModalScreen>(getSharedEnvironment(), parent, -1);
+		modalScreen->setWeakThis(modalScreen);
+
 		modalScreen->addChild( win );
 	}
 
@@ -1074,46 +1033,48 @@ IGUIWindow* CGUIEnvironment::addMessageBox(const wchar_t* caption, const wchar_t
 
 
 //! adds a scrollbar. The returned pointer must not be dropped.
-IGUIScrollBar* CGUIEnvironment::addScrollBar(bool horizontal, const core::rect<s32>& rectangle, IGUIElement* parent, s32 id)
+boost::shared_ptr<IGUIScrollBar> CGUIEnvironment::addScrollBar(bool horizontal, const core::rect<s32>& rectangle, boost::shared_ptr<IGUIElement> parent, s32 id)
 {
-	IGUIScrollBar* bar = new CGUIScrollBar(horizontal, this, parent ? parent : this, id, rectangle);
-	bar->drop();
+	boost::shared_ptr<IGUIScrollBar> bar = boost::make_shared<CGUIScrollBar>(horizontal, getSharedEnvironment(), parent ? parent : getSharedThis(), id, rectangle);
+	bar->setWeakThis(bar);
+
 	return bar;
 }
 
 //! Adds a table to the environment
-IGUITable* CGUIEnvironment::addTable(const core::rect<s32>& rectangle, IGUIElement* parent, s32 id, bool drawBackground)
+boost::shared_ptr<IGUITable> CGUIEnvironment::addTable(const core::rect<s32>& rectangle, boost::shared_ptr<IGUIElement> parent, s32 id, bool drawBackground)
 {
-	CGUITable* b = new CGUITable(this, parent ? parent : this, id, rectangle, true, drawBackground, false);
-	b->drop();
+	boost::shared_ptr<CGUITable> b = boost::make_shared<CGUITable>(getSharedEnvironment(), parent ? parent : getSharedThis(), id, rectangle, true, drawBackground, false);
+	b->setWeakThis(b);
+
 	return b;
 }
 
-IGUIElement* CGUIEnvironment::addEmpty(IGUIElement* parent, s32 id)
+boost::shared_ptr<IGUIElement> CGUIEnvironment::addEmpty(boost::shared_ptr<IGUIElement> parent, s32 id)
 {
-	auto empty = new IGUIElement(
+	auto empty = boost::make_shared<IGUIElement>(
 		irr::gui::EGUI_ELEMENT_TYPE::EGUIT_EMPTY, 
-		this, 
-		parent ? parent: this,
+		getSharedEnvironment(),
+		parent ? parent: getSharedThis(),
 		id,
 		irr::core::recti({ 0,0 }, { 65536, 65536 }));
-
-	empty->drop();
+	empty->setWeakThis(empty);
 
 	return empty;
 }
 
 
 //! Adds an image element.
-IGUIImage* CGUIEnvironment::addImage(video::ITexture* image, core::position2d<s32> pos,
-	bool useAlphaChannel, IGUIElement* parent, s32 id, const wchar_t* text)
+boost::shared_ptr<IGUIImage> CGUIEnvironment::addImage(video::ITexture* image, core::position2d<s32> pos,
+	bool useAlphaChannel, boost::shared_ptr<IGUIElement> parent, s32 id, const wchar_t* text)
 {
 	core::dimension2d<s32> sz(0,0);
 	if (image)
 		sz = core::dimension2d<s32>(image->getOriginalSize());
 
-	IGUIImage* img = new CGUIImage(this, parent ? parent : this,
+	boost::shared_ptr<IGUIImage> img = boost::make_shared<CGUIImage>(getSharedEnvironment(), parent ? parent : getSharedThis(),
 		id, core::rect<s32>(pos, sz));
+	img->setWeakThis(img);
 
 	if (text)
 		img->setText(text);
@@ -1124,16 +1085,17 @@ IGUIImage* CGUIEnvironment::addImage(video::ITexture* image, core::position2d<s3
 	if (image)
 		img->setImage(image);
 
-	img->drop();
+	img->setWeakThis(img);
 	return img;
 }
 
 
 //! adds an image. The returned pointer must not be dropped.
-IGUIImage* CGUIEnvironment::addImage(const core::rect<s32>& rectangle, IGUIElement* parent, s32 id, const wchar_t* text, bool useAlphaChannel)
+boost::shared_ptr<IGUIImage> CGUIEnvironment::addImage(const core::rect<s32>& rectangle, boost::shared_ptr<IGUIElement> parent, s32 id, const wchar_t* text, bool useAlphaChannel)
 {
-	IGUIImage* img = new CGUIImage(this, parent ? parent : this,
+	boost::shared_ptr<IGUIImage> img = boost::make_shared<CGUIImage>(getSharedEnvironment(), parent ? parent : getSharedThis(),
 		id, rectangle);
+	img->setWeakThis(img);
 
 	if (text)
 		img->setText(text);
@@ -1141,45 +1103,45 @@ IGUIImage* CGUIEnvironment::addImage(const core::rect<s32>& rectangle, IGUIEleme
 	if ( useAlphaChannel )
 		img->setUseAlphaChannel(true);
 
-	img->drop();
 	return img;
 }
 
 
 //! adds an mesh viewer. The returned pointer must not be dropped.
-IGUIMeshViewer* CGUIEnvironment::addMeshViewer(const core::rect<s32>& rectangle, IGUIElement* parent, s32 id, const wchar_t* text)
+boost::shared_ptr<IGUIMeshViewer> CGUIEnvironment::addMeshViewer(const core::rect<s32>& rectangle, boost::shared_ptr<IGUIElement> parent, s32 id, const wchar_t* text)
 {
-	IGUIMeshViewer* v = new CGUIMeshViewer(this, parent ? parent : this,
+	boost::shared_ptr<IGUIMeshViewer> v = boost::make_shared<CGUIMeshViewer>(getSharedEnvironment(), parent ? parent : getSharedThis(),
 		id, rectangle);
+	v->setWeakThis(v);
 
 	if (text)
 		v->setText(text);
 
-	v->drop();
 	return v;
 }
 
 
 //! adds a checkbox
-IGUICheckBox* CGUIEnvironment::addCheckBox(bool checked, const core::rect<s32>& rectangle, IGUIElement* parent, s32 id, const wchar_t* text)
+boost::shared_ptr<IGUICheckBox> CGUIEnvironment::addCheckBox(bool checked, const core::rect<s32>& rectangle, boost::shared_ptr<IGUIElement> parent, s32 id, const wchar_t* text)
 {
-	IGUICheckBox* b = new CGUICheckBox(checked, this,
-		parent ? parent : this , id , rectangle);
+	boost::shared_ptr<IGUICheckBox> b = boost::make_shared<CGUICheckBox>(checked, getSharedEnvironment(),
+		parent ? parent : getSharedThis(), id, rectangle);
+	b->setWeakThis(b);
 
 	if (text)
 		b->setText(text);
 
-	b->drop();
 	return b;
 }
 
 
 //! adds a list box
-IGUIListBox* CGUIEnvironment::addListBox(const core::rect<s32>& rectangle,
-					IGUIElement* parent, s32 id, bool drawBackground)
+boost::shared_ptr<IGUIListBox> CGUIEnvironment::addListBox(const core::rect<s32>& rectangle,
+					boost::shared_ptr<IGUIElement> parent, s32 id, bool drawBackground)
 {
-	IGUIListBox* b = new CGUIListBox(this, parent ? parent : this, id, rectangle,
+	boost::shared_ptr<IGUIListBox> b = boost::make_shared<CGUIListBox>(getSharedEnvironment(), parent ? parent : getSharedThis(), id, rectangle,
 		true, drawBackground, false);
+	b->setWeakThis(b);
 
 	if (CurrentSkin && CurrentSkin->getSpriteBank())
 	{
@@ -1187,44 +1149,44 @@ IGUIListBox* CGUIEnvironment::addListBox(const core::rect<s32>& rectangle,
 	}
 	else if (getBuiltInFont() && getBuiltInFont()->getType() == EGFT_BITMAP)
 	{
-		b->setSpriteBank( ((IGUIFontBitmap*)getBuiltInFont())->getSpriteBank());
+		b->setSpriteBank( boost::static_pointer_cast<IGUIFontBitmap>(getBuiltInFont())->getSpriteBank());
 	}
 
-	b->drop();
 	return b;
 }
 
 //! adds a tree view
-IGUITreeView* CGUIEnvironment::addTreeView(const core::rect<s32>& rectangle,
-					 IGUIElement* parent, s32 id,
+boost::shared_ptr<IGUITreeView> CGUIEnvironment::addTreeView(const core::rect<s32>& rectangle,
+					 boost::shared_ptr<IGUIElement> parent, s32 id,
 					 bool drawBackground,
 					 bool scrollBarVertical, bool scrollBarHorizontal)
 {
-	IGUITreeView* b = new CGUITreeView(this, parent ? parent : this, id, rectangle,
+	boost::shared_ptr<IGUITreeView> b = boost::make_shared<CGUITreeView>(getSharedEnvironment(), parent ? parent : getSharedThis(), id, rectangle,
 		true, drawBackground, scrollBarVertical, scrollBarHorizontal);
+	b->setWeakThis(b);
 
 	b->setIconFont ( getBuiltInFont () );
-	b->drop();
+
 	return b;
 }
 
 //! adds a file open dialog. The returned pointer must not be dropped.
-IGUIFileOpenDialog* CGUIEnvironment::addFileOpenDialog(const wchar_t* title,
-				bool modal, IGUIElement* parent, s32 id,
+boost::shared_ptr<IGUIFileOpenDialog> CGUIEnvironment::addFileOpenDialog(const wchar_t* title,
+				bool modal, boost::shared_ptr<IGUIElement> parent, s32 id,
 				bool restoreCWD, io::path::char_type* startDir)
 {
-	parent = parent ? parent : this;
+	parent = parent ? parent : getSharedThis();
 
-	IGUIFileOpenDialog* d = new CGUIFileOpenDialog(title, this, parent, id,
+	boost::shared_ptr<IGUIFileOpenDialog> d = boost::make_shared<CGUIFileOpenDialog>(title, getSharedEnvironment(), parent, id,
 			restoreCWD, startDir);
-	d->drop();
+	d->setWeakThis(d);
 
 	if (modal)
 	{
 		// Careful, don't just set the modal as parent above. That will mess up the focus (and is hard to change because we have to be very
 		// careful not to get virtual function call, like OnEvent, in the window.
-		CGUIModalScreen * modalScreen = new CGUIModalScreen(this, parent, -1);
-		modalScreen->drop();
+		boost::shared_ptr<CGUIModalScreen>  modalScreen = boost::make_shared<CGUIModalScreen>(getSharedEnvironment(), parent, -1);
+		modalScreen->setWeakThis(modalScreen);
 		modalScreen->addChild(d);
 	}
 
@@ -1233,21 +1195,21 @@ IGUIFileOpenDialog* CGUIEnvironment::addFileOpenDialog(const wchar_t* title,
 
 
 //! adds a color select dialog. The returned pointer must not be dropped.
-IGUIColorSelectDialog* CGUIEnvironment::addColorSelectDialog(const wchar_t* title,
-				bool modal, IGUIElement* parent, s32 id)
+boost::shared_ptr<IGUIColorSelectDialog> CGUIEnvironment::addColorSelectDialog(const wchar_t* title,
+				bool modal, boost::shared_ptr<IGUIElement> parent, s32 id)
 {
-	parent = parent ? parent : this;
+	parent = parent ? parent : getSharedThis();
 
-	IGUIColorSelectDialog* d = new CGUIColorSelectDialog( title,
-			this, parent, id);
-	d->drop();
+	boost::shared_ptr<IGUIColorSelectDialog> d = boost::make_shared<CGUIColorSelectDialog>( title,
+		getSharedEnvironment(), parent, id);
+	d->setWeakThis(d);
 
 	if (modal)
 	{
 		// Careful, don't just set the modal as parent above. That will mess up the focus (and is hard to change because we have to be very
 		// careful not to get virtual function call, like OnEvent, in the window.
-		CGUIModalScreen * modalScreen = new CGUIModalScreen(this, parent, -1);
-		modalScreen->drop();
+		boost::shared_ptr<CGUIModalScreen>  modalScreen = boost::make_shared<CGUIModalScreen>(getSharedEnvironment(), parent, -1);
+		modalScreen->setWeakThis(modalScreen);
 		modalScreen->addChild(d);
 	}
 
@@ -1256,111 +1218,114 @@ IGUIColorSelectDialog* CGUIEnvironment::addColorSelectDialog(const wchar_t* titl
 
 
 //! adds a static text. The returned pointer must not be dropped.
-IGUIStaticText* CGUIEnvironment::addStaticText(const wchar_t* text,
+boost::shared_ptr<IGUIStaticText> CGUIEnvironment::addStaticText(const wchar_t* text,
 				const core::rect<s32>& rectangle,
 				bool border, bool wordWrap,
-				IGUIElement* parent, s32 id, bool background)
+				boost::shared_ptr<IGUIElement> parent, s32 id, bool background)
 {
-	IGUIStaticText* d = new CGUIStaticText(text, border, this,
-			parent ? parent : this, id, rectangle, background);
+	boost::shared_ptr<IGUIStaticText> d = boost::make_shared<CGUIStaticText>(text, border, getSharedEnvironment(),
+			parent ? parent : getSharedThis(), id, rectangle, background);
+	d->setWeakThis(d);
 
 	d->setWordWrap(wordWrap);
-	d->drop();
 
 	return d;
 }
 
 
 //! Adds an edit box. The returned pointer must not be dropped.
-IGUIEditBox* CGUIEnvironment::addEditBox(const wchar_t* text,
+boost::shared_ptr<IGUIEditBox> CGUIEnvironment::addEditBox(const wchar_t* text,
 			const core::rect<s32>& rectangle, bool border,
-			IGUIElement* parent, s32 id)
+			boost::shared_ptr<IGUIElement> parent, s32 id)
 {
-	IGUIEditBox* d = new CGUIEditBox(text, border, this,
-			parent ? parent : this, id, rectangle);
+	boost::shared_ptr<IGUIEditBox> d = boost::make_shared<CGUIEditBox>(text, border, getSharedEnvironment(),
+			parent ? parent : getSharedThis(), id, rectangle);
+	d->setWeakThis(d);
 
-	d->drop();
 	return d;
 }
 
 
 //! Adds a spin box to the environment
-IGUISpinBox* CGUIEnvironment::addSpinBox(const wchar_t* text,
+boost::shared_ptr<IGUISpinBox> CGUIEnvironment::addSpinBox(const wchar_t* text,
 					 const core::rect<s32> &rectangle,
-					 bool border,IGUIElement* parent, s32 id)
+					 bool border,boost::shared_ptr<IGUIElement> parent, s32 id)
 {
-	IGUISpinBox* d = new CGUISpinBox(text, border,this,
-		parent ? parent : this, id, rectangle);
+	boost::shared_ptr<IGUISpinBox> d = boost::make_shared<CGUISpinBox>(text, border, getSharedEnvironment(),
+		parent ? parent : getSharedThis(), id, rectangle);
+	d->setWeakThis(d);
 
-	d->drop();
 	return d;
 }
 
 
 //! Adds a tab control to the environment.
-IGUITabControl* CGUIEnvironment::addTabControl(const core::rect<s32>& rectangle,
-	IGUIElement* parent, bool fillbackground, bool border, s32 id)
+boost::shared_ptr<IGUITabControl> CGUIEnvironment::addTabControl(const core::rect<s32>& rectangle,
+	boost::shared_ptr<IGUIElement> parent, bool fillbackground, bool border, s32 id)
 {
-	IGUITabControl* t = new CGUITabControl(this, parent ? parent : this,
+	boost::shared_ptr<IGUITabControl> t = boost::make_shared<CGUITabControl>(getSharedEnvironment(), parent ? parent : getSharedThis(),
 		rectangle, fillbackground, border, id);
-	t->drop();
+	t->setWeakThis(t);
+
 	return t;
 }
 
 
 //! Adds tab to the environment.
-IGUITab* CGUIEnvironment::addTab(const core::rect<s32>& rectangle,
-	IGUIElement* parent, s32 id)
+boost::shared_ptr<IGUITab> CGUIEnvironment::addTab(const core::rect<s32>& rectangle,
+	boost::shared_ptr<IGUIElement> parent, s32 id)
 {
-	IGUITab* t = new CGUITab(-1, this, parent ? parent : this,
+	boost::shared_ptr<IGUITab> t = boost::make_shared<CGUITab>(-1, getSharedEnvironment(), parent ? parent : getSharedThis(),
 		rectangle, id);
-	t->drop();
+	t->setWeakThis(t);
+
 	return t;
 }
 
 
 //! Adds a context menu to the environment.
-IGUIContextMenu* CGUIEnvironment::addContextMenu(const core::rect<s32>& rectangle,
-	IGUIElement* parent, s32 id)
+boost::shared_ptr<IGUIContextMenu> CGUIEnvironment::addContextMenu(const core::rect<s32>& rectangle,
+	boost::shared_ptr<IGUIElement> parent, s32 id)
 {
-	IGUIContextMenu* c = new CGUIContextMenu(this,
-		parent ? parent : this, id, rectangle, true);
-	c->drop();
+	boost::shared_ptr<IGUIContextMenu> c = boost::make_shared<CGUIContextMenu>(getSharedEnvironment(),
+		parent ? parent : getSharedThis(), id, rectangle, true);
+	c->setWeakThis(c);
+
 	return c;
 }
 
 
 //! Adds a menu to the environment.
-IGUIContextMenu* CGUIEnvironment::addMenu(IGUIElement* parent, s32 id)
+boost::shared_ptr<IGUIContextMenu> CGUIEnvironment::addMenu(boost::shared_ptr<IGUIElement> parent, s32 id)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	IGUIContextMenu* c = new CGUIMenu(this,
+	boost::shared_ptr<IGUIContextMenu> c = boost::make_shared<CGUIMenu>(getSharedEnvironment(),
 		parent, id, core::rect<s32>(0,0,
 				parent->getAbsolutePosition().getWidth(),
 				parent->getAbsolutePosition().getHeight()));
+	c->setWeakThis(c);
 
-	c->drop();
 	return c;
 }
 
 
 //! Adds a toolbar to the environment. It is like a menu is always placed on top
 //! in its parent, and contains buttons.
-IGUIToolBar* CGUIEnvironment::addToolBar(IGUIElement* parent, s32 id)
+boost::shared_ptr<IGUIToolBar> CGUIEnvironment::addToolBar(boost::shared_ptr<IGUIElement> parent, s32 id)
 {
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	IGUIToolBar* b = new CGUIToolBar(this, parent, id, core::rect<s32>(0,0,10,10));
-	b->drop();
+	boost::shared_ptr<IGUIToolBar> b = boost::make_shared<CGUIToolBar>(getSharedEnvironment(), parent, id, core::rect<s32>(0,0,10,10));
+	b->setWeakThis(b);
 	return b;
 }
 
 
 //! Adds an element for fading in or out.
-IGUIInOutFader* CGUIEnvironment::addInOutFader(const core::rect<s32>* rectangle, IGUIElement* parent, s32 id)
+boost::shared_ptr<IGUIInOutFader> CGUIEnvironment::addInOutFader(const core::rect<s32>* rectangle, boost::shared_ptr<IGUIElement> parent, s32 id)
 {
 	core::rect<s32> rect;
 
@@ -1370,27 +1335,29 @@ IGUIInOutFader* CGUIEnvironment::addInOutFader(const core::rect<s32>* rectangle,
 		rect = core::rect<s32>(core::position2d<s32>(0,0), core::dimension2di(Driver->getScreenSize()));
 
 	if (!parent)
-		parent = this;
+		parent = getSharedThis();
 
-	IGUIInOutFader* fader = new CGUIInOutFader(this, parent, id, rect);
-	fader->drop();
+	boost::shared_ptr<IGUIInOutFader> fader = boost::make_shared<CGUIInOutFader>(getSharedEnvironment(), parent, id, rect);
+	fader->setWeakThis(fader);
+
 	return fader;
 }
 
 
 //! Adds a combo box to the environment.
-IGUIComboBox* CGUIEnvironment::addComboBox(const core::rect<s32>& rectangle,
-	IGUIElement* parent, s32 id)
+boost::shared_ptr<IGUIComboBox> CGUIEnvironment::addComboBox(const core::rect<s32>& rectangle,
+	boost::shared_ptr<IGUIElement> parent, s32 id)
 {
-	IGUIComboBox* t = new CGUIComboBox(this, parent ? parent : this,
+	boost::shared_ptr<IGUIComboBox> t = boost::make_shared<CGUIComboBox>(getSharedEnvironment(), parent ? parent : getSharedThis(),
 		id, rectangle);
-	t->drop();
+	t->setWeakThis(t);
+
 	return t;
 }
 
 
 //! returns the font
-IGUIFont* CGUIEnvironment::getFont(const io::path& filename)
+boost::shared_ptr<IGUIFont> CGUIEnvironment::getFont(const io::path& filename)
 {
 	// search existing font
 
@@ -1411,7 +1378,8 @@ IGUIFont* CGUIEnvironment::getFont(const io::path& filename)
 		return 0;
 	}
 
-	IGUIFont* ifont=0;
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUIFont> ifont=0;
 	io::IXMLReader *xml = FileSystem->createXMLReader(filename );
 	if (xml)
 	{
@@ -1442,8 +1410,9 @@ IGUIFont* CGUIEnvironment::getFont(const io::path& filename)
 
 		if (t==EGFT_BITMAP)
 		{
-			CGUIFont* font = new CGUIFont(this, filename);
-			ifont = (IGUIFont*)font;
+			boost::shared_ptr<CGUIFont> font = boost::make_shared<CGUIFont>(lockedEnvironment, filename);
+
+			ifont = (boost::shared_ptr<IGUIFont>)font;
 			// change working directory, for loading textures
 			io::path workingDir = FileSystem->getWorkingDirectory();
 			FileSystem->changeWorkingDirectoryTo(FileSystem->getFileDir(f.NamedPath.getPath()));
@@ -1451,7 +1420,6 @@ IGUIFont* CGUIEnvironment::getFont(const io::path& filename)
 			// load the font
 			if (!font->load(xml))
 			{
-				font->drop();
 				font  = 0;
 				ifont = 0;
 			}
@@ -1464,7 +1432,7 @@ IGUIFont* CGUIEnvironment::getFont(const io::path& filename)
 			os::Printer::log("Unable to load font, XML vector fonts are not supported yet", f.NamedPath, ELL_ERROR);
 
 			//CGUIFontVector* font = new CGUIFontVector(Driver);
-			//ifont = (IGUIFont*)font;
+			//ifont = (boost::shared_ptr<IGUIFont>)font;
 			//if (!font->load(xml))
 		}
 		xml->drop();
@@ -1474,11 +1442,11 @@ IGUIFont* CGUIEnvironment::getFont(const io::path& filename)
 	if (!ifont)
 	{
 
-		CGUIFont* font = new CGUIFont(this, f.NamedPath.getPath() );
-		ifont = (IGUIFont*)font;
+		boost::shared_ptr<CGUIFont> font = boost::make_shared<CGUIFont>(lockedEnvironment, f.NamedPath.getPath());
+
+		ifont = (boost::shared_ptr<IGUIFont>)font;
 		if (!font->load(f.NamedPath.getPath()))
 		{
-			font->drop();
 			return 0;
 		}
 	}
@@ -1493,7 +1461,7 @@ IGUIFont* CGUIEnvironment::getFont(const io::path& filename)
 
 
 //! add an externally loaded font
-IGUIFont* CGUIEnvironment::addFont(const io::path& name, IGUIFont* font)
+boost::shared_ptr<IGUIFont> CGUIEnvironment::addFont(const io::path& name, boost::shared_ptr<IGUIFont> font)
 {
 	if (font)
 	{
@@ -1504,13 +1472,12 @@ IGUIFont* CGUIEnvironment::addFont(const io::path& name, IGUIFont* font)
 			return Fonts[index].Font;
 		f.Font = font;
 		Fonts.push_back(f);
-		font->grab();
 	}
 	return font;
 }
 
 //! remove loaded font
-void CGUIEnvironment::removeFont(IGUIFont* font)
+void CGUIEnvironment::removeFont(boost::shared_ptr<IGUIFont> font)
 {
 	if ( !font )
 		return;
@@ -1518,7 +1485,6 @@ void CGUIEnvironment::removeFont(IGUIFont* font)
 	{
 		if ( Fonts[i].Font == font )
 		{
-			Fonts[i].Font->drop();
 			Fonts.erase(i);
 			return;
 		}
@@ -1526,7 +1492,7 @@ void CGUIEnvironment::removeFont(IGUIFont* font)
 }
 
 //! returns default font
-IGUIFont* CGUIEnvironment::getBuiltInFont() const
+boost::shared_ptr<IGUIFont> CGUIEnvironment::getBuiltInFont() const
 {
 	if (Fonts.empty())
 		return 0;
@@ -1575,7 +1541,7 @@ IGUISpriteBank* CGUIEnvironment::addEmptySpriteBank(const io::path& name)
 
 	// create a new sprite bank
 
-	b.Bank = new CGUISpriteBank(this);
+	b.Bank = new CGUISpriteBank(getSharedEnvironment());
 	Banks.push_back(b);
 
 	return b.Bank;
@@ -1597,17 +1563,17 @@ IGUIImageList* CGUIEnvironment::createImageList(  video::ITexture* texture,
 }
 
 //! Returns the root gui element.
-IGUIElement* CGUIEnvironment::getRootGUIElement()
+boost::shared_ptr<IGUIElement> CGUIEnvironment::getRootGUIElement()
 {
-	return this;
+	return getSharedThis();
 }
 
 
 //! Returns the next element in the tab group starting at the focused element
-IGUIElement* CGUIEnvironment::getNextElement(bool reverse, bool group)
+boost::shared_ptr<IGUIElement> CGUIEnvironment::getNextElement(bool reverse, bool group)
 {
 	// start the search at the root of the current tab group
-	IGUIElement *startPos = Focus ? Focus->getTabGroup() : 0;
+	boost::shared_ptr<IGUIElement> startPos = Focus ? Focus->getTabGroup() : 0;
 	s32 startOrder = -1;
 
 	// if we're searching for a group
@@ -1623,7 +1589,7 @@ IGUIElement* CGUIEnvironment::getNextElement(bool reverse, bool group)
 		{
 			// this element is not part of the tab cycle,
 			// but its parent might be...
-			IGUIElement *el = Focus;
+			boost::shared_ptr<IGUIElement> el = Focus;
 			while (el && el->getParent() && startOrder == -1)
 			{
 				el = el->getParent();
@@ -1634,11 +1600,11 @@ IGUIElement* CGUIEnvironment::getNextElement(bool reverse, bool group)
 	}
 
 	if (group || !startPos)
-		startPos = this; // start at the root
+		startPos = getSharedThis(); // start at the root
 
 	// find the element
-	IGUIElement *closest = 0;
-	IGUIElement *first = 0;
+	boost::shared_ptr<IGUIElement> closest = 0;
+	boost::shared_ptr<IGUIElement> first = 0;
 	startPos->getNextElement(startOrder, reverse, group, first, closest);
 
 	if (closest)
@@ -1646,18 +1612,21 @@ IGUIElement* CGUIEnvironment::getNextElement(bool reverse, bool group)
 	else if (first)
 		return first; // go to the end or the start
 	else if (group)
-		return this; // no group found? root group
+		return getSharedThis(); // no group found? root group
 	else
 		return 0;
 }
 
 
 //! creates an GUI Environment
-IGUIEnvironment* createGUIEnvironment(io::IFileSystem* fs,
+boost::shared_ptr<IGUIEnvironment> createGUIEnvironment(io::IFileSystem* fs,
 					video::IVideoDriver* Driver,
 					IOSOperator* op)
 {
-	return new CGUIEnvironment(fs, Driver, op);
+	boost::shared_ptr<CGUIEnvironment> env = boost::make_shared<CGUIEnvironment>(fs, Driver, op);
+	env->setWeakThis(env);
+
+	return env;
 }
 
 

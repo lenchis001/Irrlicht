@@ -22,7 +22,7 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIButton(IGUIEnvironment* environment, IGUIElement* parent,
+		CGUIButton(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 			s32 id, core::rect<s32> rectangle, bool noclip=false);
 
 		//! destructor
@@ -35,13 +35,13 @@ namespace gui
 		virtual void draw();
 
 		//! sets another skin independent font. if this is set to zero, the button uses the font of the skin.
-		virtual void setOverrideFont(IGUIFont* font=0);
+		virtual void setOverrideFont(boost::shared_ptr<IGUIFont> font=0);
 
 		//! Gets the override font (if any)
-		virtual IGUIFont* getOverrideFont() const;
+		virtual boost::shared_ptr<IGUIFont> getOverrideFont() const;
 
 		//! Get the font which is used right now for drawing
-		virtual IGUIFont* getActiveFont() const;
+		virtual boost::shared_ptr<IGUIFont> getActiveFont() ;
 
 		//! Sets an image which should be displayed on the button when it is in normal state.
 		virtual void setImage(video::ITexture* image=0);
@@ -105,6 +105,7 @@ namespace gui
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
 	private:
 
 		struct ButtonSprite
@@ -117,7 +118,7 @@ namespace gui
 		ButtonSprite ButtonSprites[EGBS_COUNT];
 
 		IGUISpriteBank* SpriteBank;
-		IGUIFont* OverrideFont;
+		boost::shared_ptr<IGUIFont> OverrideFont;
 
 		video::ITexture* Image;
 		video::ITexture* PressedImage;
@@ -132,6 +133,7 @@ namespace gui
 		bool UseAlphaChannel;
 		bool DrawBorder;
 		bool ScaleImage;
+		bool _noClip;
 	};
 
 } // end namespace gui

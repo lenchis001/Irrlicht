@@ -16,7 +16,7 @@ namespace gui
 
 
 //! constructor
-CGUIInOutFader::CGUIInOutFader(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+CGUIInOutFader::CGUIInOutFader(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 : IGUIInOutFader(environment, parent, id, rectangle)
 {
 	#ifdef _DEBUG
@@ -26,8 +26,6 @@ CGUIInOutFader::CGUIInOutFader(IGUIEnvironment* environment, IGUIElement* parent
 	Action = EFA_NOTHING;
 	StartTime = 0;
 	EndTime = 0;
-
-	setColor(video::SColor(0,0,0,0));
 }
 
 
@@ -44,7 +42,7 @@ void CGUIInOutFader::draw()
 		return;
 	}
 
-	video::IVideoDriver* driver = Environment->getVideoDriver();
+	video::IVideoDriver* driver = getSharedEnvironment()->getVideoDriver();
 
 	if (driver)
 	{
@@ -169,6 +167,13 @@ void CGUIInOutFader::deserializeAttributes(io::IAttributes* in, io::SAttributeRe
 
 	FullColor  = in->getAttributeAsColor("FullColor");
 	TransColor = in->getAttributeAsColor("TransColor");
+}
+
+void CGUIInOutFader::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	setColor(video::SColor(0, 0, 0, 0));
 }
 
 

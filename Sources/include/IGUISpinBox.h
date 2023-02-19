@@ -22,12 +22,12 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUISpinBox(IGUIEnvironment* environment, IGUIElement* parent,
+		IGUISpinBox(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 					s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_SPIN_BOX, environment, parent, id, rectangle) {}
 
 		//! Access the edit box used in the spin control
-		virtual IGUIEditBox* getEditBox() const = 0;
+		virtual boost::shared_ptr<IGUIEditBox> getEditBox() const = 0;
 
 		//! set the current value of the spinbox
 		/** \param val: value to be set in the spinbox */

@@ -23,11 +23,11 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUIToolBar(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUIToolBar(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_TOOL_BAR, environment, parent, id, rectangle) {}
 
 		//! Adds a button to the tool bar
-		virtual IGUIButton* addButton(s32 id=-1, const wchar_t* text=0,const wchar_t* tooltiptext=0,
+		virtual boost::shared_ptr<IGUIButton> addButton(s32 id=-1, const wchar_t* text=0,const wchar_t* tooltiptext=0,
 			video::ITexture* img=0, video::ITexture* pressedimg=0,
 			bool isPushButton=false, bool useAlphaChannel=false) = 0;
 	};

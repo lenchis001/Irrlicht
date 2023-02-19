@@ -60,22 +60,22 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUIButton(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUIButton(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_BUTTON, environment, parent, id, rectangle) {}
 
 		//! Sets another skin independent font.
 		/** If this is set to zero, the button uses the font of the skin.
 		\param font: New font to set. */
-		virtual void setOverrideFont(IGUIFont* font=0) = 0;
+		virtual void setOverrideFont(boost::shared_ptr<IGUIFont> font=0) = 0;
 
 		//! Gets the override font (if any)
 		/** \return The override font (may be 0) */
-		virtual IGUIFont* getOverrideFont(void) const = 0;
+		virtual boost::shared_ptr<IGUIFont> getOverrideFont(void) const = 0;
 
 		//! Get the font which is used right now for drawing
 		/** Currently this is the override font when one is set and the
 		font of the active skin otherwise */
-		virtual IGUIFont* getActiveFont() const = 0;
+		virtual boost::shared_ptr<IGUIFont> getActiveFont() = 0;
 
 		//! Sets an image which should be displayed on the button when it is in normal state.
 		/** \param image: Image to be displayed */

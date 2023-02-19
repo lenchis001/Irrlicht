@@ -67,7 +67,7 @@ class IGUIElementFactory;
 \li EGET_ELEMENT_LEFT
 \li EGET_ELEMENT_HOVERED
 */
-class IGUIEnvironment : public virtual IReferenceCounted
+class IGUIEnvironment : public virtual IDebugable
 {
 public:
 
@@ -80,11 +80,11 @@ public:
 	then the focus will not be changed.
 	\param element Pointer to the element which shall get the focus.
 	\return True on success, false on failure */
-	virtual bool setFocus(IGUIElement* element) = 0;
+	virtual bool setFocus(boost::shared_ptr<IGUIElement> element) = 0;
 
 	//! Returns the element which holds the focus.
 	/** \return Pointer to the element with focus. */
-	virtual IGUIElement* getFocus() const = 0;
+	virtual boost::shared_ptr<IGUIElement> getFocus() const = 0;
 
 	//! Returns the element which was last under the mouse cursor
 	/** NOTE: This information is updated _after_ the user-eventreceiver 
@@ -92,19 +92,19 @@ public:
 	mouse events you have to use instead:
 	IGUIEnvironment::getRootGUIElement()->getElementFromPoint(mousePos);
 	\return Pointer to the element under the mouse. */
-	virtual IGUIElement* getHovered() const = 0;
+	virtual boost::shared_ptr<IGUIElement> getHovered() const = 0;
 
 	//! Removes the focus from an element.
 	/** Causes a EGET_ELEMENT_FOCUS_LOST event. If the event is absorbed
 	then the focus will not be changed.
 	\param element Pointer to the element which shall lose the focus.
 	\return True on success, false on failure */
-	virtual bool removeFocus(IGUIElement* element) = 0;
+	virtual bool removeFocus(boost::shared_ptr<IGUIElement> element) = 0;
 
 	//! Returns whether the element has focus
 	/** \param element Pointer to the element which is tested.
 	\return True if the element has focus, else false. */
-	virtual bool hasFocus(IGUIElement* element) const = 0;
+	virtual bool hasFocus(boost::shared_ptr<IGUIElement> element) const = 0;
 
 	//! Returns the current video driver.
 	/** \return Pointer to the video driver. */
@@ -179,7 +179,7 @@ public:
 	\return Pointer to the font. Returns 0 if the font could not be loaded.
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
-	virtual IGUIFont* getFont(const io::path& filename) = 0;
+	virtual boost::shared_ptr<IGUIFont> getFont(const io::path& filename) = 0;
 
 	//! Adds an externally loaded font to the font list.
 	/** This method allows to attach an already loaded font to the list of
@@ -187,16 +187,16 @@ public:
 	\param name Name the font should be stored as.
 	\param font Pointer to font to add.
 	\return Pointer to the font stored. This can differ from given parameter if the name previously existed. */
-	virtual IGUIFont* addFont(const io::path& name, IGUIFont* font) = 0;
+	virtual boost::shared_ptr<IGUIFont> addFont(const io::path& name, boost::shared_ptr<IGUIFont> font) = 0;
 
 	//! remove loaded font
-	virtual void removeFont(IGUIFont* font) = 0;
+	virtual void removeFont(boost::shared_ptr<IGUIFont> font) = 0;
 
 	//! Returns the default built-in font.
 	/** \return Pointer to the default built-in font.
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
-	virtual IGUIFont* getBuiltInFont() const = 0;
+	virtual boost::shared_ptr<IGUIFont> getBuiltInFont() const = 0;
 
 	//! Returns pointer to the sprite bank with the specified file name.
 	/** Loads the bank if it was not loaded before.
@@ -218,7 +218,7 @@ public:
 	\return Pointer to the root element of the GUI. The returned pointer
 	should not be dropped. See IReferenceCounted::drop() for more
 	information. */
-	virtual IGUIElement* getRootGUIElement() = 0;
+	virtual boost::shared_ptr<IGUIElement> getRootGUIElement() = 0;
 
 	//! Adds a button element.
 	/** \param rectangle Rectangle specifying the borders of the button.
@@ -229,8 +229,8 @@ public:
 	\return Pointer to the created button. Returns 0 if an error occurred.
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
-	virtual IGUIButton* addButton(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0, const wchar_t* tooltiptext = 0) = 0;
+	virtual boost::shared_ptr<IGUIButton> addButton(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, const wchar_t* text=0, const wchar_t* tooltiptext = 0) = 0;
 
 	//! Adds an empty window element.
 	/** \param rectangle Rectangle specifying the borders of the window.
@@ -243,8 +243,8 @@ public:
 	\return Pointer to the created window. Returns 0 if an error occurred.
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
-	virtual IGUIWindow* addWindow(const core::rect<s32>& rectangle, bool modal = false,
-		const wchar_t* text=0, IGUIElement* parent=0, s32 id=-1) = 0;
+	virtual boost::shared_ptr<IGUIWindow> addWindow(const core::rect<s32>& rectangle, bool modal = false,
+		const wchar_t* text=0, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1) = 0;
 
 	//! Adds a modal screen.
 	/** This control stops its parent's members from being able to receive
@@ -253,7 +253,7 @@ public:
 	\return Pointer to the created modal. Returns 0 if an error occurred.
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
-	virtual IGUIElement* addModalScreen(IGUIElement* parent) = 0;
+	virtual boost::shared_ptr<IGUIElement> addModalScreen(boost::shared_ptr<IGUIElement> parent) = 0;
 
 	//! Adds a message box.
 	/** \param caption Text to be displayed the title of the message box.
@@ -270,8 +270,8 @@ public:
 	\return Pointer to the created message box. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIWindow* addMessageBox(const wchar_t* caption, const wchar_t* text=0,
-		bool modal = true, s32 flags = EMBF_OK, IGUIElement* parent=0, s32 id=-1, video::ITexture* image=0) = 0;
+	virtual boost::shared_ptr<IGUIWindow> addMessageBox(const wchar_t* caption, const wchar_t* text=0,
+		bool modal = true, s32 flags = EMBF_OK, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, video::ITexture* image=0) = 0;
 
 	//! Adds a scrollbar.
 	/** \param horizontal Specifies if the scroll bar is drawn horizontal
@@ -282,8 +282,8 @@ public:
 	\return Pointer to the created scrollbar. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIScrollBar* addScrollBar(bool horizontal, const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1) = 0;
+	virtual boost::shared_ptr<IGUIScrollBar> addScrollBar(bool horizontal, const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1) = 0;
 
 	//! Adds an image element.
 	/** \param image Image to be displayed.
@@ -297,8 +297,8 @@ public:
 	\return Pointer to the created image element. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIImage* addImage(video::ITexture* image, core::position2d<s32> pos,
-		bool useAlphaChannel=true, IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0) = 0;
+	virtual boost::shared_ptr<IGUIImage> addImage(video::ITexture* image, core::position2d<s32> pos,
+		bool useAlphaChannel=true, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, const wchar_t* text=0) = 0;
 
 	//! Adds an image element.
 	/** Use IGUIImage::setImage later to set the image to be displayed.
@@ -311,8 +311,8 @@ public:
 	\return Pointer to the created image element. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIImage* addImage(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0, bool useAlphaChannel=true) = 0;
+	virtual boost::shared_ptr<IGUIImage> addImage(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, const wchar_t* text=0, bool useAlphaChannel=true) = 0;
 
 	//! Adds a checkbox element.
 	/** \param checked Define the initial state of the check box.
@@ -323,8 +323,8 @@ public:
 	\return Pointer to the created check box. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUICheckBox* addCheckBox(bool checked, const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0) = 0;
+	virtual boost::shared_ptr<IGUICheckBox> addCheckBox(bool checked, const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, const wchar_t* text=0) = 0;
 
 	//! Adds a list box element.
 	/** \param rectangle Rectangle specifying the borders of the list box.
@@ -334,8 +334,8 @@ public:
 	\return Pointer to the created list box. Returns 0 if an error occurred.
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
-	virtual IGUIListBox* addListBox(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1, bool drawBackground=false) = 0;
+	virtual boost::shared_ptr<IGUIListBox> addListBox(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, bool drawBackground=false) = 0;
 
 	//! Adds a tree view element.
 	/** \param rectangle Position and dimension of list box.
@@ -347,8 +347,8 @@ public:
 	\return Pointer to the created list box. Returns 0 if an error occurred.
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
-	virtual IGUITreeView* addTreeView(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1, bool drawBackground=false,
+	virtual boost::shared_ptr<IGUITreeView> addTreeView(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, bool drawBackground=false,
 		bool scrollBarVertical = true, bool scrollBarHorizontal = false) = 0;
 
 	//! Adds a mesh viewer. Not 100% implemented yet.
@@ -359,8 +359,8 @@ public:
 	\return Pointer to the created mesh viewer. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIMeshViewer* addMeshViewer(const core::rect<s32>& rectangle,
-			IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0) = 0;
+	virtual boost::shared_ptr<IGUIMeshViewer> addMeshViewer(const core::rect<s32>& rectangle,
+			boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, const wchar_t* text=0) = 0;
 
 	//! Adds a file open dialog.
 	/** \param title Text to be displayed as the title of the dialog.
@@ -376,8 +376,8 @@ public:
 	\return Pointer to the created file open dialog. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIFileOpenDialog* addFileOpenDialog(const wchar_t* title=0,
-		bool modal=true, IGUIElement* parent=0, s32 id=-1,
+	virtual boost::shared_ptr<IGUIFileOpenDialog> addFileOpenDialog(const wchar_t* title=0,
+		bool modal=true, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1,
 		bool restoreCWD=false, io::path::char_type* startDir=0) = 0;
 
 	//! Adds a color select dialog.
@@ -390,8 +390,8 @@ public:
 	\return Pointer to the created file open dialog. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIColorSelectDialog* addColorSelectDialog(const wchar_t* title = 0,
-		bool modal=true, IGUIElement* parent=0, s32 id=-1) = 0;
+	virtual boost::shared_ptr<IGUIColorSelectDialog> addColorSelectDialog(const wchar_t* title = 0,
+		bool modal=true, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1) = 0;
 
 	//! Adds a static text.
 	/** \param text Text to be displayed. Can be altered after creation by SetText().
@@ -405,8 +405,8 @@ public:
 	\return Pointer to the created static text. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIStaticText* addStaticText(const wchar_t* text, const core::rect<s32>& rectangle,
-		bool border=false, bool wordWrap=true, IGUIElement* parent=0, s32 id=-1,
+	virtual boost::shared_ptr<IGUIStaticText> addStaticText(const wchar_t* text, const core::rect<s32>& rectangle,
+		bool border=false, bool wordWrap=true, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1,
 		bool fillBackground = false) = 0;
 
 	//! Adds an edit box.
@@ -424,8 +424,8 @@ public:
 	\return Pointer to the created edit box. Returns 0 if an error occurred.
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
-	virtual IGUIEditBox* addEditBox(const wchar_t* text, const core::rect<s32>& rectangle,
-		bool border=true, IGUIElement* parent=0, s32 id=-1) = 0;
+	virtual boost::shared_ptr<IGUIEditBox> addEditBox(const wchar_t* text, const core::rect<s32>& rectangle,
+		bool border=true, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1) = 0;
 
 	//! Adds a spin box.
 	/** An edit box with up and down buttons
@@ -438,8 +438,8 @@ public:
 	\return Pointer to the created spin box. Returns 0 if an error occurred.
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
-	virtual IGUISpinBox* addSpinBox(const wchar_t* text, const core::rect<s32>& rectangle,
-		bool border=true,IGUIElement* parent=0, s32 id=-1) = 0;
+	virtual boost::shared_ptr<IGUISpinBox> addSpinBox(const wchar_t* text, const core::rect<s32>& rectangle,
+		bool border=true,boost::shared_ptr<IGUIElement> parent=0, s32 id=-1) = 0;
 
 	//! Adds an element for fading in or out.
 	/** \param rectangle Rectangle specifying the borders of the fader.
@@ -449,7 +449,7 @@ public:
 	\return Pointer to the created in-out-fader. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIInOutFader* addInOutFader(const core::rect<s32>* rectangle=0, IGUIElement* parent=0, s32 id=-1) = 0;
+	virtual boost::shared_ptr<IGUIInOutFader> addInOutFader(const core::rect<s32>* rectangle=0, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1) = 0;
 
 	//! Adds a tab control to the environment.
 	/** \param rectangle Rectangle specifying the borders of the tab control.
@@ -464,8 +464,8 @@ public:
 	\return Pointer to the created tab control element. Returns 0 if an
 	error occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUITabControl* addTabControl(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, bool fillbackground=false,
+	virtual boost::shared_ptr<IGUITabControl> addTabControl(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, bool fillbackground=false,
 		bool border=true, s32 id=-1) = 0;
 
 	//! Adds tab to the environment.
@@ -479,8 +479,8 @@ public:
 	\return Pointer to the created tab. Returns 0 if an
 	error occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUITab* addTab(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1) = 0;
+	virtual boost::shared_ptr<IGUITab> addTab(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1) = 0;
 
 	//! Adds a context menu to the environment.
 	/** \param rectangle Rectangle specifying the borders of the menu.
@@ -491,8 +491,8 @@ public:
 	\return Pointer to the created context menu. Returns 0 if an
 	error occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIContextMenu* addContextMenu(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1) = 0;
+	virtual boost::shared_ptr<IGUIContextMenu> addContextMenu(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1) = 0;
 
 	//! Adds a menu to the environment.
 	/** This is like the menu you can find on top of most windows in modern
@@ -503,7 +503,7 @@ public:
 	\return Pointer to the created menu. Returns 0 if an
 	error occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIContextMenu* addMenu(IGUIElement* parent=0, s32 id=-1) = 0;
+	virtual boost::shared_ptr<IGUIContextMenu> addMenu(boost::shared_ptr<IGUIElement> parent=0, s32 id=-1) = 0;
 
 	//! Adds a toolbar to the environment.
 	/** It is like a menu that is always placed on top of its parent, and
@@ -514,7 +514,7 @@ public:
 	\return Pointer to the created tool bar. Returns 0 if an
 	error occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIToolBar* addToolBar(IGUIElement* parent=0, s32 id=-1) = 0;
+	virtual boost::shared_ptr<IGUIToolBar> addToolBar(boost::shared_ptr<IGUIElement> parent=0, s32 id=-1) = 0;
 
 	//! Adds a combo box to the environment.
 	/** \param rectangle Rectangle specifying the borders of the combo box.
@@ -524,8 +524,8 @@ public:
 	\return Pointer to the created combo box. Returns 0 if an
 	error occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIComboBox* addComboBox(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1) = 0;
+	virtual boost::shared_ptr<IGUIComboBox> addComboBox(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1) = 0;
 
 	//! Adds a table to the environment
 	/** \param rectangle Rectangle specifying the borders of the table.
@@ -536,15 +536,15 @@ public:
 	\return Pointer to the created table. Returns 0 if an error occurred.
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
-	virtual IGUITable* addTable(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1, bool drawBackground=false) =0;
+	virtual boost::shared_ptr<IGUITable> addTable(const core::rect<s32>& rectangle,
+		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, bool drawBackground=false) =0;
 
 	//! Adds a empty element to the environment
 	/** \param parent Parent item of the element, e.g. a window.
 	Set it to 0 to place the element directly in the environment.
 	\param id An identifier for the element.
 	*/
-	virtual IGUIElement* addEmpty(IGUIElement* parent=nullptr, s32 id=-1) = 0;
+	virtual boost::shared_ptr<IGUIElement> addEmpty(boost::shared_ptr<IGUIElement> parent=nullptr, s32 id=-1) = 0;
 
 	//! Get the default element factory which can create all built-in elements
 	/** \return Pointer to the factory.
@@ -574,19 +574,19 @@ public:
 	\param elementName Name of the element to be created.
 	\param parent Parent of the new element, if not 0.
 	\return New GUI element, or 0 if no such element exists. */
-	virtual IGUIElement* addGUIElement(const c8* elementName, IGUIElement* parent=0) = 0;
+	virtual boost::shared_ptr<IGUIElement> addGUIElement(const c8* elementName, boost::shared_ptr<IGUIElement> parent=0) = 0;
 
 	//! Saves the current gui into a file.
 	/** \param filename Name of the file.
 	\param start The GUIElement to start with. Root if 0.
 	\return True if saving succeeded, else false. */
-	virtual bool saveGUI(const io::path& filename, IGUIElement* start=0) = 0;
+	virtual bool saveGUI(const io::path& filename, boost::shared_ptr<IGUIElement> start=0) = 0;
 
 	//! Saves the current gui into a file.
 	/** \param file The file to write to.
 	\param start The GUIElement to start with. Root if 0.
 	\return True if saving succeeded, else false. */
-	virtual bool saveGUI(io::IWriteFile* file, IGUIElement* start=0) = 0;
+	virtual bool saveGUI(io::IWriteFile* file, boost::shared_ptr<IGUIElement> start=0) = 0;
 
 	//! Loads the gui. Note that the current gui is not cleared before.
 	/** When a parent is set the elements will be added below the parent, the parent itself does not deserialize.
@@ -595,7 +595,7 @@ public:
 	\param filename Name of the file.
 	\param parent Parent for the loaded GUI, root if 0.
 	\return True if loading succeeded, else false. */
-	virtual bool loadGUI(const io::path& filename, IGUIElement* parent=0) = 0;
+	virtual bool loadGUI(const io::path& filename, boost::shared_ptr<IGUIElement> parent=0) = 0;
 
 	//! Loads the gui. Note that the current gui is not cleared before.
 	/** When a parent is set the elements will be added below the parent, the parent itself does not deserialize.
@@ -604,7 +604,7 @@ public:
 	\param file The file to load from.
 	\param parent Parent for the loaded GUI, root if 0.
 	\return True if loading succeeded, else false. */
-	virtual bool loadGUI(io::IReadFile* file, IGUIElement* parent=0) = 0;
+	virtual bool loadGUI(io::IReadFile* file, boost::shared_ptr<IGUIElement> parent=0) = 0;
 
 	//! Writes attributes of the gui environment
 	virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const =0;
@@ -613,10 +613,10 @@ public:
 	virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0)=0;
 
 	//! writes an element
-	virtual void writeGUIElement(io::IXMLWriter* writer, IGUIElement* node) =0;
+	virtual void writeGUIElement(io::IXMLWriter* writer, boost::shared_ptr<IGUIElement> node) =0;
 
 	//! reads an element
-	virtual void readGUIElement(io::IXMLReader* reader, IGUIElement* node) =0;
+	virtual void readGUIElement(io::IXMLReader* reader, boost::shared_ptr<IGUIElement> node) =0;
 };
 
 

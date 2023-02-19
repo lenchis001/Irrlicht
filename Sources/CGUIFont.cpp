@@ -18,7 +18,7 @@ namespace gui
 {
 
 //! constructor
-CGUIFont::CGUIFont(IGUIEnvironment *env, const io::path& filename)
+CGUIFont::CGUIFont(boost::shared_ptr<IGUIEnvironment> env, const io::path& filename)
 : Driver(0), SpriteBank(0), Environment(env), WrongCharacter(0),
 	MaxHeight(0), GlobalKerningWidth(0), GlobalKerningHeight(0)
 {
@@ -26,14 +26,15 @@ CGUIFont::CGUIFont(IGUIEnvironment *env, const io::path& filename)
 	setDebugName("CGUIFont");
 	#endif
 
-	if (Environment)
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	if (lockedEnvironment)
 	{
 		// don't grab environment, to avoid circular references
-		Driver = Environment->getVideoDriver();
+		Driver = lockedEnvironment->getVideoDriver();
 
-		SpriteBank = Environment->getSpriteBank(filename);
+		SpriteBank = lockedEnvironment->getSpriteBank(filename);
 		if (!SpriteBank)	// could be default-font which has no file
-			SpriteBank = Environment->addEmptySpriteBank(filename);
+			SpriteBank = lockedEnvironment->addEmptySpriteBank(filename);
 		if (SpriteBank)
 			SpriteBank->grab();
 	}
@@ -215,6 +216,13 @@ void CGUIFont::setMaxHeight()
 			MaxHeight = t;
 	}
 
+}
+
+inline boost::shared_ptr<IGUIEnvironment> CGUIFont::getSharedEnvironment()
+{
+	assert(!Environment.expired());
+
+	return Environment.lock();
 }
 
 

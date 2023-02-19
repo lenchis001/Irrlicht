@@ -29,7 +29,7 @@ namespace gui
 
 //! constructor
 CGUIEditBox::CGUIEditBox(const wchar_t* text, bool border,
-		IGUIEnvironment* environment, IGUIElement* parent, s32 id,
+		boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id,
 		const core::rect<s32>& rectangle)
 	: IGUIEditBox(environment, parent, id, rectangle), MouseMarking(false),
 	Border(border), Background(true), OverrideColorEnabled(false), MarkBegin(0), MarkEnd(0),
@@ -44,64 +44,40 @@ CGUIEditBox::CGUIEditBox(const wchar_t* text, bool border,
 	#endif
 
 	Text = text;
-
-	if (Environment)
-		Operator = Environment->getOSOperator();
-
-	if (Operator)
-		Operator->grab();
-
-	// this element can be tabbed to
-	setTabStop(true);
-	setTabOrder(-1);
-
-	calculateFrameRect();
-	breakText();
-
-	calculateScrollPos();
 }
 
 
 //! destructor
 CGUIEditBox::~CGUIEditBox()
 {
-	if (OverrideFont)
-		OverrideFont->drop();
-
 	if (Operator)
 		Operator->drop();
 }
 
 
 //! Sets another skin independent font.
-void CGUIEditBox::setOverrideFont(IGUIFont* font)
+void CGUIEditBox::setOverrideFont(boost::shared_ptr<IGUIFont> font)
 {
 	if (OverrideFont == font)
 		return;
 
-	if (OverrideFont)
-		OverrideFont->drop();
-
 	OverrideFont = font;
-
-	if (OverrideFont)
-		OverrideFont->grab();
 
 	breakText();
 }
 
 //! Gets the override font (if any)
-IGUIFont * CGUIEditBox::getOverrideFont() const
+boost::shared_ptr<IGUIFont>  CGUIEditBox::getOverrideFont() const
 {
 	return OverrideFont;
 }
 
 //! Get the font which is used right now for drawing
-IGUIFont* CGUIEditBox::getActiveFont() const
+boost::shared_ptr<IGUIFont> CGUIEditBox::getActiveFont() 
 {
 	if ( OverrideFont )
 		return OverrideFont;
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 	if (skin)
 		return skin->getFont();
 	return 0;
@@ -229,7 +205,7 @@ bool CGUIEditBox::OnEvent(const SEvent& event)
 		case EET_GUI_EVENT:
 			if (event.GUIEvent.EventType == EGET_ELEMENT_FOCUS_LOST)
 			{
-				if (event.GUIEvent.Caller == this)
+				if (event.GUIEvent.Caller.get() == this)
 				{
 					MouseMarking = false;
 					setTextMarkers(0,0);
@@ -721,9 +697,11 @@ void CGUIEditBox::draw()
 	if (!IsVisible)
 		return;
 
-	const bool focus = Environment->hasFocus(this);
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	const bool focus = lockedEnvironment->hasFocus(getSharedThis());
+
+	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
 	if (!skin)
 		return;
 
@@ -733,13 +711,13 @@ void CGUIEditBox::draw()
 
 	if (!Border && Background)
 	{
-		skin->draw2DRectangle(this, skin->getColor(bgCol), AbsoluteRect, &AbsoluteClippingRect);
+		skin->draw2DRectangle(getSharedThis(), skin->getColor(bgCol), AbsoluteRect, &AbsoluteClippingRect);
 	}
 
 	if (Border)
 	{
 		// draw the border
-		skin->draw3DSunkenPane(this, skin->getColor(bgCol), false, Background, AbsoluteRect, &AbsoluteClippingRect);
+		skin->draw3DSunkenPane(getSharedThis(), skin->getColor(bgCol), false, Background, AbsoluteRect, &AbsoluteClippingRect);
 
 		calculateFrameRect();
 	}
@@ -749,7 +727,7 @@ void CGUIEditBox::draw()
 
 	// draw the text
 
-	IGUIFont* font = getActiveFont();
+	boost::shared_ptr<IGUIFont> font = getActiveFont();
 
 	s32 cursorLine = 0;
 	s32 charcursorpos = 0;
@@ -864,7 +842,7 @@ void CGUIEditBox::draw()
 					CurrentTextRect.LowerRightCorner.X = CurrentTextRect.UpperLeftCorner.X + mend - mbegin;
 
 					// draw mark
-					skin->draw2DRectangle(this, skin->getColor(EGDC_HIGH_LIGHT), CurrentTextRect, &localClipRect);
+					skin->draw2DRectangle(getSharedThis(), skin->getColor(EGDC_HIGH_LIGHT), CurrentTextRect, &localClipRect);
 
 					// draw marked text
 					s = txtLine->subString(lineStartPos, lineEndPos - lineStartPos);
@@ -981,10 +959,12 @@ u32 CGUIEditBox::getMax() const
 
 bool CGUIEditBox::processMouse(const SEvent& event)
 {
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+
 	switch(event.MouseInput.Event)
 	{
 	case irr::EMIE_LMOUSE_LEFT_UP:
-		if (Environment->hasFocus(this))
+		if (lockedEnvironment->hasFocus(getSharedThis()))
 		{
 			CursorPos = getCursorPos(event.MouseInput.X, event.MouseInput.Y);
 			if (MouseMarking)
@@ -1008,7 +988,7 @@ bool CGUIEditBox::processMouse(const SEvent& event)
 		}
 		break;
 	case EMIE_LMOUSE_PRESSED_DOWN:
-		if (!Environment->hasFocus(this))
+		if (!lockedEnvironment->hasFocus(getSharedThis()))
 		{
 			BlinkStartTime = os::Timer::getTime();
 			MouseMarking = true;
@@ -1049,7 +1029,7 @@ bool CGUIEditBox::processMouse(const SEvent& event)
 
 s32 CGUIEditBox::getCursorPos(s32 x, s32 y)
 {
-	IGUIFont* font = getActiveFont();
+	boost::shared_ptr<IGUIFont> font = getActiveFont();
 
 	const u32 lineCount = (WordWrap || MultiLine) ? BrokenText.size() : 1;
 
@@ -1101,7 +1081,7 @@ void CGUIEditBox::breakText()
 	BrokenText.clear(); // need to reallocate :/
 	BrokenTextPositions.set_used(0);
 
-	IGUIFont* font = getActiveFont();
+	boost::shared_ptr<IGUIFont> font = getActiveFont();
 	if (!font)
 		return;
 
@@ -1214,7 +1194,7 @@ void CGUIEditBox::setTextRect(s32 line)
 	if ( line < 0 )
 		return;
 
-	IGUIFont* font = getActiveFont();
+	boost::shared_ptr<IGUIFont> font = getActiveFont();
 	if (!font)
 		return;
 
@@ -1345,10 +1325,10 @@ void CGUIEditBox::calculateScrollPos()
 	if (!AutoScroll)
 		return;
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 	if (!skin)
 		return;
-	IGUIFont* font = OverrideFont ? OverrideFont : skin->getFont();
+	boost::shared_ptr<IGUIFont> font = OverrideFont ? OverrideFont : skin->getFont();
 	if (!font)
 		return;
 
@@ -1362,7 +1342,7 @@ void CGUIEditBox::calculateScrollPos()
 	// NOTE: Calculations different to vertical scrolling because setTextRect interprets VAlign relative to line but HAlign not relative to row
 	{
 		// get cursor position
-		IGUIFont* font = getActiveFont();
+		boost::shared_ptr<IGUIFont> font = getActiveFont();
 		if (!font)
 			return;
 
@@ -1468,8 +1448,10 @@ void CGUIEditBox::calculateFrameRect()
 {
 	FrameRect = AbsoluteRect;
 	boost::shared_ptr<IGUISkin>skin = 0;
-	if (Environment)
-		skin = Environment->getSkin();
+	
+	if (!Environment.expired())
+		skin = getSharedEnvironment()->getSkin();
+
 	if (Border && skin)
 	{
 		FrameRect.UpperLeftCorner.X += skin->getSize(EGDS_TEXT_DISTANCE_X)+1;
@@ -1493,15 +1475,15 @@ void CGUIEditBox::setTextMarkers(s32 begin, s32 end)
 //! send some gui event to parent
 void CGUIEditBox::sendGuiEvent(EGUI_EVENT_TYPE type)
 {
-	if ( Parent )
+	if ( !Parent.expired() )
 	{
 		SEvent e;
 		e.EventType = EET_GUI_EVENT;
-		e.GUIEvent.Caller = this;
+		e.GUIEvent.Caller = getSharedThis();
 		e.GUIEvent.Element = 0;
 		e.GUIEvent.EventType = type;
 
-		Parent->OnEvent(e);
+		getParent()->OnEvent(e);
 	}
 }
 
@@ -1554,6 +1536,27 @@ void CGUIEditBox::deserializeAttributes(io::IAttributes* in, io::SAttributeReadW
 			(EGUI_ALIGNMENT) in->getAttributeAsEnumeration("VTextAlign", GUIAlignmentNames));
 
 	// setOverrideFont(in->getAttributeAsFont("OverrideFont"));
+}
+
+void CGUIEditBox::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	if (lockedEnvironment)
+		Operator = lockedEnvironment->getOSOperator();
+
+	if (Operator)
+		Operator->grab();
+
+	// this element can be tabbed to
+	setTabStop(true);
+	setTabOrder(-1);
+
+	calculateFrameRect();
+	breakText();
+
+	calculateScrollPos();
 }
 
 

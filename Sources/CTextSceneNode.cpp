@@ -19,7 +19,7 @@ namespace scene
 
 //! constructor
 CTextSceneNode::CTextSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
-			gui::IGUIFont* font, scene::ISceneCollisionManager* coll,
+			boost::shared_ptr<gui::IGUIFont> font, scene::ISceneCollisionManager* coll,
 			const core::vector3df& position, const wchar_t* text,
 			video::SColor color)
 	: ITextSceneNode(parent, mgr, id, position), Text(text), Color(color),
@@ -30,17 +30,12 @@ CTextSceneNode::CTextSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shar
 	setDebugName("CTextSceneNode");
 	#endif
 
-	if (Font)
-		Font->grab();
-
 	setAutomaticCulling(scene::EAC_OFF);
 }
 
 //! destructor
 CTextSceneNode::~CTextSceneNode()
 {
-	if (Font)
-		Font->drop();
 }
 
 void CTextSceneNode::OnRegisterSceneNode()
@@ -90,7 +85,7 @@ void CTextSceneNode::setTextColor(video::SColor color)
 
 //! constructor
 CBillboardTextSceneNode::CBillboardTextSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
-	gui::IGUIFont* font,const wchar_t* text,
+	boost::shared_ptr<gui::IGUIFont> font,const wchar_t* text,
 	const core::vector3df& position, const core::dimension2d<f32>& size,
 	video::SColor colorTop,video::SColor shade_bottom )
 : IBillboardTextSceneNode(parent, mgr, id, position),
@@ -112,8 +107,7 @@ CBillboardTextSceneNode::CBillboardTextSceneNode(boost::shared_ptr<ISceneNode> p
 		// doesn't support other font types
 		if (font->getType() == gui::EGFT_BITMAP)
 		{
-			Font = (gui::IGUIFontBitmap*)font;
-			Font->grab();
+			Font = boost::static_pointer_cast<gui::IGUIFontBitmap>(font);
 
 			// mesh with one buffer per texture
 			Mesh = boost::make_shared<SMesh>();
@@ -142,10 +136,6 @@ CBillboardTextSceneNode::CBillboardTextSceneNode(boost::shared_ptr<ISceneNode> p
 
 CBillboardTextSceneNode::~CBillboardTextSceneNode()
 {
-	if (Font)
-		Font->drop();
-
-
 }
 
 

@@ -402,10 +402,10 @@ namespace gui
 		virtual void setSize(EGUI_DEFAULT_SIZE which, s32 size) = 0;
 
 		//! returns the default font
-		virtual IGUIFont* getFont(EGUI_DEFAULT_FONT which=EGDF_DEFAULT) const = 0;
+		virtual boost::shared_ptr<IGUIFont> getFont(EGUI_DEFAULT_FONT which=EGDF_DEFAULT) const = 0;
 
 		//! sets a default font
-		virtual void setFont(IGUIFont* font, EGUI_DEFAULT_FONT which=EGDF_DEFAULT) = 0;
+		virtual void setFont(boost::shared_ptr<IGUIFont> font, EGUI_DEFAULT_FONT which=EGDF_DEFAULT) = 0;
 
 		//! returns the sprite bank
 		virtual IGUISpriteBank* getSpriteBank() const = 0;
@@ -433,7 +433,7 @@ namespace gui
 		implementations to find out how to draw the part exactly.
 		\param rect: Defining area where to draw.
 		\param clip: Clip area. */
-		virtual void draw3DButtonPaneStandard(IGUIElement* element,
+		virtual void draw3DButtonPaneStandard(boost::shared_ptr<IGUIElement> element,
 			const core::rect<s32>& rect,
 			const core::rect<s32>* clip=0) = 0;
 
@@ -446,7 +446,7 @@ namespace gui
 		implementations to find out how to draw the part exactly.
 		\param rect: Defining area where to draw.
 		\param clip: Clip area. */
-		virtual void draw3DButtonPanePressed(IGUIElement* element,
+		virtual void draw3DButtonPanePressed(boost::shared_ptr<IGUIElement> element,
 			const core::rect<s32>& rect,
 			const core::rect<s32>* clip=0) = 0;
 
@@ -462,7 +462,7 @@ namespace gui
 		color or not be drawn at all.
 		\param rect: Defining area where to draw.
 		\param clip: Clip area. */
-		virtual void draw3DSunkenPane(IGUIElement* element,
+		virtual void draw3DSunkenPane(boost::shared_ptr<IGUIElement> element,
 			video::SColor bgcolor, bool flat, bool fillBackGround,
 			const core::rect<s32>& rect,
 			const core::rect<s32>* clip=0) = 0;
@@ -481,7 +481,7 @@ namespace gui
 		That is the area without borders and without titlebar.
 		\return Returns rect where it would be good to draw title bar text. This will
 		work even when checkClientArea is set to a non-null value.*/
-		virtual core::rect<s32> draw3DWindowBackground(IGUIElement* element,
+		virtual core::rect<s32> draw3DWindowBackground(boost::shared_ptr<IGUIElement> element,
 			bool drawTitleBar, video::SColor titleBarColor,
 			const core::rect<s32>& rect,
 			const core::rect<s32>* clip=0,
@@ -496,7 +496,7 @@ namespace gui
 		implementations to find out how to draw the part exactly.
 		\param rect: Defining area where to draw.
 		\param clip: Clip area. */
-		virtual void draw3DMenuPane(IGUIElement* element,
+		virtual void draw3DMenuPane(boost::shared_ptr<IGUIElement> element,
 			const core::rect<s32>& rect,
 			const core::rect<s32>* clip=0) = 0;
 
@@ -507,7 +507,7 @@ namespace gui
 		implementations to find out how to draw the part exactly.
 		\param rect: Defining area where to draw.
 		\param clip: Clip area. */
-		virtual void draw3DToolBar(IGUIElement* element,
+		virtual void draw3DToolBar(boost::shared_ptr<IGUIElement> element,
 			const core::rect<s32>& rect,
 			const core::rect<s32>* clip=0) = 0;
 
@@ -520,7 +520,7 @@ namespace gui
 		\param rect: Defining area where to draw.
 		\param clip: Clip area.
 		\param alignment Alignment of GUI element. */
-		virtual void draw3DTabButton(IGUIElement* element, bool active,
+		virtual void draw3DTabButton(boost::shared_ptr<IGUIElement> element, bool active,
 			const core::rect<s32>& rect, const core::rect<s32>* clip=0, gui::EGUI_ALIGNMENT alignment=EGUIA_UPPERLEFT) = 0;
 
 		//! draws a tab control body
@@ -533,7 +533,7 @@ namespace gui
 		\param clip: Clip area.
 		\param tabHeight Height of tab.
 		\param alignment Alignment of GUI element. */
-		virtual void draw3DTabBody(IGUIElement* element, bool border, bool background,
+		virtual void draw3DTabBody(boost::shared_ptr<IGUIElement> element, bool border, bool background,
 			const core::rect<s32>& rect, const core::rect<s32>* clip=0, s32 tabHeight=-1, gui::EGUI_ALIGNMENT alignment=EGUIA_UPPERLEFT ) = 0;
 
 		//! draws an icon, usually from the skin's sprite bank
@@ -546,7 +546,7 @@ namespace gui
 		\param currenttime: The present time, used to calculate the frame number
 		\param loop: Whether the animation should loop or not
 		\param clip: Clip area. */
-		virtual void drawIcon(IGUIElement* element, EGUI_DEFAULT_ICON icon,
+		virtual void drawIcon(boost::shared_ptr<IGUIElement> element, EGUI_DEFAULT_ICON icon,
 			const core::position2di position, u32 starttime=0, u32 currenttime=0,
 			bool loop=false, const core::rect<s32>* clip=0) = 0;
 
@@ -559,7 +559,7 @@ namespace gui
 		\param pos: Position of the rectangle.
 		\param clip: Pointer to rectangle against which the rectangle will be clipped.
 		If the pointer is null, no clipping will be performed. */
-		virtual void draw2DRectangle(IGUIElement* element, const video::SColor &color,
+		virtual void draw2DRectangle(boost::shared_ptr<IGUIElement> element, const video::SColor &color,
 			const core::rect<s32>& pos, const core::rect<s32>* clip = 0) = 0;
 
 		//! get the type of this skin

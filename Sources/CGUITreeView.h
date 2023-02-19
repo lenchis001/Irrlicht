@@ -24,13 +24,13 @@ namespace gui
 
 	public:
 		//! constructor
-		CGUITreeViewNode( CGUITreeView* owner, boost::shared_ptr<CGUITreeViewNode> parent );
+		CGUITreeViewNode( boost::shared_ptr<CGUITreeView> owner, boost::shared_ptr<CGUITreeViewNode> parent );
 
 		//! destructor
 		~CGUITreeViewNode();
 
 		//! returns the owner (tree view) of this node
-		virtual IGUITreeView* getOwner() const;
+		virtual boost::shared_ptr<IGUITreeView> getOwner() const;
 
 		//! Returns the parent node of this node.
 		virtual boost::shared_ptr<IGUITreeViewNode> getParent() const;
@@ -220,17 +220,13 @@ namespace gui
 		//! Returns true if this node is visible (all parents are expanded).
 		virtual bool isVisible() const;
 
-		void setWeakThis(boost::shared_ptr<CGUITreeViewNode> value);
+		virtual void setWeakThis(boost::shared_ptr<CGUITreeViewNode> value);
 
 	private:
-		inline boost::shared_ptr<CGUITreeViewNode> getSharedThis() const {
-			assert(!WeakThis.expired());
+		inline boost::shared_ptr<CGUITreeViewNode> getSharedThis() const;
 
-			return WeakThis.lock();
-		}
-
-		CGUITreeView*			Owner;
-		boost::shared_ptr<CGUITreeViewNode>		Parent;
+		boost::shared_ptr<CGUITreeView>			Owner;
+		boost::weak_ptr<CGUITreeViewNode>		Parent;
 		core::stringw			Text;
 		core::stringw			Icon;
 		s32				ImageIndex;
@@ -251,7 +247,7 @@ namespace gui
 
 	public:
 		//! constructor
-		CGUITreeView( IGUIEnvironment* environment, IGUIElement* parent,
+		CGUITreeView( boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 			s32 id, core::rect<s32> rectangle, bool clip = true,
 			bool drawBack = false, bool scrollBarVertical = true, bool scrollBarHorizontal = true );
 
@@ -284,7 +280,7 @@ namespace gui
 		//! built-in-font by default. Icons can be displayed in front of every list item.
 		//! An icon is a string, displayed with the icon font. When using the build-in-font of the
 		//! Irrlicht engine as icon font, the icon strings defined in GUIIcons.h can be used.
-		virtual void setIconFont( IGUIFont* font );
+		virtual void setIconFont( boost::shared_ptr<IGUIFont> font );
 
 		//! Sets the image list which should be used for the image and selected image of every node.
 		//! The default is 0 (no images).
@@ -306,6 +302,8 @@ namespace gui
 		virtual boost::shared_ptr<IGUITreeViewNode> getLastEventNode() const
 		{ return LastEventNode; }
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
+
 	private:
 		//! calculates the heigth of an node and of all visible nodes.
 		void recalculateItemHeight();
@@ -319,10 +317,10 @@ namespace gui
 		s32			IndentWidth;
 		s32			TotalItemHeight;
 		s32			TotalItemWidth;
-		IGUIFont*		Font;
-		IGUIFont*		IconFont;
-		IGUIScrollBar*		ScrollBarH;
-		IGUIScrollBar*		ScrollBarV;
+		boost::shared_ptr<IGUIFont>		Font;
+		boost::shared_ptr<IGUIFont>		IconFont;
+		boost::shared_ptr<IGUIScrollBar>		ScrollBarH;
+		boost::shared_ptr<IGUIScrollBar>		ScrollBarV;
 		IGUIImageList*		ImageList;
 		boost::shared_ptr<IGUITreeViewNode>	LastEventNode;
 		bool			LinesVisible;
@@ -330,6 +328,8 @@ namespace gui
 		bool			Clip;
 		bool			DrawBack;
 		bool			ImageLeftOfIcon;
+		bool _scrollBarVertical, _scrollBarHorizontal;
+		bool _clip;
 	};
 
 

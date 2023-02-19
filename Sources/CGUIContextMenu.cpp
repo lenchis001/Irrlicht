@@ -20,8 +20,8 @@ namespace gui
 
 
 //! constructor
-CGUIContextMenu::CGUIContextMenu(IGUIEnvironment* environment,
-				IGUIElement* parent, s32 id,
+CGUIContextMenu::CGUIContextMenu(boost::shared_ptr<IGUIEnvironment> environment,
+				boost::shared_ptr<IGUIElement> parent, s32 id,
 				core::rect<s32> rectangle, bool getFocus, bool allowFocus)
 	: IGUIContextMenu(environment, parent, id, rectangle), EventParent(0), LastFont(0),
 		CloseHandling(ECMC_REMOVE), HighLighted(-1), ChangeTime(0), AllowFocus(allowFocus)
@@ -31,24 +31,14 @@ CGUIContextMenu::CGUIContextMenu(IGUIEnvironment* environment,
 	#endif
 
 	Pos = rectangle.UpperLeftCorner;
-	recalculateSize();
 
-	if (getFocus)
-		Environment->setFocus(this);
-
-	setNotClipped(true);
+	_getFocus = getFocus;
 }
 
 
 //! destructor
 CGUIContextMenu::~CGUIContextMenu()
 {
-	for (u32 i=0; i<Items.size(); ++i)
-		if (Items[i].SubMenu)
-			Items[i].SubMenu->drop();
-
-	if (LastFont)
-		LastFont->drop();
 }
 
 //! set behavior when menus are closed
@@ -91,8 +81,10 @@ u32 CGUIContextMenu::insertItem(u32 idx, const wchar_t* text, s32 commandId, boo
 
 	if (hasSubMenu)
 	{
-		s.SubMenu = new CGUIContextMenu(Environment, this, commandId,
+		s.SubMenu = boost::make_shared<CGUIContextMenu>(getSharedEnvironment(), getSharedThis(), commandId,
 			core::rect<s32>(0,0,100,100), false, false);
+		s.SubMenu->setWeakThis(s.SubMenu);
+
 		s.SubMenu->setVisible(false);
 	}
 
@@ -124,15 +116,10 @@ s32 CGUIContextMenu::findItemWithCommandId(s32 commandId, u32 idxStartSearch) co
 }
 
 //! Adds a sub menu from an element that already exists.
-void CGUIContextMenu::setSubMenu(u32 index, CGUIContextMenu* menu)
+void CGUIContextMenu::setSubMenu(u32 index, boost::shared_ptr<gui::CGUIContextMenu> menu)
 {
 	if (index >= Items.size())
 		return;
-
-	if (menu)
-		menu->grab();
-	if (Items[index].SubMenu)
-		Items[index].SubMenu->drop();
 
 	Items[index].SubMenu = menu;
 	menu->setVisible(false);
@@ -140,9 +127,10 @@ void CGUIContextMenu::setSubMenu(u32 index, CGUIContextMenu* menu)
 	if (Items[index].SubMenu)
 	{
 		menu->AllowFocus = false;
-		if ( Environment->getFocus() == menu )
+		boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+		if (lockedEnvironment->getFocus() == menu )
 		{
-			Environment->setFocus( this );
+			lockedEnvironment->setFocus( getSharedThis() );
 		}
 	}
 
@@ -252,7 +240,6 @@ void CGUIContextMenu::removeItem(u32 idx)
 
 	if (Items[idx].SubMenu)
 	{
-		Items[idx].SubMenu->drop();
 		Items[idx].SubMenu = 0;
 	}
 
@@ -264,10 +251,6 @@ void CGUIContextMenu::removeItem(u32 idx)
 //! Removes all menu items
 void CGUIContextMenu::removeAllItems()
 {
-	for (u32 i=0; i<Items.size(); ++i)
-		if (Items[i].SubMenu)
-			Items[i].SubMenu->drop();
-
 	Items.clear();
 	recalculateSize();
 }
@@ -285,15 +268,15 @@ bool CGUIContextMenu::OnEvent(const SEvent& event)
 			switch(event.GUIEvent.EventType)
 			{
 			case EGET_ELEMENT_FOCUS_LOST:
-				if (event.GUIEvent.Caller == this && !isMyChild(event.GUIEvent.Element) && AllowFocus)
+				if (event.GUIEvent.Caller.get() == this && !isMyChild(event.GUIEvent.Element) && AllowFocus)
 				{
 					// set event parent of submenus
-					IGUIElement * p =  EventParent ? EventParent : Parent;
+					boost::shared_ptr<IGUIElement>  p =  EventParent ? EventParent : getParent();
 					setEventParent(p);
 
 					SEvent event;
 					event.EventType = EET_GUI_EVENT;
-					event.GUIEvent.Caller = this;
+					event.GUIEvent.Caller = getSharedThis();
 					event.GUIEvent.Element = 0;
 					event.GUIEvent.EventType = EGET_ELEMENT_CLOSED;
 					if ( !p->OnEvent(event) )
@@ -312,7 +295,7 @@ bool CGUIContextMenu::OnEvent(const SEvent& event)
 				}
 				break;
 			case EGET_ELEMENT_FOCUSED:
-				if (event.GUIEvent.Caller == this && !AllowFocus)
+				if (event.GUIEvent.Caller.get() == this && !AllowFocus)
 				{
 					return true;
 				}
@@ -321,29 +304,32 @@ bool CGUIContextMenu::OnEvent(const SEvent& event)
 				break;
 			}
 			break;
-		case EET_MOUSE_INPUT_EVENT:
-			switch(event.MouseInput.Event)
+		case EET_MOUSE_INPUT_EVENT: {
+			boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+
+			switch (event.MouseInput.Event)
 			{
 			case EMIE_LMOUSE_LEFT_UP:
-				{
-					// menu might be removed if it loses focus in sendClick, so grab a reference
-					grab();
-					const u32 t = sendClick(core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y));
-					if ((t==0 || t==1) && Environment->hasFocus(this))
-						Environment->removeFocus(this);
-					drop();
-				}
-				return true;
+			{
+				// menu might be removed if it loses focus in sendClick, so grab a reference
+				boost::shared_ptr<IGUIElement> thisHolder = getSharedThis();
+
+				const u32 t = sendClick(core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y));
+				if ((t == 0 || t == 1) && lockedEnvironment->hasFocus(thisHolder))
+					lockedEnvironment->removeFocus(thisHolder);
+			}
+			return true;
 			case EMIE_LMOUSE_PRESSED_DOWN:
 				return true;
 			case EMIE_MOUSE_MOVED:
-				if (Environment->hasFocus(this))
+				if (lockedEnvironment->hasFocus(getSharedThis()))
 					highlight(core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y), true);
 				return true;
 			default:
 				break;
 			}
 			break;
+		}
 		default:
 			break;
 		}
@@ -408,13 +394,13 @@ u32 CGUIContextMenu::sendClick(const core::position2d<s32>& p)
 
 		SEvent event;
 		event.EventType = EET_GUI_EVENT;
-		event.GUIEvent.Caller = this;
+		event.GUIEvent.Caller = getSharedThis();
 		event.GUIEvent.Element = 0;
 		event.GUIEvent.EventType = EGET_MENU_ITEM_SELECTED;
 		if (EventParent)
  			EventParent->OnEvent(event);
-		else if (Parent)
-			Parent->OnEvent(event);
+		else if (!Parent.expired())
+			getParent()->OnEvent(event);
 
 		return 1;
 	}
@@ -505,19 +491,15 @@ void CGUIContextMenu::draw()
 	if (!IsVisible)
 		return;
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 
 	if (!skin)
 		return;
 
-	IGUIFont* font = skin->getFont(EGDF_MENU);
+	boost::shared_ptr<IGUIFont> font = skin->getFont(EGDF_MENU);
 	if (font != LastFont)
 	{
-		if (LastFont)
-			LastFont->drop();
 		LastFont = font;
-		if (LastFont)
-			LastFont->grab();
 
 		recalculateSize();
 	}
@@ -528,7 +510,7 @@ void CGUIContextMenu::draw()
 	core::rect<s32>* clip = 0;
 
 	// draw frame
-	skin->draw3DMenuPane(this, AbsoluteRect, clip);
+	skin->draw3DMenuPane(getSharedThis(), AbsoluteRect, clip);
 
 	// loop through all menu items
 
@@ -545,11 +527,11 @@ void CGUIContextMenu::draw()
 			rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + 1;
 			rect.UpperLeftCorner.X += 5;
 			rect.LowerRightCorner.X -= 5;
-			skin->draw2DRectangle(this, skin->getColor(EGDC_3D_SHADOW), rect, clip);
+			skin->draw2DRectangle(getSharedThis(), skin->getColor(EGDC_3D_SHADOW), rect, clip);
 
 			rect.LowerRightCorner.Y += 1;
 			rect.UpperLeftCorner.Y += 1;
-			skin->draw2DRectangle(this, skin->getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
+			skin->draw2DRectangle(getSharedThis(), skin->getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
 
 			y += 10;
 		}
@@ -566,7 +548,7 @@ void CGUIContextMenu::draw()
 				r.UpperLeftCorner.Y = rect.UpperLeftCorner.Y;
 				r.LowerRightCorner.X -= 5;
 				r.UpperLeftCorner.X += 5;
-				skin->draw2DRectangle(this, skin->getColor(EGDC_HIGH_LIGHT), r, clip);
+				skin->draw2DRectangle(getSharedThis(), skin->getColor(EGDC_HIGH_LIGHT), r, clip);
 			}
 
 			// draw text
@@ -617,7 +599,8 @@ void CGUIContextMenu::draw()
 
 void CGUIContextMenu::recalculateSize()
 {
-	IGUIFont* font = Environment->getSkin()->getFont(EGDF_MENU);
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUIFont> font = lockedEnvironment->getSkin()->getFont(EGDF_MENU);
 
 	if (!font)
 		return;
@@ -670,7 +653,7 @@ void CGUIContextMenu::recalculateSize()
             core::rect<s32> subRect(width-5, Items[i].PosY, width+w-5, Items[i].PosY+h);
 
             // if it would be drawn beyond the right border, then add it to the left side
-            gui::IGUIElement * root = Environment->getRootGUIElement();
+            boost::shared_ptr<gui::IGUIElement>  root = lockedEnvironment->getRootGUIElement();
             if ( root )
             {
                 core::rect<s32> rectRoot( root->getAbsolutePosition() );
@@ -695,7 +678,7 @@ s32 CGUIContextMenu::getSelectedItem() const
 
 
 //! \return Returns a pointer to the submenu of an item.
-IGUIContextMenu* CGUIContextMenu::getSubMenu(u32 idx) const
+boost::shared_ptr<IGUIContextMenu> CGUIContextMenu::getSubMenu(u32 idx) const
 {
 	if (idx >= Items.size())
 		return 0;
@@ -730,13 +713,14 @@ void CGUIContextMenu::serializeAttributes(io::IAttributes* out, io::SAttributeRe
 	IGUIElement::serializeAttributes(out,options);
 	out->addPosition2d("Position", Pos);
 
-	if (Parent->getType() == EGUIET_CONTEXT_MENU || Parent->getType() == EGUIET_MENU )
+	boost::shared_ptr<IGUIElement> lockedParent = getParent();
+	if (lockedParent->getType() == EGUIET_CONTEXT_MENU || lockedParent->getType() == EGUIET_MENU )
 	{
-		const IGUIContextMenu* const ptr = (const IGUIContextMenu*)Parent;
+		const boost::shared_ptr<const IGUIContextMenu> ptr = boost::static_pointer_cast<IGUIContextMenu>(lockedParent);
 		// find the position of this item in its parent's list
 		u32 i;
 		// VC6 needs the cast for this
-		for (i=0; (i<ptr->getItemCount()) && (ptr->getSubMenu(i) != (const IGUIContextMenu*)this); ++i)
+		for (i=0; (i<ptr->getItemCount()) && (ptr->getSubMenu(i).get() != this); ++i)
 			; // do nothing
 
 		out->addInt("ParentItem", i);
@@ -779,8 +763,9 @@ void CGUIContextMenu::deserializeAttributes(io::IAttributes* in, io::SAttributeR
 	Pos = in->getAttributeAsPosition2d("Position");
 
 	// link to this item's parent
-	if (Parent && ( Parent->getType() == EGUIET_CONTEXT_MENU || Parent->getType() == EGUIET_MENU ) )
-		((CGUIContextMenu*)Parent)->setSubMenu(in->getAttributeAsInt("ParentItem"),this);
+	boost::shared_ptr<IGUIElement> lockedParent = getParent();
+	if (lockedParent && (lockedParent->getType() == EGUIET_CONTEXT_MENU || lockedParent->getType() == EGUIET_MENU ) )
+		boost::static_pointer_cast<CGUIContextMenu>(lockedParent)->setSubMenu(in->getAttributeAsInt("ParentItem"), getSharedThis<CGUIContextMenu>());
 
 	CloseHandling = (ECONTEXT_MENU_CLOSE)in->getAttributeAsInt("CloseHandling");
 
@@ -830,9 +815,21 @@ void CGUIContextMenu::deserializeAttributes(io::IAttributes* in, io::SAttributeR
 	recalculateSize();
 }
 
+void CGUIContextMenu::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+	
+	recalculateSize();
+
+	if (_getFocus)
+		getSharedEnvironment()->setFocus(getSharedThis());
+
+	setNotClipped(true);
+}
+
 
 // because sometimes the element has no parent at click time
-void CGUIContextMenu::setEventParent(IGUIElement *parent)
+void CGUIContextMenu::setEventParent(boost::shared_ptr<IGUIElement> parent)
 {
 	EventParent = parent;
 

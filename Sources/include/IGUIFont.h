@@ -36,7 +36,7 @@ enum EGUI_FONT_TYPE
 };
 
 //! Font interface.
-class IGUIFont : public virtual IReferenceCounted
+class IGUIFont : public virtual IDebugable
 {
 public:
 

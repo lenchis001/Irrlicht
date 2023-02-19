@@ -20,7 +20,7 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUICheckBox(bool checked, IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle);
+		CGUICheckBox(bool checked, boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle);
 
 		//! set if box is checked
 		virtual void setChecked(bool checked);
@@ -39,6 +39,8 @@ namespace gui
 
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
+
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
 
 	private:
 

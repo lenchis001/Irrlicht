@@ -19,7 +19,7 @@ namespace gui
 {
 
 //! constructor
-CGUIMenu::CGUIMenu(IGUIEnvironment* environment, IGUIElement* parent,
+CGUIMenu::CGUIMenu(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 		s32 id, core::rect<s32> rectangle)
 	: CGUIContextMenu(environment, parent, id, rectangle, false, true)
 {
@@ -28,10 +28,6 @@ CGUIMenu::CGUIMenu(IGUIEnvironment* environment, IGUIElement* parent,
 	#endif
 
 	Type = EGUIET_MENU;
-
-	setNotClipped(false);
-
-	recalculateSize();
 }
 
 
@@ -41,25 +37,22 @@ void CGUIMenu::draw()
 	if (!IsVisible)
 		return;
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	IGUIFont* font = skin->getFont(EGDF_MENU);
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
+	boost::shared_ptr<IGUIFont> font = skin->getFont(EGDF_MENU);
 
 	if (font != LastFont)
 	{
-		if (LastFont)
-			LastFont->drop();
 		LastFont = font;
-		if (LastFont)
-			LastFont->grab();
 
 		recalculateSize();
 	}
 
 	core::rect<s32> rect = AbsoluteRect;
+	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
 
 	// draw frame
 
-	skin->draw3DToolBar(this, rect, &AbsoluteClippingRect);
+	skin->draw3DToolBar(lockedThis, rect, &AbsoluteClippingRect);
 
 	// loop through all menu items
 
@@ -74,7 +67,7 @@ void CGUIMenu::draw()
 			// draw highlighted
 			if (i == HighLighted && Items[i].Enabled)
 			{
-				skin->draw3DSunkenPane(this, skin->getColor(EGDC_3D_DARK_SHADOW),
+				skin->draw3DSunkenPane(lockedThis, skin->getColor(EGDC_3D_DARK_SHADOW),
 					true, true, rect, &AbsoluteClippingRect);
 			}
 			// draw text
@@ -102,6 +95,8 @@ bool CGUIMenu::OnEvent(const SEvent& event)
 {
 	if (isEnabled())
 	{
+		boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
+		boost::shared_ptr<IGUIElement> lockedParent = getParent();
 
 		switch(event.EventType)
 		{
@@ -109,34 +104,36 @@ bool CGUIMenu::OnEvent(const SEvent& event)
 			switch(event.GUIEvent.EventType)
 			{
 			case gui::EGET_ELEMENT_FOCUS_LOST:
-				if (event.GUIEvent.Caller == this && !isMyChild(event.GUIEvent.Element))
+				if (event.GUIEvent.Caller.get() == this && !isMyChild(event.GUIEvent.Element))
 				{
 					closeAllSubMenus();
 					HighLighted = -1;
 				}
 				break;
 			case gui::EGET_ELEMENT_FOCUSED:
-				if (event.GUIEvent.Caller == this && Parent)
+				if (event.GUIEvent.Caller.get() == this && lockedParent)
 				{
-					Parent->bringToFront(this);
+					lockedParent->bringToFront(getSharedThis());
 				}
 				break;
 			default:
 				break;
 			}
 			break;
-		case EET_MOUSE_INPUT_EVENT:
-			switch(event.MouseInput.Event)
+		case EET_MOUSE_INPUT_EVENT: {
+			boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+
+			switch (event.MouseInput.Event)
 			{
 			case EMIE_LMOUSE_PRESSED_DOWN:
 			{
-				if (!Environment->hasFocus(this))
+				if (!lockedEnvironment->hasFocus(lockedThis))
 				{
-					Environment->setFocus(this);
+					lockedEnvironment->setFocus(lockedThis);
 				}
 
-				if (Parent)
-					Parent->bringToFront(this);
+				if (lockedParent)
+					lockedParent->bringToFront(lockedThis);
 
 				core::position2d<s32> p(event.MouseInput.X, event.MouseInput.Y);
 				bool shouldCloseSubMenu = hasOpenSubMenu();
@@ -144,39 +141,40 @@ bool CGUIMenu::OnEvent(const SEvent& event)
 				{
 					shouldCloseSubMenu = false;
 				}
-				highlight(core::position2d<s32>(event.MouseInput.X,	event.MouseInput.Y), true);
-				if ( shouldCloseSubMenu )
+				highlight(core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y), true);
+				if (shouldCloseSubMenu)
 				{
-                    Environment->removeFocus(this);
+					lockedEnvironment->removeFocus(lockedThis);
 				}
 
 				return true;
 			}
 			case EMIE_LMOUSE_LEFT_UP:
 			{
-                core::position2d<s32> p(event.MouseInput.X, event.MouseInput.Y);
+				core::position2d<s32> p(event.MouseInput.X, event.MouseInput.Y);
 				if (!AbsoluteClippingRect.isPointInside(p))
 				{
 					s32 t = sendClick(p);
-					if ((t==0 || t==1) && Environment->hasFocus(this))
-						Environment->removeFocus(this);
+					if ((t == 0 || t == 1) && lockedEnvironment->hasFocus(lockedThis))
+						lockedEnvironment->removeFocus(lockedThis);
 				}
 
-			    return true;
+				return true;
 			}
 			case EMIE_MOUSE_MOVED:
-				if (Environment->hasFocus(this) && HighLighted >= 0)
+				if (lockedEnvironment->hasFocus(lockedThis) && HighLighted >= 0)
 				{
-				    s32 oldHighLighted = HighLighted;
+					s32 oldHighLighted = HighLighted;
 					highlight(core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y), true);
-					if ( HighLighted < 0 )
-                        HighLighted = oldHighLighted;   // keep last hightlight active when moving outside the area
+					if (HighLighted < 0)
+						HighLighted = oldHighLighted;   // keep last hightlight active when moving outside the area
 				}
 				return true;
 			default:
 				break;
 			}
 			break;
+		}
 		default:
 			break;
 		}
@@ -188,14 +186,16 @@ bool CGUIMenu::OnEvent(const SEvent& event)
 void CGUIMenu::recalculateSize()
 {
 	core::rect<s32> clientRect; // client rect of parent
-	if ( Parent && Parent->hasType(EGUIET_WINDOW) )
+	boost::shared_ptr<IGUIElement> lockedParent = getParent();
+
+	if (lockedParent && lockedParent->hasType(EGUIET_WINDOW) )
 	{
-		clientRect = static_cast<IGUIWindow*>(Parent)->getClientRect();
+		clientRect = boost::static_pointer_cast<IGUIWindow>(getParent())->getClientRect();
 	}
-	else if ( Parent )
+	else if (lockedParent)
 	{
-		clientRect = core::rect<s32>(0,0, Parent->getAbsolutePosition().getWidth(),
-					Parent->getAbsolutePosition().getHeight());
+		clientRect = core::rect<s32>(0,0, lockedParent->getAbsolutePosition().getWidth(),
+			lockedParent->getAbsolutePosition().getHeight());
 	}
 	else
 	{
@@ -203,12 +203,12 @@ void CGUIMenu::recalculateSize()
 	}
 
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	IGUIFont* font = skin->getFont(EGDF_MENU);
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
+	boost::shared_ptr<IGUIFont> font = skin->getFont(EGDF_MENU);
 
 	if (!font)
 	{
-		if (Parent && skin)
+		if (lockedParent && skin)
 			RelativeRect = core::rect<s32>(clientRect.UpperLeftCorner.X, clientRect.UpperLeftCorner.Y,
 					clientRect.LowerRightCorner.X, clientRect.UpperLeftCorner.Y+skin->getSize(EGDS_MENU_HEIGHT));
 		return;
@@ -280,10 +280,21 @@ core::rect<s32> CGUIMenu::getRect(const SItem& i, const core::rect<s32>& absolut
 
 void CGUIMenu::updateAbsolutePosition()
 {
-	if (Parent)
-		DesiredRect.LowerRightCorner.X = Parent->getAbsolutePosition().getWidth();
+	boost::shared_ptr<IGUIElement> lockedParent = getParent();
+
+	if (lockedParent)
+		DesiredRect.LowerRightCorner.X = lockedParent->getAbsolutePosition().getWidth();
 
 	IGUIElement::updateAbsolutePosition();
+}
+
+void CGUIMenu::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	setNotClipped(false);
+
+	recalculateSize();
 }
 
 

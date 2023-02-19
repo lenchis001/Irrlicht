@@ -21,7 +21,7 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIWindow(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle);
+		CGUIWindow(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle);
 
 		//! destructor
 		virtual ~CGUIWindow();
@@ -36,13 +36,13 @@ namespace gui
 		virtual void draw();
 
 		//! Returns pointer to the close button
-		virtual IGUIButton* getCloseButton() const;
+		virtual boost::shared_ptr<IGUIButton> getCloseButton() const;
 
 		//! Returns pointer to the minimize button
-		virtual IGUIButton* getMinimizeButton() const;
+		virtual boost::shared_ptr<IGUIButton> getMinimizeButton() const;
 
 		//! Returns pointer to the maximize button
-		virtual IGUIButton* getMaximizeButton() const;
+		virtual boost::shared_ptr<IGUIButton> getMaximizeButton() const;
 
 		//! Returns true if the window is draggable, false if not
 		virtual bool isDraggable() const;
@@ -72,14 +72,16 @@ namespace gui
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
+
 	protected:
 
 		void updateClientRect();
 		void refreshSprites();
 
-		IGUIButton* CloseButton;
-		IGUIButton* MinButton;
-		IGUIButton* RestoreButton;
+		boost::shared_ptr<IGUIButton> CloseButton;
+		boost::shared_ptr<IGUIButton> MinButton;
+		boost::shared_ptr<IGUIButton> RestoreButton;
 		core::rect<s32> ClientRect;
 		video::SColor CurrentIconColor;
 

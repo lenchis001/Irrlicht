@@ -29,7 +29,7 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUIMeshViewer(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUIMeshViewer(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_MESH_VIEWER, environment, parent, id, rectangle) {}
 
 		//! Sets the mesh to be shown

@@ -168,12 +168,6 @@ CGUISkin::CGUISkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver)
 //! destructor
 CGUISkin::~CGUISkin()
 {
-	for (u32 i=0; i<EGDF_COUNT; ++i)
-	{
-		if (Fonts[i])
-			Fonts[i]->drop();
-	}
-
 	if (SpriteBank)
 		SpriteBank->drop();
 }
@@ -216,7 +210,7 @@ void CGUISkin::setSize(EGUI_DEFAULT_SIZE which, s32 size)
 
 
 //! returns the default font
-IGUIFont* CGUISkin::getFont(EGUI_DEFAULT_FONT which) const
+boost::shared_ptr<IGUIFont> CGUISkin::getFont(EGUI_DEFAULT_FONT which) const
 {
 	if (((u32)which < EGDF_COUNT) && Fonts[which])
 		return Fonts[which];
@@ -226,17 +220,13 @@ IGUIFont* CGUISkin::getFont(EGUI_DEFAULT_FONT which) const
 
 
 //! sets a default font
-void CGUISkin::setFont(IGUIFont* font, EGUI_DEFAULT_FONT which)
+void CGUISkin::setFont(boost::shared_ptr<IGUIFont> font, EGUI_DEFAULT_FONT which)
 {
 	if ((u32)which >= EGDF_COUNT)
 		return;
 
 	if (font)
 	{
-		font->grab();
-		if (Fonts[which])
-			Fonts[which]->drop();
-
 		Fonts[which] = font;
 	}
 }
@@ -309,7 +299,7 @@ EGDC_3D_FACE for this. See EGUI_DEFAULT_COLOR for details.
 \param element: Pointer to the element which wishes to draw this. This parameter
 is usually not used by ISkin, but can be used for example by more complex
 implementations to find out how to draw the part exactly. */
-void CGUISkin::draw3DButtonPaneStandard(IGUIElement* element,
+void CGUISkin::draw3DButtonPaneStandard(boost::shared_ptr<IGUIElement> element,
 					const core::rect<s32>& r,
 					const core::rect<s32>* clip)
 {
@@ -365,7 +355,7 @@ EGDC_3D_FACE for this. See EGUI_DEFAULT_COLOR for details.
 \param element: Pointer to the element which wishes to draw this. This parameter
 is usually not used by ISkin, but can be used for example by more complex
 implementations to find out how to draw the part exactly. */
-void CGUISkin::draw3DButtonPanePressed(IGUIElement* element,
+void CGUISkin::draw3DButtonPanePressed(boost::shared_ptr<IGUIElement> element,
 					const core::rect<s32>& r,
 					const core::rect<s32>* clip)
 {
@@ -409,7 +399,7 @@ implementations to find out how to draw the part exactly.
 deep into the ground.
 \param rect: Defining area where to draw.
 \param clip: Clip area.	*/
-void CGUISkin::draw3DSunkenPane(IGUIElement* element, video::SColor bgcolor,
+void CGUISkin::draw3DSunkenPane(boost::shared_ptr<IGUIElement> element, video::SColor bgcolor,
 				bool flat, bool fillBackGround,
 				const core::rect<s32>& r,
 				const core::rect<s32>* clip)
@@ -493,7 +483,7 @@ void CGUISkin::draw3DSunkenPane(IGUIElement* element, video::SColor bgcolor,
 
 //! draws a window background
 // return where to draw title bar text.
-core::rect<s32> CGUISkin::draw3DWindowBackground(IGUIElement* element,
+core::rect<s32> CGUISkin::draw3DWindowBackground(boost::shared_ptr<IGUIElement> element,
 				bool drawTitleBar, video::SColor titleBarColor,
 				const core::rect<s32>& r,
 				const core::rect<s32>* clip,
@@ -642,7 +632,7 @@ is usually not used by ISkin, but can be used for example by more complex
 implementations to find out how to draw the part exactly.
 \param rect: Defining area where to draw.
 \param clip: Clip area.	*/
-void CGUISkin::draw3DMenuPane(IGUIElement* element,
+void CGUISkin::draw3DMenuPane(boost::shared_ptr<IGUIElement> element,
 			const core::rect<s32>& r, const core::rect<s32>* clip)
 {
 	if (!Driver)
@@ -720,7 +710,7 @@ is usually not used by ISkin, but can be used for example by more complex
 implementations to find out how to draw the part exactly.
 \param rect: Defining area where to draw.
 \param clip: Clip area.	*/
-void CGUISkin::draw3DToolBar(IGUIElement* element,
+void CGUISkin::draw3DToolBar(boost::shared_ptr<IGUIElement> element,
 				const core::rect<s32>& r,
 				const core::rect<s32>* clip)
 {
@@ -768,7 +758,7 @@ implementations to find out how to draw the part exactly.
 \param active: Specifies if the tab is currently active.
 \param rect: Defining area where to draw.
 \param clip: Clip area.	*/
-void CGUISkin::draw3DTabButton(IGUIElement* element, bool active,
+void CGUISkin::draw3DTabButton(boost::shared_ptr<IGUIElement> element, bool active,
 	const core::rect<s32>& frameRect, const core::rect<s32>* clip, EGUI_ALIGNMENT alignment)
 {
 	if (!Driver)
@@ -849,7 +839,7 @@ implementations to find out how to draw the part exactly.
 \param background: Specifies if the background should be drawn.
 \param rect: Defining area where to draw.
 \param clip: Clip area.	*/
-void CGUISkin::draw3DTabBody(IGUIElement* element, bool border, bool background,
+void CGUISkin::draw3DTabBody(boost::shared_ptr<IGUIElement> element, bool border, bool background,
 	const core::rect<s32>& rect, const core::rect<s32>* clip, s32 tabHeight, EGUI_ALIGNMENT alignment)
 {
 	if (!Driver)
@@ -941,7 +931,7 @@ by more complex implementations to find out how to draw the part exactly.
 \param currenttime: The present time, used to calculate the frame number
 \param loop: Whether the animation should loop or not
 \param clip: Clip area.	*/
-void CGUISkin::drawIcon(IGUIElement* element, EGUI_DEFAULT_ICON icon,
+void CGUISkin::drawIcon(boost::shared_ptr<IGUIElement> element, EGUI_DEFAULT_ICON icon,
 			const core::position2di position,
 			u32 starttime, u32 currenttime,
 			bool loop, const core::rect<s32>* clip)
@@ -962,7 +952,7 @@ EGUI_SKIN_TYPE CGUISkin::getType() const
 
 
 //! draws a 2d rectangle.
-void CGUISkin::draw2DRectangle(IGUIElement* element,
+void CGUISkin::draw2DRectangle(boost::shared_ptr<IGUIElement> element,
 		const video::SColor &color, const core::rect<s32>& pos,
 		const core::rect<s32>* clip)
 {

@@ -57,9 +57,6 @@ CIrrDeviceStub::~CIrrDeviceStub()
 	VideoModeList->drop();
 	FileSystem->drop();
 
-	if (GUIEnvironment)
-		GUIEnvironment->drop();
-
 	if (VideoDriver)
 		VideoDriver->drop();
 
@@ -110,7 +107,7 @@ io::IFileSystem* CIrrDeviceStub::getFileSystem()
 
 
 //! returns the gui environment
-gui::IGUIEnvironment* CIrrDeviceStub::getGUIEnvironment()
+boost::shared_ptr<gui::IGUIEnvironment> CIrrDeviceStub::getGUIEnvironment()
 {
 	return GUIEnvironment;
 }

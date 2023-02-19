@@ -20,8 +20,8 @@ namespace gui
 
 
 //! constructor
-CGUIScrollBar::CGUIScrollBar(bool horizontal, IGUIEnvironment* environment,
-				IGUIElement* parent, s32 id,
+CGUIScrollBar::CGUIScrollBar(bool horizontal, boost::shared_ptr<IGUIEnvironment> environment,
+				boost::shared_ptr<IGUIElement> parent, s32 id,
 				core::rect<s32> rectangle, bool noclip)
 	: IGUIScrollBar(environment, parent, id, rectangle), UpButton(0),
 	DownButton(0), Dragging(false), Horizontal(horizontal),
@@ -33,26 +33,13 @@ CGUIScrollBar::CGUIScrollBar(bool horizontal, IGUIEnvironment* environment,
 	setDebugName("CGUIScrollBar");
 	#endif
 
-	refreshControls();
-
-	setNotClipped(noclip);
-
-	// this element can be tabbed to
-	setTabStop(true);
-	setTabOrder(-1);
-
-	setPos(0);
+	_noClip = noclip;
 }
 
 
 //! destructor
 CGUIScrollBar::~CGUIScrollBar()
 {
-	if (UpButton)
-		UpButton->drop();
-
-	if (DownButton)
-		DownButton->drop();
 }
 
 
@@ -61,6 +48,8 @@ bool CGUIScrollBar::OnEvent(const SEvent& event)
 {
 	if (isEnabled())
 	{
+		boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
+		boost::shared_ptr<IGUIElement> lockedParent = getParent();
 
 		switch(event.EventType)
 		{
@@ -99,10 +88,10 @@ bool CGUIScrollBar::OnEvent(const SEvent& event)
 				{
 					SEvent newEvent;
 					newEvent.EventType = EET_GUI_EVENT;
-					newEvent.GUIEvent.Caller = this;
+					newEvent.GUIEvent.Caller = lockedThis;
 					newEvent.GUIEvent.Element = 0;
 					newEvent.GUIEvent.EventType = EGET_SCROLL_BAR_CHANGED;
-					Parent->OnEvent(newEvent);
+					lockedParent->OnEvent(newEvent);
 				}
 				if (absorb)
 					return true;
@@ -119,28 +108,30 @@ bool CGUIScrollBar::OnEvent(const SEvent& event)
 
 				SEvent newEvent;
 				newEvent.EventType = EET_GUI_EVENT;
-				newEvent.GUIEvent.Caller = this;
+				newEvent.GUIEvent.Caller = lockedThis;
 				newEvent.GUIEvent.Element = 0;
 				newEvent.GUIEvent.EventType = EGET_SCROLL_BAR_CHANGED;
-				Parent->OnEvent(newEvent);
+				lockedParent->OnEvent(newEvent);
 
 				return true;
 			}
 			else
 			if (event.GUIEvent.EventType == EGET_ELEMENT_FOCUS_LOST)
 			{
-				if (event.GUIEvent.Caller == this)
+				if (event.GUIEvent.Caller == lockedThis)
 					Dragging = false;
 			}
 			break;
 		case EET_MOUSE_INPUT_EVENT:
 		{
+			boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+
 			const core::position2di p(event.MouseInput.X, event.MouseInput.Y);
 			bool isInside = isPointInside ( p );
 			switch(event.MouseInput.Event)
 			{
 			case EMIE_MOUSE_WHEEL:
-				if (Environment->hasFocus(this))
+				if (lockedEnvironment->hasFocus(lockedThis))
 				{
 					// thanks to a bug report by REAPER
 					// thanks to tommi by tommi for another bugfix
@@ -151,10 +142,10 @@ bool CGUIScrollBar::OnEvent(const SEvent& event)
 
 					SEvent newEvent;
 					newEvent.EventType = EET_GUI_EVENT;
-					newEvent.GUIEvent.Caller = this;
+					newEvent.GUIEvent.Caller = lockedThis;
 					newEvent.GUIEvent.Element = 0;
 					newEvent.GUIEvent.EventType = EGET_SCROLL_BAR_CHANGED;
-					Parent->OnEvent(newEvent);
+					lockedParent->OnEvent(newEvent);
 					return true;
 				}
 				break;
@@ -166,7 +157,7 @@ bool CGUIScrollBar::OnEvent(const SEvent& event)
 					DraggedBySlider = SliderRect.isPointInside(p);
 					TrayClick = !DraggedBySlider;
 					DesiredPos = getPosFromMousePos(p);
-					Environment->setFocus ( this );
+					lockedEnvironment->setFocus (lockedThis);
 					return true;
 				}
 				break;
@@ -219,14 +210,14 @@ bool CGUIScrollBar::OnEvent(const SEvent& event)
 					DesiredPos = newPos;
 				}
 
-				if (Pos != oldPos && Parent)
+				if (Pos != oldPos && lockedParent)
 				{
 					SEvent newEvent;
 					newEvent.EventType = EET_GUI_EVENT;
-					newEvent.GUIEvent.Caller = this;
+					newEvent.GUIEvent.Caller = lockedThis;
 					newEvent.GUIEvent.Element = 0;
 					newEvent.GUIEvent.EventType = EGET_SCROLL_BAR_CHANGED;
-					Parent->OnEvent(newEvent);
+					lockedParent->OnEvent(newEvent);
 				}
 				return isInside;
 			} break;
@@ -260,14 +251,14 @@ void CGUIScrollBar::OnPostRender(u32 timeMs)
 		if (DesiredPos >= Pos - LargeStep && DesiredPos <= Pos + LargeStep)
 			setPos(DesiredPos);
 
-		if (Pos != oldPos && Parent)
+		if (Pos != oldPos && !Parent.expired())
 		{
 			SEvent newEvent;
 			newEvent.EventType = EET_GUI_EVENT;
-			newEvent.GUIEvent.Caller = this;
+			newEvent.GUIEvent.Caller = getSharedThis();
 			newEvent.GUIEvent.Element = 0;
 			newEvent.GUIEvent.EventType = EGET_SCROLL_BAR_CHANGED;
-			Parent->OnEvent(newEvent);
+			getParent()->OnEvent(newEvent);
 		}
 	}
 
@@ -279,7 +270,7 @@ void CGUIScrollBar::draw()
 	if (!IsVisible)
 		return;
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 	if (!skin)
 		return;
 
@@ -293,8 +284,10 @@ void CGUIScrollBar::draw()
 
 	SliderRect = AbsoluteRect;
 
+	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
+
 	// draws the background
-	skin->draw2DRectangle(this, skin->getColor(EGDC_SCROLLBAR), SliderRect, &AbsoluteClippingRect);
+	skin->draw2DRectangle(lockedThis, skin->getColor(EGDC_SCROLLBAR), SliderRect, &AbsoluteClippingRect);
 
 	if ( core::isnotzero ( range() ) )
 	{
@@ -310,7 +303,7 @@ void CGUIScrollBar::draw()
 			SliderRect.LowerRightCorner.Y = SliderRect.UpperLeftCorner.Y + DrawHeight;
 		}
 
-		skin->draw3DButtonPaneStandard(this, SliderRect, &AbsoluteClippingRect);
+		skin->draw3DButtonPaneStandard(lockedThis, SliderRect, &AbsoluteClippingRect);
 	}
 
 	// draw buttons
@@ -454,8 +447,10 @@ void CGUIScrollBar::refreshControls()
 {
 	CurrentIconColor = video::SColor(255,255,255,255);
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 	IGUISpriteBank* sprites = 0;
+	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
 
 	if (skin)
 	{
@@ -468,7 +463,7 @@ void CGUIScrollBar::refreshControls()
 		s32 h = RelativeRect.getHeight();
 		if (!UpButton)
 		{
-			UpButton = new CGUIButton(Environment, this, -1, core::rect<s32>(0,0, h, h), NoClip);
+			UpButton = boost::make_shared<CGUIButton>(lockedEnvironment, lockedThis, -1, core::rect<s32>(0,0, h, h), NoClip);
 			UpButton->setSubElement(true);
 			UpButton->setTabStop(false);
 		}
@@ -482,7 +477,7 @@ void CGUIScrollBar::refreshControls()
 		UpButton->setAlignment(EGUIA_UPPERLEFT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
 		if (!DownButton)
 		{
-			DownButton = new CGUIButton(Environment, this, -1, core::rect<s32>(RelativeRect.getWidth()-h, 0, RelativeRect.getWidth(), h), NoClip);
+			DownButton = boost::make_shared<CGUIButton>(lockedEnvironment, lockedThis, -1, core::rect<s32>(RelativeRect.getWidth()-h, 0, RelativeRect.getWidth(), h), NoClip);
 			DownButton->setSubElement(true);
 			DownButton->setTabStop(false);
 		}
@@ -500,7 +495,7 @@ void CGUIScrollBar::refreshControls()
 		s32 w = RelativeRect.getWidth();
 		if (!UpButton)
 		{
-			UpButton = new CGUIButton(Environment, this, -1, core::rect<s32>(0,0, w, w), NoClip);
+			UpButton = boost::make_shared<CGUIButton>(lockedEnvironment, lockedThis, -1, core::rect<s32>(0,0, w, w), NoClip);
 			UpButton->setSubElement(true);
 			UpButton->setTabStop(false);
 		}
@@ -514,7 +509,7 @@ void CGUIScrollBar::refreshControls()
 		UpButton->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
 		if (!DownButton)
 		{
-			DownButton = new CGUIButton(Environment, this, -1, core::rect<s32>(0,RelativeRect.getHeight()-w, w, RelativeRect.getHeight()), NoClip);
+			DownButton = boost::make_shared<CGUIButton>(lockedEnvironment, lockedThis, -1, core::rect<s32>(0,RelativeRect.getHeight()-w, w, RelativeRect.getHeight()), NoClip);
 			DownButton->setSubElement(true);
 			DownButton->setTabStop(false);
 		}
@@ -559,6 +554,21 @@ void CGUIScrollBar::deserializeAttributes(io::IAttributes* in, io::SAttributeRea
 	// CurrentIconColor - not serialized as continuiously updated
 
 	refreshControls();
+}
+
+void CGUIScrollBar::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	refreshControls();
+
+	setNotClipped(_noClip);
+
+	// this element can be tabbed to
+	setTabStop(true);
+	setTabOrder(-1);
+
+	setPos(0);
 }
 
 

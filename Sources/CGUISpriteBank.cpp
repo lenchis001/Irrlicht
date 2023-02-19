@@ -14,7 +14,7 @@ namespace irr
 namespace gui
 {
 
-CGUISpriteBank::CGUISpriteBank(IGUIEnvironment* env) :
+CGUISpriteBank::CGUISpriteBank(boost::shared_ptr<IGUIEnvironment> env) :
 	Environment(env), Driver(0)
 {
 	#ifdef _DEBUG

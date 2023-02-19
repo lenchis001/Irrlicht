@@ -18,7 +18,7 @@ namespace irr
 namespace gui
 {
 
-CGUITreeViewNode::CGUITreeViewNode( CGUITreeView* owner, boost::shared_ptr<CGUITreeViewNode> parent )
+CGUITreeViewNode::CGUITreeViewNode( boost::shared_ptr<CGUITreeView> owner, boost::shared_ptr<CGUITreeViewNode> parent )
 	: Owner(owner), Parent(parent), ImageIndex(-1), SelectedImageIndex(-1),
 	Data(0), Data2(0), Expanded(false)
 {
@@ -42,14 +42,14 @@ CGUITreeViewNode::~CGUITreeViewNode()
 	}
 }
 
-IGUITreeView* CGUITreeViewNode::getOwner() const
+boost::shared_ptr<IGUITreeView> CGUITreeViewNode::getOwner() const
 {
 	return Owner;
 }
 
 boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::getParent() const
 {
-	return Parent;
+	return Parent.lock();
 }
 
 void CGUITreeViewNode::setText( const wchar_t* text )
@@ -77,7 +77,7 @@ boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::addChildBack(
 	void*					data /*= 0*/,
 	IReferenceCounted*			data2 /*= 0*/ )
 {
-	boost::shared_ptr<CGUITreeViewNode>	newChild = boost::make_shared<CGUITreeViewNode>( Owner, getSharedThis() );
+	boost::shared_ptr<CGUITreeViewNode>	newChild = boost::make_shared<CGUITreeViewNode>( Owner, boost::static_pointer_cast<CGUITreeViewNode>(getSharedThis()));
 	newChild->setWeakThis(newChild);
 
 	Children.push_back( newChild );
@@ -221,13 +221,15 @@ boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::getPrevSibling() const
 	core::list<boost::shared_ptr<CGUITreeViewNode>>::Iterator	itOther;
 	boost::shared_ptr<CGUITreeViewNode>									other = 0;
 
-	if( Parent )
+	if( !Parent.expired() )
 	{
-		for( itThis = Parent->Children.begin(); itThis != Parent->Children.end(); itThis++ )
+		boost::shared_ptr<CGUITreeViewNode> lockedParent = boost::static_pointer_cast<CGUITreeViewNode>(getParent());
+
+		for( itThis = lockedParent->Children.begin(); itThis != lockedParent->Children.end(); itThis++ )
 		{
 			if( this == (*itThis).get())
 			{
-				if( itThis != Parent->Children.begin() )
+				if( itThis != lockedParent->Children.begin() )
 				{
 					other = *itOther;
 				}
@@ -244,13 +246,15 @@ boost::shared_ptr<IGUITreeViewNode> CGUITreeViewNode::getNextSibling() const
 	core::list<boost::shared_ptr<CGUITreeViewNode>>::Iterator	itThis;
 	boost::shared_ptr<CGUITreeViewNode>									other = 0;
 
-	if( Parent )
+	if( !Parent.expired() )
 	{
-		for( itThis = Parent->Children.begin(); itThis != Parent->Children.end(); itThis++ )
+		boost::shared_ptr<CGUITreeViewNode> lockedParent = boost::static_pointer_cast<CGUITreeViewNode>(getParent());
+
+		for( itThis = lockedParent->Children.begin(); itThis != lockedParent->Children.end(); itThis++ )
 		{
 			if( this == (*itThis).get())
 			{
-				if( itThis != Parent->Children.getLast() )
+				if( itThis != lockedParent->Children.getLast() )
 				{
 					other = *( ++itThis );
 				}
@@ -398,25 +402,28 @@ bool CGUITreeViewNode::isRoot() const
 
 s32 CGUITreeViewNode::getLevel() const
 {
-	if( Parent )
+	if( Parent.expired() )
 	{
-		return Parent->getLevel() + 1;
+		return 0;
 	}
 	else
 	{
-		return 0;
+		boost::shared_ptr<IGUITreeViewNode> lockedParent = getParent();
+		return lockedParent->getLevel() + 1;
 	}
 }
 
 bool CGUITreeViewNode::isVisible() const
 {
-	if( Parent )
+	if( Parent.expired() )
 	{
-		return Parent->getExpanded() && Parent->isVisible();
+		return true;
 	}
 	else
 	{
-		return true;
+		boost::shared_ptr<IGUITreeViewNode> lockedParent = getParent();
+
+		return lockedParent->getExpanded() && lockedParent->isVisible();
 	}
 }
 
@@ -428,11 +435,18 @@ void CGUITreeViewNode::setWeakThis(boost::shared_ptr<CGUITreeViewNode> value)
 	WeakThis = value;
 }
 
+inline boost::shared_ptr<CGUITreeViewNode> CGUITreeViewNode::getSharedThis() const
+{
+	assert(!WeakThis.expired());
+
+	return WeakThis.lock();
+}
+
 
 //! constructor
-CGUITreeView::CGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
+CGUITreeView::CGUITreeView(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 	s32 id, core::rect<s32> rectangle, bool clip,
-	bool drawBack,bool scrollBarVertical, bool scrollBarHorizontal)
+	bool drawBack, bool scrollBarVertical, bool scrollBarHorizontal)
 	: IGUITreeView( environment, parent, id, rectangle ),
 	Root(0), Selected(0),
 	ItemHeight( 0 ),
@@ -455,38 +469,53 @@ CGUITreeView::CGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
 	setDebugName( "CGUITreeView" );
 #endif
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	s32 s = skin->getSize( EGDS_SCROLLBAR_SIZE );
+	_scrollBarHorizontal = scrollBarHorizontal;
+	_scrollBarVertical = scrollBarVertical;
+	_clip = clip;
+}
 
-	if ( scrollBarVertical )
+
+//! destructor
+CGUITreeView::~CGUITreeView()
+{
+	if( ImageList )
 	{
-		ScrollBarV = new CGUIScrollBar( false, Environment, this, 0,
-			core::rect<s32>(	RelativeRect.getWidth() - s,
-			0,
-			RelativeRect.getWidth(),
-			RelativeRect.getHeight() - (scrollBarHorizontal ? s : 0 )
-			),
-			!clip );
-		ScrollBarV->drop();
+		ImageList->drop();
+	}
+}
+
+void CGUITreeView::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
+	s32 s = skin->getSize(EGDS_SCROLLBAR_SIZE);
+
+	if (_scrollBarVertical)
+	{
+		ScrollBarV = boost::make_shared<CGUIScrollBar>(false, getSharedEnvironment(), getSharedThis(), 0,
+			core::rect<s32>(RelativeRect.getWidth() - s,
+				0,
+				RelativeRect.getWidth(),
+				RelativeRect.getHeight() - (_scrollBarHorizontal ? s : 0)
+				),
+			!_clip);
 
 		ScrollBarV->setSubElement(true);
-		ScrollBarV->setPos( 0 );
-		ScrollBarV->grab();
+		ScrollBarV->setPos(0);
 	}
 
-	if ( scrollBarHorizontal )
+	if (_scrollBarHorizontal)
 	{
-		ScrollBarH = new CGUIScrollBar( true, Environment, this, 1,
-			core::rect<s32>( 0, RelativeRect.getHeight() - s, RelativeRect.getWidth() - s, RelativeRect.getHeight() ),
-			!clip );
-		ScrollBarH->drop();
+		ScrollBarH = boost::make_shared<CGUIScrollBar>(true, getSharedEnvironment(), getSharedThis(), 1,
+			core::rect<s32>(0, RelativeRect.getHeight() - s, RelativeRect.getWidth() - s, RelativeRect.getHeight()),
+			!_clip);
 
 		ScrollBarH->setSubElement(true);
-		ScrollBarH->setPos( 0 );
-		ScrollBarH->grab();
+		ScrollBarH->setPos(0);
 	}
 
-	Root = boost::make_shared<CGUITreeViewNode>( this, nullptr );
+	Root = boost::make_shared<CGUITreeViewNode>(getSharedThis<CGUITreeView>(), nullptr);
 	Root->setWeakThis(Root);
 
 	Root->Expanded = true;
@@ -494,55 +523,19 @@ CGUITreeView::CGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
 	recalculateItemHeight();
 }
 
-
-//! destructor
-CGUITreeView::~CGUITreeView()
-{
-	if( ScrollBarV )
-	{
-		ScrollBarV->drop();
-	}
-
-	if( ScrollBarH )
-	{
-		ScrollBarH->drop();
-	}
-
-	if( Font )
-	{
-		Font->drop();
-	}
-
-	if( IconFont )
-	{
-		IconFont->drop();
-	}
-
-	if( ImageList )
-	{
-		ImageList->drop();
-	}
-}
-
 void CGUITreeView::recalculateItemHeight()
 {
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 	boost::shared_ptr<IGUITreeViewNode>	node;
 
 	if( Font != skin->getFont() )
 	{
-		if( Font )
-		{
-			Font->drop();
-		}
-
 		Font = skin->getFont();
 		ItemHeight = 0;
 
 		if( Font )
 		{
 			ItemHeight = Font->getDimension( L"A" ).Height + 4;
-			Font->grab();
 		}
 
 		if( IconFont )
@@ -609,7 +602,7 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 			case gui::EGET_SCROLL_BAR_CHANGED:
 				if( event.GUIEvent.Caller == ScrollBarV || event.GUIEvent.Caller == ScrollBarH )
 				{
-					//s32 pos = ( ( gui::IGUIScrollBar* )event.GUIEvent.Caller )->getPos();
+					//s32 pos = ( ( boost::shared_ptr<gui::IGUIScrollBar> )event.GUIEvent.Caller )->getPos();
 					return true;
 				}
 				break;
@@ -626,6 +619,8 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 		case EET_MOUSE_INPUT_EVENT:
 			{
 				core::position2d<s32> p( event.MouseInput.X, event.MouseInput.Y );
+				boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
+				boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
 
 				switch( event.MouseInput.Event )
 				{
@@ -637,13 +632,13 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 
 				case EMIE_LMOUSE_PRESSED_DOWN:
 
-					if (Environment->hasFocus(this) && !AbsoluteClippingRect.isPointInside(p) )
+					if (lockedEnvironment->hasFocus(lockedThis) && !AbsoluteClippingRect.isPointInside(p) )
 					{
-						Environment->removeFocus(this);
+						lockedEnvironment->removeFocus(lockedThis);
 						return false;
 					}
 
-					if( Environment->hasFocus( this ) &&
+					if(lockedEnvironment->hasFocus(lockedThis) &&
 						(	( ScrollBarV && ScrollBarV->getAbsolutePosition().isPointInside( p ) && ScrollBarV->OnEvent( event ) ) ||
 						( ScrollBarH && ScrollBarH->getAbsolutePosition().isPointInside( p ) &&	ScrollBarH->OnEvent( event ) )
 						)
@@ -653,12 +648,12 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 					}
 
 					Selecting = true;
-					Environment->setFocus( this );
+					lockedEnvironment->setFocus(lockedThis);
 					return true;
 					break;
 
 				case EMIE_LMOUSE_LEFT_UP:
-					if( Environment->hasFocus( this ) &&
+					if(lockedEnvironment->hasFocus(lockedThis) &&
 						(	( ScrollBarV && ScrollBarV->getAbsolutePosition().isPointInside( p ) && ScrollBarV->OnEvent( event ) ) ||
 						( ScrollBarH && ScrollBarH->getAbsolutePosition().isPointInside( p ) &&	ScrollBarH->OnEvent( event ) )
 						)
@@ -668,7 +663,7 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 					}
 
 					Selecting = false;
-					Environment->removeFocus( this );
+					lockedEnvironment->removeFocus(lockedThis);
 					mouseAction( event.MouseInput.X, event.MouseInput.Y );
 					return true;
 					break;
@@ -693,7 +688,7 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 		}
 	}
 
-	return Parent ? Parent->OnEvent( event ) : false;
+	return Parent.expired() ? false : getParent()->OnEvent(event);
 }
 
 /*!
@@ -708,7 +703,7 @@ void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 	SEvent					event;
 
 	event.EventType			= EET_GUI_EVENT;
-	event.GUIEvent.Caller	= this;
+	event.GUIEvent.Caller	= getSharedThis();
 	event.GUIEvent.Element = 0;
 
 	xpos -= AbsoluteRect.UpperLeftCorner.X;
@@ -739,6 +734,8 @@ void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 		Selected = hitNode;
 	}
 
+	boost::shared_ptr<IGUIElement> lockedParent = getParent();
+
 	if( hitNode && !onlyHover
 		&& xpos < hitNode->getLevel() * IndentWidth
 		&& xpos > ( hitNode->getLevel() - 1 ) * IndentWidth
@@ -756,7 +753,7 @@ void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 			event.GUIEvent.EventType = EGET_TREEVIEW_NODE_COLLAPS;
 		}
 		LastEventNode = hitNode;
-		Parent->OnEvent( event );
+		lockedParent->OnEvent( event );
 		LastEventNode = 0;
 	}
 
@@ -767,20 +764,20 @@ void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 
 	// post selection news
 
-	if( Parent && !onlyHover && Selected != oldSelected )
+	if(lockedParent && !onlyHover && Selected != oldSelected )
 	{
 		if( oldSelected )
 		{
 			event.GUIEvent.EventType = EGET_TREEVIEW_NODE_DESELECT;
 			LastEventNode = oldSelected;
-			Parent->OnEvent( event );
+			lockedParent->OnEvent( event );
 			LastEventNode = 0;
 		}
 		if( Selected )
 		{
 			event.GUIEvent.EventType = EGET_TREEVIEW_NODE_SELECT;
 			LastEventNode = Selected;
-			Parent->OnEvent( event );
+			lockedParent->OnEvent( event );
 			LastEventNode = 0;
 		}
 	}
@@ -797,8 +794,9 @@ void CGUITreeView::draw()
 
 	recalculateItemHeight(); // if the font changed
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	irr::video::IVideoDriver* driver = Environment->getVideoDriver();
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
+	irr::video::IVideoDriver* driver = lockedEnvironment->getVideoDriver();
 
 	core::rect<s32>* clipRect = 0;
 	if( Clip )
@@ -1057,16 +1055,9 @@ void CGUITreeView::draw()
 //! built-in-font by default. Icons can be displayed in front of every list item.
 //! An icon is a string, displayed with the icon font. When using the build-in-font of the
 //! Irrlicht engine as icon font, the icon strings defined in GUIIcons.h can be used.
-void CGUITreeView::setIconFont( IGUIFont* font )
+void CGUITreeView::setIconFont( boost::shared_ptr<IGUIFont> font )
 {
 	s32	height;
-
-	if ( font )
-		font->grab();
-	if ( IconFont )
-	{
-		IconFont->drop();
-	}
 
 	IconFont = font;
 	if( IconFont )

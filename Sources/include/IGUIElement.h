@@ -22,14 +22,14 @@ namespace gui
 class IGUIEnvironment;
 
 //! Base class of all GUI elements.
-class IGUIElement : public virtual io::IAttributeExchangingObject, public IEventReceiver
+class IGUIElement : public virtual io::IDebuableAttributeExchangingObject, public IEventReceiver
 {
 public:
 
 	//! Constructor
-	IGUIElement(EGUI_ELEMENT_TYPE type, IGUIEnvironment* environment, IGUIElement* parent,
+	IGUIElement(EGUI_ELEMENT_TYPE type, boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 		s32 id, const core::rect<s32>& rectangle)
-		: Parent(0), RelativeRect(rectangle), AbsoluteRect(rectangle),
+		: Parent(parent), RelativeRect(rectangle), AbsoluteRect(rectangle),
 		AbsoluteClippingRect(rectangle), DesiredRect(rectangle),
 		MaxSize(0,0), MinSize(1,1), IsVisible(true), IsEnabled(true),
 		IsSubElement(false), NoClip(false), ID(id), IsTabStop(false), TabOrder(-1), IsTabGroup(false),
@@ -39,13 +39,6 @@ public:
 		#ifdef _DEBUG
 		setDebugName("IGUIElement");
 		#endif
-
-		// if we were given a parent to attach to
-		if (parent)
-		{
-			parent->addChildToEnd(this);
-			recalculateAbsolutePosition(true);
-		}
 	}
 
 
@@ -53,18 +46,17 @@ public:
 	virtual ~IGUIElement()
 	{
 		// delete all children
-		core::list<IGUIElement*>::Iterator it = Children.begin();
+		core::list<boost::shared_ptr<IGUIElement>>::Iterator it = Children.begin();
 		for (; it != Children.end(); ++it)
 		{
-			(*it)->Parent = 0;
-			(*it)->drop();
+			(*it)->Parent.reset();
 		}
 	}
 
 	//! Returns parent of this element.
-	IGUIElement* getParent() const
+	boost::shared_ptr<IGUIElement> getParent() const
 	{
-		return Parent;
+		return Parent.lock();
 	}
 
 
@@ -79,9 +71,9 @@ public:
 	/** \param r The absolute position to set */
 	void setRelativePosition(const core::rect<s32>& r)
 	{
-		if (Parent)
+		if (!Parent.expired())
 		{
-			const core::rect<s32>& r2 = Parent->getAbsolutePosition();
+			const core::rect<s32>& r2 = Parent.lock()->getAbsolutePosition();
 
 			core::dimension2df d((f32)(r2.getSize().Width), (f32)(r2.getSize().Height));
 
@@ -117,10 +109,10 @@ public:
 	outside its parent. */
 	void setRelativePositionProportional(const core::rect<f32>& r)
 	{
-		if (!Parent)
+		if (Parent.expired())
 			return;
 
-		const core::dimension2di& d = Parent->getAbsolutePosition().getSize();
+		const core::dimension2di& d = Parent.lock()->getAbsolutePosition().getSize();
 
 		DesiredRect = core::rect<s32>(
 					core::floor32((f32)d.Width * r.UpperLeftCorner.X),
@@ -194,9 +186,9 @@ public:
 		AlignTop = top;
 		AlignBottom = bottom;
 
-		if (Parent)
+		if (!Parent.expired())
 		{
-			core::rect<s32> r(Parent->getAbsolutePosition());
+			core::rect<s32> r(getParent()->getAbsolutePosition());
 
 			core::dimension2df d((f32)r.getSize().Width, (f32)r.getSize().Height);
 
@@ -218,7 +210,7 @@ public:
 		recalculateAbsolutePosition(false);
 
 		// update all children
-		core::list<IGUIElement*>::Iterator it = Children.begin();
+		core::list<boost::shared_ptr<IGUIElement>>::Iterator it = Children.begin();
 		for (; it != Children.end(); ++it)
 		{
 			(*it)->updateAbsolutePosition();
@@ -238,14 +230,14 @@ public:
 	\return The topmost GUI element at that point, or 0 if there are
 	no candidate elements at this point.
 	*/
-	IGUIElement* getElementFromPoint(const core::position2d<s32>& point)
+	boost::shared_ptr<IGUIElement> getElementFromPoint(const core::position2d<s32>& point)
 	{
-		IGUIElement* target = 0;
+		boost::shared_ptr<IGUIElement> target = 0;
 
 		// we have to search from back to front, because later children
 		// might be drawn over the top of earlier ones.
 
-		core::list<IGUIElement*>::Iterator it = Children.getLast();
+		core::list<boost::shared_ptr<IGUIElement>>::Iterator it = Children.getLast();
 
 		if (isVisible())
 		{
@@ -260,7 +252,7 @@ public:
 		}
 
 		if (isVisible() && isPointInside(point))
-			target = this;
+			target = getSharedThis();
 
 		return target;
 	}
@@ -275,7 +267,7 @@ public:
 
 
 	//! Adds a GUI element as new child of this element.
-	virtual void addChild(IGUIElement* child)
+	virtual void addChild(boost::shared_ptr<IGUIElement> child)
 	{
 		addChildToEnd(child);
 		if (child)
@@ -285,14 +277,13 @@ public:
 	}
 
 	//! Removes a child.
-	virtual void removeChild(IGUIElement* child)
+	virtual void removeChild(boost::shared_ptr<IGUIElement> child)
 	{
-		core::list<IGUIElement*>::Iterator it = Children.begin();
+		core::list<boost::shared_ptr<IGUIElement>>::Iterator it = Children.begin();
 		for (; it != Children.end(); ++it)
 			if ((*it) == child)
 			{
-				(*it)->Parent = 0;
-				(*it)->drop();
+				(*it)->Parent.reset();
 				Children.erase(it);
 				return;
 			}
@@ -302,8 +293,8 @@ public:
 	//! Removes this element from its parent.
 	virtual void remove()
 	{
-		if (Parent)
-			Parent->removeChild(this);
+		if (!Parent.expired())
+			Parent.lock()->removeChild(getSharedThis());
 	}
 
 
@@ -312,7 +303,7 @@ public:
 	{
 		if ( isVisible() )
 		{
-			core::list<IGUIElement*>::Iterator it = Children.begin();
+			core::list<boost::shared_ptr<IGUIElement>>::Iterator it = Children.begin();
 			for (; it != Children.end(); ++it)
 				(*it)->draw();
 		}
@@ -324,7 +315,7 @@ public:
 	{
 		if ( isVisible() )
 		{
-			core::list<IGUIElement*>::Iterator it = Children.begin();
+			core::list<boost::shared_ptr<IGUIElement>>::Iterator it = Children.begin();
 			for (; it != Children.end(); ++it)
 				(*it)->OnPostRender( timeMs );
 		}
@@ -403,11 +394,11 @@ public:
 		if (index < 0)
 		{
 			TabOrder = 0;
-			IGUIElement *el = getTabGroup();
-			while (IsTabGroup && el && el->Parent)
-				el = el->Parent;
+			boost::shared_ptr<IGUIElement> el = getTabGroup();
+			while (IsTabGroup && el && !el->Parent.expired())
+				el = el->Parent.lock();
 
-			IGUIElement *first=0, *closest=0;
+			boost::shared_ptr<IGUIElement> first=0, closest=0;
 			if (el)
 			{
 				// find the highest element number
@@ -449,9 +440,9 @@ public:
 
 
 	//! Returns the container element which holds all elements in this element's tab group.
-	IGUIElement* getTabGroup()
+	boost::shared_ptr<IGUIElement> getTabGroup()
 	{
-		IGUIElement *ret=this;
+		boost::shared_ptr<IGUIElement> ret = getSharedThis();
 
 		while (ret && !ret->isTabGroup())
 			ret = ret->getParent();
@@ -527,15 +518,15 @@ public:
 	//! Called if an event happened.
 	virtual bool OnEvent(const SEvent& event)
 	{
-		return Parent ? Parent->OnEvent(event) : false;
+		return Parent.expired() ? false : Parent.lock()->OnEvent(event);
 	}
 
 
 	//! Brings a child to front
 	/** \return True if successful, false if not. */
-	virtual bool bringToFront(IGUIElement* element)
+	virtual bool bringToFront(boost::shared_ptr<IGUIElement> element)
 	{
-		core::list<IGUIElement*>::Iterator it = Children.begin();
+		core::list<boost::shared_ptr<IGUIElement>>::Iterator it = Children.begin();
 		for (; it != Children.end(); ++it)
 		{
 			if (element == (*it))
@@ -553,9 +544,9 @@ public:
 
 	//! Moves a child to the back, so it's siblings are drawn on top of it
 	/** \return True if successful, false if not. */
-	virtual bool sendToBack(IGUIElement* child)
+	virtual bool sendToBack(boost::shared_ptr<IGUIElement> child)
 	{
-		core::list<IGUIElement*>::Iterator it = Children.begin();
+		core::list<boost::shared_ptr<IGUIElement>>::Iterator it = Children.begin();
 		if (child == (*it))	// already there
 			return true;
 		for (; it != Children.end(); ++it)
@@ -573,7 +564,7 @@ public:
 	}
 
 	//! Returns list with children of this element
-	virtual const core::list<IGUIElement*>& getChildren() const
+	virtual const core::list<boost::shared_ptr<IGUIElement>>& getChildren() const
 	{
 		return Children;
 	}
@@ -586,11 +577,11 @@ public:
 	should be searched too.
 	\return Returns the first element with the given id. If no element
 	with this id was found, 0 is returned. */
-	virtual IGUIElement* getElementFromId(s32 id, bool searchchildren=false) const
+	virtual boost::shared_ptr<IGUIElement> getElementFromId(s32 id, bool searchchildren=false) const
 	{
-		IGUIElement* e = 0;
+		boost::shared_ptr<IGUIElement> e = 0;
 
-		core::list<IGUIElement*>::ConstIterator it = Children.begin();
+		core::list<boost::shared_ptr<IGUIElement>>::ConstIterator it = Children.begin();
 		for (; it != Children.end(); ++it)
 		{
 			if ((*it)->getID() == id)
@@ -609,19 +600,19 @@ public:
 
 	//! returns true if the given element is a child of this one.
 	//! \param child: The child element to check
-	bool isMyChild(IGUIElement* child) const
+	bool isMyChild(boost::shared_ptr<IGUIElement> child) const
 	{
 		if (!child)
 			return false;
 		do
 		{
-			if (child->Parent)
-				child = child->Parent;
+			if (!child->Parent.expired())
+				child = child->Parent.lock();
 
-		} while (child->Parent && child != this);
+		} while (!child->Parent.expired() && child.get() != this);
 
 		_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
-		return child == this;
+		return child.get() == this;
 	}
 
 
@@ -634,14 +625,14 @@ public:
 	\param includeInvisible: includes invisible elements in the search (default=false)
 	\return true if successfully found an element, false to continue searching/fail */
 	bool getNextElement(s32 startOrder, bool reverse, bool group,
-		IGUIElement*& first, IGUIElement*& closest, bool includeInvisible=false) const
+		boost::shared_ptr<IGUIElement>& first, boost::shared_ptr<IGUIElement>& closest, bool includeInvisible=false) const
 	{
 		// we'll stop searching if we find this number
 		s32 wanted = startOrder + ( reverse ? -1 : 1 );
 		if (wanted==-2)
 			wanted = 1073741824; // maximum s32
 
-		core::list<IGUIElement*>::ConstIterator it = Children.begin();
+		core::list<boost::shared_ptr<IGUIElement>>::ConstIterator it = Children.begin();
 
 		s32 closestOrder, currentOrder;
 
@@ -819,16 +810,29 @@ public:
 		setNotClipped(in->getAttributeAsBool("NoClip"));
 	}
 
+	virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) {
+#if _DEBUG
+		assert(this == value.get());
+#endif
+		WeakThis = value;
+
+		// if we were given a parent to attach to
+		if (!Parent.expired())
+		{
+			Parent.lock()->addChildToEnd(getSharedThis());
+			recalculateAbsolutePosition(true);
+		}
+	}
+
 protected:
 	// not virtual because needed in constructor
-	void addChildToEnd(IGUIElement* child)
+	void addChildToEnd(boost::shared_ptr<IGUIElement> child)
 	{
 		if (child)
 		{
-			child->grab(); // prevent destruction when removed
 			child->remove(); // remove from old parent
 			child->LastParentRect = getAbsolutePosition();
-			child->Parent = this;
+			child->Parent = getSharedThis();
 			Children.push_back(child);
 		}
 	}
@@ -840,19 +844,13 @@ protected:
 		core::rect<s32> parentAbsoluteClip;
 		f32 fw=0.f, fh=0.f;
 
-		if (Parent)
+		if (!Parent.expired())
 		{
-			parentAbsolute = Parent->AbsoluteRect;
+			boost::shared_ptr<IGUIElement> lockedParent = getParent();
 
-			if (NoClip)
-			{
-				IGUIElement* p=this;
-				while (p && p->Parent)
-					p = p->Parent;
-				parentAbsoluteClip = p->AbsoluteClippingRect;
-			}
-			else
-				parentAbsoluteClip = Parent->AbsoluteClippingRect;
+			parentAbsolute = lockedParent->AbsoluteRect;
+
+			parentAbsoluteClip = lockedParent->AbsoluteClippingRect;
 		}
 
 		const s32 diffx = parentAbsolute.getWidth() - LastParentRect.getWidth();
@@ -943,7 +941,7 @@ protected:
 
 		AbsoluteRect = RelativeRect + parentAbsolute.UpperLeftCorner;
 
-		if (!Parent)
+		if (Parent.expired())
 			parentAbsoluteClip = AbsoluteRect;
 
 		AbsoluteClippingRect = AbsoluteRect;
@@ -954,7 +952,7 @@ protected:
 		if ( recursive )
 		{
 			// update all children
-			core::list<IGUIElement*>::Iterator it = Children.begin();
+			core::list<boost::shared_ptr<IGUIElement>>::Iterator it = Children.begin();
 			for (; it != Children.end(); ++it)
 			{
 				(*it)->recalculateAbsolutePosition(recursive);
@@ -962,13 +960,32 @@ protected:
 		}
 	}
 
+	inline boost::shared_ptr<IGUIElement> getSharedThis() {
+		assert(!WeakThis.expired());
+
+		return WeakThis.lock();
+	}
+
+	template<class T> boost::shared_ptr<T> getSharedThis() {
+		return boost::static_pointer_cast<T>(getSharedThis());
+	}
+
+	inline boost::shared_ptr<IGUIEnvironment> getSharedEnvironment() {
+		assert(!Environment.expired());
+
+		return Environment.lock();
+	}
+
 protected:
 
 	//! List of all children of this element
-	core::list<IGUIElement*> Children;
+	core::list<boost::shared_ptr<IGUIElement>> Children;
 
 	//! Pointer to the parent
-	IGUIElement* Parent;
+	boost::weak_ptr<IGUIElement> Parent;
+
+	//! Weak pointer to this object
+	boost::weak_ptr<IGUIElement> WeakThis;
 
 	//! relative rect of element
 	core::rect<s32> RelativeRect;
@@ -1032,7 +1049,7 @@ protected:
 	EGUI_ALIGNMENT AlignLeft, AlignRight, AlignTop, AlignBottom;
 
 	//! GUI Environment
-	IGUIEnvironment* Environment;
+	boost::weak_ptr<IGUIEnvironment> Environment;
 
 	//! type of element
 	EGUI_ELEMENT_TYPE Type;

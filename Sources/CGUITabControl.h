@@ -25,8 +25,8 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUITab(s32 number, IGUIEnvironment* environment,
-			IGUIElement* parent, const core::rect<s32>& rectangle,
+		CGUITab(s32 number, boost::shared_ptr<IGUIEnvironment> environment,
+			boost::shared_ptr<IGUIElement> parent, const core::rect<s32>& rectangle,
 			s32 id);
 
 		//! destructor
@@ -84,21 +84,21 @@ namespace gui
 	public:
 
 		//! destructor
-		CGUITabControl(IGUIEnvironment* environment,
-			IGUIElement* parent, const core::rect<s32>& rectangle,
+		CGUITabControl(boost::shared_ptr<IGUIEnvironment> environment,
+			boost::shared_ptr<IGUIElement> parent, const core::rect<s32>& rectangle,
 			bool fillbackground=true, bool border=true, s32 id=-1);
 
 		//! destructor
 		virtual ~CGUITabControl();
 
 		//! Adds a tab
-		virtual IGUITab* addTab(const wchar_t* caption, s32 id=-1);
+		virtual boost::shared_ptr<IGUITab> addTab(const wchar_t* caption, s32 id=-1);
 
 		//! Adds a tab that has already been created
-		virtual void addTab(CGUITab* tab);
+		virtual void addTab(boost::shared_ptr<CGUITab> tab);
 
 		//! Insert the tab at the given index
-		virtual IGUITab* insertTab(s32 idx, const wchar_t* caption, s32 id=-1);
+		virtual boost::shared_ptr<IGUITab> insertTab(s32 idx, const wchar_t* caption, s32 id=-1);
 
 		//! Removes a tab from the tabcontrol
 		virtual void removeTab(s32 idx);
@@ -110,19 +110,19 @@ namespace gui
 		virtual s32 getTabCount() const;
 
 		//! Returns a tab based on zero based index
-		virtual IGUITab* getTab(s32 idx) const;
+		virtual boost::shared_ptr<IGUITab> getTab(s32 idx) const;
 
 		//! Brings a tab to front.
 		virtual bool setActiveTab(s32 idx);
 
 		//! Brings a tab to front.
-		virtual bool setActiveTab(IGUITab *tab);
+		virtual bool setActiveTab(boost::shared_ptr<IGUITab> tab);
 
 		//! Returns which tab is currently active
 		virtual s32 getActiveTab() const;
 
 		//! get the the id of the tab at the given absolute coordinates
-		virtual s32 getTabAt(s32 xpos, s32 ypos) const;
+		virtual s32 getTabAt(s32 xpos, s32 ypos);
 
 		//! called if an event happened.
 		virtual bool OnEvent(const SEvent& event);
@@ -131,7 +131,7 @@ namespace gui
 		virtual void draw();
 
 		//! Removes a child.
-		virtual void removeChild(IGUIElement* child);
+		virtual void removeChild(boost::shared_ptr<IGUIElement> child);
 
 		//! Writes attributes of the element.
 		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const;
@@ -166,27 +166,29 @@ namespace gui
 		//! Update the position of the element, decides scroll button status
 		virtual void updateAbsolutePosition();
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
+
 	private:
 
 		void scrollLeft();
 		void scrollRight();
 		bool needScrollControl( s32 startIndex=0, bool withScrollControl=false );
-		s32 calcTabWidth(s32 pos, IGUIFont* font, const wchar_t* text, bool withScrollControl ) const;
+		s32 calcTabWidth(s32 pos, boost::shared_ptr<IGUIFont> font, const wchar_t* text, bool withScrollControl ) const;
 		core::rect<s32> calcTabPos();
 
 		void recalculateScrollButtonPlacement();
 		void recalculateScrollBar();
 		void refreshSprites();
 
-		core::array<CGUITab*> Tabs;	// CGUITab* because we need setNumber (which is certainly not nice)
+		core::array<boost::shared_ptr<CGUITab>> Tabs;	// boost::shared_ptr<CGUITab> because we need setNumber (which is certainly not nice)
 		s32 ActiveTab;
 		bool Border;
 		bool FillBackground;
 		bool ScrollControl;
 		s32 TabHeight;
 		gui::EGUI_ALIGNMENT VerticalAlignment;
-		IGUIButton* UpButton;
-		IGUIButton* DownButton;
+		boost::shared_ptr<IGUIButton> UpButton;
+		boost::shared_ptr<IGUIButton> DownButton;
 		s32 TabMaxWidth;
 		s32 CurrentScrollTabIndex;
 		s32 TabExtraWidth;

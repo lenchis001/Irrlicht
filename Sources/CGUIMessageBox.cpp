@@ -17,9 +17,9 @@ namespace gui
 {
 
 //! constructor
-CGUIMessageBox::CGUIMessageBox(IGUIEnvironment* environment, const wchar_t* caption,
+CGUIMessageBox::CGUIMessageBox(boost::shared_ptr<IGUIEnvironment> environment, const wchar_t* caption,
 	const wchar_t* text, s32 flags,
-	IGUIElement* parent, s32 id, core::rect<s32> rectangle, video::ITexture* image)
+	boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle, video::ITexture* image)
 : CGUIWindow(environment, parent, id, rectangle),
 	OkButton(0), CancelButton(0), YesButton(0), NoButton(0), StaticText(0),
 	Icon(0), IconTexture(image),
@@ -29,64 +29,27 @@ CGUIMessageBox::CGUIMessageBox(IGUIEnvironment* environment, const wchar_t* capt
 	setDebugName("CGUIMessageBox");
 	#endif
 
-	// set element type
-	Type = EGUIET_MESSAGE_BOX;
-
-	// remove focus
-	Environment->setFocus(0);
-
-	// remove buttons
-
-	getMaximizeButton()->remove();
-	getMinimizeButton()->remove();
-
 	if (caption)
 		setText(caption);
-
-	Environment->setFocus(this);
-
-	if ( IconTexture )
-		IconTexture->grab();
-
-	refreshControls();
 }
 
 
 //! destructor
 CGUIMessageBox::~CGUIMessageBox()
 {
-	if (StaticText)
-		StaticText->drop();
-
-	if (OkButton)
-		OkButton->drop();
-
-	if (CancelButton)
-		CancelButton->drop();
-
-	if (YesButton)
-		YesButton->drop();
-
-	if (NoButton)
-		NoButton->drop();
-
-	if (Icon)
-		Icon->drop();
-
 	if ( IconTexture )
 		IconTexture->drop();
 }
 
-void CGUIMessageBox::setButton(IGUIButton*& button, bool isAvailable, const core::rect<s32> & btnRect, const wchar_t * text, IGUIElement*& focusMe)
+void CGUIMessageBox::setButton(boost::shared_ptr<IGUIButton>& button, bool isAvailable, const core::rect<s32> & btnRect, const wchar_t * text, boost::shared_ptr<IGUIElement>& focusMe)
 {
 	// add/remove ok button
 	if (isAvailable)
 	{
 		if (!button)
 		{
-			button = Environment->addButton(btnRect, this);
+			button = getSharedEnvironment()->addButton(btnRect, getSharedThis());
 			button->setSubElement(true);
-			button->grab();
 		}
 		else
 			button->setRelativePosition(btnRect);
@@ -97,7 +60,6 @@ void CGUIMessageBox::setButton(IGUIButton*& button, bool isAvailable, const core
 	}
 	else if (button)
 	{
-		button->drop();
 		button->remove();
 		button =0;
 	}
@@ -110,7 +72,9 @@ void CGUIMessageBox::refreshControls()
 	// Two boxes with same height at the middle beside each other for icon and for text
 	// One box at the bottom for the buttons
 
-	const boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	const boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
+	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
 
 	const s32 buttonHeight   = skin->getSize(EGDS_BUTTON_HEIGHT);
 	const s32 buttonWidth    = skin->getSize(EGDS_BUTTON_WIDTH);
@@ -126,11 +90,10 @@ void CGUIMessageBox::refreshControls()
 	staticRect.LowerRightCorner.Y = staticRect.UpperLeftCorner.Y + skin->getSize(EGDS_MESSAGE_BOX_MAX_TEXT_HEIGHT);
 	if (!StaticText)
 	{
-		StaticText = Environment->addStaticText(MessageText.c_str(), staticRect, false, false, this);
+		StaticText = lockedEnvironment->addStaticText(MessageText.c_str(), staticRect, false, false, lockedThis);
 
 		StaticText->setWordWrap(true);
 		StaticText->setSubElement(true);
-		StaticText->grab();
 	}
 	else
 	{
@@ -166,9 +129,8 @@ void CGUIMessageBox::refreshControls()
 
 		if (!Icon)
 		{
-			Icon = Environment->addImage(IconTexture, iconPos, true, this);
+			Icon = lockedEnvironment->addImage(IconTexture, iconPos, true, lockedThis);
 			Icon->setSubElement(true);
-			Icon->grab();
 		}
 		else
 		{
@@ -180,7 +142,6 @@ void CGUIMessageBox::refreshControls()
 	}
 	else if ( Icon )
 	{
-		Icon->drop();
 		Icon->remove();
 		Icon = 0;
 	}
@@ -217,10 +178,11 @@ void CGUIMessageBox::refreshControls()
 	s32 msgBoxHeight = titleHeight + contentHeight + buttonBoxHeight;
 	s32 msgBoxWidth = contentWidth > buttonBoxWidth ? contentWidth : buttonBoxWidth;
 
+	boost::shared_ptr<IGUIElement> lockedParent = getParent();
 	// adjust message box position
-	tmp.UpperLeftCorner.Y = (Parent->getAbsolutePosition().getHeight() - msgBoxHeight) / 2;
+	tmp.UpperLeftCorner.Y = (lockedParent->getAbsolutePosition().getHeight() - msgBoxHeight) / 2;
 	tmp.LowerRightCorner.Y = tmp.UpperLeftCorner.Y + msgBoxHeight;
-	tmp.UpperLeftCorner.X = (Parent->getAbsolutePosition().getWidth() - msgBoxWidth) / 2;
+	tmp.UpperLeftCorner.X = (lockedParent->getAbsolutePosition().getWidth() - msgBoxWidth) / 2;
 	tmp.LowerRightCorner.X = tmp.UpperLeftCorner.X + msgBoxWidth;
 	setRelativePosition(tmp);
 
@@ -234,7 +196,7 @@ void CGUIMessageBox::refreshControls()
 		btnRect.UpperLeftCorner.X += (contentWidth - buttonBoxWidth) / 2;	// center buttons
 	btnRect.LowerRightCorner.X = btnRect.UpperLeftCorner.X + buttonWidth;
 
-	IGUIElement* focusMe = 0;
+	boost::shared_ptr<IGUIElement> focusMe = 0;
 	setButton(OkButton, (Flags & EMBF_OK) != 0, btnRect, skin->getDefaultText(EGDT_MSG_BOX_OK), focusMe);
 	if ( Flags & EMBF_OK )
 		btnRect += core::position2d<s32>(buttonWidth + buttonDistance, 0);
@@ -246,8 +208,8 @@ void CGUIMessageBox::refreshControls()
 		btnRect += core::position2d<s32>(buttonWidth + buttonDistance, 0);
 	setButton(NoButton, (Flags & EMBF_NO) != 0, btnRect, skin->getDefaultText(EGDT_MSG_BOX_NO), focusMe);
 
-	if (Environment->hasFocus(this) && focusMe)
-		Environment->setFocus(focusMe);
+	if (lockedEnvironment->hasFocus(lockedThis) && focusMe)
+		lockedEnvironment->setFocus(focusMe);
 }
 
 
@@ -256,9 +218,12 @@ bool CGUIMessageBox::OnEvent(const SEvent& event)
 {
 	if (isEnabled())
 	{
+		boost::shared_ptr<IGUIElement> lockedParent = getParent();
+		boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+
 		SEvent outevent;
 		outevent.EventType = EET_GUI_EVENT;
-		outevent.GUIEvent.Caller = this;
+		outevent.GUIEvent.Caller = getSharedThis();
 		outevent.GUIEvent.Element = 0;
 
 		switch(event.EventType)
@@ -322,9 +287,9 @@ bool CGUIMessageBox::OnEvent(const SEvent& event)
 				if (OkButton && event.KeyInput.Key == KEY_RETURN)
 				{
 					setVisible(false);	// this is a workaround to make sure it's no longer the hovered element, crashes on pressing 1-2 times ESC
-					Environment->setFocus(0);
+					lockedEnvironment->setFocus(0);
 					outevent.GUIEvent.EventType = EGET_MESSAGEBOX_OK;
-					Parent->OnEvent(outevent);
+					lockedParent->OnEvent(outevent);
 					remove();
 					return true;
 				}
@@ -332,9 +297,9 @@ bool CGUIMessageBox::OnEvent(const SEvent& event)
 				if ((CancelButton || CloseButton) && event.KeyInput.Key == KEY_ESCAPE)
 				{
 					setVisible(false);	// this is a workaround to make sure it's no longer the hovered element, crashes on pressing 1-2 times ESC
-					Environment->setFocus(0);
+					lockedEnvironment->setFocus(0);
 					outevent.GUIEvent.EventType = EGET_MESSAGEBOX_CANCEL;
-					Parent->OnEvent(outevent);
+					lockedParent->OnEvent(outevent);
 					remove();
 					return true;
 				}
@@ -342,9 +307,9 @@ bool CGUIMessageBox::OnEvent(const SEvent& event)
 				if (YesButton && event.KeyInput.Key == KEY_KEY_Y)
 				{
 					setVisible(false);	// this is a workaround to make sure it's no longer the hovered element, crashes on pressing 1-2 times ESC
-					Environment->setFocus(0);
+					lockedEnvironment->setFocus(0);
 					outevent.GUIEvent.EventType = EGET_MESSAGEBOX_YES;
-					Parent->OnEvent(outevent);
+					lockedParent->OnEvent(outevent);
 					remove();
 					return true;
 				}
@@ -352,9 +317,9 @@ bool CGUIMessageBox::OnEvent(const SEvent& event)
 				if (NoButton && event.KeyInput.Key == KEY_KEY_N)
 				{
 					setVisible(false);	// this is a workaround to make sure it's no longer the hovered element, crashes on pressing 1-2 times ESC
-					Environment->setFocus(0);
+					lockedEnvironment->setFocus(0);
 					outevent.GUIEvent.EventType = EGET_MESSAGEBOX_NO;
-					Parent->OnEvent(outevent);
+					lockedParent->OnEvent(outevent);
 					remove();
 					return true;
 				}
@@ -366,9 +331,9 @@ bool CGUIMessageBox::OnEvent(const SEvent& event)
 				if (event.GUIEvent.Caller == OkButton)
 				{
 					setVisible(false);	// this is a workaround to make sure it's no longer the hovered element, crashes on pressing 1-2 times ESC
-					Environment->setFocus(0);
+					lockedEnvironment->setFocus(0);
 					outevent.GUIEvent.EventType = EGET_MESSAGEBOX_OK;
-					Parent->OnEvent(outevent);
+					lockedParent->OnEvent(outevent);
 					remove();
 					return true;
 				}
@@ -377,9 +342,9 @@ bool CGUIMessageBox::OnEvent(const SEvent& event)
 					event.GUIEvent.Caller == CloseButton)
 				{
 					setVisible(false);	// this is a workaround to make sure it's no longer the hovered element, crashes on pressing 1-2 times ESC
-					Environment->setFocus(0);
+					lockedEnvironment->setFocus(0);
 					outevent.GUIEvent.EventType = EGET_MESSAGEBOX_CANCEL;
-					Parent->OnEvent(outevent);
+					lockedParent->OnEvent(outevent);
 					remove();
 					return true;
 				}
@@ -387,9 +352,9 @@ bool CGUIMessageBox::OnEvent(const SEvent& event)
 				if (event.GUIEvent.Caller == YesButton)
 				{
 					setVisible(false);	// this is a workaround to make sure it's no longer the hovered element, crashes on pressing 1-2 times ESC
-					Environment->setFocus(0);
+					lockedEnvironment->setFocus(0);
 					outevent.GUIEvent.EventType = EGET_MESSAGEBOX_YES;
-					Parent->OnEvent(outevent);
+					lockedParent->OnEvent(outevent);
 					remove();
 					return true;
 				}
@@ -397,9 +362,9 @@ bool CGUIMessageBox::OnEvent(const SEvent& event)
 				if (event.GUIEvent.Caller == NoButton)
 				{
 					setVisible(false);	// this is a workaround to make sure it's no longer the hovered element, crashes on pressing 1-2 times ESC
-					Environment->setFocus(0);
+					lockedEnvironment->setFocus(0);
 					outevent.GUIEvent.EventType = EGET_MESSAGEBOX_NO;
-					Parent->OnEvent(outevent);
+					lockedParent->OnEvent(outevent);
 					remove();
 					return true;
 				}
@@ -451,6 +416,31 @@ void CGUIMessageBox::deserializeAttributes(io::IAttributes* in, io::SAttributeRe
 	MessageText = in->getAttributeAsStringW("MessageText").c_str();
 
 	CGUIWindow::deserializeAttributes(in,options);
+
+	refreshControls();
+}
+
+void CGUIMessageBox::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	// set element type
+	Type = EGUIET_MESSAGE_BOX;
+
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+
+	// remove focus
+	lockedEnvironment->setFocus(0);
+
+	// remove buttons
+
+	getMaximizeButton()->remove();
+	getMinimizeButton()->remove();
+
+	lockedEnvironment->setFocus(getSharedThis());
+
+	if (IconTexture)
+		IconTexture->grab();
 
 	refreshControls();
 }

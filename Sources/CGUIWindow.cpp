@@ -18,80 +18,26 @@ namespace gui
 {
 
 //! constructor
-CGUIWindow::CGUIWindow(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+CGUIWindow::CGUIWindow(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 : IGUIWindow(environment, parent, id, rectangle), Dragging(false), IsDraggable(true), DrawBackground(true), DrawTitlebar(true), IsActive(false)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIWindow");
 	#endif
-
-	boost::shared_ptr<IGUISkin> skin = 0;
-	if (environment)
-		skin = environment->getSkin();
-
-	CurrentIconColor = video::SColor(255,255,255,255);
-
-	s32 buttonw = 15;
-	if (skin)
-	{
-		buttonw = skin->getSize(EGDS_WINDOW_BUTTON_WIDTH);
-	}
-	s32 posx = RelativeRect.getWidth() - buttonw - 4;
-
-	CloseButton = Environment->addButton(core::rect<s32>(posx, 3, posx + buttonw, 3 + buttonw), this, -1,
-		L"", skin ? skin->getDefaultText(EGDT_WINDOW_CLOSE) : L"Close" );
-	CloseButton->setSubElement(true);
-	CloseButton->setTabStop(false);
-	CloseButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
-	posx -= buttonw + 2;
-
-	RestoreButton = Environment->addButton(core::rect<s32>(posx, 3, posx + buttonw, 3 + buttonw), this, -1,
-		L"", skin ? skin->getDefaultText(EGDT_WINDOW_RESTORE) : L"Restore" );
-	RestoreButton->setVisible(false);
-	RestoreButton->setSubElement(true);
-	RestoreButton->setTabStop(false);
-	RestoreButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
-	posx -= buttonw + 2;
-
-	MinButton = Environment->addButton(core::rect<s32>(posx, 3, posx + buttonw, 3 + buttonw), this, -1,
-		L"", skin ? skin->getDefaultText(EGDT_WINDOW_MINIMIZE) : L"Minimize" );
-	MinButton->setVisible(false);
-	MinButton->setSubElement(true);
-	MinButton->setTabStop(false);
-	MinButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
-
-	MinButton->grab();
-	RestoreButton->grab();
-	CloseButton->grab();
-
-	// this element is a tab group
-	setTabGroup(true);
-	setTabStop(true);
-	setTabOrder(-1);
-
-	refreshSprites();
-	updateClientRect();
 }
 
 
 //! destructor
 CGUIWindow::~CGUIWindow()
 {
-	if (MinButton)
-		MinButton->drop();
-
-	if (RestoreButton)
-		RestoreButton->drop();
-
-	if (CloseButton)
-		CloseButton->drop();
 }
 
 void CGUIWindow::refreshSprites()
 {
-	if (!Environment)
+	if (Environment.expired())
 		return;
-	boost::shared_ptr<IGUISkin> skin  = Environment->getSkin();
+
+	boost::shared_ptr<IGUISkin> skin  = getSharedEnvironment()->getSkin();
 	if ( !skin )
 		return;
 
@@ -134,9 +80,9 @@ bool CGUIWindow::OnEvent(const SEvent& event)
 			else
 			if (event.GUIEvent.EventType == EGET_ELEMENT_FOCUSED)
 			{
-				if (Parent && ((event.GUIEvent.Caller == this) || isMyChild(event.GUIEvent.Caller)))
+				if (!Parent.expired() && ((event.GUIEvent.Caller.get() == this) || isMyChild(event.GUIEvent.Caller)))
 				{
-					Parent->bringToFront(this);
+					getParent()->bringToFront(getSharedThis());
 					IsActive = true;
 				}
 				else
@@ -149,17 +95,17 @@ bool CGUIWindow::OnEvent(const SEvent& event)
 			{
 				if (event.GUIEvent.Caller == CloseButton)
 				{
-					if (Parent)
+					if (!Parent.expired())
 					{
 						// send close event to parent
 						SEvent e;
 						e.EventType = EET_GUI_EVENT;
-						e.GUIEvent.Caller = this;
+						e.GUIEvent.Caller = getSharedThis();
 						e.GUIEvent.Element = 0;
 						e.GUIEvent.EventType = EGET_ELEMENT_CLOSED;
 
 						// if the event was not absorbed
-						if (!Parent->OnEvent(e))
+						if (!getParent()->OnEvent(e))
 							remove();
 
 						return true;
@@ -180,8 +126,8 @@ bool CGUIWindow::OnEvent(const SEvent& event)
 				DragStart.X = event.MouseInput.X;
 				DragStart.Y = event.MouseInput.Y;
 				Dragging = IsDraggable;
-				if (Parent)
-					Parent->bringToFront(this);
+				if (!Parent.expired())
+					getParent()->bringToFront(getSharedThis());
 				return true;
 			case EMIE_LMOUSE_LEFT_UP:
 				Dragging = false;
@@ -193,11 +139,13 @@ bool CGUIWindow::OnEvent(const SEvent& event)
 				if (Dragging)
 				{
 					// gui window should not be dragged outside its parent
-					if (Parent &&
-						(event.MouseInput.X < Parent->getAbsolutePosition().UpperLeftCorner.X +1 ||
-							event.MouseInput.Y < Parent->getAbsolutePosition().UpperLeftCorner.Y +1 ||
-							event.MouseInput.X > Parent->getAbsolutePosition().LowerRightCorner.X -1 ||
-							event.MouseInput.Y > Parent->getAbsolutePosition().LowerRightCorner.Y -1))
+					boost::shared_ptr<IGUIElement> lockedParent = getParent();
+
+					if (lockedParent &&
+						(event.MouseInput.X < lockedParent->getAbsolutePosition().UpperLeftCorner.X +1 ||
+							event.MouseInput.Y < lockedParent->getAbsolutePosition().UpperLeftCorner.Y +1 ||
+							event.MouseInput.X > lockedParent->getAbsolutePosition().LowerRightCorner.X -1 ||
+							event.MouseInput.Y > lockedParent->getAbsolutePosition().LowerRightCorner.Y -1))
 						return true;
 
 					move(core::position2d<s32>(event.MouseInput.X - DragStart.X, event.MouseInput.Y - DragStart.Y));
@@ -230,7 +178,7 @@ void CGUIWindow::draw()
 {
 	if (IsVisible)
 	{
-		boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+		boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 
 
 		// update each time because the skin is allowed to change this always.
@@ -244,7 +192,7 @@ void CGUIWindow::draw()
 		// draw body fast
 		if (DrawBackground)
 		{
-			rect = skin->draw3DWindowBackground(this, DrawTitlebar,
+			rect = skin->draw3DWindowBackground(getSharedThis(), DrawTitlebar,
 					skin->getColor(IsActive ? EGDC_ACTIVE_BORDER : EGDC_INACTIVE_BORDER),
 					AbsoluteRect, &AbsoluteClippingRect);
 
@@ -254,7 +202,7 @@ void CGUIWindow::draw()
 				rect.UpperLeftCorner.Y += skin->getSize(EGDS_TITLEBARTEXT_DISTANCE_Y);
 				rect.LowerRightCorner.X -= skin->getSize(EGDS_WINDOW_BUTTON_WIDTH) + 5;
 
-				IGUIFont* font = skin->getFont(EGDF_WINDOW);
+				boost::shared_ptr<IGUIFont> font = skin->getFont(EGDF_WINDOW);
 				if (font)
 				{
 					font->draw(Text.c_str(), rect,
@@ -270,21 +218,21 @@ void CGUIWindow::draw()
 
 
 //! Returns pointer to the close button
-IGUIButton* CGUIWindow::getCloseButton() const
+boost::shared_ptr<IGUIButton> CGUIWindow::getCloseButton() const
 {
 	return CloseButton;
 }
 
 
 //! Returns pointer to the minimize button
-IGUIButton* CGUIWindow::getMinimizeButton() const
+boost::shared_ptr<IGUIButton> CGUIWindow::getMinimizeButton() const
 {
 	return MinButton;
 }
 
 
 //! Returns pointer to the maximize button
-IGUIButton* CGUIWindow::getMaximizeButton() const
+boost::shared_ptr<IGUIButton> CGUIWindow::getMaximizeButton() const
 {
 	return RestoreButton;
 }
@@ -342,8 +290,8 @@ void CGUIWindow::updateClientRect()
 		ClientRect = core::rect<s32>(0,0, AbsoluteRect.getWidth(), AbsoluteRect.getHeight());
 		return;
 	}
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	skin->draw3DWindowBackground(this, DrawTitlebar,
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
+	skin->draw3DWindowBackground(getSharedThis(), DrawTitlebar,
 			skin->getColor(IsActive ? EGDC_ACTIVE_BORDER : EGDC_INACTIVE_BORDER),
 			AbsoluteRect, &AbsoluteClippingRect, &ClientRect);
 	ClientRect -= AbsoluteRect.UpperLeftCorner;
@@ -393,6 +341,56 @@ IGUIWindow::deserializeAttributes(in,options);
 	MinButton->setVisible(in->getAttributeAsBool("IsMinVisible"));
 	RestoreButton->setVisible(in->getAttributeAsBool("IsRestoreVisible"));
 
+	updateClientRect();
+}
+
+void CGUIWindow::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	boost::shared_ptr<IGUISkin> skin = 0;
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+
+	if (lockedEnvironment)
+		skin = lockedEnvironment->getSkin();
+
+	CurrentIconColor = video::SColor(255, 255, 255, 255);
+
+	s32 buttonw = 15;
+	if (skin)
+	{
+		buttonw = skin->getSize(EGDS_WINDOW_BUTTON_WIDTH);
+	}
+	s32 posx = RelativeRect.getWidth() - buttonw - 4;
+
+	CloseButton = lockedEnvironment->addButton(core::rect<s32>(posx, 3, posx + buttonw, 3 + buttonw), getSharedThis(), -1,
+		L"", skin ? skin->getDefaultText(EGDT_WINDOW_CLOSE) : L"Close");
+	CloseButton->setSubElement(true);
+	CloseButton->setTabStop(false);
+	CloseButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
+	posx -= buttonw + 2;
+
+	RestoreButton = lockedEnvironment->addButton(core::rect<s32>(posx, 3, posx + buttonw, 3 + buttonw), getSharedThis(), -1,
+		L"", skin ? skin->getDefaultText(EGDT_WINDOW_RESTORE) : L"Restore");
+	RestoreButton->setVisible(false);
+	RestoreButton->setSubElement(true);
+	RestoreButton->setTabStop(false);
+	RestoreButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
+	posx -= buttonw + 2;
+
+	MinButton = lockedEnvironment->addButton(core::rect<s32>(posx, 3, posx + buttonw, 3 + buttonw), getSharedThis(), -1,
+		L"", skin ? skin->getDefaultText(EGDT_WINDOW_MINIMIZE) : L"Minimize");
+	MinButton->setVisible(false);
+	MinButton->setSubElement(true);
+	MinButton->setTabStop(false);
+	MinButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
+
+	// this element is a tab group
+	setTabGroup(true);
+	setTabStop(true);
+	setTabOrder(-1);
+
+	refreshSprites();
 	updateClientRect();
 }
 

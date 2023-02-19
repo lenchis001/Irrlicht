@@ -20,8 +20,8 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIStaticText(const wchar_t* text, bool border, IGUIEnvironment* environment,
-			IGUIElement* parent, s32 id, const core::rect<s32>& rectangle,
+		CGUIStaticText(const wchar_t* text, bool border, boost::shared_ptr<IGUIEnvironment> environment,
+			boost::shared_ptr<IGUIElement> parent, s32 id, const core::rect<s32>& rectangle,
 			bool background = false);
 
 		//! destructor
@@ -31,13 +31,13 @@ namespace gui
 		virtual void draw();
 
 		//! Sets another skin independent font.
-		virtual void setOverrideFont(IGUIFont* font=0);
+		virtual void setOverrideFont(boost::shared_ptr<IGUIFont> font=0);
 
 		//! Gets the override font (if any)
-		virtual IGUIFont* getOverrideFont() const;
+		virtual boost::shared_ptr<IGUIFont> getOverrideFont() const;
 
 		//! Get the font which is used right now for drawing
-		virtual IGUIFont* getActiveFont() const;
+		virtual boost::shared_ptr<IGUIFont> getActiveFont();
 
 		//! Sets another color for the text.
 		virtual void setOverrideColor(video::SColor color);
@@ -90,10 +90,10 @@ namespace gui
 		virtual void setText(const wchar_t* text);
 
 		//! Returns the height of the text in pixels when it is drawn.
-		virtual s32 getTextHeight() const;
+		virtual s32 getTextHeight();
 
 		//! Returns the width of the current text, in the current font
-		virtual s32 getTextWidth() const;
+		virtual s32 getTextWidth();
 
 		//! Updates the absolute position, splits text if word wrap is enabled
 		virtual void updateAbsolutePosition();
@@ -130,8 +130,8 @@ namespace gui
 		bool RightToLeft;
 
 		video::SColor OverrideColor, BGColor;
-		gui::IGUIFont* OverrideFont;
-		gui::IGUIFont* LastBreakFont; // stored because: if skin changes, line break must be recalculated.
+		boost::shared_ptr<gui::IGUIFont> OverrideFont;
+		boost::shared_ptr<gui::IGUIFont> LastBreakFont; // stored because: if skin changes, line break must be recalculated.
 
 		core::array< core::stringw > BrokenText;
 	};

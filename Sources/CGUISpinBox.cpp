@@ -18,68 +18,37 @@ namespace gui
 {
 
 //! constructor
-CGUISpinBox::CGUISpinBox(const wchar_t* text, bool border,IGUIEnvironment* environment,
-			IGUIElement* parent, s32 id, const core::rect<s32>& rectangle)
+CGUISpinBox::CGUISpinBox(const wchar_t* text, bool border,boost::shared_ptr<IGUIEnvironment> environment,
+			boost::shared_ptr<IGUIElement> parent, s32 id, const core::rect<s32>& rectangle)
 : IGUISpinBox(environment, parent, id, rectangle),
 	EditBox(0), ButtonSpinUp(0), ButtonSpinDown(0), StepSize(1.f),
 	RangeMin(-FLT_MAX), RangeMax(FLT_MAX), FormatString(L"%f"),
-	DecimalPlaces(-1)
+	DecimalPlaces(-1), _text(text), _border(border), _rectangle(rectangle)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUISpinBox");
 	#endif
-
-	CurrentIconColor = video::SColor(255,255,255,255);
-	s32 ButtonWidth = 16;
-
-	ButtonSpinDown = Environment->addButton(
-		core::rect<s32>(rectangle.getWidth() - ButtonWidth, rectangle.getHeight()/2 +1,
-						rectangle.getWidth(), rectangle.getHeight()), this);
-	ButtonSpinDown->grab();
-	ButtonSpinDown->setSubElement(true);
-	ButtonSpinDown->setTabStop(false);
-	ButtonSpinDown->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_CENTER, EGUIA_LOWERRIGHT);
-
-	ButtonSpinUp = Environment->addButton(
-		core::rect<s32>(rectangle.getWidth() - ButtonWidth, 0,
-						rectangle.getWidth(), rectangle.getHeight()/2), this);
-	ButtonSpinUp->grab();
-	ButtonSpinUp->setSubElement(true);
-	ButtonSpinUp->setTabStop(false);
-	ButtonSpinUp->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_CENTER);
-
-	const core::rect<s32> rectEdit(0, 0, rectangle.getWidth() - ButtonWidth - 1, rectangle.getHeight());
-	EditBox = Environment->addEditBox(text, rectEdit, border, this, -1);
-	EditBox->grab();
-	EditBox->setSubElement(true);
-	EditBox->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
-
-	refreshSprites();
 }
 
 
 //! destructor
 CGUISpinBox::~CGUISpinBox()
 {
-	if (ButtonSpinUp)
-		ButtonSpinUp->drop();
-	if (ButtonSpinDown)
-		ButtonSpinDown->drop();
-	if (EditBox)
-		EditBox->drop();
 }
 
 void CGUISpinBox::refreshSprites()
 {
 	IGUISpriteBank *sb = 0;
-	if (Environment && Environment->getSkin())
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+
+	if (lockedEnvironment && lockedEnvironment->getSkin())
 	{
-		sb = Environment->getSkin()->getSpriteBank();
+		sb = lockedEnvironment->getSkin()->getSpriteBank();
 	}
 
 	if (sb)
 	{
-		boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+		boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
 		CurrentIconColor = skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
 		ButtonSpinDown->setSpriteBank(sb);
 		ButtonSpinDown->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_SMALL_CURSOR_DOWN), CurrentIconColor);
@@ -95,7 +64,7 @@ void CGUISpinBox::refreshSprites()
 	}
 }
 
-IGUIEditBox* CGUISpinBox::getEditBox() const
+boost::shared_ptr<IGUIEditBox> CGUISpinBox::getEditBox() const
 {
 	return EditBox;
 }
@@ -237,12 +206,12 @@ bool CGUISpinBox::OnEvent(const SEvent& event)
 		{
 			SEvent e;
 			e.EventType = EET_GUI_EVENT;
-			e.GUIEvent.Caller = this;
+			e.GUIEvent.Caller = getSharedThis();
 			e.GUIEvent.Element = 0;
 
 			e.GUIEvent.EventType = EGET_SPINBOX_CHANGED;
-			if ( Parent )
-				Parent->OnEvent(e);
+			if ( !Parent.expired() )
+				getParent()->OnEvent(e);
 			return true;
 		}
 	}
@@ -256,7 +225,7 @@ void CGUISpinBox::draw()
 	if ( !isVisible() )
 		return;
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 	if (!skin)
 		return;
 
@@ -317,6 +286,38 @@ void CGUISpinBox::deserializeAttributes(io::IAttributes* in, io::SAttributeReadW
 	setRange(in->getAttributeAsFloat("Min"), in->getAttributeAsFloat("Max"));
 	setStepSize(in->getAttributeAsFloat("Step"));
 	setDecimalPlaces(in->getAttributeAsInt("DecimalPlaces"));
+}
+
+void CGUISpinBox::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	CurrentIconColor = video::SColor(255, 255, 255, 255);
+	s32 ButtonWidth = 16;
+
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
+
+	ButtonSpinDown = lockedEnvironment->addButton(
+		core::rect<s32>(_rectangle.getWidth() - ButtonWidth, _rectangle.getHeight() / 2 + 1,
+			_rectangle.getWidth(), _rectangle.getHeight()), lockedThis);
+	ButtonSpinDown->setSubElement(true);
+	ButtonSpinDown->setTabStop(false);
+	ButtonSpinDown->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_CENTER, EGUIA_LOWERRIGHT);
+
+	ButtonSpinUp = lockedEnvironment->addButton(
+		core::rect<s32>(_rectangle.getWidth() - ButtonWidth, 0,
+			_rectangle.getWidth(), _rectangle.getHeight() / 2), lockedThis);
+	ButtonSpinUp->setSubElement(true);
+	ButtonSpinUp->setTabStop(false);
+	ButtonSpinUp->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_CENTER);
+
+	const core::rect<s32> rectEdit(0, 0, _rectangle.getWidth() - ButtonWidth - 1, _rectangle.getHeight());
+	EditBox = lockedEnvironment->addEditBox(_text, rectEdit, _border, lockedThis, -1);
+	EditBox->setSubElement(true);
+	EditBox->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
+
+	refreshSprites();
 }
 
 

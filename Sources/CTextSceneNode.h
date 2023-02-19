@@ -24,7 +24,7 @@ namespace scene
 
 		//! constructor
 		CTextSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
-			gui::IGUIFont* font, scene::ISceneCollisionManager* coll,
+			boost::shared_ptr<gui::IGUIFont> font, scene::ISceneCollisionManager* coll,
 			const core::vector3df& position = core::vector3df(0,0,0), const wchar_t* text=0,
 			video::SColor color=video::SColor(100,0,0,0));
 
@@ -52,7 +52,7 @@ namespace scene
 
 		core::stringw Text;
 		video::SColor Color;
-		gui::IGUIFont* Font;
+		boost::shared_ptr<gui::IGUIFont> Font;
 		scene::ISceneCollisionManager* Coll;
 		core::aabbox3d<f32> Box;
 	};
@@ -62,7 +62,7 @@ namespace scene
 	public:
 
 		CBillboardTextSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
-			gui::IGUIFont* font,const wchar_t* text,
+			boost::shared_ptr<gui::IGUIFont> font,const wchar_t* text,
 			const core::vector3df& position, const core::dimension2d<f32>& size,
 			video::SColor colorTop, video::SColor shade_bottom);
 
@@ -131,7 +131,7 @@ namespace scene
 
 		core::stringw Text;
 		video::SColor Color;
-		gui::IGUIFontBitmap* Font;
+		boost::shared_ptr<gui::IGUIFontBitmap> Font;
 
 		core::dimension2d<f32> Size;
 		core::aabbox3d<f32> BBox;

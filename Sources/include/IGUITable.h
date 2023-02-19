@@ -90,7 +90,7 @@ namespace gui
 	{
 	public:
 		//! constructor
-		IGUITable(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUITable(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_TABLE, environment, parent, id, rectangle) {}
 
 		//! Adds a column

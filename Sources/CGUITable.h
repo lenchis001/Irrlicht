@@ -26,7 +26,7 @@ namespace gui
 	{
 	public:
 		//! constructor
-		CGUITable(IGUIEnvironment* environment, IGUIElement* parent,
+		CGUITable(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 			s32 id, const core::rect<s32>& rectangle, bool clip=true,
 			bool drawBack=false, bool moveOverSelect=true);
 
@@ -153,6 +153,8 @@ namespace gui
 		//! scripting languages, editors, debuggers or xml deserialization purposes.
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0);
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
+
 	protected:
 		virtual void refreshControls();
 		virtual void checkScrollbars();
@@ -193,9 +195,9 @@ namespace gui
 
 		core::array< Column > Columns;
 		core::array< Row > Rows;
-		gui::IGUIFont* Font;
-		gui::IGUIScrollBar* VerticalScrollBar;
-		gui::IGUIScrollBar* HorizontalScrollBar;
+		boost::shared_ptr<gui::IGUIFont> Font;
+		boost::shared_ptr<gui::IGUIScrollBar> VerticalScrollBar;
+		boost::shared_ptr<gui::IGUIScrollBar> HorizontalScrollBar;
 		bool Clip;
 		bool DrawBack;
 		bool MoveOverSelect;

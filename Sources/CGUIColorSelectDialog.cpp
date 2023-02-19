@@ -51,7 +51,7 @@ static const subElementPredefines Template [] =
 }
 
 //! constructor
-CGUIColorSelectDialog::CGUIColorSelectDialog(const wchar_t* title, IGUIEnvironment* environment, IGUIElement* parent, s32 id)
+CGUIColorSelectDialog::CGUIColorSelectDialog(const wchar_t* title, boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id)
 	: IGUIColorSelectDialog(environment, parent, id,
 		core::rect<s32>((parent->getAbsolutePosition().getWidth()-CSD_WIDTH)/2,
 			(parent->getAbsolutePosition().getHeight()-CSD_HEIGHT)/2,
@@ -64,111 +64,12 @@ CGUIColorSelectDialog::CGUIColorSelectDialog(const wchar_t* title, IGUIEnvironme
 	#endif
 
 	Text = title;
-
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-
-	const s32 buttonw = environment->getSkin()->getSize(EGDS_WINDOW_BUTTON_WIDTH);
-	const s32 posx = RelativeRect.getWidth() - buttonw - 4;
-
-	CloseButton = Environment->addButton(core::rect<s32>(posx, 3, posx + buttonw, 3 + buttonw),
-		this, -1, L"", skin ? skin->getDefaultText(EGDT_WINDOW_CLOSE) : L"Close");
-	if (skin && skin->getSpriteBank())
-	{
-		CloseButton->setSpriteBank(skin->getSpriteBank());
-		CloseButton->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_WINDOW_CLOSE), skin->getColor(EGDC_WINDOW_SYMBOL));
-		CloseButton->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_WINDOW_CLOSE), skin->getColor(EGDC_WINDOW_SYMBOL));
-	}
-	CloseButton->setSubElement(true);
-	CloseButton->setTabStop(false);
-	CloseButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
-	CloseButton->grab();
-
-	OKButton = Environment->addButton(
-		core::rect<s32>(RelativeRect.getWidth()-80, 30, RelativeRect.getWidth()-10, 50),
-		this, -1, skin ? skin->getDefaultText(EGDT_MSG_BOX_OK) : L"OK");
-	OKButton->setSubElement(true);
-	OKButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
-	OKButton->grab();
-
-	CancelButton = Environment->addButton(
-		core::rect<s32>(RelativeRect.getWidth()-80, 55, RelativeRect.getWidth()-10, 75),
-		this, -1, skin ? skin->getDefaultText(EGDT_MSG_BOX_CANCEL) : L"Cancel");
-	CancelButton->setSubElement(true);
-	CancelButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
-	CancelButton->grab();
-
-	video::IVideoDriver* driver = Environment->getVideoDriver();
-	ColorRing.Texture = driver->getTexture ( "#colorring" );
-	if ( 0 == ColorRing.Texture )
-	{
-		buildColorRing(core::dimension2d<u32>(128, 128), 1,
-			Environment->getSkin()->getColor(EGDC_3D_SHADOW));
-	}
-
-	core::rect<s32> r(20,20, 0,0);
-
-	ColorRing.Control = Environment->addImage(ColorRing.Texture, r.UpperLeftCorner, true, this);
-	ColorRing.Control->setSubElement(true);
-	ColorRing.Control->grab();
-
-	for ( u32 i = 0; i != sizeof (Template) / sizeof ( subElementPredefines ); ++i )
-	{
-		if ( Template[i].pre )
-		{
-			r.UpperLeftCorner.X = Template[i].x;
-			r.UpperLeftCorner.Y = Template[i].y;
-			r.LowerRightCorner.X = r.UpperLeftCorner.X + 15;
-			r.LowerRightCorner.Y = r.UpperLeftCorner.Y + 20;
-			IGUIElement *t = Environment->addStaticText(Template[i].pre, r, false, false, this);
-			t->setSubElement(true);
-		}
-
-		if ( Template[i].post )
-		{
-			r.UpperLeftCorner.X = Template[i].x + 56;
-			r.UpperLeftCorner.Y = Template[i].y;
-			r.LowerRightCorner.X = r.UpperLeftCorner.X + 15;
-			r.LowerRightCorner.Y = r.UpperLeftCorner.Y + 20;
-			IGUIElement *t = Environment->addStaticText( Template[i].post, r, false, false, this);
-			t->setSubElement(true);
-		}
-
-		r.UpperLeftCorner.X = Template[i].x + 15;
-		r.UpperLeftCorner.Y = Template[i].y-2;
-		r.LowerRightCorner.X = r.UpperLeftCorner.X + 40;
-		r.LowerRightCorner.Y = r.UpperLeftCorner.Y + 20;
-
-		gui::IGUISpinBox* spin = Environment->addSpinBox( Template[i].init, r, true, this);
-		spin->setSubElement(true);
-		spin->setDecimalPlaces(0);
-		spin->setRange((f32)Template[i].range_down, (f32)Template[i].range_up);
-		spin->grab();
-
-		Battery.push_back(spin);
-	}
-
-	bringToFront(CancelButton);
-	bringToFront(OKButton);
 }
 
 
 //! destructor
 CGUIColorSelectDialog::~CGUIColorSelectDialog()
 {
-	if (CloseButton)
-		CloseButton->drop();
-
-	if (OKButton)
-		OKButton->drop();
-
-	if (CancelButton)
-		CancelButton->drop();
-
-	for (u32 i = 0; i != Battery.size(); ++i)
-		Battery[i]->drop();
-
-	if (ColorRing.Control)
-		ColorRing.Control->drop();
 }
 
 
@@ -176,7 +77,7 @@ CGUIColorSelectDialog::~CGUIColorSelectDialog()
 void CGUIColorSelectDialog::buildColorRing( const core::dimension2d<u32> & dim, s32 supersample, const video::SColor& borderColor )
 {
 	const core::dimension2d<u32> d(dim.Width * supersample, dim.Height * supersample);
-	video::IVideoDriver* driver = Environment->getVideoDriver();
+	video::IVideoDriver* driver = getSharedEnvironment()->getVideoDriver();
 
 	video::IImage *RawTexture = driver->createImage(video::ECF_A8R8G8B8, d);
 
@@ -356,38 +257,44 @@ bool CGUIColorSelectDialog::OnEvent(const SEvent& event)
 					break;
 			}
 			break;
-		case EET_MOUSE_INPUT_EVENT:
-			switch(event.MouseInput.Event)
-			{
-			case EMIE_LMOUSE_PRESSED_DOWN:
-				DragStart.X = event.MouseInput.X;
-				DragStart.Y = event.MouseInput.Y;
-				Dragging = true;
-				Environment->setFocus(this);
-				return true;
-			case EMIE_LMOUSE_LEFT_UP:
-				Dragging = false;
-				Environment->removeFocus(this);
-				return true;
-			case EMIE_MOUSE_MOVED:
-				if (Dragging)
+			case EET_MOUSE_INPUT_EVENT: {
+				boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+
+				switch (event.MouseInput.Event)
 				{
-					// gui window should not be dragged outside its parent
-					if (Parent)
-						if (event.MouseInput.X < Parent->getAbsolutePosition().UpperLeftCorner.X +1 ||
-							event.MouseInput.Y < Parent->getAbsolutePosition().UpperLeftCorner.Y +1 ||
-							event.MouseInput.X > Parent->getAbsolutePosition().LowerRightCorner.X -1 ||
-							event.MouseInput.Y > Parent->getAbsolutePosition().LowerRightCorner.Y -1)
-
-							return true;
-
-					move(core::position2d<s32>(event.MouseInput.X - DragStart.X, event.MouseInput.Y - DragStart.Y));
+				case EMIE_LMOUSE_PRESSED_DOWN:
 					DragStart.X = event.MouseInput.X;
 					DragStart.Y = event.MouseInput.Y;
+					Dragging = true;
+					lockedEnvironment->setFocus(getSharedThis());
 					return true;
+				case EMIE_LMOUSE_LEFT_UP:
+					Dragging = false;
+					lockedEnvironment->removeFocus(getSharedThis());
+					return true;
+				case EMIE_MOUSE_MOVED:
+					if (Dragging)
+					{
+						// gui window should not be dragged outside its parent
+						if (!Parent.expired()) {
+							boost::shared_ptr<IGUIElement> lockedParent = getParent();
+
+							if (event.MouseInput.X < lockedParent->getAbsolutePosition().UpperLeftCorner.X + 1 ||
+								event.MouseInput.Y < lockedParent->getAbsolutePosition().UpperLeftCorner.Y + 1 ||
+								event.MouseInput.X > lockedParent->getAbsolutePosition().LowerRightCorner.X - 1 ||
+								event.MouseInput.Y > lockedParent->getAbsolutePosition().LowerRightCorner.Y - 1)
+
+								return true;
+						}
+
+						move(core::position2d<s32>(event.MouseInput.X - DragStart.X, event.MouseInput.Y - DragStart.Y));
+						DragStart.X = event.MouseInput.X;
+						DragStart.Y = event.MouseInput.Y;
+						return true;
+					}
+				default:
+					break;
 				}
-			default:
-				break;
 			}
 		default:
 			break;
@@ -404,8 +311,9 @@ void CGUIColorSelectDialog::draw()
 	if (!IsVisible)
 		return;
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	core::rect<s32> rect = skin->draw3DWindowBackground(this, true, skin->getColor(EGDC_ACTIVE_BORDER),
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
+	core::rect<s32> rect = skin->draw3DWindowBackground(getSharedThis(), true, skin->getColor(EGDC_ACTIVE_BORDER),
 		AbsoluteRect, &AbsoluteClippingRect);
 
 	if (Text.size())
@@ -413,7 +321,7 @@ void CGUIColorSelectDialog::draw()
 		rect.UpperLeftCorner.X += 2;
 		rect.LowerRightCorner.X -= skin->getSize(EGDS_WINDOW_BUTTON_WIDTH) + 5;
 
-		IGUIFont* font = skin->getFont(EGDF_WINDOW);
+		boost::shared_ptr<IGUIFont> font = skin->getFont(EGDF_WINDOW);
 		if (font)
 			font->draw(Text.c_str(), rect, skin->getColor(EGDC_ACTIVE_CAPTION), false, true,
 			&AbsoluteClippingRect);
@@ -437,7 +345,7 @@ void CGUIColorSelectDialog::draw()
 #endif
 	pos.X += core::round32(sinf(Battery[4]->getValue()*core::DEGTORAD)*factor);
 	pos.Y -= core::round32(cosf(Battery[4]->getValue()*core::DEGTORAD)*factor);
-	Environment->getVideoDriver()->draw2DPolygon(pos, 4, 0xffffffff, 4);
+	lockedEnvironment->getVideoDriver()->draw2DPolygon(pos, 4, 0xffffffff, 4);
 }
 
 
@@ -453,15 +361,101 @@ video::SColorHSL CGUIColorSelectDialog::getColorHSL()
 							Battery[6]->getValue());
 }
 
+void CGUIColorSelectDialog::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
+
+	const s32 buttonw = lockedEnvironment->getSkin()->getSize(EGDS_WINDOW_BUTTON_WIDTH);
+	const s32 posx = RelativeRect.getWidth() - buttonw - 4;
+
+	CloseButton = lockedEnvironment->addButton(core::rect<s32>(posx, 3, posx + buttonw, 3 + buttonw),
+		getSharedThis(), -1, L"", skin ? skin->getDefaultText(EGDT_WINDOW_CLOSE) : L"Close");
+	if (skin && skin->getSpriteBank())
+	{
+		CloseButton->setSpriteBank(skin->getSpriteBank());
+		CloseButton->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_WINDOW_CLOSE), skin->getColor(EGDC_WINDOW_SYMBOL));
+		CloseButton->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_WINDOW_CLOSE), skin->getColor(EGDC_WINDOW_SYMBOL));
+	}
+	CloseButton->setSubElement(true);
+	CloseButton->setTabStop(false);
+	CloseButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
+
+	OKButton = lockedEnvironment->addButton(
+		core::rect<s32>(RelativeRect.getWidth() - 80, 30, RelativeRect.getWidth() - 10, 50),
+		getSharedThis(), -1, skin ? skin->getDefaultText(EGDT_MSG_BOX_OK) : L"OK");
+	OKButton->setSubElement(true);
+	OKButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
+
+	CancelButton = lockedEnvironment->addButton(
+		core::rect<s32>(RelativeRect.getWidth() - 80, 55, RelativeRect.getWidth() - 10, 75),
+		getSharedThis(), -1, skin ? skin->getDefaultText(EGDT_MSG_BOX_CANCEL) : L"Cancel");
+	CancelButton->setSubElement(true);
+	CancelButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
+
+	video::IVideoDriver* driver = lockedEnvironment->getVideoDriver();
+	ColorRing.Texture = driver->getTexture("#colorring");
+	if (0 == ColorRing.Texture)
+	{
+		buildColorRing(core::dimension2d<u32>(128, 128), 1,
+			lockedEnvironment->getSkin()->getColor(EGDC_3D_SHADOW));
+	}
+
+	core::rect<s32> r(20, 20, 0, 0);
+
+	ColorRing.Control = lockedEnvironment->addImage(ColorRing.Texture, r.UpperLeftCorner, true, getSharedThis());
+	ColorRing.Control->setSubElement(true);
+
+	for (u32 i = 0; i != sizeof(Template) / sizeof(subElementPredefines); ++i)
+	{
+		if (Template[i].pre)
+		{
+			r.UpperLeftCorner.X = Template[i].x;
+			r.UpperLeftCorner.Y = Template[i].y;
+			r.LowerRightCorner.X = r.UpperLeftCorner.X + 15;
+			r.LowerRightCorner.Y = r.UpperLeftCorner.Y + 20;
+			boost::shared_ptr<IGUIElement> t = lockedEnvironment->addStaticText(Template[i].pre, r, false, false, getSharedThis());
+			t->setSubElement(true);
+		}
+
+		if (Template[i].post)
+		{
+			r.UpperLeftCorner.X = Template[i].x + 56;
+			r.UpperLeftCorner.Y = Template[i].y;
+			r.LowerRightCorner.X = r.UpperLeftCorner.X + 15;
+			r.LowerRightCorner.Y = r.UpperLeftCorner.Y + 20;
+			boost::shared_ptr<IGUIElement> t = lockedEnvironment->addStaticText(Template[i].post, r, false, false, getSharedThis());
+			t->setSubElement(true);
+		}
+
+		r.UpperLeftCorner.X = Template[i].x + 15;
+		r.UpperLeftCorner.Y = Template[i].y - 2;
+		r.LowerRightCorner.X = r.UpperLeftCorner.X + 40;
+		r.LowerRightCorner.Y = r.UpperLeftCorner.Y + 20;
+
+		boost::shared_ptr<gui::IGUISpinBox> spin = lockedEnvironment->addSpinBox(Template[i].init, r, true, getSharedThis());
+		spin->setSubElement(true);
+		spin->setDecimalPlaces(0);
+		spin->setRange((f32)Template[i].range_down, (f32)Template[i].range_up);
+
+		Battery.push_back(spin);
+	}
+
+	bringToFront(CancelButton);
+	bringToFront(OKButton);
+}
+
 //! sends the event that the file has been selected.
 void CGUIColorSelectDialog::sendSelectedEvent()
 {
 	SEvent event;
 	event.EventType = EET_GUI_EVENT;
-	event.GUIEvent.Caller = this;
+	event.GUIEvent.Caller = getSharedThis();
 	event.GUIEvent.Element = 0;
 	event.GUIEvent.EventType = EGET_FILE_SELECTED;
-	Parent->OnEvent(event);
+	getParent()->OnEvent(event);
 }
 
 
@@ -470,10 +464,10 @@ void CGUIColorSelectDialog::sendCancelEvent()
 {
 	SEvent event;
 	event.EventType = EET_GUI_EVENT;
-	event.GUIEvent.Caller = this;
+	event.GUIEvent.Caller = getSharedThis();
 	event.GUIEvent.Element = 0;
 	event.GUIEvent.EventType = EGET_FILE_CHOOSE_DIALOG_CANCELLED;
-	Parent->OnEvent(event);
+	getParent()->OnEvent(event);
 }
 
 

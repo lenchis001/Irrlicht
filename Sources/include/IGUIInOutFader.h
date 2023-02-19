@@ -19,7 +19,7 @@ namespace gui
 	only useful for dramatic in and out fading, but also to show that the player
 	is hit in a first person shooter game for example.
 	\code
-	gui::IGUIInOutFader* fader = device->getGUIEnvironment()->addInOutFader();
+	boost::shared_ptr<gui::IGUIInOutFader> fader = device->getGUIEnvironment()->addInOutFader();
 	fader->setColor(video::SColor(0,255,0,0));
 	fader->fadeIn(4000);
 	\endcode
@@ -29,7 +29,7 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUIInOutFader(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUIInOutFader(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_IN_OUT_FADER, environment, parent, id, rectangle) {}
 
 		//! Gets the color to fade out to or to fade in from.

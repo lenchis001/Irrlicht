@@ -21,23 +21,23 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIEditBox(const wchar_t* text, bool border, IGUIEnvironment* environment,
-			IGUIElement* parent, s32 id, const core::rect<s32>& rectangle);
+		CGUIEditBox(const wchar_t* text, bool border, boost::shared_ptr<IGUIEnvironment> environment,
+			boost::shared_ptr<IGUIElement> parent, s32 id, const core::rect<s32>& rectangle);
 
 		//! destructor
 		virtual ~CGUIEditBox();
 
 		//! Sets another skin independent font.
-		virtual void setOverrideFont(IGUIFont* font=0);
+		virtual void setOverrideFont(boost::shared_ptr<IGUIFont> font=0);
 
 		//! Gets the override font (if any)
 		/** \return The override font (may be 0) */
-		virtual IGUIFont* getOverrideFont() const;
+		virtual boost::shared_ptr<IGUIFont> getOverrideFont() const;
 
 		//! Get the font which is used right now for drawing
 		/** Currently this is the override font when one is set and the
 		font of the active skin otherwise */
-		virtual IGUIFont* getActiveFont() const;
+		virtual boost::shared_ptr<IGUIFont> getActiveFont() ;
 
 		//! Sets another color for the text.
 		virtual void setOverrideColor(video::SColor color);
@@ -125,6 +125,8 @@ namespace gui
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
+
 	protected:
 		//! Breaks the single text line.
 		void breakText();
@@ -155,7 +157,7 @@ namespace gui
 		s32 MarkEnd;
 
 		video::SColor OverrideColor;
-		gui::IGUIFont *OverrideFont, *LastBreakFont;
+		boost::shared_ptr<gui::IGUIFont> OverrideFont, LastBreakFont;
 		IOSOperator* Operator;
 
 		u32 BlinkStartTime;

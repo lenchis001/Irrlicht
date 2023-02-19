@@ -20,7 +20,7 @@ namespace gui
 
 
 //! constructor
-CGUIMeshViewer::CGUIMeshViewer(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+CGUIMeshViewer::CGUIMeshViewer(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 : IGUIMeshViewer(environment, parent, id, rectangle), Mesh(0)
 {
 	#ifdef _DEBUG
@@ -84,8 +84,11 @@ void CGUIMeshViewer::draw()
 	if (!IsVisible)
 		return;
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
-	video::IVideoDriver* driver = Environment->getVideoDriver();
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
+
+	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
+	video::IVideoDriver* driver = lockedEnvironment->getVideoDriver();
 	core::rect<s32> viewPort = AbsoluteRect;
 	viewPort.LowerRightCorner.X -= 1;
 	viewPort.LowerRightCorner.Y -= 1;
@@ -98,19 +101,19 @@ void CGUIMeshViewer::draw()
 
 	core::rect<s32> frameRect(AbsoluteRect);
 	frameRect.LowerRightCorner.Y = frameRect.UpperLeftCorner.Y + 1;
-	skin->draw2DRectangle(this, skin->getColor(EGDC_3D_SHADOW), frameRect, &AbsoluteClippingRect);
+	skin->draw2DRectangle(lockedThis, skin->getColor(EGDC_3D_SHADOW), frameRect, &AbsoluteClippingRect);
 
 	frameRect.LowerRightCorner.Y = AbsoluteRect.LowerRightCorner.Y;
 	frameRect.LowerRightCorner.X = frameRect.UpperLeftCorner.X + 1;
-	skin->draw2DRectangle(this, skin->getColor(EGDC_3D_SHADOW), frameRect, &AbsoluteClippingRect);
+	skin->draw2DRectangle(lockedThis, skin->getColor(EGDC_3D_SHADOW), frameRect, &AbsoluteClippingRect);
 
 	frameRect = AbsoluteRect;
 	frameRect.UpperLeftCorner.X = frameRect.LowerRightCorner.X - 1;
-	skin->draw2DRectangle(this, skin->getColor(EGDC_3D_HIGH_LIGHT), frameRect, &AbsoluteClippingRect);
+	skin->draw2DRectangle(lockedThis, skin->getColor(EGDC_3D_HIGH_LIGHT), frameRect, &AbsoluteClippingRect);
 
 	frameRect = AbsoluteRect;
 	frameRect.UpperLeftCorner.Y = AbsoluteRect.LowerRightCorner.Y - 1;
-	skin->draw2DRectangle(this, skin->getColor(EGDC_3D_HIGH_LIGHT), frameRect, &AbsoluteClippingRect);
+	skin->draw2DRectangle(lockedThis, skin->getColor(EGDC_3D_HIGH_LIGHT), frameRect, &AbsoluteClippingRect);
 
 	// draw the mesh
 
@@ -140,7 +143,7 @@ void CGUIMeshViewer::draw()
 		u32 frame = 0;
 		if(Mesh->getFrameCount())
 			frame = (os::Timer::getTime()/20)%Mesh->getFrameCount();
-		const boost::shared_ptr<scene::IMesh> const m = Mesh->getMesh(frame);
+		const boost::shared_ptr<const scene::IMesh> m = Mesh->getMesh(frame);
 		for (u32 i=0; i<m->getMeshBufferCount(); ++i)
 		{
 			scene::IMeshBuffer* mb = m->getMeshBuffer(i);

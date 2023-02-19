@@ -22,8 +22,8 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUISpinBox(const wchar_t* text, bool border, IGUIEnvironment* environment,
-			IGUIElement* parent, s32 id, const core::rect<s32>& rectangle);
+		CGUISpinBox(const wchar_t* text, bool border, boost::shared_ptr<IGUIEnvironment> environment,
+			boost::shared_ptr<IGUIElement> parent, s32 id, const core::rect<s32>& rectangle);
 
 		//! destructor
 		virtual ~CGUISpinBox();
@@ -32,7 +32,7 @@ namespace gui
 		/** \param enable: If set to true, the override color, which can be set
 		with IGUIEditBox::setOverrideColor is used, otherwise the
 		EGDC_BUTTON_TEXT color of the skin. */
-		virtual IGUIEditBox* getEditBox() const;
+		virtual boost::shared_ptr<IGUIEditBox> getEditBox() const;
 
 		//! set the current value of the spinbox
 		/** \param val: value to be set in the spinbox */
@@ -82,13 +82,15 @@ namespace gui
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
+
 	protected:
 		virtual void verifyValueRange();
 		void refreshSprites();
 
-		IGUIEditBox * EditBox;
-		IGUIButton * ButtonSpinUp;
-		IGUIButton * ButtonSpinDown;
+		boost::shared_ptr<IGUIEditBox>  EditBox;
+		boost::shared_ptr<IGUIButton>  ButtonSpinUp;
+		boost::shared_ptr<IGUIButton>  ButtonSpinDown;
 		video::SColor CurrentIconColor;
 		f32 StepSize;
 		f32 RangeMin;
@@ -96,6 +98,10 @@ namespace gui
 
 		core::stringw FormatString;
 		s32 DecimalPlaces;
+
+		const wchar_t* _text;
+		bool _border;
+		const core::rect<s32> _rectangle;
 	};
 
 

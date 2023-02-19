@@ -28,7 +28,7 @@ namespace gui
 	{
 	public:
 		//! returns the owner (tree view) of this node
-		virtual IGUITreeView* getOwner() const = 0;
+		virtual boost::shared_ptr<IGUITreeView> getOwner() const = 0;
 
 		//! Returns the parent node of this node.
 		/** For the root node this will return 0. */
@@ -226,7 +226,7 @@ namespace gui
 	{
 	public:
 		//! constructor
-		IGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
+		IGUITreeView(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 				s32 id, core::rect<s32> rectangle)
 			: IGUIElement( EGUIET_TREE_VIEW, environment, parent, id, rectangle ) {}
 
@@ -250,7 +250,7 @@ namespace gui
 		the build-in-font of the Irrlicht engine as icon font, the icon
 		strings defined in GUIIcons.h can be used.
 		*/
-		virtual void setIconFont( IGUIFont* font ) = 0;
+		virtual void setIconFont( boost::shared_ptr<IGUIFont> font ) = 0;
 
 		//! Sets the image list which should be used for the image and selected image of every node.
 		/** The default is 0 (no images). */

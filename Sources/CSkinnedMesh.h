@@ -160,7 +160,7 @@ namespace scene
 				boost::shared_ptr<scene::IAnimatedMeshSceneNode> node,
 				boost::shared_ptr<scene::ISceneManager> smgr);
 
-		void setWeakThis(boost::shared_ptr<CSkinnedMesh> value);
+		virtual void setWeakThis(boost::shared_ptr<CSkinnedMesh> value);
 private:
 		void checkForAnimation();
 

@@ -21,8 +21,8 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIScrollBar(bool horizontal, IGUIEnvironment* environment,
-			IGUIElement* parent, s32 id, core::rect<s32> rectangle,
+		CGUIScrollBar(bool horizontal, boost::shared_ptr<IGUIEnvironment> environment,
+			boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle,
 			bool noclip=false);
 
 		//! destructor
@@ -76,13 +76,15 @@ namespace gui
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
+
 	private:
 
 		void refreshControls();
 		s32 getPosFromMousePos(const core::position2di &p) const;
 
-		IGUIButton* UpButton;
-		IGUIButton* DownButton;
+		boost::shared_ptr<IGUIButton> UpButton;
+		boost::shared_ptr<IGUIButton> DownButton;
 
 		core::rect<s32> SliderRect;
 
@@ -100,6 +102,7 @@ namespace gui
 		s32 DesiredPos;
 		u32 LastChange;
 		video::SColor CurrentIconColor;
+		bool _noClip;
 
 		f32 range () const { return (f32) ( Max - Min ); }
 	};

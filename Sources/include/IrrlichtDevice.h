@@ -93,7 +93,7 @@ namespace irr
 
 		//! Provides access to the 2d user interface environment.
 		/** \return Pointer to the gui environment. */
-		virtual gui::IGUIEnvironment* getGUIEnvironment() = 0;
+		virtual boost::shared_ptr<gui::IGUIEnvironment> getGUIEnvironment() = 0;
 
 		//! Provides access to the scene manager.
 		/** \return Pointer to the scene manager. */

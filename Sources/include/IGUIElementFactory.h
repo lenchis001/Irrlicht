@@ -31,13 +31,13 @@ namespace gui
 		/** \param type: Type of the element to add.
 		\param parent: Parent scene node of the new element, can be null to add to the root.
 		\return Pointer to the new element or null if not successful. */
-		virtual IGUIElement* addGUIElement(EGUI_ELEMENT_TYPE type, IGUIElement* parent=0) = 0;
+		virtual boost::shared_ptr<IGUIElement> addGUIElement(EGUI_ELEMENT_TYPE type, boost::shared_ptr<IGUIElement> parent=0) = 0;
 
 		//! adds a GUI element to the GUI Environment based on its type name
 		/** \param typeName: Type name of the element to add.
 		\param parent: Parent scene node of the new element, can be null to add it to the root.
 		\return Pointer to the new element or null if not successful. */
-		virtual IGUIElement* addGUIElement(const c8* typeName, IGUIElement* parent=0) = 0;
+		virtual boost::shared_ptr<IGUIElement> addGUIElement(const c8* typeName, boost::shared_ptr<IGUIElement> parent=0) = 0;
 
 		//! Get amount of GUI element types this factory is able to create
 		virtual s32 getCreatableGUIElementTypeCount() const = 0;

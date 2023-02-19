@@ -170,7 +170,6 @@ CIrrDeviceConsole::~CIrrDeviceConsole()
 	}
 	if (ConsoleFont)
 	{
-		ConsoleFont->drop();
 		ConsoleFont = 0;
 	}
 #ifdef _IRR_VT100_CONSOLE_

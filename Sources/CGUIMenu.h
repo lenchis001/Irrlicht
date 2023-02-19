@@ -21,7 +21,7 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIMenu(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle);
+		CGUIMenu(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle);
 
 		//! draws the element and its children
 		virtual void draw();
@@ -31,6 +31,8 @@ namespace gui
 
 		//! Updates the absolute position.
 		virtual void updateAbsolutePosition();
+
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
 
 	protected:
 

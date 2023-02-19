@@ -21,7 +21,7 @@ namespace gui
 	public:
 
 		//! constructor
-		IGUICheckBox(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
+		IGUICheckBox(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_CHECK_BOX, environment, parent, id, rectangle) {}
 
 		//! Set if box is checked.

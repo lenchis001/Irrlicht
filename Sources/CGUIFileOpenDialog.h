@@ -24,8 +24,8 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIFileOpenDialog(const wchar_t* title, IGUIEnvironment* environment,
-				IGUIElement* parent, s32 id, bool restoreCWD=false,
+		CGUIFileOpenDialog(const wchar_t* title, boost::shared_ptr<IGUIEnvironment> environment,
+				boost::shared_ptr<IGUIElement> parent, s32 id, bool restoreCWD=false,
 				io::path::char_type* startDir=0);
 
 		//! destructor
@@ -46,6 +46,8 @@ namespace gui
 		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const;
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0);
 
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
+
 	protected:
 
 		//! fills the listbox with files.
@@ -63,15 +65,17 @@ namespace gui
 		io::path RestoreDirectory;
 		io::path StartDirectory;
 
-		IGUIButton* CloseButton;
-		IGUIButton* OKButton;
-		IGUIButton* CancelButton;
-		IGUIListBox* FileBox;
-		IGUIEditBox* FileNameText;
-		IGUIElement* EventParent;
+		boost::shared_ptr<IGUIButton> CloseButton;
+		boost::shared_ptr<IGUIButton> OKButton;
+		boost::shared_ptr<IGUIButton> CancelButton;
+		boost::shared_ptr<IGUIListBox> FileBox;
+		boost::shared_ptr<IGUIEditBox> FileNameText;
+		boost::shared_ptr<IGUIElement> EventParent;
 		io::IFileSystem* FileSystem;
 		io::IFileList* FileList;
 		bool Dragging;
+		bool _restoreCWD;
+		io::path::char_type* _startDir;
 	};
 
 

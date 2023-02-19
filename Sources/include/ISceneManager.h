@@ -420,7 +420,7 @@ namespace scene
 		//! Get the active GUIEnvironment
 		/** \return Pointer to the GUIEnvironment
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual gui::IGUIEnvironment* getGUIEnvironment() = 0;
+		virtual boost::shared_ptr<gui::IGUIEnvironment> getGUIEnvironment() = 0;
 
 		//! Get the active FileSystem
 		/** \return Pointer to the FileSystem
@@ -946,7 +946,7 @@ namespace scene
 			boost::shared_ptr<ISceneNode> parent=0, s32 id=-1) = 0;
 
 		//! Adds a text scene node, which is able to display 2d text at a position in three dimensional space
-		virtual boost::shared_ptr<ITextSceneNode> addTextSceneNode(gui::IGUIFont* font, const wchar_t* text,
+		virtual boost::shared_ptr<ITextSceneNode> addTextSceneNode(boost::shared_ptr<gui::IGUIFont> font, const wchar_t* text,
 			video::SColor color=video::SColor(100,255,255,255),
 			boost::shared_ptr<ISceneNode> parent = 0, const core::vector3df& position = core::vector3df(0,0,0),
 			s32 id=-1) = 0;
@@ -963,7 +963,7 @@ namespace scene
 		\param colorBottom: The color of the vertices at the bottom of the billboard (default: white).
 		\return Pointer to the billboard if successful, otherwise NULL.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual boost::shared_ptr<IBillboardTextSceneNode> addBillboardTextSceneNode( gui::IGUIFont* font, const wchar_t* text,
+		virtual boost::shared_ptr<IBillboardTextSceneNode> addBillboardTextSceneNode( boost::shared_ptr<gui::IGUIFont> font, const wchar_t* text,
 			boost::shared_ptr<ISceneNode> parent = 0,
 			const core::dimension2d<f32>& size = core::dimension2d<f32>(10.0f, 10.0f),
 			const core::vector3df& position = core::vector3df(0,0,0), s32 id=-1,

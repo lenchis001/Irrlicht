@@ -21,7 +21,7 @@ namespace gui
 	public:
 
 		//! constructor
-		CGUIToolBar(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle);
+		CGUIToolBar(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle);
 
 		//! called if an event happened.
 		virtual bool OnEvent(const SEvent& event);
@@ -33,9 +33,11 @@ namespace gui
 		virtual void updateAbsolutePosition();
 
 		//! Adds a button to the tool bar
-		virtual IGUIButton* addButton(s32 id=-1, const wchar_t* text=0,const wchar_t* tooltiptext=0,
+		virtual boost::shared_ptr<IGUIButton> addButton(s32 id=-1, const wchar_t* text=0,const wchar_t* tooltiptext=0,
 			video::ITexture* img=0, video::ITexture* pressed=0,
 			bool isPushButton=false, bool useAlphaChannel=false);
+
+		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;
 
 	private:
 

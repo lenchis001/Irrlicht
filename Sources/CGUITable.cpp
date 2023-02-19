@@ -23,7 +23,7 @@ namespace gui
 {
 
 //! constructor
-CGUITable::CGUITable(IGUIEnvironment* environment, IGUIElement* parent,
+CGUITable::CGUITable(boost::shared_ptr<IGUIEnvironment> environment, boost::shared_ptr<IGUIElement> parent,
 						s32 id, const core::rect<s32>& rectangle, bool clip,
 						bool drawBack, bool moveOverSelect)
 : IGUITable(environment, parent, id, rectangle), Font(0),
@@ -37,37 +37,12 @@ CGUITable::CGUITable(IGUIEnvironment* environment, IGUIElement* parent,
 	#ifdef _DEBUG
 	setDebugName("CGUITable");
 	#endif
-
-	VerticalScrollBar = Environment->addScrollBar(false, core::rect<s32>(0, 0, 100, 100), this, -1);
-	if (VerticalScrollBar)
-	{
-		VerticalScrollBar->grab();
-		VerticalScrollBar->setNotClipped(false);
-		VerticalScrollBar->setSubElement(true);
-	}
-
-	HorizontalScrollBar = Environment->addScrollBar(true, core::rect<s32>(0, 0, 100, 100), this, -1);
-	if ( HorizontalScrollBar )
-	{
-		HorizontalScrollBar->grab();
-		HorizontalScrollBar->setNotClipped(false);
-		HorizontalScrollBar->setSubElement(true);
-	}
-
-	refreshControls();
 }
 
 
 //! destructor
 CGUITable::~CGUITable()
 {
-	if (VerticalScrollBar)
-		VerticalScrollBar->drop();
-	if ( HorizontalScrollBar )
-		HorizontalScrollBar->drop();
-
-	if (Font)
-		Font->drop();
 }
 
 
@@ -145,6 +120,9 @@ bool CGUITable::setActiveColumn(s32 idx, bool doOrder )
 	if ( ActiveTab < 0 )
 		return false;
 
+	boost::shared_ptr<IGUIElement> lockedParent = getParent();
+	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
+
 	if ( doOrder )
 	{
 		switch ( Columns[idx].OrderingMode )
@@ -155,14 +133,14 @@ bool CGUITable::setActiveColumn(s32 idx, bool doOrder )
 
 			case EGCO_CUSTOM:
 				CurrentOrdering = EGOM_NONE;
-				if (Parent)
+				if (lockedParent)
 				{
 					SEvent event;
 					event.EventType = EET_GUI_EVENT;
-					event.GUIEvent.Caller = this;
+					event.GUIEvent.Caller = lockedThis;
 					event.GUIEvent.Element = 0;
 					event.GUIEvent.EventType = EGET_TABLE_HEADER_CHANGED;
-					Parent->OnEvent(event);
+					lockedParent->OnEvent(event);
 				}
 
 				break;
@@ -189,10 +167,10 @@ bool CGUITable::setActiveColumn(s32 idx, bool doOrder )
 	{
 		SEvent event;
 		event.EventType = EET_GUI_EVENT;
-		event.GUIEvent.Caller = this;
+		event.GUIEvent.Caller = lockedThis;
 		event.GUIEvent.Element = 0;
 		event.GUIEvent.EventType = EGET_TABLE_HEADER_CHANGED;
-		Parent->OnEvent(event);
+		lockedParent->OnEvent(event);
 	}
 
 	return true;
@@ -297,7 +275,7 @@ void CGUITable::setCellText(u32 rowIndex, u32 columnIndex, const core::stringw& 
 		Rows[rowIndex].Items[columnIndex].Text = text;
 		breakText( Rows[rowIndex].Items[columnIndex].Text, Rows[rowIndex].Items[columnIndex].BrokenText, Columns[columnIndex].Width );
 
-		boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+		boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 		if ( skin )
 			Rows[rowIndex].Items[columnIndex].Color = skin->getColor(EGDC_BUTTON_TEXT);
 	}
@@ -415,12 +393,9 @@ void CGUITable::recalculateWidths()
 void CGUITable::recalculateHeights()
 {
 	TotalItemHeight = 0;
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 	if (Font != skin->getFont())
 	{
-		if (Font)
-			Font->drop();
-
 		Font = skin->getFont();
 
 		ItemHeight = 0;
@@ -428,7 +403,6 @@ void CGUITable::recalculateHeights()
 		if(Font)
 		{
 			ItemHeight = Font->getDimension(L"A").Height + (CellHeightPadding * 2);
-			Font->grab();
 		}
 	}
 	TotalItemHeight = ItemHeight * Rows.size();		//  header is not counted, because we only want items
@@ -439,7 +413,7 @@ void CGUITable::recalculateHeights()
 // automatic enabled/disabling and resizing of scrollbars
 void CGUITable::checkScrollbars()
 {
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 	if ( !HorizontalScrollBar || !VerticalScrollBar || !skin)
 		return;
 
@@ -545,6 +519,7 @@ bool CGUITable::OnEvent(const SEvent &event)
 {
 	if (isEnabled())
 	{
+		boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
 
 		switch(event.EventType)
 		{
@@ -579,6 +554,7 @@ bool CGUITable::OnEvent(const SEvent &event)
 					return false;
 
 				core::position2d<s32> p(event.MouseInput.X, event.MouseInput.Y);
+				boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
 
 				switch(event.MouseInput.Event)
 				{
@@ -588,13 +564,13 @@ bool CGUITable::OnEvent(const SEvent &event)
 
 				case EMIE_LMOUSE_PRESSED_DOWN:
 
-					if (Environment->hasFocus(this) &&
+					if (lockedEnvironment->hasFocus(lockedThis) &&
 						VerticalScrollBar->isVisible() &&
 						VerticalScrollBar->getAbsolutePosition().isPointInside(p) &&
 						VerticalScrollBar->OnEvent(event))
 						return true;
 
-					if (Environment->hasFocus(this) &&
+					if (lockedEnvironment->hasFocus(lockedThis) &&
 						HorizontalScrollBar->isVisible() &&
 						HorizontalScrollBar->getAbsolutePosition().isPointInside(p) &&
 						HorizontalScrollBar->OnEvent(event))
@@ -602,7 +578,7 @@ bool CGUITable::OnEvent(const SEvent &event)
 
 					if ( dragColumnStart( event.MouseInput.X, event.MouseInput.Y ) )
 					{
-						Environment->setFocus(this);
+						lockedEnvironment->setFocus(lockedThis);
 						return true;
 					}
 
@@ -610,7 +586,7 @@ bool CGUITable::OnEvent(const SEvent &event)
 						return true;
 
 					Selecting = true;
-					Environment->setFocus(this);
+					lockedEnvironment->setFocus(lockedThis);
 					return true;
 
 				case EMIE_LMOUSE_LEFT_UP:
@@ -619,10 +595,10 @@ bool CGUITable::OnEvent(const SEvent &event)
 					Selecting = false;
 					if (!getAbsolutePosition().isPointInside(p))
 					{
-						Environment->removeFocus(this);
+						lockedEnvironment->removeFocus(lockedThis);
 					}
 
-					if (Environment->hasFocus(this) &&
+					if (lockedEnvironment->hasFocus(lockedThis) &&
 						VerticalScrollBar->isVisible() &&
 						VerticalScrollBar->getAbsolutePosition().isPointInside(p) &&
 						VerticalScrollBar->OnEvent(event))
@@ -630,7 +606,7 @@ bool CGUITable::OnEvent(const SEvent &event)
 						return true;
 					}
 
-					if (Environment->hasFocus(this) &&
+					if (lockedEnvironment->hasFocus(lockedThis) &&
 						HorizontalScrollBar->isVisible() &&
 						HorizontalScrollBar->getAbsolutePosition().isPointInside(p) &&
 						HorizontalScrollBar->OnEvent(event))
@@ -834,7 +810,7 @@ void CGUITable::orderRows(s32 columnIndex, EGUI_ORDERING_MODE mode)
 
 void CGUITable::selectNew(s32 ypos, bool onlyHover)
 {
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 	if (!skin)
 		return;
 
@@ -853,14 +829,14 @@ void CGUITable::selectNew(s32 ypos, bool onlyHover)
 		Selected = 0;
 
 	// post the news
-	if (Parent && !onlyHover)
+	if (!Parent.expired() && !onlyHover)
 	{
 		SEvent event;
 		event.EventType = EET_GUI_EVENT;
-		event.GUIEvent.Caller = this;
+		event.GUIEvent.Caller = getSharedThis();
 		event.GUIEvent.Element = 0;
 		event.GUIEvent.EventType = (Selected != oldSelected) ? EGET_TABLE_CHANGED : EGET_TABLE_SELECTED_AGAIN;
-		Parent->OnEvent(event);
+		getParent()->OnEvent(event);
 	}
 }
 
@@ -871,13 +847,15 @@ void CGUITable::draw()
 	if (!IsVisible)
 		return;
 
-	irr::video::IVideoDriver* driver = Environment->getVideoDriver();
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
 
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	irr::video::IVideoDriver* driver = lockedEnvironment->getVideoDriver();
+
+	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
 	if (!skin)
 		return;
 
-	IGUIFont* font = skin->getFont();
+	boost::shared_ptr<IGUIFont> font = skin->getFont();
 	if (!font)
 		return;
 
@@ -898,8 +876,10 @@ void CGUITable::draw()
 	clientClip.UpperLeftCorner.Y = headerBottom + 1;
 	clientClip.clipAgainst(AbsoluteClippingRect);
 
+	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
+
 	// draw background for whole element
-	skin->draw3DSunkenPane(this, skin->getColor(EGDC_3D_HIGH_LIGHT), true, DrawBack, AbsoluteRect, &AbsoluteClippingRect);
+	skin->draw3DSunkenPane(lockedThis, skin->getColor(EGDC_3D_HIGH_LIGHT), true, DrawBack, AbsoluteRect, &AbsoluteClippingRect);
 
 	// scrolledTableClient is the area where the table items would be if it could be drawn completely
 	core::rect<s32> scrolledTableClient(tableRect);
@@ -983,7 +963,7 @@ void CGUITable::draw()
 		core::rect<s32> columnrect(pos, tableRect.UpperLeftCorner.Y, pos + colWidth, headerBottom);
 
 		// draw column background
-		skin->draw3DButtonPaneStandard(this, columnrect, &tableClip);
+		skin->draw3DButtonPaneStandard(lockedThis, columnrect, &tableClip);
 
 		// draw column seperator
 		if ( DrawFlags & EGTDF_COLUMNS )
@@ -1004,13 +984,13 @@ void CGUITable::draw()
 			{
 				columnrect.UpperLeftCorner.X = columnrect.LowerRightCorner.X - CellWidthPadding - ARROW_PAD / 2 + 2;
 				columnrect.UpperLeftCorner.Y += 7;
-				skin->drawIcon(this,EGDI_CURSOR_UP,columnrect.UpperLeftCorner,0,0,false,&tableClip);
+				skin->drawIcon(lockedThis,EGDI_CURSOR_UP,columnrect.UpperLeftCorner,0,0,false,&tableClip);
 			}
 			else
 			{
 				columnrect.UpperLeftCorner.X = columnrect.LowerRightCorner.X - CellWidthPadding - ARROW_PAD / 2 + 2;
 				columnrect.UpperLeftCorner.Y += 7;
-				skin->drawIcon(this,EGDI_CURSOR_DOWN,columnrect.UpperLeftCorner,0,0,false,&tableClip);
+				skin->drawIcon(lockedThis,EGDI_CURSOR_DOWN,columnrect.UpperLeftCorner,0,0,false,&tableClip);
 			}
 		}
 
@@ -1019,7 +999,7 @@ void CGUITable::draw()
 
 	// fill up header background up to the right side
 	core::rect<s32> columnrect(pos, tableRect.UpperLeftCorner.Y, tableRect.LowerRightCorner.X , headerBottom);
-	skin->draw3DButtonPaneStandard(this, columnrect, &tableClip);
+	skin->draw3DButtonPaneStandard(lockedThis, columnrect, &tableClip);
 
 	IGUIElement::draw();
 }
@@ -1027,7 +1007,7 @@ void CGUITable::draw()
 
 void CGUITable::breakText(const core::stringw& text, core::stringw& brokenText, u32 cellWidth)
 {
-	boost::shared_ptr<IGUISkin> skin = Environment->getSkin();
+	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
 
 	if (!skin)
 		return;
@@ -1035,7 +1015,7 @@ void CGUITable::breakText(const core::stringw& text, core::stringw& brokenText, 
 	if (!Font)
 		return;
 
-	IGUIFont* font = skin->getFont();
+	boost::shared_ptr<IGUIFont> font = skin->getFont();
 	if (!font)
 		return;
 
@@ -1135,9 +1115,9 @@ void CGUITable::serializeAttributes(io::IAttributes* out, io::SAttributeReadWrit
 	// s32 ItemHeight;	// can be calculated
 	// TotalItemHeight	// calculated
 	// TotalItemWidth	// calculated
-	// gui::IGUIFont* Font; // font is just the current font from environment
-	// gui::IGUIScrollBar* VerticalScrollBar;		// not serialized
-	// gui::IGUIScrollBar* HorizontalScrollBar;		// not serialized
+	// boost::shared_ptr<gui::IGUIFont> Font; // font is just the current font from environment
+	// boost::shared_ptr<gui::IGUIScrollBar> VerticalScrollBar;		// not serialized
+	// boost::shared_ptr<gui::IGUIScrollBar> HorizontalScrollBar;		// not serialized
 
 	out->addBool ("Clip", Clip);
 	out->addBool ("DrawBack", DrawBack);
@@ -1225,7 +1205,6 @@ void CGUITable::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWri
 	// force font recalculation
 	if ( Font )
 	{
-		Font->drop();
 		Font = 0;
 	}
 
@@ -1245,6 +1224,30 @@ void CGUITable::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWri
 
 	CurrentOrdering = (EGUI_ORDERING_MODE) in->getAttributeAsEnumeration("CurrentOrdering", GUIOrderingModeNames);
 	DrawFlags = in->getAttributeAsInt("DrawFlags");
+
+	refreshControls();
+}
+
+void CGUITable::setWeakThis(boost::shared_ptr<IGUIElement> value)
+{
+	IGUIElement::setWeakThis(value);
+
+	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
+	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
+
+	VerticalScrollBar = lockedEnvironment->addScrollBar(false, core::rect<s32>(0, 0, 100, 100), lockedThis, -1);
+	if (VerticalScrollBar)
+	{
+		VerticalScrollBar->setNotClipped(false);
+		VerticalScrollBar->setSubElement(true);
+	}
+
+	HorizontalScrollBar = lockedEnvironment->addScrollBar(true, core::rect<s32>(0, 0, 100, 100), lockedThis, -1);
+	if (HorizontalScrollBar)
+	{
+		HorizontalScrollBar->setNotClipped(false);
+		HorizontalScrollBar->setSubElement(true);
+	}
 
 	refreshControls();
 }

@@ -29,7 +29,7 @@ class CGUISpriteBank : public IGUISpriteBank
 {
 public:
 
-	CGUISpriteBank(IGUIEnvironment* env);
+	CGUISpriteBank(boost::shared_ptr<IGUIEnvironment> env);
 	virtual ~CGUISpriteBank();
 
 	virtual core::array< core::rect<s32> >& getPositions();
@@ -70,7 +70,7 @@ protected:
 	core::array<SGUISprite> Sprites;
 	core::array< core::rect<s32> > Rectangles;
 	core::array<video::ITexture*> Textures;
-	IGUIEnvironment* Environment;
+	boost::shared_ptr<IGUIEnvironment> Environment;
 	video::IVideoDriver* Driver;
 
 };

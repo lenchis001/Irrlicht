@@ -268,10 +268,10 @@ struct SEvent
 	struct SGUIEvent
 	{
 		//! IGUIElement who called the event
-		gui::IGUIElement* Caller;
+		boost::shared_ptr<gui::IGUIElement> Caller;
 
 		//! If the event has something to do with another element, it will be held here.
-		gui::IGUIElement* Element;
+		boost::shared_ptr<gui::IGUIElement> Element;
 
 		//! Type of GUI Event
 		gui::EGUI_EVENT_TYPE EventType;
@@ -415,16 +415,12 @@ struct SEvent
 	};
 
 	EEVENT_TYPE EventType;
-	union
-	{
-		struct SGUIEvent GUIEvent;
-		struct SMouseInput MouseInput;
-		struct SKeyInput KeyInput;
-		struct SJoystickEvent JoystickEvent;
-		struct SLogEvent LogEvent;
-		struct SUserEvent UserEvent;
-	};
-
+	SGUIEvent GUIEvent;
+	SMouseInput MouseInput;
+	SKeyInput KeyInput;
+	SJoystickEvent JoystickEvent;
+	SLogEvent LogEvent;
+	SUserEvent UserEvent;
 };
 
 //! Interface of an object which can receive events.

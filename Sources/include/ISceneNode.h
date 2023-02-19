@@ -53,7 +53,7 @@ namespace scene
 		{
 		}
 
-		void setWeakThis(boost::shared_ptr<ISceneNode> value) {
+		virtual void setWeakThis(boost::shared_ptr<ISceneNode> value) {
 #if _DEBUG
 			assert(this == value.get());
 #endif

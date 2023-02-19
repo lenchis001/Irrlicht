@@ -34,7 +34,7 @@ class CGUIFont : public IGUIFontBitmap
 public:
 
 	//! constructor
-	CGUIFont(IGUIEnvironment* env, const io::path& filename);
+	CGUIFont(boost::shared_ptr<IGUIEnvironment> env, const io::path& filename);
 
 	//! destructor
 	virtual ~CGUIFont();
@@ -97,11 +97,13 @@ private:
 	s32 getAreaFromCharacter (const wchar_t c) const;
 	void setMaxHeight();
 
+	inline boost::shared_ptr<IGUIEnvironment> getSharedEnvironment();
+
 	core::array<SFontArea>		Areas;
 	core::map<wchar_t, s32>		CharacterMap;
 	video::IVideoDriver*		Driver;
 	IGUISpriteBank*			SpriteBank;
-	IGUIEnvironment*		Environment;
+	boost::weak_ptr<IGUIEnvironment>		Environment;
 	u32				WrongCharacter;
 	s32				MaxHeight;
 	s32				GlobalKerningWidth, GlobalKerningHeight;
