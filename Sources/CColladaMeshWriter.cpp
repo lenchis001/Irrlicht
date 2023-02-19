@@ -235,15 +235,13 @@ CColladaMeshWriter::CColladaMeshWriter(	boost::shared_ptr<ISceneManager>  smgr, 
 	if ( smgr )
 		setAmbientLight( smgr->getAmbientLight() );
 
-	CColladaMeshWriterProperties * p = new CColladaMeshWriterProperties();
+	boost::shared_ptr<CColladaMeshWriterProperties> p = boost::make_shared<CColladaMeshWriterProperties>();
 	setDefaultProperties(p);
 	setProperties(p);
-	p->drop();
 
-	CColladaMeshWriterNames * nameGenerator = new CColladaMeshWriterNames(this);
+	boost::shared_ptr<CColladaMeshWriterNames> nameGenerator = boost::make_shared<CColladaMeshWriterNames>(this);
 	setDefaultNameGenerator(nameGenerator);
 	setNameGenerator(nameGenerator);
-	nameGenerator->drop();
 }
 
 
@@ -1060,7 +1058,7 @@ bool CColladaMeshWriter::isCamera(const boost::shared_ptr<scene::ISceneNode> nod
 
 irr::core::stringw CColladaMeshWriter::nameForMesh(const boost::shared_ptr<scene::IMesh> mesh, int instance) const
 {
-	IColladaMeshWriterNames * nameGenerator = getNameGenerator();
+	boost::shared_ptr<IColladaMeshWriterNames>  nameGenerator = getNameGenerator();
 	if ( nameGenerator )
 	{
 		return nameGenerator->nameForMesh(mesh, instance);
@@ -1070,7 +1068,7 @@ irr::core::stringw CColladaMeshWriter::nameForMesh(const boost::shared_ptr<scene
 
 irr::core::stringw CColladaMeshWriter::nameForNode(const boost::shared_ptr<scene::ISceneNode> node) const
 {
-	IColladaMeshWriterNames * nameGenerator = getNameGenerator();
+	boost::shared_ptr<IColladaMeshWriterNames>  nameGenerator = getNameGenerator();
 	if ( nameGenerator )
 	{
 		return nameGenerator->nameForNode(node);
@@ -1088,7 +1086,7 @@ irr::core::stringw CColladaMeshWriter::nameForMaterial(const video::SMaterial & 
 			return matName;
 	}
 
-	IColladaMeshWriterNames * nameGenerator = getNameGenerator();
+	boost::shared_ptr<IColladaMeshWriterNames>  nameGenerator = getNameGenerator();
 	if ( nameGenerator )
 	{
 		matName = nameGenerator->nameForMaterial(material, materialId, mesh, node);

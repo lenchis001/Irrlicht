@@ -89,7 +89,7 @@ namespace scene
 	};
 
 	//! Callback interface for properties which can be used to influence collada writing
-	class IColladaMeshWriterProperties  : public virtual IReferenceCounted
+	class IColladaMeshWriterProperties  : public virtual IDebugable
 	{
 	public:
 		virtual ~IColladaMeshWriterProperties ()	{}
@@ -155,7 +155,7 @@ namespace scene
 	/** You can either modify names and id's written to collada or you can use
 	this interface to just find out which names are used on writing.
 	*/
-	class IColladaMeshWriterNames  : public virtual IReferenceCounted
+	class IColladaMeshWriterNames  : public virtual IDebugable
 	{
 	public:
 	
@@ -213,14 +213,6 @@ namespace scene
 		//! Destructor
 		virtual ~IColladaMeshWriter() 
 		{
-			if ( Properties )
-				Properties->drop();
-			if ( DefaultProperties )
-				DefaultProperties->drop();
-			if ( NameGenerator )
-				NameGenerator->drop();
-			if ( DefaultNameGenerator )
-				DefaultNameGenerator->drop();
 		}
 
 		//! writes a scene starting with the given node
@@ -307,51 +299,45 @@ namespace scene
 		//! Set properties to use by the meshwriter instead of it's default properties.
 		/** Overloading properties with an own class allows modifying the writing process in certain ways. 
 		By default properties are set to the DefaultProperties. */
-		virtual void setProperties(IColladaMeshWriterProperties * p)
+		virtual void setProperties(boost::shared_ptr<IColladaMeshWriterProperties>  p)
 		{
 			if ( p == Properties )
 				return;
-			if ( p ) 
-				p->grab();
-			if ( Properties )
-				Properties->drop();
+
 			Properties = p;
 		}
 
 		//! Get properties which are currently used.
-		virtual IColladaMeshWriterProperties * getProperties() const
+		virtual boost::shared_ptr<IColladaMeshWriterProperties>  getProperties() const
 		{
 			return Properties;
 		}
 
 		//! Return the original default properties of the writer. 
 		/** You can use this pointer in your own properties to access and return default values. */
-		IColladaMeshWriterProperties * getDefaultProperties() const 
+		boost::shared_ptr<IColladaMeshWriterProperties>  getDefaultProperties() const 
 		{ 
 			return DefaultProperties; 
 		}
 
 		//! Install a generator to create custom names on export. 
-		virtual void setNameGenerator(IColladaMeshWriterNames * nameGenerator)
+		virtual void setNameGenerator(boost::shared_ptr<IColladaMeshWriterNames>  nameGenerator)
 		{
 			if ( nameGenerator == NameGenerator )
 				return;
-			if ( nameGenerator ) 
-				nameGenerator->grab();
-			if ( NameGenerator )
-				NameGenerator->drop();
+
 			NameGenerator = nameGenerator;
 		}
 
 		//! Get currently used name generator
-		virtual IColladaMeshWriterNames * getNameGenerator() const
+		virtual boost::shared_ptr<IColladaMeshWriterNames>  getNameGenerator() const
 		{
 			return NameGenerator;
 		}
 
 		//! Return the original default name generator of the writer. 
 		/** You can use this pointer in your own generator to access and return default values. */
-		IColladaMeshWriterNames * getDefaultNameGenerator() const 
+		boost::shared_ptr<IColladaMeshWriterNames>  getDefaultNameGenerator() const 
 		{ 
 			return DefaultNameGenerator; 
 		}
@@ -363,34 +349,28 @@ namespace scene
 
 	protected:
 		// NOTE: You usually should also call setProperties with the same paraemter when using setDefaultProperties
-		virtual void setDefaultProperties(IColladaMeshWriterProperties * p)
+		virtual void setDefaultProperties(boost::shared_ptr<IColladaMeshWriterProperties>  p)
 		{
 			if ( p == DefaultProperties )
 				return;
-			if ( p ) 
-				p->grab();
-			if ( DefaultProperties )
-				DefaultProperties->drop();
+
 			DefaultProperties = p;
 		}
 
 		// NOTE: You usually should also call setNameGenerator with the same paraemter when using setDefaultProperties
-		virtual void setDefaultNameGenerator(IColladaMeshWriterNames * p)
+		virtual void setDefaultNameGenerator(boost::shared_ptr<IColladaMeshWriterNames>  p)
 		{
 			if ( p == DefaultNameGenerator )
 				return;
-			if ( p ) 
-				p->grab();
-			if ( DefaultNameGenerator )
-				DefaultNameGenerator->drop();
+
 			DefaultNameGenerator = p;
 		}
 
 	private:
-		IColladaMeshWriterProperties * Properties;
-		IColladaMeshWriterProperties * DefaultProperties;
-		IColladaMeshWriterNames * NameGenerator;
-		IColladaMeshWriterNames * DefaultNameGenerator;
+		boost::shared_ptr<IColladaMeshWriterProperties>  Properties;
+		boost::shared_ptr<IColladaMeshWriterProperties>  DefaultProperties;
+		boost::shared_ptr<IColladaMeshWriterNames>  NameGenerator;
+		boost::shared_ptr<IColladaMeshWriterNames>  DefaultNameGenerator;
 		bool WriteTextures;
 		bool WriteDefaultScene;
 		bool ExportSMaterialOnce;
