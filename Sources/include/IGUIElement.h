@@ -811,7 +811,7 @@ public:
 	}
 
 	virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) {
-#if _DEBUG
+#ifdef _DEBUG
 		assert(this == value.get());
 #endif
 		WeakThis = value;

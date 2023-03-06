@@ -116,7 +116,7 @@ void CQuake3ShaderSceneNode::cloneBuffer( scene::SMeshBuffer *dest, const scene:
 
 		core::matrix4 m;
 		m.setTranslation( -MeshOffset );
-		SceneManager->getMeshManipulator()->transform( dest, m );
+		getSceneManager()->getMeshManipulator()->transform(dest, m);
 	}
 
 	// No Texture!. Use Shader-Pointer for sorting
@@ -132,7 +132,7 @@ void CQuake3ShaderSceneNode::loadTextures( io::IFileSystem * fileSystem )
 	const SVarGroup *group;
 	u32 i;
 
-	video::IVideoDriver *driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = getSceneManager()->getVideoDriver();
 
 	// generic stage
 	u32 mipmap = 0;
@@ -221,7 +221,7 @@ void CQuake3ShaderSceneNode::OnRegisterSceneNode()
 {
 	if ( isVisible() )
 	{
-		SceneManager->registerNodeForRendering(getSharedThis(), getRenderStage() );
+		getSceneManager()->registerNodeForRendering(getSharedThis(), getRenderStage());
 	}
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -295,8 +295,9 @@ E_SCENE_NODE_RENDER_PASS CQuake3ShaderSceneNode::getRenderStage() const
 */
 void CQuake3ShaderSceneNode::render()
 {
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
-	E_SCENE_NODE_RENDER_PASS pass = SceneManager->getSceneNodeRenderPass();
+	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedSceneManager->getVideoDriver();
+	E_SCENE_NODE_RENDER_PASS pass = lockedSceneManager->getSceneNodeRenderPass();
 
 	video::SMaterial material;
 	const SVarGroup *group;
@@ -405,7 +406,7 @@ void CQuake3ShaderSceneNode::render()
 	{
 		video::SMaterial deb_m;
 
-		boost::shared_ptr<IAnimatedMesh> arrow = SceneManager->addArrowMesh (
+		boost::shared_ptr<IAnimatedMesh> arrow = lockedSceneManager->addArrowMesh (
 				"__debugnormalq3", 
 				0xFFECEC00,0xFF999900, 
 				4, 8,
@@ -414,7 +415,7 @@ void CQuake3ShaderSceneNode::render()
 			);
 		if ( 0 == arrow )
 		{
-			arrow = SceneManager->getMesh( "__debugnormalq3" );
+			arrow = lockedSceneManager->getMesh( "__debugnormalq3" );
 		}
 		const boost::shared_ptr<IMesh> mesh = arrow->getMesh ( 0 );
 
@@ -510,13 +511,14 @@ bool CQuake3ShaderSceneNode::removeChild(boost::shared_ptr<ISceneNode> child)
 boost::shared_ptr<IShadowVolumeSceneNode> CQuake3ShaderSceneNode::addShadowVolumeSceneNode(
 		boost::shared_ptr<const IMesh> shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
-	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
+	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
+	if (!lockedSceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
 		return 0;
 
 	if (!shadowMesh)
 		shadowMesh = Mesh; // if null is given, use the mesh of node
 
-	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), SceneManager, id,  zfailmethod, infinity);
+	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), lockedSceneManager, id,  zfailmethod, infinity);
 	return Shadow;
 }
 
@@ -745,7 +747,7 @@ void CQuake3ShaderSceneNode::deformvertexes_autosprite( f32 dt, SModifierFunctio
 	u32 g;
 	u32 i;
 
-	const core::vector3df& camPos = SceneManager->getActiveCamera()->getPosition();
+	const core::vector3df& camPos = getSceneManager()->getActiveCamera()->getPosition();
 
 	video::S3DVertex * dv = MeshBuffer->Vertices.pointer();
 	const video::S3DVertex2TCoords * vin = Original->Vertices.const_pointer();
@@ -795,7 +797,7 @@ void CQuake3ShaderSceneNode::deformvertexes_autosprite2( f32 dt, SModifierFuncti
 	u32 g;
 	u32 i;
 
-	const core::vector3df camPos = SceneManager->getActiveCamera()->getAbsolutePosition();
+	const core::vector3df camPos = getSceneManager()->getActiveCamera()->getAbsolutePosition();
 
 	video::S3DVertex * dv = MeshBuffer->Vertices.pointer();
 	const video::S3DVertex2TCoords * vin = Original->Vertices.const_pointer();
@@ -914,7 +916,7 @@ void CQuake3ShaderSceneNode::vertextransform_alphagen( f32 dt, SModifierFunction
 		case LIGHTINGSPECULAR:
 		{
 			// alphagen lightingspecular TODO!!!
-			const SViewFrustum *frustum = SceneManager->getActiveCamera()->getViewFrustum();
+			const SViewFrustum *frustum = getSceneManager()->getActiveCamera()->getViewFrustum();
 			const core::matrix4 &view = frustum->getTransform ( video::ETS_VIEW );
 
 			const f32 *m = view.pointer();
@@ -990,7 +992,7 @@ void CQuake3ShaderSceneNode::vertextransform_tcgen( f32 dt, SModifierFunction &f
 		case ENVIRONMENT:
 		{
 			// tcgen environment
-			const SViewFrustum *frustum = SceneManager->getActiveCamera()->getViewFrustum();
+			const SViewFrustum *frustum = getSceneManager()->getActiveCamera()->getViewFrustum();
 			const core::matrix4 &view = frustum->getTransform ( video::ETS_VIEW );
 
 			const f32 *m = view.pointer();

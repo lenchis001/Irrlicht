@@ -58,7 +58,7 @@ void CGUIStaticText::draw()
 	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
 	if (!skin)
 		return;
-	video::IVideoDriver* driver = lockedEnvironment->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedEnvironment->getVideoDriver();
 
 	core::rect<s32> frameRect(AbsoluteRect);
 

@@ -170,7 +170,7 @@ namespace scene
 		virtual bool getTargetAndRotationBinding(void) const =0;
 
 		//! Writes attributes of the camera node
-		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const
+		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0)
 		{
 			ISceneNode::serializeAttributes(out, options);
 

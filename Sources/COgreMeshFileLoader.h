@@ -17,6 +17,7 @@
 #include "matrix4.h"
 #include "quaternion.h"
 #include "CSkinnedMesh.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -24,12 +25,12 @@ namespace scene
 {
 
 //! Meshloader capable of loading ogre meshes.
-class COgreMeshFileLoader : public IMeshLoader
+class COgreMeshFileLoader : public IMeshLoader, public video::VideoDriverAwareMixin<>
 {
 public:
 
 	//! Constructor
-	COgreMeshFileLoader(io::IFileSystem* fs, video::IVideoDriver* driver);
+	COgreMeshFileLoader(io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver);
 
 	//! destructor
 	virtual ~COgreMeshFileLoader();
@@ -248,7 +249,6 @@ private:
 	void clearMeshes();
 
 	io::IFileSystem* FileSystem;
-	video::IVideoDriver* Driver;
 
 	core::stringc Version;
 	bool SwapEndian;

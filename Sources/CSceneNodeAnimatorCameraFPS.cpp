@@ -170,7 +170,7 @@ void CSceneNodeAnimatorCameraFPS::animateNode(boost::shared_ptr<ISceneNode> node
 		}
 
 		// Special case, mouse is whipped outside of window before it can update.
-		video::IVideoDriver* driver = smgr->getVideoDriver();
+		boost::shared_ptr<video::IVideoDriver> driver = smgr->getVideoDriver();
 		core::vector2d<u32> mousepos(u32(CursorControl->getPosition().X), u32(CursorControl->getPosition().Y));
 		core::rect<u32> screenRect(0, 0, driver->getScreenSize().Width, driver->getScreenSize().Height);
 

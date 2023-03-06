@@ -50,7 +50,7 @@ CBillboardSceneNode::CBillboardSceneNode(boost::shared_ptr<ISceneNode> parent, b
 void CBillboardSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(getSharedThis());
+		getSceneManager()->registerNodeForRendering(getSharedThis());
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -59,8 +59,9 @@ void CBillboardSceneNode::OnRegisterSceneNode()
 //! render
 void CBillboardSceneNode::render()
 {
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
-	boost::shared_ptr<ICameraSceneNode> camera = SceneManager->getActiveCamera();
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedSceneManager->getVideoDriver();
+	boost::shared_ptr<ICameraSceneNode> camera = lockedSceneManager->getActiveCamera();
 
 	if (!camera || !driver)
 		return;
@@ -200,7 +201,7 @@ void CBillboardSceneNode::getSize(f32& height, f32& bottomEdgeWidth,
  
 
 //! Writes attributes of the scene node.
-void CBillboardSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CBillboardSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	IBillboardSceneNode::serializeAttributes(out, options);
 
@@ -274,7 +275,7 @@ boost::shared_ptr<ISceneNode> CBillboardSceneNode::clone(boost::shared_ptr<IScen
 	if (!newParent)
 		newParent = Parent.lock();
 	if (!newManager)
-		newManager = SceneManager;
+		newManager = getSceneManager();
 
 	boost::shared_ptr<CBillboardSceneNode> nb = boost::make_shared<CBillboardSceneNode>(newParent,
 		newManager, ID, RelativeTranslation, Size);

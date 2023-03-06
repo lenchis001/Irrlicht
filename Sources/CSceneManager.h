@@ -13,6 +13,7 @@
 #include "IMeshLoader.h"
 #include "CAttributes.h"
 #include "ILightManager.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -34,7 +35,7 @@ namespace scene
 	public:
 
 		//! constructor
-		CSceneManager(video::IVideoDriver* driver, io::IFileSystem* fs,
+		CSceneManager(boost::shared_ptr<video::IVideoDriver> driver, io::IFileSystem* fs,
 			boost::shared_ptr<gui::ICursorControl> cursorControl, IMeshCache* cache = 0,
 			boost::shared_ptr<gui::IGUIEnvironment> guiEnvironment = 0);
 
@@ -51,9 +52,6 @@ namespace scene
 
 		//! Returns an interface to the mesh cache which is shared beween all existing scene managers.
 		virtual IMeshCache* getMeshCache();
-
-		//! returns the video driver
-		virtual video::IVideoDriver* getVideoDriver();
 
 		//! return the gui environment
 		virtual boost::shared_ptr<gui::IGUIEnvironment> getGUIEnvironment();
@@ -495,7 +493,7 @@ namespace scene
 		virtual bool loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> rootNode=0);
 
 		//! Writes attributes of the scene node.
-		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const;
+		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0);
 
 		//! Reads attributes of the scene node.
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0);
@@ -525,7 +523,7 @@ namespace scene
 		virtual boost::shared_ptr<const IGeometryCreator> getGeometryCreator(void) const { return GeometryCreator; }
 
 		//! returns if node is culled
-		virtual bool isCulled(const boost::shared_ptr<ISceneNode> node) const;
+		virtual bool isCulled(const boost::shared_ptr<ISceneNode> node);
 
 	private:
 
@@ -598,9 +596,6 @@ namespace scene
 			private:
 			f64 Distance;
 		};
-
-		//! video driver
-		video::IVideoDriver* Driver;
 
 		//! file system
 		io::IFileSystem* FileSystem;

@@ -1050,7 +1050,7 @@ IFileSystem* createFileSystem()
 
 
 //! Creates a new empty collection of attributes, usable for serialization and more.
-IAttributes* CFileSystem::createEmptyAttributes(video::IVideoDriver* driver)
+IAttributes* CFileSystem::createEmptyAttributes(boost::shared_ptr<video::IVideoDriver> driver)
 {
 	return new CAttributes(driver, this);
 }

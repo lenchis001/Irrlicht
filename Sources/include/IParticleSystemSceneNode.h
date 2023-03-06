@@ -29,7 +29,7 @@ can be controlled by setting the right particle emitters and affectors.
 You can for example easily create a campfire by doing this:
 
 \code
-	scene::boost::shared_ptr<IParticleSystemSceneNode> p = scenemgr->addParticleSystemSceneNode();
+	boost::shared_ptr<scene::IParticleSystemSceneNode> p = scenemgr->addParticleSystemSceneNode();
 	p->setParticleSize(core::dimension2d<f32>(20.0f, 10.0f));
 	boost::shared_ptr<scene::IParticleEmitter> em = p->createBoxEmitter(
 		core::aabbox3d<f32>(-5,0,-5,5,1,5),

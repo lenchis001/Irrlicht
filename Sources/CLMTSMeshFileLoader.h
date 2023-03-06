@@ -31,12 +31,12 @@ namespace irr
 namespace scene
 {
 
-class CLMTSMeshFileLoader : public IMeshLoader
+class CLMTSMeshFileLoader : public IMeshLoader, public video::VideoDriverAwareMixin<>
 {
 public:
 
 	CLMTSMeshFileLoader(io::IFileSystem* fs,
-		video::IVideoDriver* driver, io::IAttributes* parameters);
+		boost::shared_ptr<video::IVideoDriver> driver, io::IAttributes* parameters);
 
 	virtual ~CLMTSMeshFileLoader();
 
@@ -98,7 +98,6 @@ private:
 	SLMTSTriangleDataEntry* Triangles;
 
 	io::IAttributes* Parameters;
-	video::IVideoDriver* Driver;
 	io::IFileSystem* FileSystem;
 	bool FlipEndianess;
 };

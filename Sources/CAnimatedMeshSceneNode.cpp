@@ -141,7 +141,8 @@ void CAnimatedMeshSceneNode::OnRegisterSceneNode()
 		// materials, check of what type they are and register this node for the right
 		// render pass according to that.
 
-		video::IVideoDriver* driver = SceneManager->getVideoDriver();
+		boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+		boost::shared_ptr<video::IVideoDriver> driver = lockedSceneManager->getVideoDriver();
 
 		PassCount = 0;
 		int transparentCount = 0;
@@ -165,10 +166,10 @@ void CAnimatedMeshSceneNode::OnRegisterSceneNode()
 		// register according to material types counted
 
 		if (solidCount)
-			SceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_SOLID);
+			lockedSceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_SOLID);
 
 		if (transparentCount)
-			SceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_TRANSPARENT);
+			lockedSceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_TRANSPARENT);
 
 		ISceneNode::OnRegisterSceneNode();
 	}
@@ -253,14 +254,15 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 //! renders the node.
 void CAnimatedMeshSceneNode::render()
 {
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedSceneManager->getVideoDriver();
 
 	if (!Mesh || !driver)
 		return;
 
 
 	bool isTransparentPass =
-		SceneManager->getSceneNodeRenderPass() == scene::ESNRP_TRANSPARENT;
+		lockedSceneManager->getSceneNodeRenderPass() == scene::ESNRP_TRANSPARENT;
 
 	++PassCount;
 
@@ -346,8 +348,8 @@ void CAnimatedMeshSceneNode::render()
 		// show normals
 		if (DebugDataVisible & scene::EDS_NORMALS)
 		{
-			const f32 debugNormalLength = SceneManager->getParameters()->getAttributeAsFloat(DEBUG_NORMAL_LENGTH);
-			const video::SColor debugNormalColor = SceneManager->getParameters()->getAttributeAsColor(DEBUG_NORMAL_COLOR);
+			const f32 debugNormalLength = lockedSceneManager->getParameters()->getAttributeAsFloat(DEBUG_NORMAL_LENGTH);
+			const video::SColor debugNormalColor = lockedSceneManager->getParameters()->getAttributeAsColor(DEBUG_NORMAL_COLOR);
 			const u32 count = m->getMeshBufferCount();
 
 			// draw normals
@@ -401,14 +403,14 @@ void CAnimatedMeshSceneNode::render()
 			if (Mesh->getMeshType() == EAMT_MD3)
 			{
 				boost::shared_ptr<IAnimatedMesh> arrow =
-					SceneManager->addArrowMesh (
+					lockedSceneManager->addArrowMesh (
 							"__tag_show",
 							0xFF0000FF, 0xFF000088,
 							4, 8, 5.f, 4.f, 0.5f,
 							1.f);
 				if (!arrow)
 				{
-					arrow = SceneManager->getMesh ( "__tag_show" );
+					arrow = lockedSceneManager->getMesh ( "__tag_show" );
 				}
 				boost::shared_ptr<IMesh> arrowMesh = arrow->getMesh(0);
 
@@ -539,13 +541,14 @@ u32 CAnimatedMeshSceneNode::getMaterialCount() const
 boost::shared_ptr<IShadowVolumeSceneNode> CAnimatedMeshSceneNode::addShadowVolumeSceneNode(
 		boost::shared_ptr<const IMesh> shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
-	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+	if (!lockedSceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
 		return 0;
 
 	if (!shadowMesh)
 		shadowMesh = Mesh; // if null is given, use the mesh of node
 
-	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), SceneManager, id, zfailmethod, infinity);
+	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), lockedSceneManager, id, zfailmethod, infinity);
 	Shadow->setWeakThis(Shadow);
 
 	return Shadow;
@@ -754,19 +757,21 @@ bool CAnimatedMeshSceneNode::isReadOnlyMaterials() const
 
 
 //! Writes attributes of the scene node.
-void CAnimatedMeshSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CAnimatedMeshSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	IAnimatedMeshSceneNode::serializeAttributes(out, options);
 
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
 	if (options && (options->Flags&io::EARWF_USE_RELATIVE_PATHS) && options->Filename)
 	{
-		const io::path path = SceneManager->getFileSystem()->getRelativeFilename(
-				SceneManager->getFileSystem()->getAbsolutePath(SceneManager->getMeshCache()->getMeshName(Mesh).getPath()),
+		const io::path path = lockedSceneManager->getFileSystem()->getRelativeFilename(
+			lockedSceneManager->getFileSystem()->getAbsolutePath(lockedSceneManager->getMeshCache()->getMeshName(Mesh).getPath()),
 				options->Filename);
 		out->addString("Mesh", path.c_str());
 	}
 	else
-		out->addString("Mesh", SceneManager->getMeshCache()->getMeshName(Mesh).getPath().c_str());
+		out->addString("Mesh", lockedSceneManager->getMeshCache()->getMeshName(Mesh).getPath().c_str());
 	out->addBool("Looping", Looping);
 	out->addBool("ReadOnlyMaterials", ReadOnlyMaterials);
 	out->addFloat("FramesPerSecond", FramesPerSecond);
@@ -780,7 +785,9 @@ void CAnimatedMeshSceneNode::deserializeAttributes(io::IAttributes* in, io::SAtt
 {
 	IAnimatedMeshSceneNode::deserializeAttributes(in, options);
 
-	io::path oldMeshStr = SceneManager->getMeshCache()->getMeshName(Mesh);
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
+	io::path oldMeshStr = lockedSceneManager->getMeshCache()->getMeshName(Mesh);
 	io::path newMeshStr = in->getAttributeAsString("Mesh");
 
 	Looping = in->getAttributeAsBool("Looping");
@@ -791,7 +798,7 @@ void CAnimatedMeshSceneNode::deserializeAttributes(io::IAttributes* in, io::SAtt
 
 	if (newMeshStr != "" && oldMeshStr != newMeshStr)
 	{
-		boost::shared_ptr<IAnimatedMesh> newAnimatedMesh = SceneManager->getMesh(newMeshStr.c_str());
+		boost::shared_ptr<IAnimatedMesh> newAnimatedMesh = lockedSceneManager->getMesh(newMeshStr.c_str());
 
 		if (newAnimatedMesh)
 			setMesh(newAnimatedMesh);
@@ -1012,12 +1019,14 @@ void CAnimatedMeshSceneNode::checkJoints()
 
 	if (!JointsUsed)
 	{
+		boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
 		for (u32 i=0; i<JointChildSceneNodes.size(); ++i)
 			removeChild(JointChildSceneNodes[i]);
 		JointChildSceneNodes.clear();
 
 		//Create joints for SkinnedMesh
-		boost::static_pointer_cast<CSkinnedMesh>(Mesh)->addJoints(JointChildSceneNodes, getSharedThis<IAnimatedMeshSceneNode>(), SceneManager);
+		boost::static_pointer_cast<CSkinnedMesh>(Mesh)->addJoints(JointChildSceneNodes, getSharedThis<IAnimatedMeshSceneNode>(), lockedSceneManager);
 		boost::static_pointer_cast<CSkinnedMesh>(Mesh)->recoverJointsFromMesh(JointChildSceneNodes);
 
 		JointsUsed=true;
@@ -1059,7 +1068,7 @@ boost::shared_ptr<ISceneNode> CAnimatedMeshSceneNode::clone(boost::shared_ptr<IS
 	if (!newParent)
 		newParent = Parent.lock();
 	if (!newManager)
-		newManager = SceneManager;
+		newManager = getSceneManager();
 
 	boost::shared_ptr<CAnimatedMeshSceneNode> newNode =
 		boost::make_shared<CAnimatedMeshSceneNode>(Mesh, nullptr, newManager, ID, RelativeTranslation,

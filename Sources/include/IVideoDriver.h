@@ -253,7 +253,7 @@ namespace video
 	irr::scene::ISceneManager interface provides a lot of powerful classes
 	and methods to make the programmer's life easier.
 	*/
-	class IVideoDriver : public virtual IReferenceCounted
+	class IVideoDriver : public virtual IDebugable
 	{
 	public:
 
@@ -1462,6 +1462,30 @@ namespace video
 		*/
 		virtual void convertColor(const void* sP, ECOLOR_FORMAT sF, s32 sN,
 				void* dP, ECOLOR_FORMAT dF) const =0;
+
+		virtual void setWeakThis(boost::shared_ptr<IVideoDriver> value) {
+#ifdef _DEBUG
+			assert(this == value.get());
+#endif
+			WeakThis = value;
+		}
+
+		protected:
+		inline boost::shared_ptr<IVideoDriver> getSharedThis() {
+#ifdef _DEBUG
+			assert(!WeakThis.expired());
+#endif
+
+			return WeakThis.lock();
+		}
+
+		template<class T> boost::shared_ptr<T> getSharedThis() {
+			return boost::static_pointer_cast<T>(getSharedThis());
+		}
+
+		private:
+			//! Weak pointer to this object
+			boost::weak_ptr<IVideoDriver> WeakThis;
 	};
 
 } // end namespace video

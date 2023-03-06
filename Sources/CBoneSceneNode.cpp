@@ -102,7 +102,7 @@ void CBoneSceneNode::updateAbsolutePositionOfAllChildren()
 }
 
 
-void CBoneSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CBoneSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	IBoneSceneNode::serializeAttributes(out, options);
 	out->addInt("BoneIndex", BoneIndex);

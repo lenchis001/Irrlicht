@@ -322,7 +322,7 @@ namespace
 //! Constructor
 CColladaFileLoader::CColladaFileLoader(boost::shared_ptr<scene::ISceneManager> smgr,
 		io::IFileSystem* fs)
-: SceneManager(smgr), FileSystem(fs), DummyMesh(0),
+: SceneManagerAwareMixin(smgr), FileSystem(fs), DummyMesh(0),
 	FirstLoadedMesh(0), LoadedMeshCount(0), CreateInstances(false)
 {
 	#ifdef _DEBUG
@@ -355,8 +355,10 @@ boost::shared_ptr<IAnimatedMesh> CColladaFileLoader::createMesh(io::IReadFile* f
 	if (!reader)
 		return 0;
 
+	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
+
 	CurrentlyLoadingMesh = file->getFileName();
-	CreateInstances = SceneManager->getParameters()->getAttributeAsBool(
+	CreateInstances = lockedSceneManager->getParameters()->getAttributeAsBool(
 		scene::COLLADA_CREATE_SCENE_INSTANCES);
 	Version = 0;
 	FlipAxis = false;
@@ -386,14 +388,14 @@ boost::shared_ptr<IAnimatedMesh> CColladaFileLoader::createMesh(io::IReadFile* f
 	boost::shared_ptr<scene::IAnimatedMesh> returnMesh = DummyMesh;
 
 	if (Version < 10400)
-		instantiateNode(SceneManager->getRootSceneNode());
+		instantiateNode(lockedSceneManager->getRootSceneNode());
 
 	// add the first loaded mesh into the mesh cache too, if more than one
 	// meshes have been loaded from the file
 	if (LoadedMeshCount>1 && FirstLoadedMesh)
 	{
 		os::Printer::log("Added COLLADA mesh", FirstLoadedMeshName.c_str());
-		SceneManager->getMeshCache()->addMesh(FirstLoadedMeshName.c_str(), FirstLoadedMesh);
+		lockedSceneManager->getMeshCache()->addMesh(FirstLoadedMeshName.c_str(), FirstLoadedMesh);
 	}
 
 	// clean up temporary loaded data
@@ -536,7 +538,7 @@ void CColladaFileLoader::readLibrarySection(io::IXMLReaderUTF8* reader)
 			{
 				boost::shared_ptr<CScenePrefab> p = boost::make_shared<CScenePrefab>("");
 
-				readNodeSection(reader, SceneManager->getRootSceneNode(), p);
+				readNodeSection(reader, getSceneManager()->getRootSceneNode(), p);
 			}
 			else
 			if (effectSectionName == reader->getNodeName())
@@ -584,7 +586,7 @@ void CColladaFileLoader::readVisualScene(io::IXMLReaderUTF8* reader)
 				p = boost::make_shared<CScenePrefab>(readId(reader));
 			else
 			if (p && nodeSectionName == reader->getNodeName()) // as a child of visual_scene
-				readNodeSection(reader, SceneManager->getRootSceneNode(), p);
+				readNodeSection(reader, getSceneManager()->getRootSceneNode(), p);
 			else
 			if (assetSectionName == reader->getNodeName())
 				readAssetSection(reader);
@@ -628,6 +630,7 @@ void CColladaFileLoader::readSceneSection(io::IXMLReaderUTF8* reader)
 	core::matrix4 transform; // transformation of this node
 	core::aabbox3df bbox;
 	boost::shared_ptr<scene::IDummyTransformationSceneNode> node = 0;
+	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
 
 	while(reader->read())
 	{
@@ -661,13 +664,13 @@ void CColladaFileLoader::readSceneSection(io::IXMLReaderUTF8* reader)
 			{
 				// create dummy node if there is none yet.
 				if (!node)
-					node = SceneManager->addDummyTransformationSceneNode(SceneManager->getRootSceneNode());
+					node = lockedSceneManager->addDummyTransformationSceneNode(lockedSceneManager->getRootSceneNode());
 
 				readNodeSection(reader, node);
 			}
 			else
 			if ((instanceSceneName == reader->getNodeName()))
-				readInstanceNode(reader, SceneManager->getRootSceneNode(), 0, 0,instanceSceneName);
+				readInstanceNode(reader, lockedSceneManager->getRootSceneNode(), 0, 0,instanceSceneName);
 			else
 			if (extraNodeName == reader->getNodeName())
 				skipSection(reader, false);
@@ -745,6 +748,8 @@ void CColladaFileLoader::readNodeSection(io::IXMLReaderUTF8* reader, boost::shar
 
 	// read the node
 
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
 	while(reader->read())
 	{
 		if (reader->getNodeType() == io::EXN_ELEMENT)
@@ -803,7 +808,7 @@ void CColladaFileLoader::readNodeSection(io::IXMLReaderUTF8* reader, boost::shar
 				if (CreateInstances && !node)
 				{
 					boost::shared_ptr<scene::IDummyTransformationSceneNode> dummy =
-						SceneManager->addDummyTransformationSceneNode(parent);
+						lockedSceneManager->addDummyTransformationSceneNode(parent);
 					dummy->getRelativeTransformationMatrix() = transform;
 					node = dummy;
 				}
@@ -1129,6 +1134,8 @@ void CColladaFileLoader::instantiateNode(boost::shared_ptr<scene::ISceneNode> pa
 	os::Printer::log("COLLADA instantiate node", ELL_DEBUG);
 	#endif
 
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
 	for (u32 i=0; i<Prefabs.size(); ++i)
 	{
 		if (url == "" || url == Prefabs[i]->getId())
@@ -1139,7 +1146,7 @@ void CColladaFileLoader::instantiateNode(boost::shared_ptr<scene::ISceneNode> pa
 			if (CreateInstances)
 			{
 				boost::shared_ptr<scene::ISceneNode>  newNode
-					= Prefabs[i]->addInstance(parent, SceneManager);
+					= Prefabs[i]->addInstance(parent, lockedSceneManager);
 				if (outNode)
 				{
 					*outNode = newNode;
@@ -1605,6 +1612,8 @@ void CColladaFileLoader::readBindMaterialSection(io::IXMLReaderUTF8* reader, con
 	os::Printer::log("COLLADA reading bind material", ELL_DEBUG);
 	#endif
 
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
 	while(reader->read())
 	{
 		if (reader->getNodeType() == io::EXN_ELEMENT)
@@ -1647,13 +1656,13 @@ void CColladaFileLoader::readBindMaterialSection(io::IXMLReaderUTF8* reader, con
 							toBind[i]->getMaterial().ZWriteEnable = false;
 						}
 					}
-					SceneManager->getMeshManipulator()->setVertexColors(tmpmesh,material->Mat.DiffuseColor);
+					lockedSceneManager->getMeshManipulator()->setVertexColors(tmpmesh,material->Mat.DiffuseColor);
 					if ((material->Transparency!=0.0f) && (material->Transparency!=1.0f))
 					{
 						#ifdef COLLADA_READER_DEBUG
 						os::Printer::log("COLLADA found transparency material", core::stringc(material->Transparency).c_str(), ELL_DEBUG);
 						#endif
-						SceneManager->getMeshManipulator()->setVertexColorAlpha(tmpmesh, core::floor32(material->Transparency*255.0f));
+						lockedSceneManager->getMeshManipulator()->setVertexColorAlpha(tmpmesh, core::floor32(material->Transparency*255.0f));
 					}
 				}
 			}
@@ -1842,7 +1851,7 @@ void CColladaFileLoader::readGeometry(io::IXMLReaderUTF8* reader)
 	// add to scene manager
 	if (LoadedMeshCount)
 	{
-		SceneManager->getMeshCache()->addMesh(filename.c_str(), amesh);
+		getSceneManager()->getMeshCache()->addMesh(filename.c_str(), amesh);
 		os::Printer::log("Added COLLADA mesh", filename.c_str(), ELL_DEBUG);
 	}
 	else
@@ -2324,15 +2333,16 @@ void CColladaFileLoader::readPolygonSection(io::IXMLReaderUTF8* reader,
 		} // end for all polygons
 	}
 
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
 	const SColladaMaterial* m = findMaterial(materialName);
 	if (m)
 	{
 		buffer->getMaterial() = m->Mat;
 		boost::shared_ptr<SMesh> tmpmesh = boost::make_shared<SMesh>();
 		tmpmesh->addMeshBuffer(buffer);
-		SceneManager->getMeshManipulator()->setVertexColors(tmpmesh,m->Mat.DiffuseColor);
+		lockedSceneManager->getMeshManipulator()->setVertexColors(tmpmesh,m->Mat.DiffuseColor);
 		if (m->Transparency != 1.0f)
-			SceneManager->getMeshManipulator()->setVertexColorAlpha(tmpmesh,core::floor32(m->Transparency*255.0f));
+			lockedSceneManager->getMeshManipulator()->setVertexColorAlpha(tmpmesh,core::floor32(m->Transparency*255.0f));
 	}
 	// add future bind reference for the material
 	core::stringc meshbufferReference = geometryId+"/"+materialName;
@@ -2346,7 +2356,7 @@ void CColladaFileLoader::readPolygonSection(io::IXMLReaderUTF8* reader,
 	// calculate normals if there is no slot for it
 
 	if (!normalSlotCount)
-		SceneManager->getMeshManipulator()->recalculateNormals(buffer, true);
+		lockedSceneManager->getMeshManipulator()->recalculateNormals(buffer, true);
 
 	// recalculate bounding box
 	buffer->recalculateBoundingBox();
@@ -2768,7 +2778,7 @@ video::ITexture* CColladaFileLoader::getTextureFromImage(core::stringc uri, SCol
 	#ifdef COLLADA_READER_DEBUG
 	os::Printer::log("COLLADA searching texture", uri, ELL_DEBUG);
 	#endif
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = getSceneManager()->getVideoDriver();
 	for (;;)
 	{
 		uriToId(uri);

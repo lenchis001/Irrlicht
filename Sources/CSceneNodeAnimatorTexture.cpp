@@ -76,7 +76,7 @@ void CSceneNodeAnimatorTexture::animateNode(boost::shared_ptr<ISceneNode> node, 
 
 
 //! Writes attributes of the scene node animator.
-void CSceneNodeAnimatorTexture::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CSceneNodeAnimatorTexture::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	out->addInt("TimePerFrame", TimePerFrame);
 	out->addBool("Loop", Loop);

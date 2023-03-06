@@ -37,7 +37,7 @@ void CLightSceneNode::OnRegisterSceneNode()
 	doLightRecalc();
 
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_LIGHT);
+		getSceneManager()->registerNodeForRendering(getSharedThis(), ESNRP_LIGHT);
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -46,7 +46,7 @@ void CLightSceneNode::OnRegisterSceneNode()
 //! render
 void CLightSceneNode::render()
 {
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = getSceneManager()->getVideoDriver();
 	if (!driver)
 		return;
 
@@ -105,7 +105,7 @@ void CLightSceneNode::setVisible(bool isVisible)
 
 	if(DriverLightIndex < 0)
 		return;
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = getSceneManager()->getVideoDriver();
 	if (!driver)
 		return;
 
@@ -203,7 +203,7 @@ void CLightSceneNode::doLightRecalc()
 
 
 //! Writes attributes of the scene node.
-void CLightSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CLightSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	ILightSceneNode::serializeAttributes(out, options);
 
@@ -256,7 +256,7 @@ boost::shared_ptr<ISceneNode> CLightSceneNode::clone(boost::shared_ptr<ISceneNod
 	if (!newParent)
 		newParent = Parent.lock();
 	if (!newManager)
-		newManager = SceneManager;
+		newManager = getSceneManager();
 
 	boost::shared_ptr<CLightSceneNode> nb = boost::make_shared<CLightSceneNode>(newParent,
 		newManager, ID, RelativeTranslation, LightData.DiffuseColor, LightData.Radius);

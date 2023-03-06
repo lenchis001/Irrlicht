@@ -16,7 +16,7 @@ namespace scene
 
 //! Constructor
 CMD3MeshFileLoader::CMD3MeshFileLoader( boost::shared_ptr<scene::ISceneManager> smgr)
-: SceneManager(smgr)
+: SceneManagerAwareMixin(smgr)
 {
 }
 
@@ -38,8 +38,9 @@ bool CMD3MeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 boost::shared_ptr<IAnimatedMesh> CMD3MeshFileLoader::createMesh(io::IReadFile* file)
 {
 	boost::shared_ptr<CAnimatedMeshMD3> mesh = boost::make_shared<CAnimatedMeshMD3>();
+	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
 
-	if ( mesh->loadModelFile ( 0, file, SceneManager->getFileSystem(), SceneManager->getVideoDriver() ) )
+	if ( mesh->loadModelFile ( 0, file, lockedSceneManager->getFileSystem(), lockedSceneManager->getVideoDriver()))
 		return mesh;
 
 	return nullptr;

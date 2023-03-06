@@ -50,14 +50,15 @@ CCubeSceneNode::~CCubeSceneNode()
 
 void CCubeSceneNode::setSize()
 {
-	Mesh = SceneManager->getGeometryCreator()->createCubeMesh(core::vector3df(Size));
+	Mesh = getSceneManager()->getGeometryCreator()->createCubeMesh(core::vector3df(Size));
 }
 
 
 //! renders the node.
 void CCubeSceneNode::render()
 {
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedSceneManager->getVideoDriver();
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 
 	if (Shadow)
@@ -92,8 +93,8 @@ void CCubeSceneNode::render()
 		if (DebugDataVisible & scene::EDS_NORMALS)
 		{
 			// draw normals
-			const f32 debugNormalLength = SceneManager->getParameters()->getAttributeAsFloat(DEBUG_NORMAL_LENGTH);
-			const video::SColor debugNormalColor = SceneManager->getParameters()->getAttributeAsColor(DEBUG_NORMAL_COLOR);
+			const f32 debugNormalLength = lockedSceneManager->getParameters()->getAttributeAsFloat(DEBUG_NORMAL_LENGTH);
+			const video::SColor debugNormalColor = lockedSceneManager->getParameters()->getAttributeAsColor(DEBUG_NORMAL_COLOR);
 			const u32 count = Mesh->getMeshBufferCount();
 
 			for (u32 i=0; i != count; ++i)
@@ -140,13 +141,14 @@ bool CCubeSceneNode::removeChild(boost::shared_ptr<ISceneNode> child)
 boost::shared_ptr<IShadowVolumeSceneNode> CCubeSceneNode::addShadowVolumeSceneNode(
 		boost::shared_ptr<const IMesh> shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
-	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
+	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
+	if (!lockedSceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
 		return 0;
 
 	if (!shadowMesh)
 		shadowMesh = Mesh; // if null is given, use the mesh of node
 
-	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), SceneManager, id, zfailmethod, infinity);
+	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), lockedSceneManager, id, zfailmethod, infinity);
 	return Shadow;
 }
 
@@ -154,7 +156,7 @@ boost::shared_ptr<IShadowVolumeSceneNode> CCubeSceneNode::addShadowVolumeSceneNo
 void CCubeSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(getSharedThis());
+		getSceneManager()->registerNodeForRendering(getSharedThis());
 	ISceneNode::OnRegisterSceneNode();
 }
 
@@ -174,7 +176,7 @@ u32 CCubeSceneNode::getMaterialCount() const
 
 
 //! Writes attributes of the scene node.
-void CCubeSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CCubeSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	ISceneNode::serializeAttributes(out, options);
 
@@ -203,7 +205,7 @@ boost::shared_ptr<ISceneNode> CCubeSceneNode::clone(boost::shared_ptr<ISceneNode
 	if (!newParent)
 		newParent = Parent.lock();
 	if (!newManager)
-		newManager = SceneManager;
+		newManager = getSceneManager();
 
 	boost::shared_ptr<CCubeSceneNode> nb = boost::make_shared<CCubeSceneNode>(Size, newParent,
 		newManager, ID, RelativeTranslation);

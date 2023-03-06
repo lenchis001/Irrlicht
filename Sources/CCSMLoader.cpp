@@ -357,7 +357,7 @@ namespace scene
 	};
 
 	CCSMLoader::CCSMLoader(boost::shared_ptr<scene::ISceneManager> manager, io::IFileSystem* fs)
-		: FileSystem(fs), SceneManager(manager)
+		: SceneManagerAwareMixin(manager), FileSystem(fs)
 	{
 
 		#ifdef _DEBUG
@@ -400,7 +400,7 @@ namespace scene
 		csmFile.load(&reader);
 
 		return createIrrlichtMesh(&csmFile,
-			SceneManager->getParameters()->getAttributeAsString(CSM_TEXTURE_PATH),
+			getSceneManager()->getParameters()->getAttributeAsString(CSM_TEXTURE_PATH),
 			file->getFileName());
 	}
 
@@ -409,7 +409,7 @@ namespace scene
 		const core::stringc& textureRoot, const io::path& lmprefix)
 	{
 		boost::shared_ptr<scene::SMesh> pMesh = boost::make_shared<scene::SMesh>();
-		video::IVideoDriver* driver = SceneManager->getVideoDriver();
+		boost::shared_ptr<video::IVideoDriver> driver = getSceneManager()->getVideoDriver();
 
 		for(u32 l = 0; l<csmFile->getLightMapCount(); l++)
 		{

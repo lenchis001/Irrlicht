@@ -27,12 +27,12 @@ namespace scene
 //! constructor
 CQ3LevelMesh::CQ3LevelMesh(io::IFileSystem* fs, boost::shared_ptr<scene::ISceneManager> smgr,
 				const Q3LevelLoadParameter &loadParam)
-	: LoadParam(loadParam), Textures(0), NumTextures(0), LightMaps(0), NumLightMaps(0),
+	: VideoDriverAwareMixin(smgr ? smgr->getVideoDriver() : 0), SceneManagerAwareMixin(smgr), LoadParam(loadParam), Textures(0), NumTextures(0), LightMaps(0), NumLightMaps(0),
 	Vertices(0), NumVertices(0), Faces(0), NumFaces(0), Models(0), NumModels(0),
 	Planes(0), NumPlanes(0), Nodes(0), NumNodes(0), Leafs(0), NumLeafs(0),
 	LeafFaces(0), NumLeafFaces(0), MeshVerts(0), NumMeshVerts(0),
 	Brushes(0), NumBrushes(0), BrushEntities(0), FileSystem(fs),
-	SceneManager(smgr), FramesPerSecond(25.f)
+	FramesPerSecond(25.f)
 {
 	#ifdef _DEBUG
 	IDebugable::setDebugName("CQ3LevelMesh");
@@ -42,10 +42,6 @@ CQ3LevelMesh::CQ3LevelMesh(io::IFileSystem* fs, boost::shared_ptr<scene::ISceneM
 	{
 		Mesh[i] = 0;
 	}
-
-	Driver = smgr ? smgr->getVideoDriver() : 0;
-	if (Driver)
-		Driver->grab();
 
 	if (FileSystem)
 		FileSystem->grab();
@@ -60,8 +56,7 @@ CQ3LevelMesh::~CQ3LevelMesh()
 {
 	cleanLoader ();
 
-	if (Driver)
-		Driver->drop();
+
 
 	if (FileSystem)
 		FileSystem->drop();
@@ -1909,7 +1904,9 @@ void CQ3LevelMesh::calcBoundingBoxes()
 //! loads the textures
 void CQ3LevelMesh::loadTextures()
 {
-	if (!Driver)
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
+	if (!lockedDriver)
 		return;
 
 	if ( LoadParam.verbose > 0 )
@@ -1934,8 +1931,8 @@ void CQ3LevelMesh::loadTextures()
 	Lightmap.set_used(NumLightMaps);
 
 /*
-	bool oldMipMapState = Driver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
-	Driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
+	bool oldMipMapState = lockedDriver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
+	lockedDriver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
 */
 	core::dimension2d<u32> lmapsize(128,128);
 
@@ -1945,11 +1942,11 @@ void CQ3LevelMesh::loadTextures()
 		sprintf(lightmapname, "%s.lightmap.%d", LevelName.c_str(), t);
 
 		// lightmap is a CTexture::R8G8B8 format
-		lmapImg = Driver->createImageFromData(
+		lmapImg = lockedDriver->createImageFromData(
 			video::ECF_R8G8B8, lmapsize,
 			LightMaps[t].imageBits, false, true );
 
-		Lightmap[t] = Driver->addTexture( lightmapname, lmapImg );
+		Lightmap[t] = lockedDriver->addTexture( lightmapname, lmapImg );
 		lmapImg->drop();
 	}
 
@@ -2010,7 +2007,7 @@ void CQ3LevelMesh::loadTextures()
 		}
 
 		u32 pos = 0;
-		getTextures( textureArray, list, pos, FileSystem, Driver );
+		getTextures( textureArray, list, pos, FileSystem, lockedDriver);
 
 		Tex[t].Texture = textureArray[0];
 	}

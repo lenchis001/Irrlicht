@@ -69,7 +69,7 @@ struct SMyMaterialHeader
 // Default alignment
 #include "irrunpack.h"
 
-class CMY3DMeshFileLoader : public IMeshLoader
+class CMY3DMeshFileLoader : public IMeshLoader, public SceneManagerAwareMixin<>
 {
 public:
 	CMY3DMeshFileLoader(boost::shared_ptr<ISceneManager> scmgr, io::IFileSystem* fs);
@@ -87,7 +87,6 @@ private:
 
 	video::ITexture* readEmbeddedLightmap(io::IReadFile* file, char* namebuf);
 
-	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IFileSystem* FileSystem;
 
 	struct SMyMaterialEntry

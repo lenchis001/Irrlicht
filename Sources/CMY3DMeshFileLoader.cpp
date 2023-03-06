@@ -52,7 +52,7 @@ static const unsigned long MY3D_PIXEL_FORMAT_24 = 0x5f32345f;
 static const unsigned long MY3D_PIXEL_FORMAT_16 = 0x5f31365f;
 
 CMY3DMeshFileLoader::CMY3DMeshFileLoader(boost::shared_ptr<scene::ISceneManager> scmgr, io::IFileSystem* fs)
-	: SceneManager(scmgr), FileSystem(fs)
+	: SceneManagerAwareMixin(scmgr), FileSystem(fs)
 {
 	#ifdef _DEBUG
 	setDebugName("CMY3DMeshFileLoader");
@@ -134,8 +134,9 @@ boost::shared_ptr<IAnimatedMesh> CMY3DMeshFileLoader::createMesh(io::IReadFile* 
 		return 0;
 	}
 
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
 	core::stringc texturePath =
-		SceneManager->getParameters()->getAttributeAsString(MY3D_TEXTURE_PATH);
+		lockedSceneManager->getParameters()->getAttributeAsString(MY3D_TEXTURE_PATH);
 
 	file->read(&id, sizeof(id));
 #ifdef __BIG_ENDIAN__
@@ -185,20 +186,20 @@ boost::shared_ptr<IAnimatedMesh> CMY3DMeshFileLoader::createMesh(io::IReadFile* 
 				name[pos-2]=='l' && name[pos-3]=='_')) &&
 				!gotLightMap)
 			{
-				const bool oldMipMapState = SceneManager->getVideoDriver()->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
-				SceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
+				const bool oldMipMapState = lockedSceneManager->getVideoDriver()->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
+				lockedSceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
 
 				me.Texture2FileName = texturePath.size() ? texturePath : filepath;
 				me.Texture2FileName.append("Lightmaps/");
 				me.Texture2FileName.append(name);
 
 				if (name.size())
-					me.Texture2 = SceneManager->getVideoDriver()->getTexture(me.Texture2FileName);
+					me.Texture2 = lockedSceneManager->getVideoDriver()->getTexture(me.Texture2FileName);
 
 				me.MaterialType = video::EMT_LIGHTMAP_M2;
 				gotLightMap = true;
 
-				SceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, oldMipMapState);
+				lockedSceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, oldMipMapState);
 			}
 			else
 			if (!gotLightMap && gotMainMap)
@@ -207,7 +208,7 @@ boost::shared_ptr<IAnimatedMesh> CMY3DMeshFileLoader::createMesh(io::IReadFile* 
 				me.Texture2FileName.append(name);
 
 				if (name.size())
-					me.Texture2 = SceneManager->getVideoDriver()->getTexture(me.Texture2FileName);
+					me.Texture2 = lockedSceneManager->getVideoDriver()->getTexture(me.Texture2FileName);
 
 				me.MaterialType = video::EMT_REFLECTION_2_LAYER;
 			}
@@ -217,7 +218,7 @@ boost::shared_ptr<IAnimatedMesh> CMY3DMeshFileLoader::createMesh(io::IReadFile* 
 				me.Texture1FileName = filepath;
 				me.Texture1FileName.append(name);
 				if (name.size())
-					me.Texture1 = SceneManager->getVideoDriver()->getTexture(me.Texture1FileName);
+					me.Texture1 = lockedSceneManager->getVideoDriver()->getTexture(me.Texture1FileName);
 
 				gotMainMap = true;
 				me.MaterialType = video::EMT_SOLID;
@@ -398,7 +399,7 @@ boost::shared_ptr<IAnimatedMesh> CMY3DMeshFileLoader::createMesh(io::IReadFile* 
 		SMeshBufferLightMap* buffer = getMeshBufferByMaterialIndex(meshHeader.MatIndex);
 
 		if (!buffer ||
-			(buffer->Vertices.size()+vertsNum) > SceneManager->getVideoDriver()->getMaximalPrimitiveCount())
+			(buffer->Vertices.size()+vertsNum) > lockedSceneManager->getVideoDriver()->getMaximalPrimitiveCount())
 		{
 			// creating new mesh buffer for this material
 			buffer = new scene::SMeshBufferLightMap();
@@ -818,11 +819,12 @@ video::ITexture* CMY3DMeshFileLoader::readEmbeddedLightmap(io::IReadFile* file, 
 
 	//! Creates a software image from a byte array.
 	video::IImage* light_img = 0;
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
 
 	if (texDataHeader.PixelFormat == MY3D_PIXEL_FORMAT_24)
 	{
 		// 24 bit lightmap format
-		light_img = SceneManager->getVideoDriver()->createImageFromData(
+		light_img = lockedSceneManager->getVideoDriver()->createImageFromData(
 		video::ECF_R8G8B8,
 		core::dimension2d<u32>(texDataHeader.Width, texDataHeader.Height),
 			data, true);
@@ -830,16 +832,16 @@ video::ITexture* CMY3DMeshFileLoader::readEmbeddedLightmap(io::IReadFile* file, 
 	else
 	{
 		// 16 bit lightmap format
-		light_img = SceneManager->getVideoDriver()->createImageFromData(
+		light_img = lockedSceneManager->getVideoDriver()->createImageFromData(
 			video::ECF_A1R5G5B5,
 			core::dimension2d<u32>(texDataHeader.Width, texDataHeader.Height),
 			data, true);
 	}
 
-	const bool oldMipMapState = SceneManager->getVideoDriver()->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
-	SceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
-	video::ITexture* lmtex = SceneManager->getVideoDriver()->addTexture(LightMapName, light_img);
-	SceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, oldMipMapState);
+	const bool oldMipMapState = lockedSceneManager->getVideoDriver()->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
+	lockedSceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
+	video::ITexture* lmtex = lockedSceneManager->getVideoDriver()->addTexture(LightMapName, light_img);
+	lockedSceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, oldMipMapState);
 
 	light_img->drop();
 	return lmtex;

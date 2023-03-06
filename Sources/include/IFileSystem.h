@@ -374,7 +374,7 @@ public:
 	\return Pointer to the created object.
 	If you no longer need the object, you should call IAttributes::drop().
 	See IReferenceCounted::drop() for more information. */
-	virtual IAttributes* createEmptyAttributes(video::IVideoDriver* driver=0) =0;
+	virtual IAttributes* createEmptyAttributes(boost::shared_ptr<video::IVideoDriver> driver=0) =0;
 };
 
 

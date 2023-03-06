@@ -130,8 +130,9 @@ CSkyBoxSceneNode::CSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom
 //! renders the node.
 void CSkyBoxSceneNode::render()
 {
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
-	boost::shared_ptr<scene::ICameraSceneNode> camera = SceneManager->getActiveCamera();
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedSceneManager->getVideoDriver();
+	boost::shared_ptr<scene::ICameraSceneNode> camera = lockedSceneManager->getActiveCamera();
 
 	if (!camera || !driver)
 		return;
@@ -214,7 +215,7 @@ const core::aabbox3d<f32>& CSkyBoxSceneNode::getBoundingBox() const
 void CSkyBoxSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_SKY_BOX);
+		getSceneManager()->registerNodeForRendering(getSharedThis(), ESNRP_SKY_BOX);
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -242,7 +243,7 @@ u32 CSkyBoxSceneNode::getMaterialCount() const
 boost::shared_ptr<ISceneNode> CSkyBoxSceneNode::clone(boost::shared_ptr<ISceneNode> newParent, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	if (!newParent) newParent = Parent.lock();
-	if (!newManager) newManager = SceneManager;
+	if (!newManager) newManager = getSceneManager();
 
 	boost::shared_ptr<CSkyBoxSceneNode> nb = boost::make_shared<CSkyBoxSceneNode>(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, newParent, newManager, ID);
 	nb->setWeakThis(nb);

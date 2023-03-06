@@ -29,7 +29,7 @@ namespace irr
 	namespace video
 	{
 		#ifdef _IRR_COMPILE_WITH_OPENGL_
-		IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& params,
+		boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParameters& params,
 				io::IFileSystem* io, CIrrDeviceSDL* device);
 		#endif
 	} // end namespace video

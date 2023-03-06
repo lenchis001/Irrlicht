@@ -6,6 +6,7 @@
 #define __C_SCENE_NODE_ANIMATOR_COLLISION_RESPONSE_H_INCLUDED__
 
 #include "ISceneNodeAnimatorCollisionResponse.h"
+#include "SceneManagerAwareMixin.h"
 
 namespace irr
 {
@@ -20,7 +21,7 @@ namespace scene
 	behave as the player control in a first person shooter game: The camera stops and
 	slides at walls, walks up stairs, falls down if there is no floor under it, and so on.
 	*/
-	class CSceneNodeAnimatorCollisionResponse : public ISceneNodeAnimatorCollisionResponse
+	class CSceneNodeAnimatorCollisionResponse : public ISceneNodeAnimatorCollisionResponse, public SceneManagerAwareMixin<>
 	{
 	public:
 
@@ -79,7 +80,7 @@ namespace scene
 		virtual void animateNode(boost::shared_ptr<ISceneNode> node, u32 timeMs);
 
 		//! Writes attributes of the scene node animator.
-		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const;
+		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0);
 
 		//! Reads attributes of the scene node animator.
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0);
@@ -133,7 +134,6 @@ namespace scene
 
 		ITriangleSelector* World;
 		boost::shared_ptr<ISceneNode> Object;
-		boost::shared_ptr<scene::ISceneManager> SceneManager;
 		u32 LastTime;
 		f32 SlidingSpeed;
 

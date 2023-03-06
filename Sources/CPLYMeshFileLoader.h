@@ -8,6 +8,7 @@
 #include "IMeshLoader.h"
 #include "ISceneManager.h"
 #include "CDynamicMeshBuffer.h"
+#include "SceneManagerAwareMixin.h"
 
 namespace irr
 {
@@ -26,7 +27,7 @@ enum E_PLY_PROPERTY_TYPE
 };
 
 //! Meshloader capable of loading obj meshes.
-class CPLYMeshFileLoader : public IMeshLoader
+class CPLYMeshFileLoader : public IMeshLoader, public SceneManagerAwareMixin<>
 {
 public:
 
@@ -133,7 +134,6 @@ private:
 
 	core::array<SPLYElement*> ElementList;
 
-	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IReadFile *File;
 	c8 *Buffer;
 	bool IsBinaryFile, IsWrongEndian, EndOfFile;

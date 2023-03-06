@@ -133,8 +133,9 @@ void CSkyDomeSceneNode::generateMesh()
 //! renders the node.
 void CSkyDomeSceneNode::render()
 {
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
-	boost::shared_ptr<scene::ICameraSceneNode> camera = SceneManager->getActiveCamera();
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedSceneManager->getVideoDriver();
+	boost::shared_ptr<scene::ICameraSceneNode> camera = lockedSceneManager->getActiveCamera();
 
 	if (!camera || !driver)
 		return;
@@ -160,8 +161,8 @@ void CSkyDomeSceneNode::render()
 		if ( DebugDataVisible & scene::EDS_NORMALS )
 		{
 			// draw normals
-			const f32 debugNormalLength = SceneManager->getParameters()->getAttributeAsFloat(DEBUG_NORMAL_LENGTH);
-			const video::SColor debugNormalColor = SceneManager->getParameters()->getAttributeAsColor(DEBUG_NORMAL_COLOR);
+			const f32 debugNormalLength = lockedSceneManager->getParameters()->getAttributeAsFloat(DEBUG_NORMAL_LENGTH);
+			const video::SColor debugNormalColor = lockedSceneManager->getParameters()->getAttributeAsColor(DEBUG_NORMAL_COLOR);
 			driver->drawMeshBufferNormals(Buffer, debugNormalLength, debugNormalColor);
 		}
 
@@ -188,7 +189,7 @@ void CSkyDomeSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
 	{
-		SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_SKY_BOX );
+		getSceneManager()->registerNodeForRendering(getSharedThis(), ESNRP_SKY_BOX);
 	}
 
 	ISceneNode::OnRegisterSceneNode();
@@ -214,7 +215,7 @@ u32 CSkyDomeSceneNode::getMaterialCount() const
 
 
 //! Writes attributes of the scene node.
-void CSkyDomeSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CSkyDomeSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	ISceneNode::serializeAttributes(out, options);
 
@@ -247,7 +248,7 @@ boost::shared_ptr<ISceneNode> CSkyDomeSceneNode::clone(boost::shared_ptr<ISceneN
 	if (!newParent)
 		newParent = Parent.lock();
 	if (!newManager)
-		newManager = SceneManager;
+		newManager = getSceneManager();
 
 	boost::shared_ptr<CSkyDomeSceneNode> nb = boost::make_shared<CSkyDomeSceneNode>(Buffer->Material.TextureLayer[0].Texture, HorizontalResolution, VerticalResolution, TexturePercentage,
 		SpherePercentage, Radius, newParent, newManager, ID);

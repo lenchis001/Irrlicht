@@ -7,6 +7,7 @@
 
 #include "ITexture.h"
 #include "IImage.h"
+#include "VideoDriverAwareMixin.h"
 
 #include "IrrCompileConfig.h"
 #ifdef _IRR_COMPILE_WITH_OPENGL_
@@ -46,12 +47,12 @@ namespace video
 
 class COpenGLDriver;
 //! OpenGL texture.
-class COpenGLTexture : public ITexture
+class COpenGLTexture : public ITexture, public VideoDriverAwareMixin<COpenGLDriver>
 {
 public:
 
 	//! constructor
-	COpenGLTexture(IImage* surface, const io::path& name, void* mipmapData=0, COpenGLDriver* driver=0);
+	COpenGLTexture(IImage* surface, const io::path& name, void* mipmapData=0, boost::shared_ptr<COpenGLDriver> driver=0);
 
 	//! destructor
 	virtual ~COpenGLTexture();
@@ -106,7 +107,7 @@ public:
 protected:
 
 	//! protected constructor with basic setup, no GL texture name created, for derived classes
-	COpenGLTexture(const io::path& name, COpenGLDriver* driver);
+	COpenGLTexture(const io::path& name, boost::shared_ptr<COpenGLDriver> driver);
 
 	//! get the desired color format based on texture creation flags and the input format.
 	ECOLOR_FORMAT getBestColorFormat(ECOLOR_FORMAT format);
@@ -127,7 +128,6 @@ protected:
 	core::dimension2d<u32> ImageSize;
 	core::dimension2d<u32> TextureSize;
 	ECOLOR_FORMAT ColorFormat;
-	COpenGLDriver* Driver;
 	IImage* Image;
 	IImage* MipImage;
 
@@ -152,7 +152,7 @@ public:
 
 	//! FrameBufferObject constructor
 	COpenGLFBOTexture(const core::dimension2d<u32>& size, const io::path& name,
-		COpenGLDriver* driver = 0, ECOLOR_FORMAT format = ECF_UNKNOWN);
+		boost::shared_ptr<COpenGLDriver> driver = 0, ECOLOR_FORMAT format = ECF_UNKNOWN);
 
 	//! destructor
 	virtual ~COpenGLFBOTexture();
@@ -177,7 +177,7 @@ class COpenGLFBODepthTexture : public COpenGLTexture
 {
 public:
 	//! FrameBufferObject depth constructor
-	COpenGLFBODepthTexture(const core::dimension2d<u32>& size, const io::path& name, COpenGLDriver* driver=0, bool useStencil=false);
+	COpenGLFBODepthTexture(const core::dimension2d<u32>& size, const io::path& name, boost::shared_ptr<COpenGLDriver> driver=0, bool useStencil=false);
 
 	//! destructor
 	virtual ~COpenGLFBODepthTexture();

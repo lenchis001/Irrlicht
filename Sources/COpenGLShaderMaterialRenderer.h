@@ -28,6 +28,7 @@
 #endif
 
 #include "IMaterialRenderer.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -39,12 +40,12 @@ class IShaderConstantSetCallBack;
 class IMaterialRenderer;
 
 //! Class for using vertex and pixel shaders with OpenGL
-class COpenGLShaderMaterialRenderer : public IMaterialRenderer
+class COpenGLShaderMaterialRenderer : public IMaterialRenderer, public VideoDriverAwareMixin<COpenGLDriver>
 {
 public:
 
 	//! Constructor
-	COpenGLShaderMaterialRenderer(COpenGLDriver* driver,
+	COpenGLShaderMaterialRenderer(boost::shared_ptr<COpenGLDriver> driver,
 		s32& outMaterialTypeNr, const c8* vertexShaderProgram, const c8* pixelShaderProgram,
 		IShaderConstantSetCallBack* callback, IMaterialRenderer* baseMaterial, s32 userData);
 
@@ -65,7 +66,7 @@ protected:
 
 	//! constructor only for use by derived classes who want to
 	//! create a fall back material for example.
-	COpenGLShaderMaterialRenderer(COpenGLDriver* driver,
+	COpenGLShaderMaterialRenderer(boost::shared_ptr<COpenGLDriver> driver,
 					IShaderConstantSetCallBack* callback,
 					IMaterialRenderer* baseMaterial, s32 userData=0);
 
@@ -77,7 +78,6 @@ protected:
 	bool createVertexShader(const c8* vtxsh);
 	bool checkError(const irr::c8* type);
 
-	COpenGLDriver* Driver;
 	IShaderConstantSetCallBack* CallBack;
 	IMaterialRenderer* BaseMaterial;
 

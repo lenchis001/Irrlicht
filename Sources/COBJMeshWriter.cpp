@@ -23,7 +23,7 @@ namespace scene
 {
 
 COBJMeshWriter::COBJMeshWriter(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs)
-	: SceneManager(smgr), FileSystem(fs)
+	: SceneManagerAwareMixin(smgr), FileSystem(fs)
 {
 	#ifdef _DEBUG
 	setDebugName("COBJMeshWriter");
@@ -58,7 +58,7 @@ bool COBJMeshWriter::writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IM
 
 	// write OBJ MESH header
 
-	const core::stringc name(FileSystem->getFileBasename(SceneManager->getMeshCache()->getMeshName(mesh), false)+".mtl");
+	const core::stringc name(FileSystem->getFileBasename(getSceneManager()->getMeshCache()->getMeshName(mesh), false) + ".mtl");
 	file->write("# exported by Irrlicht\n",23);
 	file->write("mtllib ",7);
 	file->write(name.c_str(),name.size());

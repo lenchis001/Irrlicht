@@ -17,7 +17,7 @@ class CGUIImageList : public IGUIImageList
 public:
 
 	//! constructor
-	CGUIImageList( video::IVideoDriver* Driver );
+	CGUIImageList( boost::shared_ptr<video::IVideoDriver> Driver );
 
 	//! destructor
 	virtual ~CGUIImageList();
@@ -53,7 +53,7 @@ public:
 
 private:
 
-	video::IVideoDriver*		Driver;
+	boost::shared_ptr<video::IVideoDriver>		Driver;
 	video::ITexture*			Texture;
 	s32							ImageCount;
 	core::dimension2d<s32>	ImageSize;

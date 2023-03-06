@@ -429,7 +429,7 @@ bool CGUITreeViewNode::isVisible() const
 
 void CGUITreeViewNode::setWeakThis(boost::shared_ptr<CGUITreeViewNode> value)
 {
-#if _DEBUG
+#ifdef _DEBUG
 	assert(this == value.get());
 #endif
 	WeakThis = value;
@@ -796,7 +796,7 @@ void CGUITreeView::draw()
 
 	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
 	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
-	irr::video::IVideoDriver* driver = lockedEnvironment->getVideoDriver();
+	boost::shared_ptr<irr::video::IVideoDriver> driver = lockedEnvironment->getVideoDriver();
 
 	core::rect<s32>* clipRect = 0;
 	if( Clip )

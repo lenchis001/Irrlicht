@@ -13,7 +13,7 @@ namespace scene
 
 //! constructor
 CSceneNodeAnimatorDelete::CSceneNodeAnimatorDelete(boost::shared_ptr<scene::ISceneManager> manager, u32 time)
-: ISceneNodeAnimatorFinishing(time), SceneManager(manager)
+: ISceneNodeAnimatorFinishing(time), SceneManagerAwareMixin(manager)
 {
 	#ifdef _DEBUG
 	setDebugName("CSceneNodeAnimatorDelete");
@@ -27,11 +27,14 @@ void CSceneNodeAnimatorDelete::animateNode(boost::shared_ptr<ISceneNode> node, u
 	if (timeMs > FinishTime)
 	{
 		HasFinished = true;
-		if(node && SceneManager)
+
+		boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
+		if(node && lockedSceneManager)
 		{
 			// don't delete if scene manager is attached to an editor
-			if (!SceneManager->getParameters()->getAttributeAsBool(IRR_SCENE_MANAGER_IS_EDITOR))
-				SceneManager->addToDeletionQueue(node);
+			if (!lockedSceneManager->getParameters()->getAttributeAsBool(IRR_SCENE_MANAGER_IS_EDITOR))
+				lockedSceneManager->addToDeletionQueue(node);
 		}
 	}
 }
@@ -40,7 +43,7 @@ void CSceneNodeAnimatorDelete::animateNode(boost::shared_ptr<ISceneNode> node, u
 boost::shared_ptr<ISceneNodeAnimator> CSceneNodeAnimatorDelete::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
 	boost::shared_ptr<CSceneNodeAnimatorDelete> newAnimator = 
-		boost::make_shared<CSceneNodeAnimatorDelete>(SceneManager, FinishTime);
+		boost::make_shared<CSceneNodeAnimatorDelete>(getSceneManager(), FinishTime);
 
 	return newAnimator;
 }

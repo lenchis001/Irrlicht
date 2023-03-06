@@ -51,7 +51,7 @@ boost::shared_ptr<ISceneNode> CDummyTransformationSceneNode::clone(boost::shared
 	if (!newParent)
 		newParent = Parent.lock();
 	if (!newManager)
-		newManager = SceneManager;
+		newManager = getSceneManager();
 
 	boost::shared_ptr<CDummyTransformationSceneNode> nb = boost::make_shared<CDummyTransformationSceneNode>(newParent,
 		newManager, ID);

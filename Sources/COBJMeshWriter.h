@@ -8,6 +8,7 @@
 #include "IMeshWriter.h"
 #include "S3DVertex.h"
 #include "irrString.h"
+#include "SceneManagerAwareMixin.h"
 
 namespace irr
 {
@@ -21,7 +22,7 @@ namespace scene
 	class ISceneManager;
 
 	//! class to write meshes, implementing a OBJ writer
-	class COBJMeshWriter : public IMeshWriter
+	class COBJMeshWriter : public IMeshWriter, public SceneManagerAwareMixin<>
 	{
 	public:
 
@@ -47,7 +48,6 @@ namespace scene
 		void getColorAsStringLine(const video::SColor& color,
 				const c8* const prefix, core::stringc& s) const;
 
-		boost::shared_ptr<scene::ISceneManager> SceneManager;
 		io::IFileSystem* FileSystem;
 	};
 

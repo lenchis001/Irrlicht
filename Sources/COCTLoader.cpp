@@ -28,7 +28,7 @@ namespace scene
 
 //! constructor
 COCTLoader::COCTLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs)
-	: SceneManager(smgr), FileSystem(fs)
+	: SceneManagerAwareMixin(smgr), FileSystem(fs)
 {
 	#ifdef _DEBUG
 	setDebugName("COCTLoader");
@@ -69,7 +69,7 @@ void COCTLoader::OCTLoadLights(io::IReadFile* file, boost::shared_ptr<scene::ISc
 	{
 		const f32 intensity = lights[i].intensity * intensityScale;
 
-		SceneManager->addLightSceneNode(parent, core::vector3df(lights[i].pos[0], lights[i].pos[2], lights[i].pos[1]),
+		getSceneManager()->addLightSceneNode(parent, core::vector3df(lights[i].pos[0], lights[i].pos[2], lights[i].pos[1]),
 			video::SColorf(lights[i].color[0] * intensity, lights[i].color[1] * intensity, lights[i].color[2] * intensity, 1.0f),
 			radius);
 	}
@@ -199,16 +199,17 @@ boost::shared_ptr<IAnimatedMesh> COCTLoader::createMesh(io::IReadFile* file)
 	tex.reallocate(header.numTextures + 1);
 	tex.push_back(0);
 
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
 	const core::stringc relpath = FileSystem->getFileDir(file->getFileName())+"/";
 	for (i = 1; i < (header.numTextures + 1); i++)
 	{
 		core::stringc path(textures[i-1].fileName);
 		path.replace('\\','/');
 		if (FileSystem->existFile(path))
-			tex.push_back(SceneManager->getVideoDriver()->getTexture(path));
+			tex.push_back(lockedSceneManager->getVideoDriver()->getTexture(path));
 		else
 			// try to read in the relative path of the OCT file
-			tex.push_back(SceneManager->getVideoDriver()->getTexture( (relpath + path) ));
+			tex.push_back(lockedSceneManager->getVideoDriver()->getTexture( (relpath + path) ));
 	}
 
 	// prepare lightmaps
@@ -220,10 +221,10 @@ boost::shared_ptr<IAnimatedMesh> COCTLoader::createMesh(io::IReadFile* file)
 	const u32 lightmapHeight = 128;
 	const core::dimension2d<u32> lmapsize(lightmapWidth, lightmapHeight);
 
-	bool oldMipMapState = SceneManager->getVideoDriver()->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
-	SceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
+	bool oldMipMapState = lockedSceneManager->getVideoDriver()->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
+	lockedSceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
 
-	video::IImage* tmpImage = SceneManager->getVideoDriver()->createImage(video::ECF_R8G8B8, lmapsize);
+	video::IImage* tmpImage = lockedSceneManager->getVideoDriver()->createImage(video::ECF_R8G8B8, lmapsize);
 	for (i = 1; i < (header.numLightmaps + 1); ++i)
 	{
 		core::stringc lightmapname = file->getFileName();
@@ -244,10 +245,10 @@ boost::shared_ptr<IAnimatedMesh> COCTLoader::createMesh(io::IReadFile* file)
 			}
 		}
 
-		lig[i] = SceneManager->getVideoDriver()->addTexture(lightmapname.c_str(), tmpImage);
+		lig[i] = lockedSceneManager->getVideoDriver()->addTexture(lightmapname.c_str(), tmpImage);
 	}
 	tmpImage->drop();
-	SceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, oldMipMapState);
+	lockedSceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, oldMipMapState);
 
 	// Free stuff
 	delete [] verts;

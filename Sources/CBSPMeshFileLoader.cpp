@@ -16,7 +16,7 @@ namespace scene
 //! Constructor
 CBSPMeshFileLoader::CBSPMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr,
 		io::IFileSystem* fs)
-: FileSystem(fs), SceneManager(smgr)
+: SceneManagerAwareMixin(smgr), FileSystem(fs)
 {
 
 	#ifdef _DEBUG
@@ -52,11 +52,12 @@ boost::shared_ptr<IAnimatedMesh> CBSPMeshFileLoader::createMesh(io::IReadFile* f
 {
 	s32 type = core::isFileExtension ( file->getFileName(), "bsp", "shader", "cfg" );
 	boost::shared_ptr<CQ3LevelMesh> q = 0;
+	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
 
 	switch ( type )
 	{
 		case 1:
-			q = boost::make_shared<CQ3LevelMesh>(FileSystem, SceneManager, LoadParam);
+			q = boost::make_shared<CQ3LevelMesh>(FileSystem, lockedSceneManager, LoadParam);
 
 			// determine real shaders in LoadParam
 			if ( 0 == LoadParam.loadAllShaders )
@@ -76,7 +77,7 @@ boost::shared_ptr<IAnimatedMesh> CBSPMeshFileLoader::createMesh(io::IReadFile* f
 			break;
 
 		case 2:
-			q = boost::make_shared<CQ3LevelMesh>(FileSystem, SceneManager,LoadParam);
+			q = boost::make_shared<CQ3LevelMesh>(FileSystem, lockedSceneManager,LoadParam);
 			q->getShader( file );
 			return q;
 			break;
@@ -89,7 +90,7 @@ boost::shared_ptr<IAnimatedMesh> CBSPMeshFileLoader::createMesh(io::IReadFile* f
 			}
 			else
 			{
-				q = boost::make_shared<CQ3LevelMesh>(FileSystem, SceneManager,LoadParam);
+				q = boost::make_shared<CQ3LevelMesh>(FileSystem, lockedSceneManager, LoadParam);
 				q->getConfiguration( file );
 				return q;
 			}

@@ -7,6 +7,7 @@
 
 #include "SMaterial.h"
 #include "S3DVertex.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -17,9 +18,10 @@ class IVideoDriver;
 
 
 //! Interface providing some methods for changing advanced, internal states of a IVideoDriver.
-class IMaterialRendererServices
+class IMaterialRendererServices: public VideoDriverAwareMixin<>
 {
 public:
+	IMaterialRendererServices(boost::shared_ptr<IVideoDriver> driver): VideoDriverAwareMixin(driver) { }
 
 	//! Destructor
 	virtual ~IMaterialRendererServices() {}
@@ -47,7 +49,7 @@ public:
 	\code
 	virtual void OnSetConstants(video::IMaterialRendererServices* services, s32 userData)
 	{
-		video::IVideoDriver* driver = services->getVideoDriver();
+		boost::shared_ptr<video::IVideoDriver> driver = services->getVideoDriver();
 
 		f32 time = (f32)os::Timer::getTime()/100000.0f;
 		services->setVertexShaderConstant("fTime", &time, 1);
@@ -102,10 +104,6 @@ public:
 	\param startRegister First register to be set.
 	\param constantAmount Amount of registers to be set. One register consists of 4 floats. */
 	virtual void setPixelShaderConstant(const f32* data, s32 startRegister, s32 constantAmount=1) = 0;
-
-	//! Get pointer to the IVideoDriver interface
-	/** \return Pointer to the IVideoDriver interface */
-	virtual IVideoDriver* getVideoDriver() = 0;
 };
 
 } // end namespace video

@@ -63,8 +63,8 @@ namespace
 }
 
 //! Constructor
-COgreMeshFileLoader::COgreMeshFileLoader(io::IFileSystem* fs, video::IVideoDriver* driver)
-: FileSystem(fs), Driver(driver), SwapEndian(false), Mesh(0), NumUV(0)
+COgreMeshFileLoader::COgreMeshFileLoader(io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver)
+: VideoDriverAwareMixin(driver), FileSystem(fs), SwapEndian(false), Mesh(0), NumUV(0)
 {
 
 	#ifdef _DEBUG
@@ -74,8 +74,7 @@ COgreMeshFileLoader::COgreMeshFileLoader(io::IFileSystem* fs, video::IVideoDrive
 	if (FileSystem)
 		FileSystem->grab();
 
-	if (Driver)
-		Driver->grab();
+
 }
 
 
@@ -87,8 +86,7 @@ COgreMeshFileLoader::~COgreMeshFileLoader()
 	if (FileSystem)
 		FileSystem->drop();
 
-	if (Driver)
-		Driver->drop();
+
 
 }
 
@@ -458,6 +456,7 @@ bool COgreMeshFileLoader::readSubMesh(io::IReadFile* file, ChunkData& parent, Og
 
 void COgreMeshFileLoader::composeMeshBufferMaterial(scene::IMeshBuffer* mb, const core::stringc& materialName)
 {
+	boost::shared_ptr<video::IVideoDriver> driver = getVideoDriver();
 	video::SMaterial& material=mb->getMaterial();
 	for (u32 k=0; k<Materials.size(); ++k)
 	{
@@ -467,9 +466,9 @@ void COgreMeshFileLoader::composeMeshBufferMaterial(scene::IMeshBuffer* mb, cons
 			for (u32 i=0; i<Materials[k].Techniques[0].Passes[0].Texture.Filename.size(); ++i)
 			{
 				if (FileSystem->existFile(Materials[k].Techniques[0].Passes[0].Texture.Filename[i]))
-					material.setTexture(i, Driver->getTexture(Materials[k].Techniques[0].Passes[0].Texture.Filename[i]));
+					material.setTexture(i, driver->getTexture(Materials[k].Techniques[0].Passes[0].Texture.Filename[i]));
 				else
-					material.setTexture(i, Driver->getTexture((CurrentlyLoadingFromPath+"/"+FileSystem->getFileBasename(Materials[k].Techniques[0].Passes[0].Texture.Filename[i]))));
+					material.setTexture(i, driver->getTexture((CurrentlyLoadingFromPath+"/"+FileSystem->getFileBasename(Materials[k].Techniques[0].Passes[0].Texture.Filename[i]))));
 			}
 			break;
 		}

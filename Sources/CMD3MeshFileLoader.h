@@ -17,7 +17,7 @@ namespace scene
 {
 
 //! Meshloader capable of loading md3 files.
-class CMD3MeshFileLoader : public IMeshLoader
+class CMD3MeshFileLoader : public IMeshLoader, public SceneManagerAwareMixin<>
 {
 public:
 
@@ -36,10 +36,6 @@ public:
 	//! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 	//! See IReferenceCounted::drop() for more information.
 	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
-
-private:
-	boost::shared_ptr<scene::ISceneManager> SceneManager;
-
 };
 
 } // end namespace scene

@@ -85,7 +85,7 @@ namespace irr
 
 		//! Provides access to the video driver for drawing 3d and 2d geometry.
 		/** \return Pointer the video driver. */
-		virtual video::IVideoDriver* getVideoDriver() = 0;
+		virtual boost::shared_ptr<video::IVideoDriver> getVideoDriver() = 0;
 
 		//! Provides access to the virtual file system.
 		/** \return Pointer to the file system. */

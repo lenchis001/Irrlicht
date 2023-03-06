@@ -50,7 +50,8 @@ void COctreeSceneNode::OnRegisterSceneNode()
 		// materials, check of what type they are and register this node for the right
 		// render pass according to that.
 
-		video::IVideoDriver* driver = SceneManager->getVideoDriver();
+		boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
+		boost::shared_ptr<video::IVideoDriver> driver = lockedSceneManager->getVideoDriver();
 
 		PassCount = 0;
 		u32 transparentCount = 0;
@@ -74,10 +75,10 @@ void COctreeSceneNode::OnRegisterSceneNode()
 		// register according to material types counted
 
 		if (solidCount)
-			SceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_SOLID);
+			lockedSceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_SOLID);
 
 		if (transparentCount)
-			SceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_TRANSPARENT);
+			lockedSceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_TRANSPARENT);
 
 		ISceneNode::OnRegisterSceneNode();
 	}
@@ -87,17 +88,18 @@ void COctreeSceneNode::OnRegisterSceneNode()
 //! renders the node.
 void COctreeSceneNode::render()
 {
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedSceneManager->getVideoDriver();
 
 	if (VertexType == -1 || !driver)
 		return;
 
-	boost::shared_ptr<ICameraSceneNode> camera = SceneManager->getActiveCamera();
+	boost::shared_ptr<ICameraSceneNode> camera = lockedSceneManager->getActiveCamera();
 	if (!camera)
 		return;
 
 	bool isTransparentPass =
-		SceneManager->getSceneNodeRenderPass() == scene::ESNRP_TRANSPARENT;
+		lockedSceneManager->getSceneNodeRenderPass() == scene::ESNRP_TRANSPARENT;
 	++PassCount;
 
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
@@ -303,13 +305,14 @@ bool COctreeSceneNode::removeChild(boost::shared_ptr<ISceneNode> child)
 boost::shared_ptr<IShadowVolumeSceneNode> COctreeSceneNode::addShadowVolumeSceneNode(
 		boost::shared_ptr<const IMesh> shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
-	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
+	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
+	if (!lockedSceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
 		return 0;
 
 	if (!shadowMesh)
 		shadowMesh = Mesh; // if null is given, use the mesh of node
 
-	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), SceneManager, id,  zfailmethod, infinity);
+	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), lockedSceneManager, id,  zfailmethod, infinity);
 	return Shadow;
 }
 
@@ -329,7 +332,7 @@ bool COctreeSceneNode::createTree(boost::shared_ptr<IMesh> mesh)
 	if (!mesh)
 		return false;
 
-	MeshName = SceneManager->getMeshCache()->getMeshName(mesh);
+	MeshName = getSceneManager()->getMeshCache()->getMeshName(mesh);
 
 	deleteTree();
 
@@ -546,7 +549,7 @@ u32 COctreeSceneNode::getMaterialCount() const
 
 
 //! Writes attributes of the scene node.
-void COctreeSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void COctreeSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	ISceneNode::serializeAttributes(out, options);
 
@@ -568,7 +571,7 @@ void COctreeSceneNode::deserializeAttributes(io::IAttributes* in, io::SAttribute
 	if (newMeshStr == "")
 		newMeshStr = MeshName;
 
-	boost::shared_ptr<IAnimatedMesh> newAnimatedMesh = SceneManager->getMesh(newMeshStr.c_str());
+	boost::shared_ptr<IAnimatedMesh> newAnimatedMesh = getSceneManager()->getMesh(newMeshStr.c_str());
 
 	if (newAnimatedMesh)
 		newMesh = newAnimatedMesh->getMesh(0);

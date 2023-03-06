@@ -217,7 +217,7 @@ irr::core::stringw CColladaMeshWriterNames::nameForPtr(const void* ptr) const
 
 
 
-CColladaMeshWriter::CColladaMeshWriter(	boost::shared_ptr<ISceneManager>  smgr, video::IVideoDriver* driver,
+CColladaMeshWriter::CColladaMeshWriter(	boost::shared_ptr<ISceneManager>  smgr, boost::shared_ptr<video::IVideoDriver> driver,
 					io::IFileSystem* fs)
 	: FileSystem(fs), VideoDriver(driver), Writer(0)
 {
@@ -225,9 +225,6 @@ CColladaMeshWriter::CColladaMeshWriter(	boost::shared_ptr<ISceneManager>  smgr, 
 	#ifdef _DEBUG
 	setDebugName("CColladaMeshWriter");
 	#endif
-
-	if (VideoDriver)
-		VideoDriver->grab();
 
 	if (FileSystem)
 		FileSystem->grab();
@@ -247,9 +244,6 @@ CColladaMeshWriter::CColladaMeshWriter(	boost::shared_ptr<ISceneManager>  smgr, 
 
 CColladaMeshWriter::~CColladaMeshWriter()
 {
-	if (VideoDriver)
-		VideoDriver->drop();
-
 	if (FileSystem)
 		FileSystem->drop();
 }

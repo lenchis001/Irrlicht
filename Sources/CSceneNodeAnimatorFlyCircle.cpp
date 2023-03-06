@@ -57,7 +57,7 @@ void CSceneNodeAnimatorFlyCircle::animateNode(boost::shared_ptr<ISceneNode> node
 
 
 //! Writes attributes of the scene node animator.
-void CSceneNodeAnimatorFlyCircle::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CSceneNodeAnimatorFlyCircle::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	out->addVector3d("Center", Center);
 	out->addFloat("Radius", Radius);

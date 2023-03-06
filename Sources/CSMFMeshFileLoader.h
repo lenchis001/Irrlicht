@@ -7,6 +7,7 @@
 
 #include "IMeshLoader.h"
 #include "SMesh.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -20,11 +21,11 @@ namespace scene
 {
 
 //! Class which can load
-class CSMFMeshFileLoader : public virtual IMeshLoader
+class CSMFMeshFileLoader : public virtual IMeshLoader, public video::VideoDriverAwareMixin<>
 {
 public:
 
-	CSMFMeshFileLoader(video::IVideoDriver* driver);
+	CSMFMeshFileLoader(boost::shared_ptr<video::IVideoDriver> driver);
 
 	//! Returns true if the file might be loaded by this class.
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
@@ -34,8 +35,6 @@ public:
 private:
 
 	void loadLimb(io::IReadFile* file, boost::shared_ptr<scene::SMesh> mesh, const core::matrix4 &parentTransformation);
-
-	video::IVideoDriver* Driver;
 };
 
 } // end namespace scene

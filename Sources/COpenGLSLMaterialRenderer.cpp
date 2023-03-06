@@ -28,7 +28,7 @@ namespace video
 
 
 //! Constructor
-COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(video::COpenGLDriver* driver,
+COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(boost::shared_ptr<video::COpenGLDriver> driver,
 		s32& outMaterialTypeNr, const c8* vertexShaderProgram,
 		const c8* vertexShaderEntryPointName,
 		E_VERTEX_SHADER_TYPE vsCompileTarget,
@@ -43,7 +43,7 @@ COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(video::COpenGLDriver* drive
 		IShaderConstantSetCallBack* callback,
 		video::IMaterialRenderer* baseMaterial,
 		s32 userData)
-	: Driver(driver), CallBack(callback), BaseMaterial(baseMaterial),
+	: IMaterialRendererServices(driver), CallBack(callback), BaseMaterial(baseMaterial),
 		Program(0), Program2(0), UserData(userData)
 {
 	#ifdef _DEBUG
@@ -60,7 +60,7 @@ COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(video::COpenGLDriver* drive
 	if (CallBack)
 		CallBack->grab();
 
-	if (!Driver->queryFeature(EVDF_ARB_GLSL))
+	if (!getVideoDriver()->queryFeature(EVDF_ARB_GLSL))
 		return;
 
 	init(outMaterialTypeNr, vertexShaderProgram, pixelShaderProgram, geometryShaderProgram);
@@ -69,10 +69,10 @@ COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(video::COpenGLDriver* drive
 
 //! constructor only for use by derived classes who want to
 //! create a fall back material for example.
-COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(COpenGLDriver* driver,
+COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(boost::shared_ptr<COpenGLDriver> driver,
 					IShaderConstantSetCallBack* callback,
 					IMaterialRenderer* baseMaterial, s32 userData)
-: Driver(driver), CallBack(callback), BaseMaterial(baseMaterial),
+: IMaterialRendererServices(driver), CallBack(callback), BaseMaterial(baseMaterial),
 		Program(0), Program2(0), UserData(userData)
 {
 	if (BaseMaterial)
@@ -89,16 +89,18 @@ COpenGLSLMaterialRenderer::~COpenGLSLMaterialRenderer()
 	if (CallBack)
 		CallBack->drop();
 
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver<COpenGLDriver>();
+
 	if (Program)
 	{
 		GLhandleARB shaders[8];
 		GLint count;
-		Driver->extGlGetAttachedObjects(Program, 8, &count, shaders);
+		lockedDriver->extGlGetAttachedObjects(Program, 8, &count, shaders);
 		// avoid bugs in some drivers, which return larger numbers
 		count=core::min_(count,8);
 		for (GLint i=0; i<count; ++i)
-			Driver->extGlDeleteObject(shaders[i]);
-		Driver->extGlDeleteObject(Program);
+			lockedDriver->extGlDeleteObject(shaders[i]);
+		lockedDriver->extGlDeleteObject(Program);
 		Program = 0;
 	}
 
@@ -106,12 +108,12 @@ COpenGLSLMaterialRenderer::~COpenGLSLMaterialRenderer()
 	{
 		GLuint shaders[8];
 		GLint count;
-		Driver->extGlGetAttachedShaders(Program2, 8, &count, shaders);
+		lockedDriver->extGlGetAttachedShaders(Program2, 8, &count, shaders);
 		// avoid bugs in some drivers, which return larger numbers
 		count=core::min_(count,8);
 		for (GLint i=0; i<count; ++i)
-			Driver->extGlDeleteShader(shaders[i]);
-		Driver->extGlDeleteProgram(Program2);
+			lockedDriver->extGlDeleteShader(shaders[i]);
+		lockedDriver->extGlDeleteProgram(Program2);
 		Program2 = 0;
 	}
 
@@ -144,20 +146,22 @@ void COpenGLSLMaterialRenderer::init(s32& outMaterialTypeNr,
 			return;
 #endif
 
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver<COpenGLDriver>();
+
 #if defined(GL_ARB_geometry_shader4) || defined(GL_EXT_geometry_shader4) || defined(GL_NV_geometry_program4) || defined(GL_NV_geometry_shader4)
-	if (geometryShaderProgram && Driver->queryFeature(EVDF_GEOMETRY_SHADER))
+	if (geometryShaderProgram && lockedDriver->queryFeature(EVDF_GEOMETRY_SHADER))
 	{
 		if (!createShader(GL_GEOMETRY_SHADER_EXT, geometryShaderProgram))
 			return;
 #if defined(GL_ARB_geometry_shader4) || defined(GL_EXT_geometry_shader4) || defined(GL_NV_geometry_shader4)
 		if (Program2) // Geometry shaders are supported only in OGL2.x+ drivers.
 		{
-			Driver->extGlProgramParameteri(Program2, GL_GEOMETRY_INPUT_TYPE_EXT, Driver->primitiveTypeToGL(inType));
-			Driver->extGlProgramParameteri(Program2, GL_GEOMETRY_OUTPUT_TYPE_EXT, Driver->primitiveTypeToGL(outType));
+			lockedDriver->extGlProgramParameteri(Program2, GL_GEOMETRY_INPUT_TYPE_EXT, lockedDriver->primitiveTypeToGL(inType));
+			lockedDriver->extGlProgramParameteri(Program2, GL_GEOMETRY_OUTPUT_TYPE_EXT, lockedDriver->primitiveTypeToGL(outType));
 			if (verticesOut==0)
-				Driver->extGlProgramParameteri(Program2, GL_GEOMETRY_VERTICES_OUT_EXT, Driver->MaxGeometryVerticesOut);
+				lockedDriver->extGlProgramParameteri(Program2, GL_GEOMETRY_VERTICES_OUT_EXT, lockedDriver->MaxGeometryVerticesOut);
 			else
-				Driver->extGlProgramParameteri(Program2, GL_GEOMETRY_VERTICES_OUT_EXT, core::min_(verticesOut, Driver->MaxGeometryVerticesOut));
+				lockedDriver->extGlProgramParameteri(Program2, GL_GEOMETRY_VERTICES_OUT_EXT, core::min_(verticesOut, lockedDriver->MaxGeometryVerticesOut));
 		}
 #elif defined(GL_NV_geometry_program4)
 		if (verticesOut==0)
@@ -172,7 +176,7 @@ void COpenGLSLMaterialRenderer::init(s32& outMaterialTypeNr,
 		return;
 
 	// register myself as new material
-	outMaterialTypeNr = Driver->addMaterialRenderer(this);
+	outMaterialTypeNr = lockedDriver->addMaterialRenderer(this);
 }
 
 
@@ -192,12 +196,14 @@ void COpenGLSLMaterialRenderer::OnSetMaterial(const video::SMaterial& material,
 				bool resetAllRenderstates,
 				video::IMaterialRendererServices* services)
 {
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver<COpenGLDriver>();
+
 	if (material.MaterialType != lastMaterial.MaterialType || resetAllRenderstates)
 	{
 		if (Program2)
-			Driver->extGlUseProgram(Program2);
+			lockedDriver->extGlUseProgram(Program2);
 		else if (Program)
-			Driver->extGlUseProgramObject(Program);
+			lockedDriver->extGlUseProgramObject(Program);
 
 		if (BaseMaterial)
 			BaseMaterial->OnSetMaterial(material, material, true, this);
@@ -208,17 +214,19 @@ void COpenGLSLMaterialRenderer::OnSetMaterial(const video::SMaterial& material,
 		CallBack->OnSetMaterial(material);
 
 	for (u32 i=0; i<MATERIAL_MAX_TEXTURES; ++i)
-		Driver->setActiveTexture(i, material.getTexture(i));
-	Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		lockedDriver->setActiveTexture(i, material.getTexture(i));
+	lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 }
 
 
 void COpenGLSLMaterialRenderer::OnUnsetMaterial()
 {
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver<COpenGLDriver>();
+
 	if (Program)
-		Driver->extGlUseProgramObject(0);
+		lockedDriver->extGlUseProgramObject(0);
 	if (Program2)
-		Driver->extGlUseProgram(0);
+		lockedDriver->extGlUseProgram(0);
 
 	if (BaseMaterial)
 		BaseMaterial->OnUnsetMaterial();
@@ -234,26 +242,30 @@ bool COpenGLSLMaterialRenderer::isTransparent() const
 
 bool COpenGLSLMaterialRenderer::createProgram()
 {
-	if (Driver->Version>=200)
-		Program2 = Driver->extGlCreateProgram();
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver<COpenGLDriver>();
+
+	if (lockedDriver->Version>=200)
+		Program2 = lockedDriver->extGlCreateProgram();
 	else
-		Program = Driver->extGlCreateProgramObject();
+		Program = lockedDriver->extGlCreateProgramObject();
 	return true;
 }
 
 
 bool COpenGLSLMaterialRenderer::createShader(GLenum shaderType, const char* shader)
 {
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver<COpenGLDriver>();
+
 	if (Program2)
 	{
-		GLuint shaderHandle = Driver->extGlCreateShader(shaderType);
-		Driver->extGlShaderSource(shaderHandle, 1, &shader, NULL);
-		Driver->extGlCompileShader(shaderHandle);
+		GLuint shaderHandle = lockedDriver->extGlCreateShader(shaderType);
+		lockedDriver->extGlShaderSource(shaderHandle, 1, &shader, NULL);
+		lockedDriver->extGlCompileShader(shaderHandle);
 
 		GLint status = 0;
 
 #ifdef GL_VERSION_2_0
-		Driver->extGlGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &status);
+		lockedDriver->extGlGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &status);
 #endif
 
 		if (status != GL_TRUE)
@@ -263,13 +275,13 @@ bool COpenGLSLMaterialRenderer::createShader(GLenum shaderType, const char* shad
 			GLint maxLength=0;
 			GLint length;
 #ifdef GL_VERSION_2_0
-			Driver->extGlGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH,
+			lockedDriver->extGlGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH,
 					&maxLength);
 #endif
 			if (maxLength)
 			{
 				GLchar *infoLog = new GLchar[maxLength];
-				Driver->extGlGetShaderInfoLog(shaderHandle, maxLength, &length, infoLog);
+				lockedDriver->extGlGetShaderInfoLog(shaderHandle, maxLength, &length, infoLog);
 				os::Printer::log(reinterpret_cast<const c8*>(infoLog), ELL_ERROR);
 				delete [] infoLog;
 			}
@@ -277,19 +289,19 @@ bool COpenGLSLMaterialRenderer::createShader(GLenum shaderType, const char* shad
 			return false;
 		}
 
-		Driver->extGlAttachShader(Program2, shaderHandle);
+		lockedDriver->extGlAttachShader(Program2, shaderHandle);
 	}
 	else
 	{
-		GLhandleARB shaderHandle = Driver->extGlCreateShaderObject(shaderType);
+		GLhandleARB shaderHandle = lockedDriver->extGlCreateShaderObject(shaderType);
 
-		Driver->extGlShaderSourceARB(shaderHandle, 1, &shader, NULL);
-		Driver->extGlCompileShaderARB(shaderHandle);
+		lockedDriver->extGlShaderSourceARB(shaderHandle, 1, &shader, NULL);
+		lockedDriver->extGlCompileShaderARB(shaderHandle);
 
 		GLint status = 0;
 
 #ifdef GL_ARB_shader_objects
-		Driver->extGlGetObjectParameteriv(shaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &status);
+		lockedDriver->extGlGetObjectParameteriv(shaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &status);
 #endif
 
 		if (!status)
@@ -299,13 +311,13 @@ bool COpenGLSLMaterialRenderer::createShader(GLenum shaderType, const char* shad
 			GLint maxLength=0;
 			GLsizei length;
 #ifdef GL_ARB_shader_objects
-			Driver->extGlGetObjectParameteriv(shaderHandle,
+			lockedDriver->extGlGetObjectParameteriv(shaderHandle,
 					GL_OBJECT_INFO_LOG_LENGTH_ARB, &maxLength);
 #endif
 			if (maxLength)
 			{
 				GLcharARB *infoLog = new GLcharARB[maxLength];
-				Driver->extGlGetInfoLog(shaderHandle, maxLength, &length, infoLog);
+				lockedDriver->extGlGetInfoLog(shaderHandle, maxLength, &length, infoLog);
 				os::Printer::log(reinterpret_cast<const c8*>(infoLog), ELL_ERROR);
 				delete [] infoLog;
 			}
@@ -313,7 +325,7 @@ bool COpenGLSLMaterialRenderer::createShader(GLenum shaderType, const char* shad
 			return false;
 		}
 
-		Driver->extGlAttachObject(Program, shaderHandle);
+		lockedDriver->extGlAttachObject(Program, shaderHandle);
 	}
 	return true;
 }
@@ -321,14 +333,16 @@ bool COpenGLSLMaterialRenderer::createShader(GLenum shaderType, const char* shad
 
 bool COpenGLSLMaterialRenderer::linkProgram()
 {
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver<COpenGLDriver>();
+
 	if (Program2)
 	{
-		Driver->extGlLinkProgram(Program2);
+		lockedDriver->extGlLinkProgram(Program2);
 
 		GLint status = 0;
 
 #ifdef GL_VERSION_2_0
-		Driver->extGlGetProgramiv(Program2, GL_LINK_STATUS, &status);
+		lockedDriver->extGlGetProgramiv(Program2, GL_LINK_STATUS, &status);
 #endif
 
 		if (!status)
@@ -338,12 +352,12 @@ bool COpenGLSLMaterialRenderer::linkProgram()
 			GLint maxLength=0;
 			GLsizei length;
 #ifdef GL_VERSION_2_0
-			Driver->extGlGetProgramiv(Program2, GL_INFO_LOG_LENGTH, &maxLength);
+			lockedDriver->extGlGetProgramiv(Program2, GL_INFO_LOG_LENGTH, &maxLength);
 #endif
 			if (maxLength)
 			{
 				GLchar *infoLog = new GLchar[maxLength];
-				Driver->extGlGetProgramInfoLog(Program2, maxLength, &length, infoLog);
+				lockedDriver->extGlGetProgramInfoLog(Program2, maxLength, &length, infoLog);
 				os::Printer::log(reinterpret_cast<const c8*>(infoLog), ELL_ERROR);
 				delete [] infoLog;
 			}
@@ -355,7 +369,7 @@ bool COpenGLSLMaterialRenderer::linkProgram()
 
 		GLint num = 0;
 #ifdef GL_VERSION_2_0
-		Driver->extGlGetProgramiv(Program2, GL_ACTIVE_UNIFORMS, &num);
+		lockedDriver->extGlGetProgramiv(Program2, GL_ACTIVE_UNIFORMS, &num);
 #endif
 
 		if (num == 0)
@@ -366,7 +380,7 @@ bool COpenGLSLMaterialRenderer::linkProgram()
 
 		GLint maxlen = 0;
 #ifdef GL_VERSION_2_0
-		Driver->extGlGetProgramiv(Program2, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxlen);
+		lockedDriver->extGlGetProgramiv(Program2, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxlen);
 #endif
 
 		if (maxlen == 0)
@@ -388,7 +402,7 @@ bool COpenGLSLMaterialRenderer::linkProgram()
 			memset(buf, 0, maxlen);
 
 			GLint size;
-			Driver->extGlGetActiveUniform(Program2, i, maxlen, 0, &size, &ui.type, reinterpret_cast<GLchar*>(buf));
+			lockedDriver->extGlGetActiveUniform(Program2, i, maxlen, 0, &size, &ui.type, reinterpret_cast<GLchar*>(buf));
 			ui.name = buf;
 
 			UniformInfo.push_back(ui);
@@ -398,12 +412,12 @@ bool COpenGLSLMaterialRenderer::linkProgram()
 	}
 	else
 	{
-		Driver->extGlLinkProgramARB(Program);
+		lockedDriver->extGlLinkProgramARB(Program);
 
 		GLint status = 0;
 
 #ifdef GL_ARB_shader_objects
-		Driver->extGlGetObjectParameteriv(Program, GL_OBJECT_LINK_STATUS_ARB, &status);
+		lockedDriver->extGlGetObjectParameteriv(Program, GL_OBJECT_LINK_STATUS_ARB, &status);
 #endif
 
 		if (!status)
@@ -413,13 +427,13 @@ bool COpenGLSLMaterialRenderer::linkProgram()
 			GLint maxLength=0;
 			GLsizei length;
 #ifdef GL_ARB_shader_objects
-			Driver->extGlGetObjectParameteriv(Program,
+			lockedDriver->extGlGetObjectParameteriv(Program,
 					GL_OBJECT_INFO_LOG_LENGTH_ARB, &maxLength);
 #endif
 			if (maxLength)
 			{
 				GLcharARB *infoLog = new GLcharARB[maxLength];
-				Driver->extGlGetInfoLog(Program, maxLength, &length, infoLog);
+				lockedDriver->extGlGetInfoLog(Program, maxLength, &length, infoLog);
 				os::Printer::log(reinterpret_cast<const c8*>(infoLog), ELL_ERROR);
 				delete [] infoLog;
 			}
@@ -431,7 +445,7 @@ bool COpenGLSLMaterialRenderer::linkProgram()
 
 		GLint num = 0;
 	#ifdef GL_ARB_shader_objects
-		Driver->extGlGetObjectParameteriv(Program, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &num);
+		lockedDriver->extGlGetObjectParameteriv(Program, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &num);
 	#endif
 
 		if (num == 0)
@@ -442,7 +456,7 @@ bool COpenGLSLMaterialRenderer::linkProgram()
 
 		GLint maxlen = 0;
 	#ifdef GL_ARB_shader_objects
-		Driver->extGlGetObjectParameteriv(Program, GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB, &maxlen);
+		lockedDriver->extGlGetObjectParameteriv(Program, GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB, &maxlen);
 	#endif
 
 		if (maxlen == 0)
@@ -464,7 +478,7 @@ bool COpenGLSLMaterialRenderer::linkProgram()
 			memset(buf, 0, maxlen);
 
 			GLint size;
-			Driver->extGlGetActiveUniformARB(Program, i, maxlen, 0, &size, &ui.type, reinterpret_cast<GLcharARB*>(buf));
+			lockedDriver->extGlGetActiveUniformARB(Program, i, maxlen, 0, &size, &ui.type, reinterpret_cast<GLcharARB*>(buf));
 			ui.name = buf;
 
 			UniformInfo.push_back(ui);
@@ -481,8 +495,10 @@ void COpenGLSLMaterialRenderer::setBasicRenderStates(const SMaterial& material,
 						const SMaterial& lastMaterial,
 						bool resetAllRenderstates)
 {
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver<COpenGLDriver>();
+
 	// forward
-	Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+	lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 }
 
 
@@ -520,37 +536,39 @@ bool COpenGLSLMaterialRenderer::setPixelShaderConstant(const c8* name, const f32
 	if (i == num)
 		return false;
 
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver<COpenGLDriver>();
+
 #if defined(GL_VERSION_2_0)||defined(GL_ARB_shader_objects)
 	GLint Location=0;
 	if (Program2)
-		Location=Driver->extGlGetUniformLocation(Program2,name);
+		Location= lockedDriver->extGlGetUniformLocation(Program2,name);
 	else
-		Location=Driver->extGlGetUniformLocationARB(Program,name);
+		Location= lockedDriver->extGlGetUniformLocationARB(Program,name);
 
 	bool status = true;
 
 	switch (UniformInfo[i].type)
 	{
 		case GL_FLOAT:
-			Driver->extGlUniform1fv(Location, count, floats);
+			lockedDriver->extGlUniform1fv(Location, count, floats);
 			break;
 		case GL_FLOAT_VEC2:
-			Driver->extGlUniform2fv(Location, count/2, floats);
+			lockedDriver->extGlUniform2fv(Location, count/2, floats);
 			break;
 		case GL_FLOAT_VEC3:
-			Driver->extGlUniform3fv(Location, count/3, floats);
+			lockedDriver->extGlUniform3fv(Location, count/3, floats);
 			break;
 		case GL_FLOAT_VEC4:
-			Driver->extGlUniform4fv(Location, count/4, floats);
+			lockedDriver->extGlUniform4fv(Location, count/4, floats);
 			break;
 		case GL_FLOAT_MAT2:
-			Driver->extGlUniformMatrix2fv(Location, count/4, false, floats);
+			lockedDriver->extGlUniformMatrix2fv(Location, count/4, false, floats);
 			break;
 		case GL_FLOAT_MAT3:
-			Driver->extGlUniformMatrix3fv(Location, count/9, false, floats);
+			lockedDriver->extGlUniformMatrix3fv(Location, count/9, false, floats);
 			break;
 		case GL_FLOAT_MAT4:
-			Driver->extGlUniformMatrix4fv(Location, count/16, false, floats);
+			lockedDriver->extGlUniformMatrix4fv(Location, count/16, false, floats);
 			break;
 		case GL_SAMPLER_1D:
 		case GL_SAMPLER_2D:
@@ -560,7 +578,7 @@ bool COpenGLSLMaterialRenderer::setPixelShaderConstant(const c8* name, const f32
 		case GL_SAMPLER_2D_SHADOW:
 			{
 				const GLint id = static_cast<GLint>(*floats);
-				Driver->extGlUniform1iv(Location, 1, &id);
+				lockedDriver->extGlUniform1iv(Location, 1, &id);
 			}
 			break;
 		default:
@@ -587,28 +605,30 @@ bool COpenGLSLMaterialRenderer::setPixelShaderConstant(const c8* name, const boo
 	if (i == num)
 		return false;
 
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver<COpenGLDriver>();
+
 #if defined(GL_VERSION_2_0)||defined(GL_ARB_shader_objects)
 	GLint Location=0;
 	if (Program2)
-		Location=Driver->extGlGetUniformLocation(Program2,name);
+		Location= lockedDriver->extGlGetUniformLocation(Program2,name);
 	else
-		Location=Driver->extGlGetUniformLocationARB(Program,name);
+		Location= lockedDriver->extGlGetUniformLocationARB(Program,name);
 
 	bool status = true;
 
 	switch (UniformInfo[i].type)
 	{
 		case GL_BOOL:
-			Driver->extGlUniform1iv(Location, count, (GLint*)bools);
+			lockedDriver->extGlUniform1iv(Location, count, (GLint*)bools);
 			break;
 		case GL_BOOL_VEC2:
-			Driver->extGlUniform2iv(Location, count/2, (GLint*)bools);
+			lockedDriver->extGlUniform2iv(Location, count/2, (GLint*)bools);
 			break;
 		case GL_BOOL_VEC3:
-			Driver->extGlUniform3iv(Location, count/3, (GLint*)bools);
+			lockedDriver->extGlUniform3iv(Location, count/3, (GLint*)bools);
 			break;
 		case GL_BOOL_VEC4:
-			Driver->extGlUniform4iv(Location, count/4, (GLint*)bools);
+			lockedDriver->extGlUniform4iv(Location, count/4, (GLint*)bools);
 			break;
 		default:
 			status = false;
@@ -634,28 +654,30 @@ bool COpenGLSLMaterialRenderer::setPixelShaderConstant(const c8* name, const s32
 	if (i == num)
 		return false;
 
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver<COpenGLDriver>();
+
 #if defined(GL_VERSION_2_0)||defined(GL_ARB_shader_objects)
 	GLint Location=0;
 	if (Program2)
-		Location=Driver->extGlGetUniformLocation(Program2,name);
+		Location= lockedDriver->extGlGetUniformLocation(Program2,name);
 	else
-		Location=Driver->extGlGetUniformLocationARB(Program,name);
+		Location= lockedDriver->extGlGetUniformLocationARB(Program,name);
 
 	bool status = true;
 
 	switch (UniformInfo[i].type)
 	{
 		case GL_INT:
-			Driver->extGlUniform1iv(Location, count, ints);
+			lockedDriver->extGlUniform1iv(Location, count, ints);
 			break;
 		case GL_INT_VEC2:
-			Driver->extGlUniform2iv(Location, count/2, ints);
+			lockedDriver->extGlUniform2iv(Location, count/2, ints);
 			break;
 		case GL_INT_VEC3:
-			Driver->extGlUniform3iv(Location, count/3, ints);
+			lockedDriver->extGlUniform3iv(Location, count/3, ints);
 			break;
 		case GL_INT_VEC4:
-			Driver->extGlUniform4iv(Location, count/4, ints);
+			lockedDriver->extGlUniform4iv(Location, count/4, ints);
 			break;
 		case GL_SAMPLER_1D:
 		case GL_SAMPLER_2D:
@@ -663,7 +685,7 @@ bool COpenGLSLMaterialRenderer::setPixelShaderConstant(const c8* name, const s32
 		case GL_SAMPLER_CUBE:
 		case GL_SAMPLER_1D_SHADOW:
 		case GL_SAMPLER_2D_SHADOW:
-			Driver->extGlUniform1iv(Location, 1, ints);
+			lockedDriver->extGlUniform1iv(Location, 1, ints);
 			break;
 		default:
 			status = false;
@@ -678,11 +700,6 @@ bool COpenGLSLMaterialRenderer::setPixelShaderConstant(const c8* name, const s32
 void COpenGLSLMaterialRenderer::setPixelShaderConstant(const f32* data, s32 startRegister, s32 constantAmount)
 {
 	os::Printer::log("Cannot set constant, use high level shader call.", ELL_WARNING);
-}
-
-IVideoDriver* COpenGLSLMaterialRenderer::getVideoDriver()
-{
-	return Driver;
 }
 
 } // end namespace video

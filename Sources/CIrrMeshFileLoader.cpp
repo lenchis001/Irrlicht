@@ -25,7 +25,7 @@ namespace scene
 //! Constructor
 CIrrMeshFileLoader::CIrrMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr,
 		io::IFileSystem* fs)
-	: SceneManager(smgr), FileSystem(fs)
+	: SceneManagerAwareMixin(smgr), FileSystem(fs)
 {
 
 	#ifdef _DEBUG
@@ -168,12 +168,14 @@ IMeshBuffer* CIrrMeshFileLoader::readMeshBuffer(io::IXMLReader* reader)
 			else
 			if (materialSectionName == nodeName)
 			{
+				boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
 				//we've got a material
 
-				io::IAttributes* attributes = FileSystem->createEmptyAttributes(SceneManager->getVideoDriver());
+				io::IAttributes* attributes = FileSystem->createEmptyAttributes(lockedSceneManager->getVideoDriver());
 				attributes->read(reader, true, L"material");
 
-				SceneManager->getVideoDriver()->fillMaterialStructureFromAttributes(material, attributes);
+				lockedSceneManager->getVideoDriver()->fillMaterialStructureFromAttributes(material, attributes);
 				attributes->drop();
 			}
 			else

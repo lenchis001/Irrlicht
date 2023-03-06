@@ -88,7 +88,7 @@ void CGUIMeshViewer::draw()
 	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
 
 	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
-	video::IVideoDriver* driver = lockedEnvironment->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedEnvironment->getVideoDriver();
 	core::rect<s32> viewPort = AbsoluteRect;
 	viewPort.LowerRightCorner.X -= 1;
 	viewPort.LowerRightCorner.Y -= 1;

@@ -43,6 +43,7 @@
 #include "irrString.h"
 #include "IFileSystem.h"
 #include "IMeshLoader.h"
+#include "SceneManagerAwareMixin.h"
 
 namespace irr
 {
@@ -51,7 +52,7 @@ namespace scene
 	class CSMFile;
 	class ISceneManager;
 
-	class CCSMLoader : public scene::IMeshLoader
+	class CCSMLoader : public scene::IMeshLoader, public SceneManagerAwareMixin<>
 	{
 	public:
 
@@ -72,7 +73,6 @@ namespace scene
 			const core::stringc& textureRoot, const io::path& lmprefix);
 
 		io::IFileSystem* FileSystem;
-		boost::shared_ptr<scene::ISceneManager> SceneManager;
 	};
 
 } // end namespace

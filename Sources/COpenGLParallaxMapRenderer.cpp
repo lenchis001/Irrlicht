@@ -186,7 +186,7 @@ const char OPENGL_PARALLAX_MAP_PSH[] =
 	"END\n";
 
 //! Constructor
-COpenGLParallaxMapRenderer::COpenGLParallaxMapRenderer(video::COpenGLDriver* driver,
+COpenGLParallaxMapRenderer::COpenGLParallaxMapRenderer(boost::shared_ptr<video::COpenGLDriver> driver,
 	s32& outMaterialTypeNr, IMaterialRenderer* baseMaterial)
 	: COpenGLShaderMaterialRenderer(driver, 0, baseMaterial), CompiledShaders(true)
 {
@@ -267,10 +267,12 @@ void COpenGLParallaxMapRenderer::OnSetMaterial(const video::SMaterial& material,
 
 
 //! Returns the render capability of the material.
-s32 COpenGLParallaxMapRenderer::getRenderCapability() const
+s32 COpenGLParallaxMapRenderer::getRenderCapability()
 {
-	if (Driver->queryFeature(video::EVDF_ARB_FRAGMENT_PROGRAM_1) &&
-		Driver->queryFeature(video::EVDF_ARB_VERTEX_PROGRAM_1))
+	boost::shared_ptr<IVideoDriver> lockedDriver = getVideoDriver();
+
+	if (lockedDriver->queryFeature(video::EVDF_ARB_FRAGMENT_PROGRAM_1) &&
+		lockedDriver->queryFeature(video::EVDF_ARB_VERTEX_PROGRAM_1))
 		return 0;
 
 	return 1;
@@ -281,7 +283,7 @@ s32 COpenGLParallaxMapRenderer::getRenderCapability() const
 //! material renderer should be set.
 void COpenGLParallaxMapRenderer::OnSetConstants(IMaterialRendererServices* services, s32 userData)
 {
-	video::IVideoDriver* driver = services->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = services->getVideoDriver();
 
 	// set transposed world matrix
 	const core::matrix4& tWorld = driver->getTransform(video::ETS_WORLD).getTransposed();

@@ -19,6 +19,7 @@
 #include "SceneParameters.h"
 #include "IGeometryCreator.h"
 #include "ISkinnedMesh.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -147,9 +148,11 @@ namespace scene
 	supported. If these formats are not enough, use
 	addExternalMeshLoader() to add new formats to the engine.
 	*/
-	class ISceneManager : public virtual IDebugable
+	class ISceneManager : public virtual IDebugable, public video::VideoDriverAwareMixin<>
 	{
 	public:
+		ISceneManager(boost::shared_ptr<video::IVideoDriver> driver): VideoDriverAwareMixin(driver) {}
+
 		//! Get pointer to an animateable mesh. Loads the file if not loaded already.
 		/**
 		 * If you want to remove a loaded mesh from the cache again, use removeMesh().
@@ -411,11 +414,6 @@ namespace scene
 		meshes (if ISceneManager::getMesh() is not sufficient), to remove them and to iterate
 		through already loaded meshes. */
 		virtual IMeshCache* getMeshCache() = 0;
-
-		//! Get the video driver.
-		/** \return Pointer to the video Driver.
-		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual video::IVideoDriver* getVideoDriver() = 0;
 
 		//! Get the active GUIEnvironment
 		/** \return Pointer to the GUIEnvironment
@@ -1657,7 +1655,7 @@ namespace scene
 		\param node The scene node which is checked for culling.
 		\return True if node is not visible in the current scene, else
 		false. */
-		virtual bool isCulled(const boost::shared_ptr<ISceneNode> node) const =0;
+		virtual bool isCulled(const boost::shared_ptr<ISceneNode> node) =0;
 	};
 
 

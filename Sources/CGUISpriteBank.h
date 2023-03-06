@@ -9,6 +9,7 @@
 #ifdef _IRR_COMPILE_WITH_GUI_
 
 #include "IGUISpriteBank.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -25,7 +26,7 @@ namespace gui
 	class IGUIEnvironment;
 
 //! Sprite bank interface.
-class CGUISpriteBank : public IGUISpriteBank
+	class CGUISpriteBank : public IGUISpriteBank, public video::VideoDriverAwareMixin<>
 {
 public:
 
@@ -71,7 +72,6 @@ protected:
 	core::array< core::rect<s32> > Rectangles;
 	core::array<video::ITexture*> Textures;
 	boost::shared_ptr<IGUIEnvironment> Environment;
-	video::IVideoDriver* Driver;
 
 };
 

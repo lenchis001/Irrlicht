@@ -21,12 +21,12 @@ namespace irr
 	{
 		class IGUIEnvironment;
 		boost::shared_ptr<IGUIEnvironment> createGUIEnvironment(io::IFileSystem* fs,
-			video::IVideoDriver* Driver, IOSOperator* op);
+			boost::shared_ptr<video::IVideoDriver> Driver, IOSOperator* op);
 	}
 
 	namespace scene
 	{
-		boost::shared_ptr<scene::ISceneManager> createSceneManager(video::IVideoDriver* driver,
+		boost::shared_ptr<scene::ISceneManager> createSceneManager(boost::shared_ptr<video::IVideoDriver> driver,
 			io::IFileSystem* fs, boost::shared_ptr<gui::ICursorControl> cc, boost::shared_ptr<gui::IGUIEnvironment> gui);
 	}
 
@@ -37,12 +37,12 @@ namespace irr
 
 	namespace video
 	{
-		IVideoDriver* createSoftwareDriver(const core::dimension2d<u32>& windowSize,
+		boost::shared_ptr<IVideoDriver> createSoftwareDriver(const core::dimension2d<u32>& windowSize,
 				bool fullscreen, io::IFileSystem* io,
 				video::IImagePresenter* presenter);
-		IVideoDriver* createBurningVideoDriver(const irr::SIrrlichtCreationParameters& params,
+		boost::shared_ptr<IVideoDriver> createBurningVideoDriver(const irr::SIrrlichtCreationParameters& params,
 				io::IFileSystem* io, video::IImagePresenter* presenter);
-		IVideoDriver* createNullDriver(io::IFileSystem* io, const core::dimension2d<u32>& screenSize);
+		boost::shared_ptr<IVideoDriver> createNullDriver(io::IFileSystem* io, const core::dimension2d<u32>& screenSize);
 	}
 
 
@@ -59,7 +59,7 @@ namespace irr
 		virtual ~CIrrDeviceStub();
 
 		//! returns the video driver
-		virtual video::IVideoDriver* getVideoDriver();
+		virtual boost::shared_ptr<video::IVideoDriver> getVideoDriver();
 
 		//! return file system
 		virtual io::IFileSystem* getFileSystem();
@@ -150,7 +150,7 @@ namespace irr
 		void calculateGammaRamp ( u16 *ramp, f32 gamma, f32 relativebrightness, f32 relativecontrast );
 		void calculateGammaFromRamp ( f32 &gamma, const u16 *ramp );
 
-		video::IVideoDriver* VideoDriver;
+		boost::shared_ptr<video::IVideoDriver> VideoDriver;
 		boost::shared_ptr<gui::IGUIEnvironment> GUIEnvironment;
 		boost::shared_ptr<scene::ISceneManager> SceneManager;
 		ITimer* Timer;

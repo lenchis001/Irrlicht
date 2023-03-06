@@ -11,7 +11,7 @@ namespace irr
 {
 namespace scene
 {
-	class CSceneNodeAnimatorDelete : public ISceneNodeAnimatorFinishing
+	class CSceneNodeAnimatorDelete : public ISceneNodeAnimatorFinishing, public SceneManagerAwareMixin<>
 	{
 	public:
 
@@ -32,10 +32,6 @@ namespace scene
 		(IReferenceCounted::drop()) the returned pointer after calling
 		this. */
 		virtual boost::shared_ptr<ISceneNodeAnimator> createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager=0);
-
-	private:
-
-		boost::shared_ptr<scene::ISceneManager> SceneManager;
 	};
 
 

@@ -42,7 +42,7 @@ void CGUIInOutFader::draw()
 		return;
 	}
 
-	video::IVideoDriver* driver = getSharedEnvironment()->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = getSharedEnvironment()->getVideoDriver();
 
 	if (driver)
 	{

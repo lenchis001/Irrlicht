@@ -55,13 +55,12 @@ const wchar_t* IRR_XML_FORMAT_GUI_ELEMENT_ATTR_TYPE	= L"type";
 const io::path CGUIEnvironment::DefaultFontName = "#DefaultFont";
 
 //! constructor
-CGUIEnvironment::CGUIEnvironment(io::IFileSystem* fs, video::IVideoDriver* driver, IOSOperator* op)
-: IGUIElement(EGUIET_ROOT, 0, 0, 0, core::rect<s32>(core::position2d<s32>(0,0), driver ? core::dimension2d<s32>(driver->getScreenSize()) : core::dimension2d<s32>(0,0))),
-	Driver(driver), Hovered(0), HoveredNoSubelement(0), Focus(0), LastHoveredMousePos(0,0), CurrentSkin(0),
+CGUIEnvironment::CGUIEnvironment(io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver, IOSOperator* op)
+: IGUIEnvironment(driver), IGUIElement(EGUIET_ROOT, 0, 0, 0, core::rect<s32>(core::position2d<s32>(0,0), driver ? core::dimension2d<s32>(driver->getScreenSize()) : core::dimension2d<s32>(0,0))),
+	Hovered(0), HoveredNoSubelement(0), Focus(0), LastHoveredMousePos(0,0), CurrentSkin(0),
 	FileSystem(fs), UserReceiver(0), Operator(op)
 {
-	if (Driver)
-		Driver->grab();
+
 
 	if (FileSystem)
 		FileSystem->grab();
@@ -123,12 +122,6 @@ CGUIEnvironment::~CGUIEnvironment()
 		FileSystem->drop();
 		FileSystem = 0;
 	}
-
-	if (Driver)
-	{
-		Driver->drop();
-		Driver = 0;
-	}
 }
 
 
@@ -157,9 +150,11 @@ void CGUIEnvironment::loadBuiltInFont()
 //! draws all gui elements
 void CGUIEnvironment::drawAll()
 {
-	if (Driver)
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
+	if (lockedDriver)
 	{
-		core::dimension2d<s32> dim(Driver->getScreenSize());
+		core::dimension2d<s32> dim(lockedDriver->getScreenSize());
 		if (AbsoluteRect.LowerRightCorner.X != dim.Width ||
 			AbsoluteRect.LowerRightCorner.Y != dim.Height)
 		{
@@ -280,12 +275,6 @@ bool CGUIEnvironment::hasFocus(boost::shared_ptr<IGUIElement> element) const
 	return (element == Focus);
 }
 
-
-//! returns the current video driver
-video::IVideoDriver* CGUIEnvironment::getVideoDriver() const
-{
-	return Driver;
-}
 
 
 //! returns the current file system
@@ -558,7 +547,7 @@ If you no longer need the skin, you should call IGUISkin::drop().
 See IReferenceCounted::drop() for more information. */
 boost::shared_ptr<IGUISkin> CGUIEnvironment::createSkin(EGUI_SKIN_TYPE type)
 {
-	boost::shared_ptr<IGUISkin> skin = boost::make_shared<CGUISkin>(type, Driver);
+	boost::shared_ptr<IGUISkin> skin = boost::make_shared<CGUISkin>(type, getVideoDriver());
 
 	boost::shared_ptr<IGUIFont> builtinfont = getBuiltInFont();
 	boost::shared_ptr<IGUIFontBitmap> bitfont = 0;
@@ -773,7 +762,7 @@ void CGUIEnvironment::readGUIElement(io::IXMLReader* reader, boost::shared_ptr<I
 			if (!wcscmp(L"attributes", reader->getNodeName()))
 			{
 				// read attributes
-				io::IAttributes* attr = FileSystem->createEmptyAttributes(Driver);
+				io::IAttributes* attr = FileSystem->createEmptyAttributes(getVideoDriver());
 				attr->read(reader, true);
 
 				if (node)
@@ -931,9 +920,11 @@ void CGUIEnvironment::deserializeAttributes(io::IAttributes* in, io::SAttributeR
 
 	}
 
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
 	RelativeRect = AbsoluteRect =
 			core::rect<s32>(core::position2d<s32>(0,0),
-			Driver ? core::dimension2di(Driver->getScreenSize()) : core::dimension2d<s32>(0,0));
+				lockedDriver ? core::dimension2di(lockedDriver->getScreenSize()) : core::dimension2d<s32>(0,0));
 }
 
 
@@ -1329,10 +1320,12 @@ boost::shared_ptr<IGUIInOutFader> CGUIEnvironment::addInOutFader(const core::rec
 {
 	core::rect<s32> rect;
 
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
 	if (rectangle)
 		rect = *rectangle;
-	else if (Driver)
-		rect = core::rect<s32>(core::position2d<s32>(0,0), core::dimension2di(Driver->getScreenSize()));
+	else if (lockedDriver)
+		rect = core::rect<s32>(core::position2d<s32>(0,0), core::dimension2di(lockedDriver->getScreenSize()));
 
 	if (!parent)
 		parent = getSharedThis();
@@ -1552,7 +1545,7 @@ IGUISpriteBank* CGUIEnvironment::addEmptySpriteBank(const io::path& name)
 IGUIImageList* CGUIEnvironment::createImageList(  video::ITexture* texture,
 					core::dimension2d<s32>	imageSize, bool useAlphaChannel )
 {
-	CGUIImageList* imageList = new CGUIImageList( Driver );
+	CGUIImageList* imageList = new CGUIImageList(getVideoDriver());
 	if( !imageList->createImageList( texture, imageSize, useAlphaChannel ) )
 	{
 		imageList->drop();
@@ -1620,7 +1613,7 @@ boost::shared_ptr<IGUIElement> CGUIEnvironment::getNextElement(bool reverse, boo
 
 //! creates an GUI Environment
 boost::shared_ptr<IGUIEnvironment> createGUIEnvironment(io::IFileSystem* fs,
-					video::IVideoDriver* Driver,
+					boost::shared_ptr<video::IVideoDriver> Driver,
 					IOSOperator* op)
 {
 	boost::shared_ptr<CGUIEnvironment> env = boost::make_shared<CGUIEnvironment>(fs, Driver, op);

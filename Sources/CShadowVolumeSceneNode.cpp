@@ -224,7 +224,8 @@ void CShadowVolumeSceneNode::updateShadowVolumes()
 
 	// create as much shadow volumes as there are lights but
 	// do not ignore the max light settings.
-	const u32 lightCount = SceneManager->getVideoDriver()->getDynamicLightCount();
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+	const u32 lightCount = lockedSceneManager->getVideoDriver()->getDynamicLightCount();
 	if (!lightCount)
 		return;
 
@@ -278,7 +279,7 @@ void CShadowVolumeSceneNode::updateShadowVolumes()
 	// TODO: Only correct for point lights.
 	for (i=0; i<lightCount; ++i)
 	{
-		const video::SLight& dl = SceneManager->getVideoDriver()->getDynamicLight(i);
+		const video::SLight& dl = lockedSceneManager->getVideoDriver()->getDynamicLight(i);
 		core::vector3df lpos = dl.Position;
 		if (dl.CastShadows &&
 			fabs((lpos - parentpos).getLengthSQ()) <= (dl.Radius*dl.Radius*4.0f))
@@ -295,7 +296,7 @@ void CShadowVolumeSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
 	{
-		SceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_SHADOW);
+		getSceneManager()->registerNodeForRendering(getSharedThis(), scene::ESNRP_SHADOW);
 		ISceneNode::OnRegisterSceneNode();
 	}
 }
@@ -303,7 +304,8 @@ void CShadowVolumeSceneNode::OnRegisterSceneNode()
 //! renders the node.
 void CShadowVolumeSceneNode::render()
 {
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedSceneManager->getVideoDriver();
 
 	if (!ShadowVolumesUsed || !driver)
 		return;
@@ -314,11 +316,11 @@ void CShadowVolumeSceneNode::render()
 	{
 		bool drawShadow = true;
 
-		if (UseZFailMethod && SceneManager->getActiveCamera())
+		if (UseZFailMethod && lockedSceneManager->getActiveCamera())
 		{
 			// Disable shadows drawing, when back cap is behind of ZFar plane.
 
-			SViewFrustum frust = *SceneManager->getActiveCamera()->getViewFrustum();
+			SViewFrustum frust = *lockedSceneManager->getActiveCamera()->getViewFrustum();
 
 			core::matrix4 invTrans(Parent.lock()->getAbsoluteTransformation(), core::matrix4::EM4CONST_INVERSE);
 			frust.transform(invTrans);
@@ -327,12 +329,12 @@ void CShadowVolumeSceneNode::render()
 			ShadowBBox[i].getEdges(edges);
 
 			core::vector3df largestEdge = edges[0];
-			f32 maxDistance = core::vector3df(SceneManager->getActiveCamera()->getPosition() - edges[0]).getLength();
+			f32 maxDistance = core::vector3df(lockedSceneManager->getActiveCamera()->getPosition() - edges[0]).getLength();
 			f32 curDistance = 0.f;
 
 			for(int j = 1; j < 8; ++j)
 			{
-				curDistance = core::vector3df(SceneManager->getActiveCamera()->getPosition() - edges[j]).getLength();
+				curDistance = core::vector3df(lockedSceneManager->getActiveCamera()->getPosition() - edges[j]).getLength();
 
 				if(curDistance > maxDistance)
 				{

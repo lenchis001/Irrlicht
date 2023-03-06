@@ -207,7 +207,7 @@ boost::shared_ptr<IMesh> CAnimatedMeshMD3::getMesh(s32 frame, s32 detailLevel, s
 
 //! create a Irrlicht MeshBuffer for a MD3 MeshBuffer
 IMeshBuffer * CAnimatedMeshMD3::createMeshBuffer(const boost::shared_ptr<SMD3MeshBuffer> source,
-							 io::IFileSystem* fs, video::IVideoDriver * driver)
+							 io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver>  driver)
 {
 	SMeshBufferLightMap * dest = new SMeshBufferLightMap();
 	dest->Vertices.set_used(source->MeshHeader.numVertices);
@@ -308,7 +308,7 @@ void CAnimatedMeshMD3::buildTagArray(u32 frameA, u32 frameB, f32 interpolate)
 	loads a model
 */
 bool CAnimatedMeshMD3::loadModelFile(u32 modelIndex, io::IReadFile* file,
-			io::IFileSystem* fs, video::IVideoDriver* driver)
+			io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver)
 {
 	if (!file)
 		return false;

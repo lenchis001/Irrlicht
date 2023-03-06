@@ -1806,7 +1806,7 @@ void CNullDriver::setMaterialRendererName(s32 idx, const char* name)
 io::IAttributes* CNullDriver::createAttributesFromMaterial(const video::SMaterial& material,
 	io::SAttributeReadWriteOptions* options)
 {
-	io::CAttributes* attr = new io::CAttributes(this);
+	io::CAttributes* attr = new io::CAttributes(getSharedThis());
 
 	attr->addEnum("Type", material.MaterialType, sBuiltInMaterialTypeNames);
 
@@ -2343,9 +2343,9 @@ void CNullDriver::printVersion()
 
 
 //! creates a video driver
-IVideoDriver* createNullDriver(io::IFileSystem* io, const core::dimension2d<u32>& screenSize)
+boost::shared_ptr<IVideoDriver> createNullDriver(io::IFileSystem* io, const core::dimension2d<u32>& screenSize)
 {
-	CNullDriver* nullDriver = new CNullDriver(io, screenSize);
+	boost::shared_ptr<CNullDriver> nullDriver = boost::make_shared<CNullDriver>(io, screenSize);
 
 	// create empty material renderers
 	for(u32 i=0; sBuiltInMaterialTypeNames[i]; ++i)

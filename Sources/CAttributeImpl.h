@@ -7,6 +7,7 @@
 #include "ITexture.h"
 #include "IVideoDriver.h"
 #include"IFileSystem.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -1866,25 +1867,19 @@ public:
 
 
 // Attribute implemented for texture references
-class CTextureAttribute : public IAttribute
+class CTextureAttribute : public IAttribute, public video::VideoDriverAwareMixin<>
 {
 public:
 
-	CTextureAttribute(const char* name, video::ITexture* value, video::IVideoDriver* driver, io::IFileSystem* fileSystem, const io::path& filename)
-		: Value(0), Driver(driver), _fileSystem(fileSystem), OverrideName(filename)
+	CTextureAttribute(const char* name, video::ITexture* value, boost::shared_ptr<video::IVideoDriver> driver, io::IFileSystem* fileSystem, const io::path& filename)
+		: VideoDriverAwareMixin(driver), Value(0), _fileSystem(fileSystem), OverrideName(filename)
 	{
-		if (Driver)
-			Driver->grab();
-
 		Name = name;
 		setTexture(value);
 	}
 
 	~CTextureAttribute()
 	{
-		if (Driver)
-			Driver->drop();
-
 		if (Value)
 			Value->drop();
 	}
@@ -1929,11 +1924,13 @@ public:
 
 	virtual void setString(const char* text)
 	{
-		if (Driver)
+		boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
+		if (lockedDriver)
 		{
 			if (text && *text)
 			{
-				setTexture(Driver->getTexture(text));
+				setTexture(lockedDriver->getTexture(text));
 				OverrideName=text;
 			}
 			else
@@ -1967,7 +1964,6 @@ public:
 	}
 
 	video::ITexture* Value;
-	video::IVideoDriver* Driver;
 	io::IFileSystem* _fileSystem;
 	io::path OverrideName;
 };

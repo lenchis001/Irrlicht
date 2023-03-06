@@ -8,7 +8,8 @@
 #include "IAttributes.h"
 #include "IAttribute.h"
 
-#include"IFileSystem.h"
+#include "IFileSystem.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -22,11 +23,11 @@ namespace io
 
 
 //! Implementation of the IAttributes interface
-class CAttributes : public IAttributes
+class CAttributes : public IAttributes, public video::VideoDriverAwareMixin<>
 {
 public:
 
-	CAttributes(video::IVideoDriver* driver=nullptr, io::IFileSystem* fileSystem = nullptr);
+	CAttributes(boost::shared_ptr<video::IVideoDriver> driver=nullptr, io::IFileSystem* fileSystem = nullptr);
 	~CAttributes();
 
 	//! Returns amount of attributes in this collection of attributes.
@@ -704,7 +705,6 @@ protected:
 
 	IAttribute* getAttributeP(const c8* attributeName) const;
 
-	video::IVideoDriver* Driver;
 	io::IFileSystem* _fileSystem;
 };
 

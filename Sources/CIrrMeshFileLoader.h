@@ -13,6 +13,7 @@
 #include "SMeshBuffer.h"
 #include "CDynamicMeshBuffer.h"
 #include "ISceneManager.h"
+#include "SceneManagerAwareMixin.h"
 
 namespace irr
 {
@@ -21,7 +22,7 @@ namespace scene
 
 
 //! Meshloader capable of loading .irrmesh meshes, the Irrlicht Engine mesh format for static meshes
-class CIrrMeshFileLoader : public IMeshLoader
+class CIrrMeshFileLoader : public IMeshLoader, public SceneManagerAwareMixin<>
 {
 public:
 
@@ -78,7 +79,6 @@ private:
 
 	// member variables
 
-	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IFileSystem* FileSystem;
 };
 

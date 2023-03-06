@@ -41,7 +41,7 @@ CTextSceneNode::~CTextSceneNode()
 void CTextSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_TRANSPARENT);
+		getSceneManager()->registerNodeForRendering(getSharedThis(), ESNRP_TRANSPARENT);
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -53,7 +53,7 @@ void CTextSceneNode::render()
 		return;
 
 	core::position2d<s32> pos = Coll->getScreenCoordinatesFrom3DPosition(getAbsolutePosition(),
-		SceneManager->getActiveCamera());
+		getSceneManager()->getActiveCamera());
 
 	core::rect<s32> r(pos, core::dimension2d<s32>(1,1));
 	Font->draw(Text.c_str(), r, Color, true, true);
@@ -231,7 +231,7 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 	if (!IsVisible || !Font || !Mesh)
 		return;
 
-	boost::shared_ptr<ICameraSceneNode> camera = SceneManager->getActiveCamera();
+	boost::shared_ptr<ICameraSceneNode> camera = getSceneManager()->getActiveCamera();
 	if (!camera)
 		return;
 
@@ -313,7 +313,7 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 
 void CBillboardTextSceneNode::OnRegisterSceneNode()
 {
-	SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_TRANSPARENT);
+	getSceneManager()->registerNodeForRendering(getSharedThis(), ESNRP_TRANSPARENT);
 	ISceneNode::OnRegisterSceneNode();
 }
 
@@ -324,7 +324,7 @@ void CBillboardTextSceneNode::render()
 	if ( !Mesh )
 		return;
 
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = getSceneManager()->getVideoDriver();
 
 	// draw
 	core::matrix4 mat;

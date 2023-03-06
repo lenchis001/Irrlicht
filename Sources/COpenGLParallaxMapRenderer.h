@@ -22,7 +22,7 @@ class COpenGLParallaxMapRenderer : public COpenGLShaderMaterialRenderer, public 
 public:
 
 	//! Constructor
-	COpenGLParallaxMapRenderer(video::COpenGLDriver* driver,
+	COpenGLParallaxMapRenderer(boost::shared_ptr<video::COpenGLDriver> driver,
 		s32& outMaterialTypeNr, IMaterialRenderer* baseMaterial);
 
 	//! Destructor
@@ -33,7 +33,7 @@ public:
 	virtual void OnSetConstants(IMaterialRendererServices* services, s32 userData);
 
 	//! Returns the render capability of the material.
-	virtual s32 getRenderCapability() const;
+	virtual s32 getRenderCapability();
 
 	virtual void OnSetMaterial(const SMaterial& material) { }
 	virtual void OnSetMaterial(const video::SMaterial& material,

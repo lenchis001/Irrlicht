@@ -17,7 +17,7 @@ namespace scene
 
 //! Constructor
 CSceneLoaderIrr::CSceneLoaderIrr(boost::shared_ptr<ISceneManager> smgr, io::IFileSystem* fs)
- : SceneManager(smgr), FileSystem(fs),
+ : SceneManagerAwareMixin(smgr), FileSystem(fs),
    IRR_XML_FORMAT_SCENE(L"irr_scene"), IRR_XML_FORMAT_NODE(L"node"), IRR_XML_FORMAT_NODE_ATTR_TYPE(L"type"),
    IRR_XML_FORMAT_ATTRIBUTES(L"attributes"), IRR_XML_FORMAT_MATERIALS(L"materials"),
    IRR_XML_FORMAT_ANIMATORS(L"animators"), IRR_XML_FORMAT_USERDATA(L"userData")
@@ -61,9 +61,11 @@ bool CSceneLoaderIrr::loadScene(io::IReadFile* file, ISceneUserDataSerializer* u
 		return false;
 	}
 
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
 	// TODO: COLLADA_CREATE_SCENE_INSTANCES can be removed when the COLLADA loader is a scene loader
-	bool oldColladaSingleMesh = SceneManager->getParameters()->getAttributeAsBool(COLLADA_CREATE_SCENE_INSTANCES);
-	SceneManager->getParameters()->setAttribute(COLLADA_CREATE_SCENE_INSTANCES, false);
+	bool oldColladaSingleMesh = lockedSceneManager->getParameters()->getAttributeAsBool(COLLADA_CREATE_SCENE_INSTANCES);
+	lockedSceneManager->getParameters()->setAttribute(COLLADA_CREATE_SCENE_INSTANCES, false);
 
 	// read file
 	while (reader->read())
@@ -72,7 +74,7 @@ bool CSceneLoaderIrr::loadScene(io::IReadFile* file, ISceneUserDataSerializer* u
 	}
 
 	// restore old collada parameters
-	SceneManager->getParameters()->setAttribute(COLLADA_CREATE_SCENE_INSTANCES, oldColladaSingleMesh);
+	lockedSceneManager->getParameters()->setAttribute(COLLADA_CREATE_SCENE_INSTANCES, oldColladaSingleMesh);
 
 	// clean up
 	reader->drop();
@@ -89,14 +91,15 @@ void CSceneLoaderIrr::readSceneNode(io::IXMLReader* reader, boost::shared_ptr<IS
 
 	boost::shared_ptr<scene::ISceneNode> node = 0;
 
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
 	if (!parent && IRR_XML_FORMAT_SCENE==reader->getNodeName())
-		node = SceneManager->getRootSceneNode();
+		node = lockedSceneManager->getRootSceneNode();
 	else if (parent && IRR_XML_FORMAT_NODE==reader->getNodeName())
 	{
 		// find node type and create it
 		core::stringc attrName = reader->getAttributeValue(IRR_XML_FORMAT_NODE_ATTR_TYPE.c_str());
 
-		node = SceneManager->addSceneNode(attrName.c_str(), parent);
+		node = lockedSceneManager->addSceneNode(attrName.c_str(), parent);
 
 		if (!node)
 			os::Printer::log("Could not create scene node of unknown type", attrName.c_str());
@@ -124,7 +127,7 @@ void CSceneLoaderIrr::readSceneNode(io::IXMLReader* reader, boost::shared_ptr<IS
 			if (IRR_XML_FORMAT_ATTRIBUTES == name)
 			{
 				// read attributes
-				io::IAttributes* attr = FileSystem->createEmptyAttributes(SceneManager->getVideoDriver());
+				io::IAttributes* attr = FileSystem->createEmptyAttributes(getSceneManager()->getVideoDriver());
 				attr->read(reader, true);
 
 				if (node)
@@ -182,13 +185,15 @@ void CSceneLoaderIrr::readMaterials(io::IXMLReader* reader, boost::shared_ptr<IS
 		case io::EXN_ELEMENT:
 			if (IRR_XML_FORMAT_ATTRIBUTES == name)
 			{
+				boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
 				// read materials from attribute list
-				io::IAttributes* attr = FileSystem->createEmptyAttributes(SceneManager->getVideoDriver());
+				io::IAttributes* attr = FileSystem->createEmptyAttributes(lockedSceneManager->getVideoDriver());
 				attr->read(reader);
 
 				if (node && node->getMaterialCount() > nr)
 				{
-					SceneManager->getVideoDriver()->fillMaterialStructureFromAttributes(
+					lockedSceneManager->getVideoDriver()->fillMaterialStructureFromAttributes(
 						node->getMaterial(nr), attr);
 				}
 
@@ -219,14 +224,16 @@ void CSceneLoaderIrr::readAnimators(io::IXMLReader* reader, boost::shared_ptr<IS
 		case io::EXN_ELEMENT:
 			if (IRR_XML_FORMAT_ATTRIBUTES == name)
 			{
+				boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
 				// read animator data from attribute list
-				io::IAttributes* attr = FileSystem->createEmptyAttributes(SceneManager->getVideoDriver());
+				io::IAttributes* attr = FileSystem->createEmptyAttributes(lockedSceneManager->getVideoDriver());
 				attr->read(reader);
 
 				if (node)
 				{
 					core::stringc typeName = attr->getAttributeAsString("Type");
-					boost::shared_ptr<ISceneNodeAnimator> anim = SceneManager->createSceneNodeAnimator(typeName.c_str(), node);
+					boost::shared_ptr<ISceneNodeAnimator> anim = lockedSceneManager->createSceneNodeAnimator(typeName.c_str(), node);
 
 					if (anim)
 					{
@@ -261,7 +268,7 @@ void CSceneLoaderIrr::readUserData(io::IXMLReader* reader, boost::shared_ptr<ISc
 			if (IRR_XML_FORMAT_ATTRIBUTES == name)
 			{
 				// read user data from attribute list
-				io::IAttributes* attr = FileSystem->createEmptyAttributes(SceneManager->getVideoDriver());
+				io::IAttributes* attr = FileSystem->createEmptyAttributes(getSceneManager()->getVideoDriver());
 				attr->read(reader);
 
 				if (node && userDataSerializer)

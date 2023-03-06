@@ -8,6 +8,7 @@
 #include "IMeshWriter.h"
 #include "S3DVertex.h"
 #include "irrString.h"
+#include "SceneManagerAwareMixin.h"
 
 namespace irr
 {
@@ -17,7 +18,7 @@ namespace scene
 	class ISceneManager;
 
 	//! class to write meshes, implementing a STL writer
-	class CSTLMeshWriter : public IMeshWriter
+	class CSTLMeshWriter : public IMeshWriter, public SceneManagerAwareMixin<>
 	{
 	public:
 
@@ -44,8 +45,6 @@ namespace scene
 		// write face information to file
 		void writeFace(io::IWriteFile* file, const core::vector3df& v1,
 				const core::vector3df& v2, const core::vector3df& v3);
-
-		boost::shared_ptr<scene::ISceneManager> SceneManager;
 	};
 
 } // end namespace

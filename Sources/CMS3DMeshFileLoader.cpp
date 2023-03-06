@@ -105,8 +105,8 @@ struct SGroup
 };
 
 //! Constructor
-CMS3DMeshFileLoader::CMS3DMeshFileLoader(video::IVideoDriver *driver)
-: Driver(driver), AnimatedMesh(0)
+CMS3DMeshFileLoader::CMS3DMeshFileLoader(boost::shared_ptr<video::IVideoDriver> driver)
+: VideoDriverAwareMixin(driver), AnimatedMesh(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CMS3DMeshFileLoader");
@@ -364,18 +364,19 @@ bool CMS3DMeshFileLoader::load(io::IReadFile* file)
 		tmpBuffer->Material.SpecularColor = video::SColorf(material->Specular[0], material->Specular[1], material->Specular[2], material->Specular[3]).toSColor ();
 		tmpBuffer->Material.Shininess = material->Shininess;
 
+		boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
 		core::stringc TexturePath(material->Texture);
 		if (TexturePath.trim()!="")
 		{
 			TexturePath=stripPathFromString(file->getFileName(),true) + stripPathFromString(TexturePath,false);
-			tmpBuffer->Material.setTexture(0, Driver->getTexture(TexturePath));
+			tmpBuffer->Material.setTexture(0, lockedDriver->getTexture(TexturePath));
 		}
 
 		core::stringc AlphamapPath=(const c8*)material->Alphamap;
 		if (AlphamapPath.trim()!="")
 		{
 			AlphamapPath=stripPathFromString(file->getFileName(),true) + stripPathFromString(AlphamapPath,false);
-			tmpBuffer->Material.setTexture(2, Driver->getTexture(AlphamapPath));
+			tmpBuffer->Material.setTexture(2, lockedDriver->getTexture(AlphamapPath));
 		}
 	}
 

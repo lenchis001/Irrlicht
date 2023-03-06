@@ -146,7 +146,7 @@ public:
 	virtual IXMLWriter* createXMLWriter(IWriteFile* file);
 
 	//! Creates a new empty collection of attributes, usable for serialization and more.
-	virtual IAttributes* createEmptyAttributes(video::IVideoDriver* driver);
+	virtual IAttributes* createEmptyAttributes(boost::shared_ptr<video::IVideoDriver> driver);
 
 private:
 

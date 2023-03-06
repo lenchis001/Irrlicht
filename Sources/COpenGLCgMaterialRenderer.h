@@ -55,7 +55,7 @@ public:
 class COpenGLCgMaterialRenderer : public CCgMaterialRenderer
 {
 public:
-	COpenGLCgMaterialRenderer(COpenGLDriver* driver, s32& materialType,
+	COpenGLCgMaterialRenderer(boost::shared_ptr<COpenGLDriver> driver, s32& materialType,
 		const c8* vertexProgram = 0, const c8* vertexEntry = "main",
 		E_VERTEX_SHADER_TYPE vertexProfile = video::EVST_VS_1_1,
 		const c8* fragmentProgram = 0, const c8* fragmentEntry = "main",
@@ -74,7 +74,6 @@ public:
 	virtual void OnUnsetMaterial();
 
 	virtual void setBasicRenderStates(const SMaterial& material, const SMaterial& lastMaterial, bool resetAllRenderstates);
-	virtual IVideoDriver* getVideoDriver();
 
 protected:
 	void init(s32& materialType,
@@ -87,8 +86,6 @@ protected:
 		scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 		scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 		u32 vertices = 0);
-
-	COpenGLDriver* Driver;
 };
 
 }

@@ -54,7 +54,7 @@ public:
 	\code
 	virtual void OnSetConstants(video::IMaterialRendererServices* services, s32 userData)
 	{
-		video::IVideoDriver* driver = services->getVideoDriver();
+		boost::shared_ptr<video::IVideoDriver> driver = services->getVideoDriver();
 
 		// set clip matrix at register 4
 		core::matrix4 worldViewProj(driver->getTransform(video::ETS_PROJECTION));

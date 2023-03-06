@@ -17,6 +17,7 @@
 #include "matrix4.h"
 #include "irrList.h"
 #include "IAttributes.h"
+#include "SceneManagerAwareMixin.h"
 
 namespace irr
 {
@@ -37,7 +38,7 @@ namespace scene
 	example easily possible to attach a light to a moving car, or to place
 	a walking character on a moving platform on a moving ship.
 	*/
-	class ISceneNode : virtual public io::IDebuableAttributeExchangingObject
+	class ISceneNode : virtual public io::IDebuableAttributeExchangingObject, public SceneManagerAwareMixin<>
 	{
 	public:
 
@@ -46,15 +47,15 @@ namespace scene
 				const core::vector3df& position = core::vector3df(0,0,0),
 				const core::vector3df& rotation = core::vector3df(0,0,0),
 				const core::vector3df& scale = core::vector3df(1.0f, 1.0f, 1.0f))
-			: RelativeTranslation(position), RelativeRotation(rotation), RelativeScale(scale),
-				Parent(parent), SceneManager(mgr), TriangleSelector(0), ID(id),
+			:   SceneManagerAwareMixin(mgr), RelativeTranslation(position), RelativeRotation(rotation), RelativeScale(scale),
+				Parent(parent), TriangleSelector(0), ID(id),
 				AutomaticCullingState(EAC_BOX), DebugDataVisible(EDS_OFF),
 				IsVisible(true), IsDebugObject(false)
 		{
 		}
 
 		virtual void setWeakThis(boost::shared_ptr<ISceneNode> value) {
-#if _DEBUG
+#ifdef _DEBUG
 			assert(this == value.get());
 #endif
 			WeakThis = value;
@@ -284,8 +285,10 @@ namespace scene
 			if (child && (child.get() != this))
 			{
 				// Change scene manager?
-				if (SceneManager != child->SceneManager)
-					child->setSceneManager(SceneManager);
+				boost::shared_ptr<ISceneManager> mySceneManager = getSceneManager();
+
+				if (mySceneManager != child->getSceneManager())
+					child->setSceneManager(mySceneManager);
 
 				child->remove(); // remove from old parent
 				Children.push_back(child);
@@ -670,7 +673,7 @@ namespace scene
 		\param out The attribute container to write into.
 		\param options Additional options which might influence the
 		serialization. */
-		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const
+		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0)
 		{
 			if (!out)
 				return;
@@ -729,9 +732,16 @@ namespace scene
 			return 0; // to be implemented by derived classes
 		}
 
-		//! Retrieve the scene manager for this node.
-		/** \return The node's scene manager. */
-		virtual boost::shared_ptr<scene::ISceneManager> getSceneManager(void) const { return SceneManager; }
+		//! Sets the new scene manager for this node and all children.
+		//! Called by addChild when moving nodes between scene managers
+		void setSceneManager(boost::shared_ptr<scene::ISceneManager> newManager) override
+		{
+			SceneManagerAwareMixin::setSceneManager(newManager);
+
+			ISceneNodeList::Iterator it = Children.begin();
+			for (; it != Children.end(); ++it)
+				(*it)->setSceneManager(newManager);
+		}
 
 	protected:
 
@@ -764,10 +774,12 @@ namespace scene
 			IsVisible = toCopyFrom->IsVisible;
 			IsDebugObject = toCopyFrom->IsDebugObject;
 
+
+
 			if (newManager)
-				SceneManager = newManager;
+				SceneManagerAwareMixin::setSceneManager(newManager);
 			else
-				SceneManager = toCopyFrom->SceneManager;
+				SceneManagerAwareMixin::setSceneManager(toCopyFrom->getSceneManager());
 
 			// clone children
 
@@ -780,23 +792,12 @@ namespace scene
 			ISceneNodeAnimatorList::Iterator ait = toCopyFrom->Animators.begin();
 			for (; ait != toCopyFrom->Animators.end(); ++ait)
 			{
-				boost::shared_ptr<ISceneNodeAnimator> anim = (*ait)->createClone(getSharedThis(), SceneManager);
+				boost::shared_ptr<ISceneNodeAnimator> anim = (*ait)->createClone(getSharedThis(), getSceneManager());
 				if (anim)
 				{
 					addAnimator(anim);
 				}
 			}
-		}
-
-		//! Sets the new scene manager for this node and all children.
-		//! Called by addChild when moving nodes between scene managers
-		void setSceneManager(boost::shared_ptr<scene::ISceneManager> newManager)
-		{
-			SceneManager = newManager;
-
-			ISceneNodeList::Iterator it = Children.begin();
-			for (; it != Children.end(); ++it)
-				(*it)->setSceneManager(newManager);
 		}
 
 		//! Name of the scene node.
@@ -825,9 +826,6 @@ namespace scene
 
 		//! List of all animator nodes
 		core::list<boost::shared_ptr<ISceneNodeAnimator>> Animators;
-
-		//! Pointer to the scene manager
-		boost::shared_ptr<scene::ISceneManager> SceneManager;
 
 		//! Pointer to the triangle selector
 		ITriangleSelector* TriangleSelector;

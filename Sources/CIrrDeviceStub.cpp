@@ -57,9 +57,6 @@ CIrrDeviceStub::~CIrrDeviceStub()
 	VideoModeList->drop();
 	FileSystem->drop();
 
-	if (VideoDriver)
-		VideoDriver->drop();
-
 	if (Operator)
 		Operator->drop();
 
@@ -91,8 +88,12 @@ void CIrrDeviceStub::createGUIAndScene()
 
 
 //! returns the video driver
-video::IVideoDriver* CIrrDeviceStub::getVideoDriver()
+boost::shared_ptr<video::IVideoDriver> CIrrDeviceStub::getVideoDriver()
 {
+#ifdef _DEBUG
+	assert(VideoDriver != nullptr);
+#endif
+
 	return VideoDriver;
 }
 

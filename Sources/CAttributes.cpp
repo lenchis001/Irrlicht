@@ -13,23 +13,17 @@ namespace irr
 namespace io
 {
 
-CAttributes::CAttributes(video::IVideoDriver* driver, io::IFileSystem* fileSystem)
-: Driver(driver), _fileSystem(fileSystem)
+CAttributes::CAttributes(boost::shared_ptr<video::IVideoDriver> driver, io::IFileSystem* fileSystem)
+: VideoDriverAwareMixin(driver), _fileSystem(fileSystem)
 {
 	#ifdef _DEBUG
 	setDebugName("CAttributes");
 	#endif
-
-	if (Driver)
-		Driver->grab();
 }
 
 CAttributes::~CAttributes()
 {
 	clear();
-
-	if (Driver)
-		Driver->drop();
 }
 
 
@@ -557,7 +551,7 @@ void CAttributes::setAttribute(const c8* attributeName, video::ITexture* value, 
 	if (att)
 		att->setTexture(value, filename);
 	else
-		Attributes.push_back(new CTextureAttribute(attributeName, value, Driver, _fileSystem, filename));
+		Attributes.push_back(new CTextureAttribute(attributeName, value, getVideoDriver(), _fileSystem, filename));
 }
 
 
@@ -894,7 +888,7 @@ void CAttributes::addBinary(const c8* attributeName, void* data, s32 dataSizeInB
 //! Adds an attribute as texture reference
 void CAttributes::addTexture(const c8* attributeName, video::ITexture* texture, const io::path& filename)
 {
-	Attributes.push_back(new CTextureAttribute(attributeName, texture, Driver, _fileSystem, filename));
+	Attributes.push_back(new CTextureAttribute(attributeName, texture, getVideoDriver(), _fileSystem, filename));
 }
 
 //! Returns if an attribute with a name exists

@@ -79,7 +79,7 @@ boost::shared_ptr<IAnimatedMesh> CDMFLoader::createMesh(io::IReadFile* file)
 {
 	if (!file)
 		return 0;
-	video::IVideoDriver* driver = SceneMgr->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = SceneMgr->getVideoDriver();
 
 	//Load stringlist
 	StringList dmfRawFile;

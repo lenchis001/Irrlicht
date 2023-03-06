@@ -8,6 +8,7 @@
 #include "IMeshLoader.h"
 #include "IVideoDriver.h"
 #include "CSkinnedMesh.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -15,12 +16,12 @@ namespace scene
 {
 
 //! Meshloader capable of loading Milkshape 3D files
-class CMS3DMeshFileLoader : public IMeshLoader
+class CMS3DMeshFileLoader : public IMeshLoader, public video::VideoDriverAwareMixin<>
 {
 public:
 
 	//! Constructor
-	CMS3DMeshFileLoader(video::IVideoDriver* driver);
+	CMS3DMeshFileLoader(boost::shared_ptr<video::IVideoDriver> driver);
 
 	//! returns true if the file might be loadable by this class
 	//! based on the file extension (e.g. ".bsp")
@@ -37,7 +38,6 @@ private:
 	core::stringc stripPathFromString(const core::stringc& inString, bool returnPath) const;
 
 	bool load(io::IReadFile* file);
-	video::IVideoDriver* Driver;
 	boost::shared_ptr<CSkinnedMesh> AnimatedMesh;
 };
 

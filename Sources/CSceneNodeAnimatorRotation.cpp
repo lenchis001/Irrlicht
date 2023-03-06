@@ -46,7 +46,7 @@ void CSceneNodeAnimatorRotation::animateNode(boost::shared_ptr<ISceneNode> node,
 
 
 //! Writes attributes of the scene node animator.
-void CSceneNodeAnimatorRotation::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CSceneNodeAnimatorRotation::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	out->addVector3d("Rotation", Rotation);
 }

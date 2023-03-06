@@ -163,7 +163,7 @@ namespace scene
 
 //! Constructor
 CHalflifeMDLMeshFileLoader::CHalflifeMDLMeshFileLoader(
-		boost::shared_ptr<scene::ISceneManager> smgr) : SceneManager(smgr)
+		boost::shared_ptr<scene::ISceneManager> smgr) : SceneManagerAwareMixin(smgr)
 {
 #ifdef _DEBUG
 	setDebugName("CHalflifeMDLMeshFileLoader");
@@ -188,7 +188,7 @@ boost::shared_ptr<IAnimatedMesh> CHalflifeMDLMeshFileLoader::createMesh(io::IRea
 	boost::shared_ptr<CAnimatedMeshHalfLife> msh = boost::make_shared<CAnimatedMeshHalfLife>();
 	if (msh)
 	{
-		if (msh->loadModelFile(file, SceneManager))
+		if (msh->loadModelFile(file, getSceneManager()))
 			return msh;
 	}
 
@@ -198,7 +198,7 @@ boost::shared_ptr<IAnimatedMesh> CHalflifeMDLMeshFileLoader::createMesh(io::IRea
 
 //! Constructor
 CAnimatedMeshHalfLife::CAnimatedMeshHalfLife()
-	: FrameCount(0), MeshIPol(0), SceneManager(0), Header(0), TextureHeader(0),
+	: SceneManagerAwareMixin(nullptr), FrameCount(0), MeshIPol(0), Header(0), TextureHeader(0),
 	OwnTexModel(false), SequenceIndex(0), CurrentFrame(0), FramesPerSecond(25.f),
 	SkinGroupSelection(0)
 #ifdef HL_TEXTURE_ATLAS
@@ -220,7 +220,7 @@ bool CAnimatedMeshHalfLife::loadModelFile(io::IReadFile* file,
 	if (!file)
 		return false;
 
-	SceneManager = smgr;
+	setSceneManager(smgr);
 
 	if ( loadModel(file, file->getFileName()) )
 	{
@@ -505,7 +505,7 @@ void CAnimatedMeshHalfLife::initModel()
 				core::splitFilename ( currentex->name, 0, &fname, &ext );
 				io::path store = TextureBaseName + fname;
 #endif
-				m.TextureLayer[0].Texture = SceneManager->getVideoDriver()->getTexture ( store );
+				m.TextureLayer[0].Texture = getSceneManager()->getVideoDriver()->getTexture(store);
 				m.Lighting = false;
 
 				MeshIPol->addMeshBuffer(buffer);
@@ -590,7 +590,7 @@ void CAnimatedMeshHalfLife::buildVertices()
 /*!
 	render Bones
 */
-void CAnimatedMeshHalfLife::renderModel(u32 param, IVideoDriver * driver, const core::matrix4 &absoluteTransformation)
+void CAnimatedMeshHalfLife::renderModel(u32 param, boost::shared_ptr<IVideoDriver>  driver, const core::matrix4 &absoluteTransformation)
 {
 	SHalflifeBone *bone = (SHalflifeBone *) ((u8 *) Header + Header->boneindex);
 
@@ -970,11 +970,12 @@ void STextureAtlas::create(u32 border, E_TEXTURE_CLAMP texmode)
 SHalflifeHeader* CAnimatedMeshHalfLife::loadModel(io::IReadFile* file, const io::path& filename)
 {
 	bool closefile = false;
+	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
 
 	// if secondary files are needed, open here and mark for closing
 	if ( 0 == file )
 	{
-		file = SceneManager->getFileSystem()->createAndOpenFile(filename);
+		file = lockedSceneManager->getFileSystem()->createAndOpenFile(filename);
 		closefile = true;
 	}
 
@@ -1028,7 +1029,7 @@ SHalflifeHeader* CAnimatedMeshHalfLife::loadModel(io::IReadFile* file, const io:
 				}
 			}
 
-			IImage* image = SceneManager->getVideoDriver()->createImage(ECF_R8G8B8, core::dimension2d<u32>(tex[i].width, tex[i].height));
+			IImage* image = lockedSceneManager->getVideoDriver()->createImage(ECF_R8G8B8, core::dimension2d<u32>(tex[i].width, tex[i].height));
 
 			CColorConverter::convert8BitTo24Bit(src, (u8*)image->lock(), tex[i].width, tex[i].height, (u8*) palette, 0, false);
 			image->unlock();
@@ -1045,7 +1046,7 @@ SHalflifeHeader* CAnimatedMeshHalfLife::loadModel(io::IReadFile* file, const io:
 
 #ifdef HL_TEXTURE_ATLAS
 		TextureAtlas.create ( 2 * 2 + 1, ETC_CLAMP );
-		SceneManager->getVideoDriver()->addTexture ( TextureBaseName + "atlas", TextureAtlas.Master );
+		lockedSceneManager->getVideoDriver()->addTexture ( TextureBaseName + "atlas", TextureAtlas.Master );
 		TextureAtlas.release();
 #endif
 	}

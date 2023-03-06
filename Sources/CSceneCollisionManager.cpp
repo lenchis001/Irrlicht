@@ -17,23 +17,21 @@ namespace scene
 {
 
 //! constructor
-CSceneCollisionManager::CSceneCollisionManager(boost::shared_ptr<scene::ISceneManager> smanager, video::IVideoDriver* driver)
-: SceneManager(smanager), Driver(driver)
+CSceneCollisionManager::CSceneCollisionManager(boost::shared_ptr<scene::ISceneManager> smanager, boost::shared_ptr<video::IVideoDriver> driver)
+: SceneManagerAwareMixin(smanager), VideoDriverAwareMixin(driver)
 {
 	#ifdef _DEBUG
 	setDebugName("CSceneCollisionManager");
 	#endif
 
-	if (Driver)
-		Driver->grab();
+
 }
 
 
 //! destructor
 CSceneCollisionManager::~CSceneCollisionManager()
 {
-	if (Driver)
-		Driver->drop();
+
 }
 
 
@@ -62,7 +60,7 @@ boost::shared_ptr<ISceneNode> CSceneCollisionManager::getSceneNodeFromRayBB(
 
 	core::line3d<f32> truncatableRay(ray);
 
-	getPickedNodeBB((root==0)?SceneManager->getRootSceneNode():root, truncatableRay,
+	getPickedNodeBB((root==0)? getSceneManager()->getRootSceneNode() : root, truncatableRay,
 		idBitMask, noDebugObjects, dist, best);
 
 	return best;
@@ -233,7 +231,7 @@ boost::shared_ptr<ISceneNode> CSceneCollisionManager::getSceneNodeAndCollisionPo
 	f32 bestDistanceSquared = FLT_MAX;
 
 	if(0 == collisionRootNode)
-		collisionRootNode = SceneManager->getRootSceneNode();
+		collisionRootNode = getSceneManager()->getRootSceneNode();
 
 	// We don't try to do anything too clever, like sorting the candidate
 	// nodes by distance to bounding-box. In the example below, we could do the
@@ -843,11 +841,12 @@ core::line3d<f32> CSceneCollisionManager::getRayFromScreenCoordinates(
 {
 	core::line3d<f32> ln(0,0,0,0,0,0);
 
-	if (!SceneManager)
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+	if (!lockedSceneManager)
 		return ln;
 
 	if (!camera)
-		camera = SceneManager->getActiveCamera();
+		camera = lockedSceneManager->getActiveCamera();
 
 	if (!camera)
 		return ln;
@@ -858,7 +857,7 @@ core::line3d<f32> CSceneCollisionManager::getRayFromScreenCoordinates(
 	core::vector3df lefttoright = f->getFarRightUp() - farLeftUp;
 	core::vector3df uptodown = f->getFarLeftDown() - farLeftUp;
 
-	const core::rect<s32>& viewPort = Driver->getViewPort();
+	const core::rect<s32>& viewPort = getVideoDriver()->getViewPort();
 	core::dimension2d<u32> screenSize(viewPort.getWidth(), viewPort.getHeight());
 
 	f32 dx = pos.X / (f32)screenSize.Width;
@@ -879,20 +878,22 @@ core::line3d<f32> CSceneCollisionManager::getRayFromScreenCoordinates(
 core::position2d<s32> CSceneCollisionManager::getScreenCoordinatesFrom3DPosition(
 	const core::vector3df & pos3d, boost::shared_ptr<ICameraSceneNode> camera, bool useViewPort)
 {
-	if (!SceneManager || !Driver)
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+	if (!lockedSceneManager || !lockedDriver)
 		return core::position2d<s32>(-1000,-1000);
 
 	if (!camera)
-		camera = SceneManager->getActiveCamera();
+		camera = lockedSceneManager->getActiveCamera();
 
 	if (!camera)
 		return core::position2d<s32>(-1000,-1000);
 
 	core::dimension2d<u32> dim;
 	if (useViewPort)
-		dim.set(Driver->getViewPort().getWidth(), Driver->getViewPort().getHeight());
+		dim.set(lockedDriver->getViewPort().getWidth(), lockedDriver->getViewPort().getHeight());
 	else
-		dim=(Driver->getCurrentRenderTargetSize());
+		dim=(lockedDriver->getCurrentRenderTargetSize());
 
 	dim.Width /= 2;
 	dim.Height /= 2;

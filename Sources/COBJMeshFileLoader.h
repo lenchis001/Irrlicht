@@ -18,7 +18,7 @@ namespace scene
 {
 
 //! Meshloader capable of loading obj meshes.
-class COBJMeshFileLoader : public IMeshLoader
+class COBJMeshFileLoader : public IMeshLoader, public SceneManagerAwareMixin<>
 {
 public:
 
@@ -109,7 +109,6 @@ private:
 
 	void cleanUp();
 
-	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IFileSystem* FileSystem;
 
 	core::array<SObjMtl*> Materials;

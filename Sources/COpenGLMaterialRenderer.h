@@ -10,6 +10,7 @@
 
 #include "COpenGLDriver.h"
 #include "IMaterialRenderer.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -17,18 +18,14 @@ namespace video
 {
 
 //! Base class for all internal OpenGL material renderers
-class COpenGLMaterialRenderer : public IMaterialRenderer
+class COpenGLMaterialRenderer : public IMaterialRenderer, public VideoDriverAwareMixin<COpenGLDriver>
 {
 public:
 
 	//! Constructor
-	COpenGLMaterialRenderer(video::COpenGLDriver* driver) : Driver(driver)
+	COpenGLMaterialRenderer(boost::shared_ptr<video::COpenGLDriver> driver) : VideoDriverAwareMixin(driver)
 	{
 	}
-
-protected:
-
-	video::COpenGLDriver* Driver;
 };
 
 
@@ -37,14 +34,16 @@ class COpenGLMaterialRenderer_SOLID : public COpenGLMaterialRenderer
 {
 public:
 
-	COpenGLMaterialRenderer_SOLID(video::COpenGLDriver* d)
+	COpenGLMaterialRenderer_SOLID(boost::shared_ptr<video::COpenGLDriver> d)
 		: COpenGLMaterialRenderer(d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
 		bool resetAllRenderstates, IMaterialRendererServices* services)
 	{
-		Driver->disableTextures(1);
-		Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		lockedDriver->disableTextures(1);
+		lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
 		if (resetAllRenderstates || (material.MaterialType != lastMaterial.MaterialType))
 		{
@@ -61,14 +60,16 @@ class COpenGLMaterialRenderer_ONETEXTURE_BLEND : public COpenGLMaterialRenderer
 {
 public:
 
-	COpenGLMaterialRenderer_ONETEXTURE_BLEND(video::COpenGLDriver* d)
+	COpenGLMaterialRenderer_ONETEXTURE_BLEND(boost::shared_ptr<video::COpenGLDriver> d)
 		: COpenGLMaterialRenderer(d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
 		bool resetAllRenderstates, IMaterialRendererServices* services)
 	{
-		Driver->disableTextures(1);
-		Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		lockedDriver->disableTextures(1);
+		lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
 //		if (material.MaterialType != lastMaterial.MaterialType ||
 //			material.MaterialTypeParam != lastMaterial.MaterialTypeParam ||
@@ -93,7 +94,7 @@ public:
 			glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_EXT, (f32) modulate );
 #endif
 
-			glBlendFunc(Driver->getGLBlend(srcFact), Driver->getGLBlend(dstFact));
+			glBlendFunc(lockedDriver->getGLBlend(srcFact), lockedDriver->getGLBlend(dstFact));
 			glEnable(GL_ALPHA_TEST);
 			glAlphaFunc(GL_GREATER, 0.f);
 			glEnable(GL_BLEND);
@@ -167,20 +168,22 @@ class COpenGLMaterialRenderer_SOLID_2_LAYER : public COpenGLMaterialRenderer
 {
 public:
 
-	COpenGLMaterialRenderer_SOLID_2_LAYER(video::COpenGLDriver* d)
+	COpenGLMaterialRenderer_SOLID_2_LAYER(boost::shared_ptr<video::COpenGLDriver> d)
 		: COpenGLMaterialRenderer(d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
 		bool resetAllRenderstates, IMaterialRendererServices* services)
 	{
-		Driver->disableTextures(2);
-		Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		lockedDriver->disableTextures(2);
+		lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
 		if (material.MaterialType != lastMaterial.MaterialType || resetAllRenderstates)
 		{
-			if (Driver->queryFeature(EVDF_MULTITEXTURE))
+			if (lockedDriver->queryFeature(EVDF_MULTITEXTURE))
 			{
-				Driver->extGlActiveTexture(GL_TEXTURE1_ARB);
+				lockedDriver->extGlActiveTexture(GL_TEXTURE1_ARB);
 #ifdef GL_ARB_texture_env_combine
 				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 				glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
@@ -206,16 +209,18 @@ public:
 
 	virtual void OnUnsetMaterial()
 	{
-		if (Driver->queryFeature(EVDF_MULTITEXTURE))
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		if (lockedDriver->queryFeature(EVDF_MULTITEXTURE))
 		{
-			Driver->extGlActiveTexture(GL_TEXTURE1_ARB);
+			lockedDriver->extGlActiveTexture(GL_TEXTURE1_ARB);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 #ifdef GL_ARB_texture_env_combine
 			glTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB, GL_SRC_COLOR);
 #else
 			glTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB_EXT, GL_SRC_COLOR);
 #endif
-			Driver->extGlActiveTexture(GL_TEXTURE0_ARB);
+			lockedDriver->extGlActiveTexture(GL_TEXTURE0_ARB);
 		}
 	}
 };
@@ -226,14 +231,16 @@ class COpenGLMaterialRenderer_TRANSPARENT_ADD_COLOR : public COpenGLMaterialRend
 {
 public:
 
-	COpenGLMaterialRenderer_TRANSPARENT_ADD_COLOR(video::COpenGLDriver* d)
+	COpenGLMaterialRenderer_TRANSPARENT_ADD_COLOR(boost::shared_ptr<video::COpenGLDriver> d)
 		: COpenGLMaterialRenderer(d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
 		bool resetAllRenderstates, IMaterialRendererServices* services)
 	{
-		Driver->disableTextures(1);
-		Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		lockedDriver->disableTextures(1);
+		lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
 		if ((material.MaterialType != lastMaterial.MaterialType) || resetAllRenderstates)
 		{
@@ -261,14 +268,16 @@ class COpenGLMaterialRenderer_TRANSPARENT_VERTEX_ALPHA : public COpenGLMaterialR
 {
 public:
 
-	COpenGLMaterialRenderer_TRANSPARENT_VERTEX_ALPHA(video::COpenGLDriver* d)
+	COpenGLMaterialRenderer_TRANSPARENT_VERTEX_ALPHA(boost::shared_ptr<video::COpenGLDriver> d)
 		: COpenGLMaterialRenderer(d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
 		bool resetAllRenderstates, IMaterialRendererServices* services)
 	{
-		Driver->disableTextures(1);
-		Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		lockedDriver->disableTextures(1);
+		lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
 		if (material.MaterialType != lastMaterial.MaterialType || resetAllRenderstates)
 		{
@@ -319,14 +328,16 @@ class COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL : public COpenGLMaterial
 {
 public:
 
-	COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL(video::COpenGLDriver* d)
+	COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL(boost::shared_ptr<video::COpenGLDriver> d)
 		: COpenGLMaterialRenderer(d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
 		bool resetAllRenderstates, IMaterialRendererServices* services)
 	{
-		Driver->disableTextures(1);
-		Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		lockedDriver->disableTextures(1);
+		lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
 		if (material.MaterialType != lastMaterial.MaterialType || resetAllRenderstates
 			|| material.MaterialTypeParam != lastMaterial.MaterialTypeParam )
@@ -379,14 +390,16 @@ class COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL_REF : public COpenGLMate
 {
 public:
 
-	COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL_REF(video::COpenGLDriver* d)
+	COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL_REF(boost::shared_ptr<video::COpenGLDriver> d)
 		: COpenGLMaterialRenderer(d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
 		bool resetAllRenderstates, IMaterialRendererServices* services)
 	{
-		Driver->disableTextures(1);
-		Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		lockedDriver->disableTextures(1);
+		lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
 		if (material.MaterialType != lastMaterial.MaterialType || resetAllRenderstates)
 		{
@@ -414,14 +427,16 @@ class COpenGLMaterialRenderer_LIGHTMAP : public COpenGLMaterialRenderer
 {
 public:
 
-	COpenGLMaterialRenderer_LIGHTMAP(video::COpenGLDriver* d)
+	COpenGLMaterialRenderer_LIGHTMAP(boost::shared_ptr<video::COpenGLDriver> d)
 		: COpenGLMaterialRenderer(d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
 		bool resetAllRenderstates, IMaterialRendererServices* services)
 	{
-		Driver->disableTextures(2);
-		Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		lockedDriver->disableTextures(2);
+		lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
 		if (material.MaterialType != lastMaterial.MaterialType || resetAllRenderstates)
 		{
@@ -443,11 +458,11 @@ public:
 					break;
 			}
 
-			if (Driver->queryFeature(EVDF_MULTITEXTURE))
+			if (lockedDriver->queryFeature(EVDF_MULTITEXTURE))
 			{
 				// lightmap
 
-				Driver->extGlActiveTexture(GL_TEXTURE1_ARB);
+				lockedDriver->extGlActiveTexture(GL_TEXTURE1_ARB);
 #ifdef GL_ARB_texture_env_combine
 				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 
@@ -501,23 +516,25 @@ public:
 						glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_EXT, 1.0f);
 #endif
 				}
-				Driver->extGlActiveTexture(GL_TEXTURE0_ARB);
+				lockedDriver->extGlActiveTexture(GL_TEXTURE0_ARB);
 			}
 		}
 	}
 
 	virtual void OnUnsetMaterial()
 	{
-		if (Driver->queryFeature(EVDF_MULTITEXTURE))
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		if (lockedDriver->queryFeature(EVDF_MULTITEXTURE))
 		{
-			Driver->extGlActiveTexture(GL_TEXTURE1_ARB);
+			lockedDriver->extGlActiveTexture(GL_TEXTURE1_ARB);
 #ifdef GL_ARB_texture_env_combine
 			glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.f );
 #else
 			glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_EXT, 1.f );
 #endif
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-			Driver->extGlActiveTexture(GL_TEXTURE0_ARB);
+			lockedDriver->extGlActiveTexture(GL_TEXTURE0_ARB);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		}
 	}
@@ -530,23 +547,25 @@ class COpenGLMaterialRenderer_DETAIL_MAP : public COpenGLMaterialRenderer
 {
 public:
 
-	COpenGLMaterialRenderer_DETAIL_MAP(video::COpenGLDriver* d)
+	COpenGLMaterialRenderer_DETAIL_MAP(boost::shared_ptr<video::COpenGLDriver> d)
 		: COpenGLMaterialRenderer(d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
 		bool resetAllRenderstates, IMaterialRendererServices* services)
 	{
-		Driver->disableTextures(2);
-		Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		lockedDriver->disableTextures(2);
+		lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
 		if (material.MaterialType != lastMaterial.MaterialType || resetAllRenderstates)
 		{
 			// diffuse map is default modulated
 
 			// detail map on second layer
-			if (Driver->queryFeature(EVDF_MULTITEXTURE))
+			if (lockedDriver->queryFeature(EVDF_MULTITEXTURE))
 			{
-				Driver->extGlActiveTexture(GL_TEXTURE1_ARB);
+				lockedDriver->extGlActiveTexture(GL_TEXTURE1_ARB);
 #ifdef GL_ARB_texture_env_combine
 				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_ADD_SIGNED_ARB);
@@ -564,11 +583,13 @@ public:
 
 	virtual void OnUnsetMaterial()
 	{
-		if (Driver->queryFeature(EVDF_MULTITEXTURE))
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		if (lockedDriver->queryFeature(EVDF_MULTITEXTURE))
 		{
-			Driver->extGlActiveTexture(GL_TEXTURE1_ARB);
+			lockedDriver->extGlActiveTexture(GL_TEXTURE1_ARB);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-			Driver->extGlActiveTexture(GL_TEXTURE0_ARB);
+			lockedDriver->extGlActiveTexture(GL_TEXTURE0_ARB);
 		}
 	}
 };
@@ -579,18 +600,20 @@ class COpenGLMaterialRenderer_SPHERE_MAP : public COpenGLMaterialRenderer
 {
 public:
 
-	COpenGLMaterialRenderer_SPHERE_MAP(video::COpenGLDriver* d)
+	COpenGLMaterialRenderer_SPHERE_MAP(boost::shared_ptr<video::COpenGLDriver> d)
 		: COpenGLMaterialRenderer(d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
 		bool resetAllRenderstates, IMaterialRendererServices* services)
 	{
-		Driver->disableTextures(1);
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		lockedDriver->disableTextures(1);
 		// texture needs to be flipped for OpenGL
-		core::matrix4 tmp = Driver->getTransform(ETS_TEXTURE_0);
+		core::matrix4 tmp = lockedDriver->getTransform(ETS_TEXTURE_0);
 		tmp[5]*=-1;
-		Driver->setTransform(ETS_TEXTURE_0, tmp);
-		Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		lockedDriver->setTransform(ETS_TEXTURE_0, tmp);
+		lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
 		if (material.MaterialType != lastMaterial.MaterialType || resetAllRenderstates)
 		{
@@ -615,20 +638,22 @@ class COpenGLMaterialRenderer_REFLECTION_2_LAYER : public COpenGLMaterialRendere
 {
 public:
 
-	COpenGLMaterialRenderer_REFLECTION_2_LAYER(video::COpenGLDriver* d)
+	COpenGLMaterialRenderer_REFLECTION_2_LAYER(boost::shared_ptr<video::COpenGLDriver> d)
 		: COpenGLMaterialRenderer(d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
 		bool resetAllRenderstates, IMaterialRendererServices* services)
 	{
-		Driver->disableTextures(2);
-		Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		lockedDriver->disableTextures(2);
+		lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
 		if (material.MaterialType != lastMaterial.MaterialType || resetAllRenderstates)
 		{
-			if (Driver->queryFeature(EVDF_MULTITEXTURE))
+			if (lockedDriver->queryFeature(EVDF_MULTITEXTURE))
 			{
-				Driver->extGlActiveTexture(GL_TEXTURE1_ARB);
+				lockedDriver->extGlActiveTexture(GL_TEXTURE1_ARB);
 #ifdef GL_ARB_texture_env_combine
 				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
@@ -650,16 +675,18 @@ public:
 
 	virtual void OnUnsetMaterial()
 	{
-		if (Driver->queryFeature(EVDF_MULTITEXTURE))
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		if (lockedDriver->queryFeature(EVDF_MULTITEXTURE))
 		{
-			Driver->extGlActiveTexture(GL_TEXTURE1_ARB);
+			lockedDriver->extGlActiveTexture(GL_TEXTURE1_ARB);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		}
 		glDisable(GL_TEXTURE_GEN_S);
 		glDisable(GL_TEXTURE_GEN_T);
-		if (Driver->queryFeature(EVDF_MULTITEXTURE))
+		if (lockedDriver->queryFeature(EVDF_MULTITEXTURE))
 		{
-			Driver->extGlActiveTexture(GL_TEXTURE0_ARB);
+			lockedDriver->extGlActiveTexture(GL_TEXTURE0_ARB);
 		}
 	}
 };
@@ -670,14 +697,16 @@ class COpenGLMaterialRenderer_TRANSPARENT_REFLECTION_2_LAYER : public COpenGLMat
 {
 public:
 
-	COpenGLMaterialRenderer_TRANSPARENT_REFLECTION_2_LAYER(video::COpenGLDriver* d)
+	COpenGLMaterialRenderer_TRANSPARENT_REFLECTION_2_LAYER(boost::shared_ptr<video::COpenGLDriver> d)
 		: COpenGLMaterialRenderer(d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
 		bool resetAllRenderstates, IMaterialRendererServices* services)
 	{
-		Driver->disableTextures(2);
-		Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		lockedDriver->disableTextures(2);
+		lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
 		if (material.MaterialType != lastMaterial.MaterialType || resetAllRenderstates)
 		{
@@ -696,9 +725,9 @@ public:
 				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_REPLACE);
 				glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_PREVIOUS_ARB);
 #endif
-			if (Driver->queryFeature(EVDF_MULTITEXTURE))
+			if (lockedDriver->queryFeature(EVDF_MULTITEXTURE))
 			{
-				Driver->extGlActiveTexture(GL_TEXTURE1_ARB);
+				lockedDriver->extGlActiveTexture(GL_TEXTURE1_ARB);
 #ifdef GL_ARB_texture_env_combine
 				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
@@ -727,16 +756,18 @@ public:
 
 	virtual void OnUnsetMaterial()
 	{
-		if (Driver->queryFeature(EVDF_MULTITEXTURE))
+		boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+		if (lockedDriver->queryFeature(EVDF_MULTITEXTURE))
 		{
-			Driver->extGlActiveTexture(GL_TEXTURE1_ARB);
+			lockedDriver->extGlActiveTexture(GL_TEXTURE1_ARB);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		}
 		glDisable(GL_TEXTURE_GEN_S);
 		glDisable(GL_TEXTURE_GEN_T);
-		if (Driver->queryFeature(EVDF_MULTITEXTURE))
+		if (lockedDriver->queryFeature(EVDF_MULTITEXTURE))
 		{
-			Driver->extGlActiveTexture(GL_TEXTURE0_ARB);
+			lockedDriver->extGlActiveTexture(GL_TEXTURE0_ARB);
 		}
 		glDisable(GL_BLEND);
 	}

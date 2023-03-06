@@ -19,10 +19,10 @@ namespace video
 
 
 //! Constructor
-COpenGLShaderMaterialRenderer::COpenGLShaderMaterialRenderer(video::COpenGLDriver* driver,
+COpenGLShaderMaterialRenderer::COpenGLShaderMaterialRenderer(boost::shared_ptr<video::COpenGLDriver> driver,
 	s32& outMaterialTypeNr, const c8* vertexShaderProgram, const c8* pixelShaderProgram,
 	IShaderConstantSetCallBack* callback, IMaterialRenderer* baseMaterial, s32 userData)
-	: Driver(driver), CallBack(callback), BaseMaterial(baseMaterial),
+	: VideoDriverAwareMixin(driver), CallBack(callback), BaseMaterial(baseMaterial),
 		VertexShader(0), UserData(userData)
 {
 	#ifdef _DEBUG
@@ -47,10 +47,10 @@ COpenGLShaderMaterialRenderer::COpenGLShaderMaterialRenderer(video::COpenGLDrive
 
 //! constructor only for use by derived classes who want to
 //! create a fall back material for example.
-COpenGLShaderMaterialRenderer::COpenGLShaderMaterialRenderer(COpenGLDriver* driver,
+COpenGLShaderMaterialRenderer::COpenGLShaderMaterialRenderer(boost::shared_ptr<COpenGLDriver> driver,
 				IShaderConstantSetCallBack* callback,
 				IMaterialRenderer* baseMaterial, s32 userData)
-: Driver(driver), CallBack(callback), BaseMaterial(baseMaterial),
+: VideoDriverAwareMixin(driver), CallBack(callback), BaseMaterial(baseMaterial),
 		VertexShader(0), UserData(userData)
 {
 	PixelShader.set_used(4);
@@ -73,12 +73,14 @@ COpenGLShaderMaterialRenderer::~COpenGLShaderMaterialRenderer()
 	if (CallBack)
 		CallBack->drop();
 
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
 	if (VertexShader)
-		Driver->extGlDeletePrograms(1, &VertexShader);
+		lockedDriver->extGlDeletePrograms(1, &VertexShader);
 
 	for (u32 i=0; i<PixelShader.size(); ++i)
 		if (PixelShader[i])
-			Driver->extGlDeletePrograms(1, &PixelShader[i]);
+			lockedDriver->extGlDeletePrograms(1, &PixelShader[i]);
 
 	if (BaseMaterial)
 		BaseMaterial->drop();
@@ -101,7 +103,7 @@ void COpenGLShaderMaterialRenderer::init(s32& outMaterialTypeNr,
 		return;
 
 	// register as a new material
-	outMaterialTypeNr = Driver->addMaterialRenderer(this);
+	outMaterialTypeNr = getVideoDriver()->addMaterialRenderer(this);
 }
 
 
@@ -118,16 +120,18 @@ bool COpenGLShaderMaterialRenderer::OnRender(IMaterialRendererServices* service,
 void COpenGLShaderMaterialRenderer::OnSetMaterial(const video::SMaterial& material, const video::SMaterial& lastMaterial,
 	bool resetAllRenderstates, video::IMaterialRendererServices* services)
 {
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
 	if (material.MaterialType != lastMaterial.MaterialType || resetAllRenderstates)
 	{
 		if (VertexShader)
 		{
 			// set new vertex shader
 #ifdef GL_ARB_vertex_program
-			Driver->extGlBindProgram(GL_VERTEX_PROGRAM_ARB, VertexShader);
+			lockedDriver->extGlBindProgram(GL_VERTEX_PROGRAM_ARB, VertexShader);
 			glEnable(GL_VERTEX_PROGRAM_ARB);
 #elif defined(GL_NV_vertex_program)
-			Driver->extGlBindProgram(GL_VERTEX_PROGRAM_NV, VertexShader);
+			lockedDriver->extGlBindProgram(GL_VERTEX_PROGRAM_NV, VertexShader);
 			glEnable(GL_VERTEX_PROGRAM_NV);
 #endif
 		}
@@ -150,10 +154,10 @@ void COpenGLShaderMaterialRenderer::OnSetMaterial(const video::SMaterial& materi
 					nextShader=PixelShader[3];
 			}
 #ifdef GL_ARB_fragment_program
-			Driver->extGlBindProgram(GL_FRAGMENT_PROGRAM_ARB, nextShader);
+			lockedDriver->extGlBindProgram(GL_FRAGMENT_PROGRAM_ARB, nextShader);
 			glEnable(GL_FRAGMENT_PROGRAM_ARB);
 #elif defined(GL_NV_fragment_program)
-			Driver->extGlBindProgram(GL_FRAGMENT_PROGRAM_NV, nextShader);
+			lockedDriver->extGlBindProgram(GL_FRAGMENT_PROGRAM_NV, nextShader);
 			glEnable(GL_FRAGMENT_PROGRAM_NV);
 #endif
 		}
@@ -167,8 +171,8 @@ void COpenGLShaderMaterialRenderer::OnSetMaterial(const video::SMaterial& materi
 		CallBack->OnSetMaterial(material);
 
 	for (u32 i=0; i<MATERIAL_MAX_TEXTURES; ++i)
-		Driver->setActiveTexture(i, material.getTexture(i));
-	Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
+		lockedDriver->setActiveTexture(i, material.getTexture(i));
+	lockedDriver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 }
 
 
@@ -245,6 +249,7 @@ bool COpenGLShaderMaterialRenderer::createPixelShader(const c8* pxsh)
 	core::stringc shdr;
 	const s32 pos = inshdr.find("#_IRR_FOG_MODE_");
 	const u32 numShaders = (-1 != pos)?4:1;
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
 
 	for (u32 i=0; i<numShaders; ++i)
 	{
@@ -262,11 +267,11 @@ bool COpenGLShaderMaterialRenderer::createPixelShader(const c8* pxsh)
 			}
 			shdr += inshdr.subString(pos+16, inshdr.size()-pos-16);
 		}
-		Driver->extGlGenPrograms(1, &PixelShader[i]);
+		lockedDriver->extGlGenPrograms(1, &PixelShader[i]);
 #ifdef GL_ARB_fragment_program
-		Driver->extGlBindProgram(GL_FRAGMENT_PROGRAM_ARB, PixelShader[i]);
+		lockedDriver->extGlBindProgram(GL_FRAGMENT_PROGRAM_ARB, PixelShader[i]);
 #elif defined GL_NV_fragment_program
-		Driver->extGlBindProgram(GL_FRAGMENT_PROGRAM_NV, PixelShader[i]);
+		lockedDriver->extGlBindProgram(GL_FRAGMENT_PROGRAM_NV, PixelShader[i]);
 #endif
 
 		// clear error buffer
@@ -275,16 +280,16 @@ bool COpenGLShaderMaterialRenderer::createPixelShader(const c8* pxsh)
 
 #ifdef GL_ARB_fragment_program
 		// compile
-		Driver->extGlProgramString(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
+		lockedDriver->extGlProgramString(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
 				shdr.size(), shdr.c_str());
 #elif defined GL_NV_fragment_program
-		Driver->extGlLoadProgram(GL_FRAGMENT_PROGRAM_NV, PixelShader[i],
+		lockedDriver->extGlLoadProgram(GL_FRAGMENT_PROGRAM_NV, PixelShader[i],
 				shdr.size(), shdr.c_str());
 #endif
 
 		if (checkError("Pixel shader"))
 		{
-			Driver->extGlDeletePrograms(1, &PixelShader[i]);
+			lockedDriver->extGlDeletePrograms(1, &PixelShader[i]);
 			PixelShader[i]=0;
 
 			return false;
@@ -300,11 +305,13 @@ bool COpenGLShaderMaterialRenderer::createVertexShader(const c8* vtxsh)
 	if (!vtxsh)
 		return true;
 
-	Driver->extGlGenPrograms(1, &VertexShader);
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
+
+	lockedDriver->extGlGenPrograms(1, &VertexShader);
 #ifdef GL_ARB_vertex_program
-	Driver->extGlBindProgram(GL_VERTEX_PROGRAM_ARB, VertexShader);
+	lockedDriver->extGlBindProgram(GL_VERTEX_PROGRAM_ARB, VertexShader);
 #elif defined GL_NV_vertex_program
-	Driver->extGlBindProgram(GL_VERTEX_PROGRAM_NV, VertexShader);
+	lockedDriver->extGlBindProgram(GL_VERTEX_PROGRAM_NV, VertexShader);
 #endif
 
 	// clear error buffer
@@ -313,16 +320,16 @@ bool COpenGLShaderMaterialRenderer::createVertexShader(const c8* vtxsh)
 
 	// compile
 #ifdef GL_ARB_vertex_program
-	Driver->extGlProgramString(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
+	lockedDriver->extGlProgramString(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
 			(GLsizei)strlen(vtxsh), vtxsh);
 #elif defined GL_NV_vertex_program
-	Driver->extGlLoadProgram(GL_VERTEX_PROGRAM_NV, VertexShader,
+	lockedDriver->extGlLoadProgram(GL_VERTEX_PROGRAM_NV, VertexShader,
 			(GLsizei)strlen(vtxsh), vtxsh);
 #endif
 
 	if (checkError("Vertex shader"))
 	{
-		Driver->extGlDeletePrograms(1, &VertexShader);
+		lockedDriver->extGlDeletePrograms(1, &VertexShader);
 		VertexShader=0;
 
 		return false;

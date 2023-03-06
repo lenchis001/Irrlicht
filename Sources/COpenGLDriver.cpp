@@ -37,7 +37,7 @@ namespace video
 //! Windows constructor and init code
 COpenGLDriver::COpenGLDriver(const irr::SIrrlichtCreationParameters& params,
 		io::IFileSystem* io, CIrrDeviceWin32* device)
-: CNullDriver(io, params.WindowSize), COpenGLExtensionHandler(),
+: CNullDriver(io, params.WindowSize), IMaterialRendererServices(nullptr), COpenGLExtensionHandler(),
 	CurrentRenderMode(ERM_NONE), ResetRenderStates(true), Transformation3DChanged(true),
 	AntiAlias(params.AntiAlias), RenderTargetTexture(0),
 	CurrentRendertargetSize(0,0), ColorFormat(ECF_R8G8B8),
@@ -775,13 +775,15 @@ bool COpenGLDriver::genericDriverInit()
 
 void COpenGLDriver::createMaterialRenderers()
 {
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getSharedThis<COpenGLDriver>();
+
 	// create OpenGL material renderers
 
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_SOLID(this));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_SOLID_2_LAYER(this));
+	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_SOLID(lockedDriver));
+	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_SOLID_2_LAYER(lockedDriver));
 
 	// add the same renderer for all lightmap types
-	COpenGLMaterialRenderer_LIGHTMAP* lmr = new COpenGLMaterialRenderer_LIGHTMAP(this);
+	COpenGLMaterialRenderer_LIGHTMAP* lmr = new COpenGLMaterialRenderer_LIGHTMAP(lockedDriver);
 	addMaterialRenderer(lmr); // for EMT_LIGHTMAP:
 	addMaterialRenderer(lmr); // for EMT_LIGHTMAP_ADD:
 	addMaterialRenderer(lmr); // for EMT_LIGHTMAP_M2:
@@ -792,35 +794,35 @@ void COpenGLDriver::createMaterialRenderers()
 	lmr->drop();
 
 	// add remaining material renderer
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_DETAIL_MAP(this));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_SPHERE_MAP(this));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_REFLECTION_2_LAYER(this));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_ADD_COLOR(this));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL(this));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL_REF(this));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_VERTEX_ALPHA(this));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_REFLECTION_2_LAYER(this));
+	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_DETAIL_MAP(lockedDriver));
+	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_SPHERE_MAP(lockedDriver));
+	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_REFLECTION_2_LAYER(lockedDriver));
+	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_ADD_COLOR(lockedDriver));
+	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL(lockedDriver));
+	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL_REF(lockedDriver));
+	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_VERTEX_ALPHA(lockedDriver));
+	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_REFLECTION_2_LAYER(lockedDriver));
 
 	// add normal map renderers
 	s32 tmp = 0;
 	video::IMaterialRenderer* renderer = 0;
-	renderer = new COpenGLNormalMapRenderer(this, tmp, MaterialRenderers[EMT_SOLID].Renderer);
+	renderer = new COpenGLNormalMapRenderer(lockedDriver, tmp, MaterialRenderers[EMT_SOLID].Renderer);
 	renderer->drop();
-	renderer = new COpenGLNormalMapRenderer(this, tmp, MaterialRenderers[EMT_TRANSPARENT_ADD_COLOR].Renderer);
+	renderer = new COpenGLNormalMapRenderer(lockedDriver, tmp, MaterialRenderers[EMT_TRANSPARENT_ADD_COLOR].Renderer);
 	renderer->drop();
-	renderer = new COpenGLNormalMapRenderer(this, tmp, MaterialRenderers[EMT_TRANSPARENT_VERTEX_ALPHA].Renderer);
+	renderer = new COpenGLNormalMapRenderer(lockedDriver, tmp, MaterialRenderers[EMT_TRANSPARENT_VERTEX_ALPHA].Renderer);
 	renderer->drop();
 
 	// add parallax map renderers
-	renderer = new COpenGLParallaxMapRenderer(this, tmp, MaterialRenderers[EMT_SOLID].Renderer);
+	renderer = new COpenGLParallaxMapRenderer(lockedDriver, tmp, MaterialRenderers[EMT_SOLID].Renderer);
 	renderer->drop();
-	renderer = new COpenGLParallaxMapRenderer(this, tmp, MaterialRenderers[EMT_TRANSPARENT_ADD_COLOR].Renderer);
+	renderer = new COpenGLParallaxMapRenderer(lockedDriver, tmp, MaterialRenderers[EMT_TRANSPARENT_ADD_COLOR].Renderer);
 	renderer->drop();
-	renderer = new COpenGLParallaxMapRenderer(this, tmp, MaterialRenderers[EMT_TRANSPARENT_VERTEX_ALPHA].Renderer);
+	renderer = new COpenGLParallaxMapRenderer(lockedDriver, tmp, MaterialRenderers[EMT_TRANSPARENT_VERTEX_ALPHA].Renderer);
 	renderer->drop();
 
 	// add basic 1 texture blending
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_ONETEXTURE_BLEND(this));
+	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_ONETEXTURE_BLEND(lockedDriver));
 }
 
 
@@ -2508,7 +2510,7 @@ inline void COpenGLDriver::getGLTextureMatrix(GLfloat *o, const core::matrix4& m
 //! returns a device dependent texture from a software surface (IImage)
 video::ITexture* COpenGLDriver::createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData)
 {
-	return new COpenGLTexture(surface, name, mipmapData, this);
+	return new COpenGLTexture(surface, name, mipmapData, getSharedThis<COpenGLDriver>());
 }
 
 
@@ -3926,7 +3928,7 @@ s32 COpenGLDriver::addShaderMaterial(const c8* vertexShaderProgram,
 {
 	s32 nr = -1;
 	COpenGLShaderMaterialRenderer* r = new COpenGLShaderMaterialRenderer(
-		this, nr, vertexShaderProgram, pixelShaderProgram,
+		getSharedThis<COpenGLDriver>(), nr, vertexShaderProgram, pixelShaderProgram,
 		callback, getMaterialRenderer(baseMaterial), userData);
 
 	r->drop();
@@ -3954,11 +3956,13 @@ s32 COpenGLDriver::addHighLevelShaderMaterial(
 {
 	s32 nr = -1;
 
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getSharedThis<COpenGLDriver>();
+
 	#ifdef _IRR_COMPILE_WITH_CG_
 	if (shadingLang == EGSL_CG)
 	{
 		COpenGLCgMaterialRenderer* r = new COpenGLCgMaterialRenderer(
-			this, nr,
+			lockedDriver, nr,
 			vertexShaderProgram, vertexShaderEntryPointName, vsCompileTarget,
 			pixelShaderProgram, pixelShaderEntryPointName, psCompileTarget,
 			geometryShaderProgram, geometryShaderEntryPointName, gsCompileTarget,
@@ -3971,7 +3975,7 @@ s32 COpenGLDriver::addHighLevelShaderMaterial(
 	#endif
 	{
 		COpenGLSLMaterialRenderer* r = new COpenGLSLMaterialRenderer(
-			this, nr,
+			lockedDriver, nr,
 			vertexShaderProgram, vertexShaderEntryPointName, vsCompileTarget,
 			pixelShaderProgram, pixelShaderEntryPointName, psCompileTarget,
 			geometryShaderProgram, geometryShaderEntryPointName, gsCompileTarget,
@@ -3987,9 +3991,9 @@ s32 COpenGLDriver::addHighLevelShaderMaterial(
 
 //! Returns a pointer to the IVideoDriver interface. (Implementation for
 //! IMaterialRendererServices)
-IVideoDriver* COpenGLDriver::getVideoDriver()
+boost::shared_ptr<IVideoDriver> COpenGLDriver::getVideoDriver()
 {
-	return this;
+	return getSharedThis();
 }
 
 
@@ -4006,7 +4010,7 @@ ITexture* COpenGLDriver::addRenderTargetTexture(const core::dimension2d<u32>& si
 	// if driver supports FrameBufferObjects, use them
 	if (queryFeature(EVDF_FRAMEBUFFER_OBJECT))
 	{
-		rtt = new COpenGLFBOTexture(size, name, this, format);
+		rtt = new COpenGLFBOTexture(size, name, getSharedThis<COpenGLDriver>(), format);
 		if (rtt)
 		{
 			bool success = false;
@@ -4576,6 +4580,8 @@ ITexture* COpenGLDriver::createDepthTexture(ITexture* texture, bool shared)
 	if (!tex->isFrameBufferObject())
 		return 0;
 
+	boost::shared_ptr<COpenGLDriver> lockedDriver = getSharedThis<COpenGLDriver>();
+
 	if (shared)
 	{
 		for (u32 i=0; i<DepthTextures.size(); ++i)
@@ -4586,10 +4592,10 @@ ITexture* COpenGLDriver::createDepthTexture(ITexture* texture, bool shared)
 				return DepthTextures[i];
 			}
 		}
-		DepthTextures.push_back(new COpenGLFBODepthTexture(texture->getSize(), "depth1", this));
+		DepthTextures.push_back(new COpenGLFBODepthTexture(texture->getSize(), "depth1", lockedDriver));
 		return DepthTextures.getLast();
 	}
-	return (new COpenGLFBODepthTexture(texture->getSize(), "depth1", this));
+	return (new COpenGLFBODepthTexture(texture->getSize(), "depth1", lockedDriver));
 }
 
 
@@ -4756,14 +4762,16 @@ namespace video
 // WINDOWS VERSION
 // -----------------------------------
 #ifdef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
-IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& params,
+boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParameters& params,
 	io::IFileSystem* io, CIrrDeviceWin32* device)
 {
 #ifdef _IRR_COMPILE_WITH_OPENGL_
-	COpenGLDriver* ogl =  new COpenGLDriver(params, io, device);
+	boost::shared_ptr<COpenGLDriver> ogl =  boost::make_shared<COpenGLDriver>(params, io, device);
+	ogl->setWeakThis(ogl);
+	ogl->setVideoDriver(ogl);
+
 	if (!ogl->initDriver(device))
 	{
-		ogl->drop();
 		ogl = 0;
 	}
 	return ogl;
@@ -4777,13 +4785,17 @@ IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& params,
 // MACOSX VERSION
 // -----------------------------------
 #if defined(_IRR_COMPILE_WITH_OSX_DEVICE_)
-IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& params,
+boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParameters& params,
 		io::IFileSystem* io, CIrrDeviceMacOSX *device)
 {
 #ifdef _IRR_COMPILE_WITH_OPENGL_
-	return new COpenGLDriver(params, io, device);
+	boost::shared_ptr<COpenGLDriver> driver = boost::make_shared<COpenGLDriver>(params, io, device);
+	driver->setWeakThis(driver);
+	driver->setVideoDriver(driver);
+
+	return driver;
 #else
-	return 0;
+	return nullptr;
 #endif //  _IRR_COMPILE_WITH_OPENGL_
 }
 #endif // _IRR_COMPILE_WITH_OSX_DEVICE_
@@ -4792,15 +4804,17 @@ IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& params,
 // X11 VERSION
 // -----------------------------------
 #ifdef _IRR_COMPILE_WITH_X11_DEVICE_
-IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& params,
+boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParameters& params,
 		io::IFileSystem* io, CIrrDeviceLinux* device)
 {
 #ifdef _IRR_COMPILE_WITH_OPENGL_
-	COpenGLDriver* ogl =  new COpenGLDriver(params, io, device);
+	boost::shared_ptr<COpenGLDriver> ogl = boost::make_shared<COpenGLDriver>(params, io, device);
+	ogl->setWeakThis(ogl);
+	ogl->setVideoDriver(ogl);
+
 	if (!ogl->initDriver(device))
 	{
-		ogl->drop();
-		ogl = 0;
+		ogl = nullptr;
 	}
 	return ogl;
 #else
@@ -4814,13 +4828,17 @@ IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& params,
 // SDL VERSION
 // -----------------------------------
 #ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
-IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& params,
+boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParameters& params,
 		io::IFileSystem* io, CIrrDeviceSDL* device)
 {
 #ifdef _IRR_COMPILE_WITH_OPENGL_
-	return new COpenGLDriver(params, io, device);
+	boost::shared_ptr<COpenGLDriver> driver =  boost::make_shared<COpenGLDriver>(params, io, device);
+	driver->setWeakThis(driver);
+	driver->setVideoDriver(driver);
+
+	return driver;
 #else
-	return 0;
+	return nullptr;
 #endif //  _IRR_COMPILE_WITH_OPENGL_
 }
 #endif // _IRR_COMPILE_WITH_SDL_DEVICE_

@@ -101,7 +101,7 @@ private:
 
 	core::array<SFontArea>		Areas;
 	core::map<wchar_t, s32>		CharacterMap;
-	video::IVideoDriver*		Driver;
+	boost::shared_ptr<video::IVideoDriver>		Driver;
 	IGUISpriteBank*			SpriteBank;
 	boost::weak_ptr<IGUIEnvironment>		Environment;
 	u32				WrongCharacter;

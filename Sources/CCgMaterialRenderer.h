@@ -147,7 +147,6 @@ public:
 	virtual bool setPixelShaderConstant(const c8* name, const bool* bools, int count);
 	virtual bool setPixelShaderConstant(const c8* name, const s32* ints, int count);
 	virtual void setPixelShaderConstant(const f32* data, s32 startRegister, s32 constantAmount=1);
-	virtual IVideoDriver* getVideoDriver() = 0;
 
 protected:
 	void getUniformList();

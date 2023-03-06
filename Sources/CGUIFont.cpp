@@ -39,8 +39,7 @@ CGUIFont::CGUIFont(boost::shared_ptr<IGUIEnvironment> env, const io::path& filen
 			SpriteBank->grab();
 	}
 
-	if (Driver)
-		Driver->grab();
+
 
 	setInvisibleCharacters ( L" " );
 }
@@ -49,8 +48,7 @@ CGUIFont::CGUIFont(boost::shared_ptr<IGUIEnvironment> env, const io::path& filen
 //! destructor
 CGUIFont::~CGUIFont()
 {
-	if (Driver)
-		Driver->drop();
+
 
 	if (SpriteBank)
 	{

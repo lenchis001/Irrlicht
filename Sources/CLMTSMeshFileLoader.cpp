@@ -38,7 +38,7 @@ Version 1.4 - 12 March 2005
 - Used the irrlicht Logger instead of cerr to output warnings and errors.
   For this I had to change the constructor
   from:
-	CLMTSMeshFileLoader(io::IFileSystem* fs, video::IVideoDriver* driver)
+	CLMTSMeshFileLoader(io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver)
   to:
 	CLMTSMeshFileLoader(IrrlichtDevice* device)
 
@@ -84,16 +84,15 @@ namespace scene
 {
 
 CLMTSMeshFileLoader::CLMTSMeshFileLoader(io::IFileSystem* fs,
-		video::IVideoDriver* driver, io::IAttributes* parameters)
-	: Textures(0), Subsets(0), Triangles(0),
-	Parameters(parameters), Driver(driver), FileSystem(fs), FlipEndianess(false)
+		boost::shared_ptr<video::IVideoDriver> driver, io::IAttributes* parameters)
+	: VideoDriverAwareMixin(driver), Textures(0), Subsets(0), Triangles(0),
+	Parameters(parameters), FileSystem(fs), FlipEndianess(false)
 {
 	#ifdef _DEBUG
 	setDebugName("CLMTSMeshFileLoader");
 	#endif
 
-	if (Driver)
-		Driver->grab();
+
 
 	if (FileSystem)
 		FileSystem->grab();
@@ -104,8 +103,7 @@ CLMTSMeshFileLoader::~CLMTSMeshFileLoader()
 {
 	cleanup();
 
-	if (Driver)
-		Driver->drop();
+
 
 	if (FileSystem)
 		FileSystem->drop();
@@ -313,7 +311,9 @@ void CLMTSMeshFileLoader::constructMesh(boost::shared_ptr<SMesh> mesh)
 
 void CLMTSMeshFileLoader::loadTextures(boost::shared_ptr<SMesh> mesh)
 {
-	if (!Driver || !FileSystem)
+	boost::shared_ptr<video::IVideoDriver> driver = getVideoDriver();
+
+	if (!driver || !FileSystem)
 		return;
 
 	// load textures
@@ -336,7 +336,7 @@ void CLMTSMeshFileLoader::loadTextures(boost::shared_ptr<SMesh> mesh)
 		s.append(Textures[t].Filename);
 
 		if (FileSystem->existFile(s))
-			tmptex = Driver->getTexture(s);
+			tmptex = driver->getTexture(s);
 		else
 			os::Printer::log("LMTS WARNING: Texture does not exist", s.c_str(), ELL_WARNING);
 

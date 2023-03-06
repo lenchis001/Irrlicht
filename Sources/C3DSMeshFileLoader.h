@@ -18,7 +18,7 @@ namespace scene
 {
 
 //! Meshloader capable of loading 3ds meshes.
-class C3DSMeshFileLoader : public IMeshLoader
+class C3DSMeshFileLoader : public IMeshLoader, public SceneManagerAwareMixin<>
 {
 public:
 
@@ -138,7 +138,6 @@ private:
 	void loadMaterials(io::IReadFile* file);
 	void cleanUp();
 
-	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IFileSystem* FileSystem;
 
 	f32* Vertices;

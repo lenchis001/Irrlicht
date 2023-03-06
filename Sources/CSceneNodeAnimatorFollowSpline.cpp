@@ -89,7 +89,7 @@ void CSceneNodeAnimatorFollowSpline::animateNode(boost::shared_ptr<ISceneNode> n
 
 
 //! Writes attributes of the scene node animator.
-void CSceneNodeAnimatorFollowSpline::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CSceneNodeAnimatorFollowSpline::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	out->addFloat("Speed", Speed);
 	out->addFloat("Tightness", Tightness);

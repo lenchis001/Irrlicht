@@ -63,7 +63,7 @@ void CWaterSurfaceSceneNode::OnAnimate(u32 timeMs)
 		}// end for all mesh buffers
 		Mesh->setDirty(scene::EBT_VERTEX);
 
-		SceneManager->getMeshManipulator()->recalculateNormals(Mesh);
+		getSceneManager()->getMeshManipulator()->recalculateNormals(Mesh);
 	}
 	CMeshSceneNode::OnAnimate(timeMs);
 }
@@ -75,7 +75,7 @@ void CWaterSurfaceSceneNode::setMesh(boost::shared_ptr<IMesh> mesh)
 	if (!mesh)
 		return;
 	
-	boost::shared_ptr<IMesh> clone = SceneManager->getMeshManipulator()->createMeshCopy(mesh);
+	boost::shared_ptr<IMesh> clone = getSceneManager()->getMeshManipulator()->createMeshCopy(mesh);
 	OriginalMesh = mesh;
 	Mesh = clone;
 	Mesh->setHardwareMappingHint(scene::EHM_STATIC, scene::EBT_INDEX);
@@ -84,7 +84,7 @@ void CWaterSurfaceSceneNode::setMesh(boost::shared_ptr<IMesh> mesh)
 
 
 //! Writes attributes of the scene node.
-void CWaterSurfaceSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CWaterSurfaceSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	out->addFloat("WaveLength", WaveLength);
 	out->addFloat("WaveSpeed",  WaveSpeed);
@@ -92,7 +92,7 @@ void CWaterSurfaceSceneNode::serializeAttributes(io::IAttributes* out, io::SAttr
 
 	CMeshSceneNode::serializeAttributes(out, options);
 	// serialize original mesh
-	out->setAttribute("Mesh", SceneManager->getMeshCache()->getMeshName(OriginalMesh).getPath().c_str());
+	out->setAttribute("Mesh", getSceneManager()->getMeshCache()->getMeshName(OriginalMesh).getPath().c_str());
 }
 
 
@@ -113,7 +113,7 @@ void CWaterSurfaceSceneNode::deserializeAttributes(io::IAttributes* in, io::SAtt
 
 	if (Mesh)
 	{
-		boost::shared_ptr<IMesh> clone = SceneManager->getMeshManipulator()->createMeshCopy(Mesh);
+		boost::shared_ptr<IMesh> clone = getSceneManager()->getMeshManipulator()->createMeshCopy(Mesh);
 		OriginalMesh = Mesh;
 		Mesh = clone;
 	}

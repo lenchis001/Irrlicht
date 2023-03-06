@@ -50,8 +50,8 @@ void CMeshSceneNode::OnRegisterSceneNode()
 		// transparent and solid material at the same time, we need to go through all
 		// materials, check of what type they are and register this node for the right
 		// render pass according to that.
-
-		video::IVideoDriver* driver = SceneManager->getVideoDriver();
+		boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+		boost::shared_ptr<video::IVideoDriver> lockedDriver = lockedSceneManager->getVideoDriver();
 
 		PassCount = 0;
 		int transparentCount = 0;
@@ -65,7 +65,7 @@ void CMeshSceneNode::OnRegisterSceneNode()
 			for (u32 i=0; i<Mesh->getMeshBufferCount(); ++i)
 			{
 				scene::IMeshBuffer* mb = Mesh->getMeshBuffer(i);
-				video::IMaterialRenderer* rnd = mb ? driver->getMaterialRenderer(mb->getMaterial().MaterialType) : 0;
+				video::IMaterialRenderer* rnd = mb ? lockedDriver->getMaterialRenderer(mb->getMaterial().MaterialType) : 0;
 
 				if (rnd && rnd->isTransparent())
 					++transparentCount;
@@ -83,7 +83,7 @@ void CMeshSceneNode::OnRegisterSceneNode()
 			for (u32 i=0; i<Materials.size(); ++i)
 			{
 				video::IMaterialRenderer* rnd =
-					driver->getMaterialRenderer(Materials[i].MaterialType);
+					lockedDriver->getMaterialRenderer(Materials[i].MaterialType);
 
 				if (rnd && rnd->isTransparent())
 					++transparentCount;
@@ -98,10 +98,10 @@ void CMeshSceneNode::OnRegisterSceneNode()
 		// register according to material types counted
 
 		if (solidCount)
-			SceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_SOLID);
+			lockedSceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_SOLID);
 
 		if (transparentCount)
-			SceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_TRANSPARENT);
+			lockedSceneManager->registerNodeForRendering(getSharedThis(), scene::ESNRP_TRANSPARENT);
 
 		ISceneNode::OnRegisterSceneNode();
 	}
@@ -111,13 +111,14 @@ void CMeshSceneNode::OnRegisterSceneNode()
 //! renders the node.
 void CMeshSceneNode::render()
 {
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedSceneManager->getVideoDriver();
 
 	if (!Mesh || !driver)
 		return;
 
 	bool isTransparentPass =
-		SceneManager->getSceneNodeRenderPass() == scene::ESNRP_TRANSPARENT;
+		lockedSceneManager->getSceneNodeRenderPass() == scene::ESNRP_TRANSPARENT;
 
 	++PassCount;
 
@@ -198,8 +199,8 @@ void CMeshSceneNode::render()
 		if (DebugDataVisible & scene::EDS_NORMALS)
 		{
 			// draw normals
-			const f32 debugNormalLength = SceneManager->getParameters()->getAttributeAsFloat(DEBUG_NORMAL_LENGTH);
-			const video::SColor debugNormalColor = SceneManager->getParameters()->getAttributeAsColor(DEBUG_NORMAL_COLOR);
+			const f32 debugNormalLength = lockedSceneManager->getParameters()->getAttributeAsFloat(DEBUG_NORMAL_LENGTH);
+			const video::SColor debugNormalColor = lockedSceneManager->getParameters()->getAttributeAsColor(DEBUG_NORMAL_COLOR);
 			const u32 count = Mesh->getMeshBufferCount();
 
 			for (u32 i=0; i != count; ++i)
@@ -290,13 +291,15 @@ void CMeshSceneNode::setMesh(boost::shared_ptr<IMesh> mesh)
 boost::shared_ptr<IShadowVolumeSceneNode> CMeshSceneNode::addShadowVolumeSceneNode(
 		boost::shared_ptr<const IMesh> shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
-	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
+	if (!lockedSceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
 		return 0;
 
 	if (!shadowMesh)
 		shadowMesh = Mesh; // if null is given, use the mesh of node
 
-	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), SceneManager, id, zfailmethod, infinity);
+	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), lockedSceneManager, id, zfailmethod, infinity);
 	return Shadow;
 }
 
@@ -322,19 +325,21 @@ void CMeshSceneNode::copyMaterials()
 
 
 //! Writes attributes of the scene node.
-void CMeshSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CMeshSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	IMeshSceneNode::serializeAttributes(out, options);
 
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
 	if (options && (options->Flags&io::EARWF_USE_RELATIVE_PATHS) && options->Filename)
 	{
-		const io::path path = SceneManager->getFileSystem()->getRelativeFilename(
-				SceneManager->getFileSystem()->getAbsolutePath(SceneManager->getMeshCache()->getMeshName(Mesh).getPath()),
+		const io::path path = lockedSceneManager->getFileSystem()->getRelativeFilename(
+			lockedSceneManager->getFileSystem()->getAbsolutePath(lockedSceneManager->getMeshCache()->getMeshName(Mesh).getPath()),
 				options->Filename);
 		out->addString("Mesh", path.c_str());
 	}
 	else
-		out->addString("Mesh", SceneManager->getMeshCache()->getMeshName(Mesh).getPath().c_str());
+		out->addString("Mesh", lockedSceneManager->getMeshCache()->getMeshName(Mesh).getPath().c_str());
 	out->addBool("ReadOnlyMaterials", ReadOnlyMaterials);
 }
 
@@ -342,14 +347,16 @@ void CMeshSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeRea
 //! Reads attributes of the scene node.
 void CMeshSceneNode::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options)
 {
-	io::path oldMeshStr = SceneManager->getMeshCache()->getMeshName(Mesh);
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
+	io::path oldMeshStr = lockedSceneManager->getMeshCache()->getMeshName(Mesh);
 	io::path newMeshStr = in->getAttributeAsString("Mesh");
 	ReadOnlyMaterials = in->getAttributeAsBool("ReadOnlyMaterials");
 
 	if (newMeshStr != "" && oldMeshStr != newMeshStr)
 	{
 		boost::shared_ptr<IMesh> newMesh = 0;
-		boost::shared_ptr<IAnimatedMesh> newAnimatedMesh = SceneManager->getMesh(newMeshStr.c_str());
+		boost::shared_ptr<IAnimatedMesh> newAnimatedMesh = lockedSceneManager->getMesh(newMeshStr.c_str());
 
 		if (newAnimatedMesh)
 			newMesh = newAnimatedMesh->getMesh(0);
@@ -412,7 +419,7 @@ boost::shared_ptr<ISceneNode> CMeshSceneNode::clone(boost::shared_ptr<ISceneNode
 	if (!newParent)
 		newParent = Parent.lock();
 	if (!newManager)
-		newManager = SceneManager;
+		newManager = getSceneManager();
 
 	boost::shared_ptr<CMeshSceneNode> nb = boost::make_shared<CMeshSceneNode>(Mesh, newParent,
 		newManager, ID, RelativeTranslation, RelativeRotation, RelativeScale);

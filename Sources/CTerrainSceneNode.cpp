@@ -79,7 +79,7 @@ namespace scene
 
 		Mesh->MeshBuffers.clear();
 		const u32 startTime = os::Timer::getRealTime();
-		video::IImage* heightMap = SceneManager->getVideoDriver()->createImageFromFile(file);
+		video::IImage* heightMap = getSceneManager()->getVideoDriver()->createImageFromFile(file);
 
 		if (!heightMap)
 		{
@@ -561,10 +561,11 @@ namespace scene
 	//! generated for that patch.
 	void CTerrainSceneNode::OnRegisterSceneNode()
 	{
-		if (!IsVisible || !SceneManager->getActiveCamera())
+		boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+		if (!IsVisible || !lockedSceneManager->getActiveCamera())
 			return;
 
-		SceneManager->registerNodeForRendering(getSharedThis());
+		lockedSceneManager->registerNodeForRendering(getSharedThis());
 
 		preRenderCalculationsIfNeeded();
 
@@ -576,7 +577,8 @@ namespace scene
 
 	void CTerrainSceneNode::preRenderCalculationsIfNeeded()
 	{
-		boost::shared_ptr<scene::ICameraSceneNode> camera = SceneManager->getActiveCamera();
+		boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+		boost::shared_ptr<scene::ICameraSceneNode> camera = lockedSceneManager->getActiveCamera();
 		if (!camera)
 			return;
 
@@ -585,7 +587,7 @@ namespace scene
 		const core::vector3df cameraRotation = core::line3d<f32>(cameraPosition, camera->getTarget()).getVector().getHorizontalAngle();
 		core::vector3df cameraUp = camera->getUpVector();
 		cameraUp.normalize();
-		const f32 CameraFOV = SceneManager->getActiveCamera()->getFOV();
+		const f32 CameraFOV = lockedSceneManager->getActiveCamera()->getFOV();
 
 		// Only check on the Camera's Y Rotation
 		if (!ForceRecalculation)
@@ -619,7 +621,7 @@ namespace scene
 
 	void CTerrainSceneNode::preRenderLODCalculations()
 	{
-		boost::shared_ptr<scene::ICameraSceneNode> camera = SceneManager->getActiveCamera();
+		boost::shared_ptr<scene::ICameraSceneNode> camera = getSceneManager()->getActiveCamera();
 
 		if (!camera)
 			return;
@@ -719,13 +721,14 @@ namespace scene
 	//! Render the scene node
 	void CTerrainSceneNode::render()
 	{
-		if (!IsVisible || !SceneManager->getActiveCamera())
+		boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+		if (!IsVisible || !lockedSceneManager->getActiveCamera())
 			return;
 
 		if (!Mesh->getMeshBufferCount())
 			return;
 
-		video::IVideoDriver* driver = SceneManager->getVideoDriver();
+		boost::shared_ptr<video::IVideoDriver> driver = lockedSceneManager->getVideoDriver();
 
 		driver->setTransform (video::ETS_WORLD, core::IdentityMatrix);
 		driver->setMaterial(Mesh->getMeshBuffer(0)->getMaterial());
@@ -760,8 +763,8 @@ namespace scene
 			if (DebugDataVisible & scene::EDS_NORMALS)
 			{
 				// draw normals
-				const f32 debugNormalLength = SceneManager->getParameters()->getAttributeAsFloat(DEBUG_NORMAL_LENGTH);
-				const video::SColor debugNormalColor = SceneManager->getParameters()->getAttributeAsColor(DEBUG_NORMAL_COLOR);
+				const f32 debugNormalLength = lockedSceneManager->getParameters()->getAttributeAsFloat(DEBUG_NORMAL_LENGTH);
+				const video::SColor debugNormalColor = lockedSceneManager->getParameters()->getAttributeAsColor(DEBUG_NORMAL_COLOR);
 				driver->drawMeshBufferNormals(RenderBuffer, debugNormalLength, debugNormalColor);
 			}
 
@@ -1389,7 +1392,7 @@ namespace scene
 
 	//! Writes attributes of the scene node.
 	void CTerrainSceneNode::serializeAttributes(io::IAttributes* out,
-				io::SAttributeReadWriteOptions* options) const
+				io::SAttributeReadWriteOptions* options)
 	{
 		ISceneNode::serializeAttributes(out, options);
 
@@ -1447,7 +1450,7 @@ namespace scene
 		if (!newParent)
 			newParent = Parent.lock();
 		if (!newManager)
-			newManager = SceneManager;
+			newManager = getSceneManager();
 
 		boost::shared_ptr<CTerrainSceneNode> nb = boost::make_shared<CTerrainSceneNode>(
 			newParent, newManager, FileSystem, ID,

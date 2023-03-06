@@ -21,7 +21,7 @@ namespace scene
 {
 
 CSTLMeshWriter::CSTLMeshWriter(boost::shared_ptr<scene::ISceneManager> smgr)
-	: SceneManager(smgr)
+	: SceneManagerAwareMixin(smgr)
 {
 	#ifdef _DEBUG
 	setDebugName("CSTLMeshWriter");
@@ -61,7 +61,7 @@ bool CSTLMeshWriter::writeMeshBinary(io::IWriteFile* file, boost::shared_ptr<sce
 	// write STL MESH header
 
 	file->write("binary ",7);
-	const core::stringc name(SceneManager->getMeshCache()->getMeshName(mesh));
+	const core::stringc name(getSceneManager()->getMeshCache()->getMeshName(mesh));
 	const s32 sizeleft = 73-name.size(); // 80 byte header
 	if (sizeleft<0)
 		file->write(name.c_str(),73);
@@ -110,7 +110,7 @@ bool CSTLMeshWriter::writeMeshASCII(io::IWriteFile* file, boost::shared_ptr<scen
 	// write STL MESH header
 
 	file->write("solid ",6);
-	const core::stringc name(SceneManager->getMeshCache()->getMeshName(mesh));
+	const core::stringc name(getSceneManager()->getMeshCache()->getMeshName(mesh));
 	file->write(name.c_str(),name.size());
 	file->write("\n\n",2);
 

@@ -8,6 +8,7 @@
 #include "IMeshLoader.h"
 #include "SMeshBuffer.h"
 #include "irrString.h"
+#include "SceneManagerAwareMixin.h"
 
 namespace irr
 {
@@ -23,7 +24,7 @@ namespace scene
 	class ISceneManager;
 
 //! Meshloader capable of loading Lightwave 3D meshes.
-class CLWOMeshFileLoader : public IMeshLoader
+class CLWOMeshFileLoader : public IMeshLoader, public SceneManagerAwareMixin<>
 {
 public:
 
@@ -61,7 +62,6 @@ private:
 	u32 readColor(video::SColor& color);
 	video::ITexture* loadTexture(const core::stringc& file);
 
-	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IFileSystem* FileSystem;
 	io::IReadFile* File;
 	boost::shared_ptr<SMesh> Mesh;

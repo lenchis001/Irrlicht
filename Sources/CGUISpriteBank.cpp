@@ -15,7 +15,7 @@ namespace gui
 {
 
 CGUISpriteBank::CGUISpriteBank(boost::shared_ptr<IGUIEnvironment> env) :
-	Environment(env), Driver(0)
+	VideoDriverAwareMixin(nullptr), Environment(env)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUISpriteBank");
@@ -23,9 +23,7 @@ CGUISpriteBank::CGUISpriteBank(boost::shared_ptr<IGUIEnvironment> env) :
 
 	if (Environment)
 	{
-		Driver = Environment->getVideoDriver();
-		if (Driver)
-			Driver->grab();
+		setVideoDriver(Environment->getVideoDriver());
 	}
 }
 
@@ -38,8 +36,7 @@ CGUISpriteBank::~CGUISpriteBank()
 			Textures[i]->drop();
 
 	// drop video driver
-	if (Driver)
-		Driver->drop();
+
 }
 
 
@@ -160,15 +157,17 @@ void CGUISpriteBank::draw2DSprite(u32 index, const core::position2di& pos,
 
 	const core::rect<s32>& r = Rectangles[rn];
 
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
 	if (center)
 	{
 		core::position2di p = pos;
 		p -= r.getSize() / 2;
-		Driver->draw2DImage(tex, p, r, clip, color, true);
+		lockedDriver->draw2DImage(tex, p, r, clip, color, true);
 	}
 	else
 	{
-		Driver->draw2DImage(tex, pos, r, clip, color, true);
+		lockedDriver->draw2DImage(tex, pos, r, clip, color, true);
 	}
 }
 
@@ -235,10 +234,12 @@ void CGUISpriteBank::draw2DSpriteBatch(	const core::array<u32>& indices,
 		}
 	}
 
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
 	for(u32 i = 0;i < drawBatches.size();i++)
 	{
 		if(!drawBatches[i].positions.empty() && !drawBatches[i].sourceRects.empty())
-			Driver->draw2DImageBatch(Textures[i], drawBatches[i].positions,
+			lockedDriver->draw2DImageBatch(Textures[i], drawBatches[i].positions,
 				drawBatches[i].sourceRects, clip, color, true);
 	}
 }

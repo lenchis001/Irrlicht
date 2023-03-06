@@ -21,8 +21,8 @@ CSceneNodeAnimatorCollisionResponse::CSceneNodeAnimatorCollisionResponse(
 		const core::vector3df& gravityPerSecond,
 		const core::vector3df& ellipsoidTranslation,
 		f32 slidingSpeed)
-: Radius(ellipsoidRadius), Gravity(gravityPerSecond), Translation(ellipsoidTranslation),
-	World(world), Object(object), SceneManager(scenemanager), LastTime(0),
+: SceneManagerAwareMixin(scenemanager), Radius(ellipsoidRadius), Gravity(gravityPerSecond), Translation(ellipsoidTranslation),
+	World(world), Object(object), LastTime(0),
 	SlidingSpeed(slidingSpeed), CollisionNode(0), CollisionCallback(0),
 	Falling(false), IsCamera(false), AnimateCameraTarget(true), CollisionOccurred(false),
 	FirstUpdate(true)
@@ -186,7 +186,7 @@ void CSceneNodeAnimatorCollisionResponse::animateNode(boost::shared_ptr<ISceneNo
 
 		bool f = false;
 		CollisionResultPosition
-			= SceneManager->getSceneCollisionManager()->getCollisionResultPosition(
+			= getSceneManager()->getSceneCollisionManager()->getCollisionResultPosition(
 				World, LastPosition-Translation,
 				Radius, vel, CollisionTriangle, CollisionPoint, f,
 				CollisionNode, SlidingSpeed, FallingVelocity);
@@ -241,7 +241,7 @@ void CSceneNodeAnimatorCollisionResponse::setNode(boost::shared_ptr<ISceneNode> 
 
 
 //! Writes attributes of the scene node animator.
-void CSceneNodeAnimatorCollisionResponse::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CSceneNodeAnimatorCollisionResponse::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	out->addVector3d("Radius", Radius);
 	out->addVector3d("Gravity", Gravity);
@@ -262,7 +262,7 @@ void CSceneNodeAnimatorCollisionResponse::deserializeAttributes(io::IAttributes*
 
 boost::shared_ptr<ISceneNodeAnimator> CSceneNodeAnimatorCollisionResponse::createClone(boost::shared_ptr<ISceneNode> node, boost::shared_ptr<scene::ISceneManager> newManager)
 {
-	if (!newManager) newManager = SceneManager;
+	if (!newManager) newManager = getSceneManager();
 
 	boost::shared_ptr<CSceneNodeAnimatorCollisionResponse> newAnimator =
 		boost::make_shared<CSceneNodeAnimatorCollisionResponse>(newManager, World, Object, Radius,

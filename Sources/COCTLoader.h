@@ -47,6 +47,7 @@
 #include "IReadFile.h"
 #include "SMesh.h"
 #include "irrString.h"
+#include "SceneManagerAwareMixin.h"
 
 namespace irr
 {
@@ -59,7 +60,7 @@ namespace scene
 	class ISceneManager;
 	class ISceneNode;
 
-	class COCTLoader : public IMeshLoader
+	class COCTLoader : public IMeshLoader, SceneManagerAwareMixin<>
 	{
 	public:
 		//! constructor
@@ -130,7 +131,6 @@ namespace scene
 			u32 intensity;
 		};
 
-		boost::shared_ptr<scene::ISceneManager> SceneManager;
 		io::IFileSystem* FileSystem;
 	};
 

@@ -19,8 +19,8 @@ namespace irr
 namespace scene
 {
 
-CSMFMeshFileLoader::CSMFMeshFileLoader(video::IVideoDriver* driver)
-: Driver(driver)
+CSMFMeshFileLoader::CSMFMeshFileLoader(boost::shared_ptr<video::IVideoDriver> driver)
+: VideoDriverAwareMixin(driver)
 {
 }
 
@@ -87,12 +87,13 @@ void CSMFMeshFileLoader::loadLimb(io::IReadFile* file, boost::shared_ptr<SMesh> 
 
 	// attempt to load texture using known formats
 	video::ITexture* texture = 0;
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
 
 	const c8* extensions[] = {".jpg", ".png", ".tga", ".bmp", 0};
 
 	for (const c8 **ext = extensions; !texture && *ext; ++ext)
 	{
-		texture = Driver->getTexture(textureName + *ext);
+		texture = lockedDriver->getTexture(textureName + *ext);
 		if (texture)
 			textureName = textureName + *ext;
 	}

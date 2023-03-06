@@ -526,7 +526,7 @@ void CGUITabControl::draw()
 		return;
 
 	boost::shared_ptr<IGUIFont> font = skin->getFont();
-	video::IVideoDriver* driver = lockedEnvironment->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedEnvironment->getVideoDriver();
 
 	core::rect<s32> frameRect(AbsoluteRect);
 

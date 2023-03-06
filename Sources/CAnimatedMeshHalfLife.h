@@ -474,7 +474,7 @@ namespace scene
 	typedef core::array < BodyPart > IBodyList;
 
 
-	class CAnimatedMeshHalfLife : public IAnimatedMesh
+	class CAnimatedMeshHalfLife : public IAnimatedMesh, public SceneManagerAwareMixin<>
 	{
 	public:
 
@@ -492,7 +492,7 @@ namespace scene
 		virtual boost::shared_ptr<IMesh> getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop);
 		virtual const core::aabbox3d<f32>& getBoundingBox() const;
 		virtual E_ANIMATED_MESH_TYPE getMeshType() const;
-		virtual void renderModel ( u32 param, video::IVideoDriver * driver, const core::matrix4 &absoluteTransformation);
+		virtual void renderModel(u32 param, boost::shared_ptr <video::IVideoDriver> driver, const core::matrix4& absoluteTransformation);
 
 		//! returns amount of mesh buffers.
 		virtual u32 getMeshBufferCount() const;
@@ -546,8 +546,6 @@ namespace scene
 		//! return a Mesh per frame
 		boost::shared_ptr<SMesh> MeshIPol;
 
-		boost::shared_ptr<ISceneManager> SceneManager;
-
 		SHalflifeHeader *Header;
 		SHalflifeHeader *TextureHeader;
 		bool OwnTexModel;						// do we have a modelT.mdl ?
@@ -600,7 +598,7 @@ namespace scene
 
 
 	//! Meshloader capable of loading HalfLife Model files
-	class CHalflifeMDLMeshFileLoader : public IMeshLoader
+	class CHalflifeMDLMeshFileLoader : public IMeshLoader, public SceneManagerAwareMixin<>
 	{
 	public:
 
@@ -617,9 +615,6 @@ namespace scene
 		See IReferenceCounted::drop() for more information.
 		*/
 		virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
-
-	private:
-		boost::shared_ptr<scene::ISceneManager> SceneManager;
 	};
 
 

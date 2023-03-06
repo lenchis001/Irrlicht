@@ -30,7 +30,7 @@ static const u32 WORD_BUFFER_LENGTH = 512;
 
 //! Constructor
 COBJMeshFileLoader::COBJMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs)
-: SceneManager(smgr), FileSystem(fs)
+: SceneManagerAwareMixin(smgr), FileSystem(fs)
 {
 	#ifdef _DEBUG
 	setDebugName("COBJMeshFileLoader");
@@ -86,11 +86,12 @@ boost::shared_ptr<IAnimatedMesh> COBJMeshFileLoader::createMesh(io::IReadFile* f
 	const c8* const bufEnd = buf+filesize;
 
 	// Process obj information
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
 	const c8* bufPtr = buf;
 	core::stringc grpName, mtlName;
 	bool mtlChanged=false;
-	bool useGroups = !SceneManager->getParameters()->getAttributeAsBool(OBJ_LOADER_IGNORE_GROUPS);
-	bool useMaterials = !SceneManager->getParameters()->getAttributeAsBool(OBJ_LOADER_IGNORE_MATERIAL_FILES);
+	bool useGroups = !lockedSceneManager->getParameters()->getAttributeAsBool(OBJ_LOADER_IGNORE_GROUPS);
+	bool useMaterials = !lockedSceneManager->getParameters()->getAttributeAsBool(OBJ_LOADER_IGNORE_MATERIAL_FILES);
 	while(bufPtr != bufEnd)
 	{
 		switch(bufPtr[0])
@@ -284,12 +285,12 @@ boost::shared_ptr<IAnimatedMesh> COBJMeshFileLoader::createMesh(io::IReadFile* f
 		{
 			Materials[m]->Meshbuffer->recalculateBoundingBox();
 			if (Materials[m]->RecalculateNormals)
-				SceneManager->getMeshManipulator()->recalculateNormals(Materials[m]->Meshbuffer);
+				lockedSceneManager->getMeshManipulator()->recalculateNormals(Materials[m]->Meshbuffer);
 			if (Materials[m]->Meshbuffer->Material.MaterialType == video::EMT_PARALLAX_MAP_SOLID)
 			{
 				boost::shared_ptr<SMesh> tmp = boost::make_shared<SMesh>();
 				tmp->addMeshBuffer(Materials[m]->Meshbuffer);
-				boost::shared_ptr<IMesh> tangentMesh = SceneManager->getMeshManipulator()->createMeshWithTangents(tmp);
+				boost::shared_ptr<IMesh> tangentMesh = lockedSceneManager->getMeshManipulator()->createMeshWithTangents(tmp);
 				mesh->addMeshBuffer(tangentMesh->getMeshBuffer(0));
 			}
 			else
@@ -420,28 +421,29 @@ const c8* COBJMeshFileLoader::readTextures(const c8* bufPtr, const c8* const buf
 	io::path texname(textureNameBuf);
 	texname.replace('\\', '/');
 
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
 	video::ITexture * texture = 0;
 	bool newTexture=false;
 	if (texname.size())
 	{
-		io::path texnameWithUserPath( SceneManager->getParameters()->getAttributeAsString(OBJ_TEXTURE_PATH) );
+		io::path texnameWithUserPath(lockedSceneManager->getParameters()->getAttributeAsString(OBJ_TEXTURE_PATH) );
 		if ( texnameWithUserPath.size() )
 		{
 			texnameWithUserPath += '/';
 			texnameWithUserPath += texname;
 		}
 		if (FileSystem->existFile(texnameWithUserPath))
-			texture = SceneManager->getVideoDriver()->getTexture(texnameWithUserPath);
+			texture = lockedSceneManager->getVideoDriver()->getTexture(texnameWithUserPath);
 		else if (FileSystem->existFile(texname))
 		{
-			newTexture = SceneManager->getVideoDriver()->findTexture(texname) == 0;
-			texture = SceneManager->getVideoDriver()->getTexture(texname);
+			newTexture = lockedSceneManager->getVideoDriver()->findTexture(texname) == 0;
+			texture = lockedSceneManager->getVideoDriver()->getTexture(texname);
 		}
 		else
 		{
-			newTexture = SceneManager->getVideoDriver()->findTexture(relPath + texname) == 0;
+			newTexture = lockedSceneManager->getVideoDriver()->findTexture(relPath + texname) == 0;
 			// try to read in the relative path, the .obj is loaded from
-			texture = SceneManager->getVideoDriver()->getTexture( relPath + texname );
+			texture = lockedSceneManager->getVideoDriver()->getTexture( relPath + texname );
 		}
 	}
 	if ( texture )
@@ -451,7 +453,7 @@ const c8* COBJMeshFileLoader::readTextures(const c8* bufPtr, const c8* const buf
 		else if (type==1)
 		{
 			if (newTexture)
-				SceneManager->getVideoDriver()->makeNormalMapTexture(texture, bumpiness);
+				lockedSceneManager->getVideoDriver()->makeNormalMapTexture(texture, bumpiness);
 			currMaterial->Meshbuffer->Material.setTexture(1, texture);
 			currMaterial->Meshbuffer->Material.MaterialType=video::EMT_PARALLAX_MAP_SOLID;
 			currMaterial->Meshbuffer->Material.MaterialTypeParam=0.035f;

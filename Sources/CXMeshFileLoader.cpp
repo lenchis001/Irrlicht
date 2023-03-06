@@ -28,7 +28,7 @@ namespace scene
 
 //! Constructor
 CXMeshFileLoader::CXMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs)
-: SceneManager(smgr), FileSystem(fs), AllJoints(0), AnimatedMesh(0),
+: SceneManagerAwareMixin(smgr), FileSystem(fs), AllJoints(0), AnimatedMesh(0),
 	Buffer(0), P(0), End(0), BinaryNumCount(0), Line(0),
 	CurFrame(0), MajorVersion(0), MinorVersion(0), BinaryFormat(false), FloatSize(0)
 {
@@ -1500,6 +1500,7 @@ bool CXMeshFileLoader::parseDataObjectMaterial(video::SMaterial& material)
 	readRGB(material.EmissiveColor); checkForOneFollowingSemicolons();
 
 	// read other data objects
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
 	int textureLayer=0;
 	while(true)
 	{
@@ -1526,16 +1527,16 @@ bool CXMeshFileLoader::parseDataObjectMaterial(video::SMaterial& material)
 
 			// original name
 			if (FileSystem->existFile(TextureFileName))
-				material.setTexture(textureLayer, SceneManager->getVideoDriver()->getTexture(TextureFileName));
+				material.setTexture(textureLayer, lockedSceneManager->getVideoDriver()->getTexture(TextureFileName));
 			// mesh path
 			else
 			{
 				TextureFileName=FilePath + FileSystem->getFileBasename(TextureFileName);
 				if (FileSystem->existFile(TextureFileName))
-					material.setTexture(textureLayer, SceneManager->getVideoDriver()->getTexture(TextureFileName));
+					material.setTexture(textureLayer, lockedSceneManager->getVideoDriver()->getTexture(TextureFileName));
 				// working directory
 				else
-					material.setTexture(textureLayer, SceneManager->getVideoDriver()->getTexture(FileSystem->getFileBasename(TextureFileName)));
+					material.setTexture(textureLayer, lockedSceneManager->getVideoDriver()->getTexture(FileSystem->getFileBasename(TextureFileName)));
 			}
 			++textureLayer;
 			if (textureLayer==2)
@@ -1551,16 +1552,16 @@ bool CXMeshFileLoader::parseDataObjectMaterial(video::SMaterial& material)
 
 			// original name
 			if (FileSystem->existFile(TextureFileName))
-				material.setTexture(1, SceneManager->getVideoDriver()->getTexture(TextureFileName));
+				material.setTexture(1, lockedSceneManager->getVideoDriver()->getTexture(TextureFileName));
 			// mesh path
 			else
 			{
 				TextureFileName=FilePath + FileSystem->getFileBasename(TextureFileName);
 				if (FileSystem->existFile(TextureFileName))
-					material.setTexture(1, SceneManager->getVideoDriver()->getTexture(TextureFileName));
+					material.setTexture(1, lockedSceneManager->getVideoDriver()->getTexture(TextureFileName));
 				// working directory
 				else
-					material.setTexture(1, SceneManager->getVideoDriver()->getTexture(FileSystem->getFileBasename(TextureFileName)));
+					material.setTexture(1, lockedSceneManager->getVideoDriver()->getTexture(FileSystem->getFileBasename(TextureFileName)));
 			}
 			if (textureLayer==1)
 				++textureLayer;

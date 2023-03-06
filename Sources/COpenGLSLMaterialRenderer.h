@@ -35,6 +35,7 @@
 #include "IGPUProgrammingServices.h"
 #include "irrArray.h"
 #include "irrString.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -52,7 +53,7 @@ public:
 
 	//! Constructor
 	COpenGLSLMaterialRenderer(
-		COpenGLDriver* driver, 
+		boost::shared_ptr<COpenGLDriver> driver, 
 		s32& outMaterialTypeNr, 
 		const c8* vertexShaderProgram = 0,
 		const c8* vertexShaderEntryPointName = 0,
@@ -93,13 +94,12 @@ public:
 	virtual bool setPixelShaderConstant(const c8* name, const bool* bools, int count);
 	virtual bool setPixelShaderConstant(const c8* name, const s32* ints, int count);
 	virtual void setPixelShaderConstant(const f32* data, s32 startRegister, s32 constantAmount=1);
-	virtual IVideoDriver* getVideoDriver();
 
 protected:
 
 	//! constructor only for use by derived classes who want to
 	//! create a fall back material for example.
-	COpenGLSLMaterialRenderer(COpenGLDriver* driver,
+	COpenGLSLMaterialRenderer(boost::shared_ptr<COpenGLDriver> driver,
 					IShaderConstantSetCallBack* callback,
 					IMaterialRenderer* baseMaterial,
 					s32 userData=0);
@@ -116,7 +116,6 @@ protected:
 	bool createShader(GLenum shaderType, const char* shader);
 	bool linkProgram();
 	
-	COpenGLDriver* Driver;
 	IShaderConstantSetCallBack* CallBack;
 	IMaterialRenderer* BaseMaterial;
 

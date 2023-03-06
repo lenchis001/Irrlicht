@@ -24,7 +24,7 @@ namespace scene
 
 // constructor
 CPLYMeshFileLoader::CPLYMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr)
-: SceneManager(smgr), File(0), Buffer(0)
+: SceneManagerAwareMixin(smgr), File(0), Buffer(0)
 {
 }
 
@@ -261,7 +261,7 @@ boost::shared_ptr<IAnimatedMesh> CPLYMeshFileLoader::createMesh(io::IReadFile* f
 			}
 			mb->recalculateBoundingBox();
 			if (!hasNormals)
-				SceneManager->getMeshManipulator()->recalculateNormals(mb);
+				getSceneManager()->getMeshManipulator()->recalculateNormals(mb);
 			boost::shared_ptr<SMesh> m = boost::make_shared<SMesh>();
 			m->addMeshBuffer(mb);
 			m->recalculateBoundingBox();

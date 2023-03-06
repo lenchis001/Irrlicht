@@ -81,7 +81,7 @@ class CColladaMeshWriter : public IColladaMeshWriter
 {
 public:
 
-	CColladaMeshWriter(boost::shared_ptr<ISceneManager> smgr, video::IVideoDriver* driver, io::IFileSystem* fs);
+	CColladaMeshWriter(boost::shared_ptr<ISceneManager> smgr, boost::shared_ptr<video::IVideoDriver> driver, io::IFileSystem* fs);
 	virtual ~CColladaMeshWriter();
 
 	//! Returns the type of the mesh writer
@@ -173,7 +173,7 @@ protected:
 	};
 
 	io::IFileSystem* FileSystem;
-	video::IVideoDriver* VideoDriver;
+	boost::shared_ptr<video::IVideoDriver> VideoDriver;
 	io::IXMLWriter* Writer;
 	core::array<video::ITexture*> LibraryImages;
 	io::path Directory;

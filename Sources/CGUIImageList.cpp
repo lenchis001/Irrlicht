@@ -11,7 +11,7 @@ namespace gui
 {
 
 //! constructor
-CGUIImageList::CGUIImageList( video::IVideoDriver* driver )
+CGUIImageList::CGUIImageList( boost::shared_ptr<video::IVideoDriver> driver )
  :	Driver( driver ), 
 	Texture( 0 ),
 	ImageCount( 0 ),
@@ -22,11 +22,6 @@ CGUIImageList::CGUIImageList( video::IVideoDriver* driver )
 	#ifdef _DEBUG
 	setDebugName( "CGUIImageList" );
 	#endif
-
-	if( Driver )
-	{
-		Driver->grab();
-	}
 }
 
 
@@ -34,11 +29,6 @@ CGUIImageList::CGUIImageList( video::IVideoDriver* driver )
 //! destructor
 CGUIImageList::~CGUIImageList()
 {
-	if( Driver )
-	{
-		Driver->drop();
-	}
-
 	if( Texture )
 	{
 		Texture->drop();

@@ -849,7 +849,7 @@ void CGUITable::draw()
 
 	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
 
-	irr::video::IVideoDriver* driver = lockedEnvironment->getVideoDriver();
+	boost::shared_ptr<irr::video::IVideoDriver> driver = lockedEnvironment->getVideoDriver();
 
 	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
 	if (!skin)

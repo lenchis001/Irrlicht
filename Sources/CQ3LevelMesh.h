@@ -14,12 +14,14 @@
 #include "irrString.h"
 #include "ISceneManager.h"
 #include "os.h"
+#include "VideoDriverAwareMixin.h"
+#include "SceneManagerAwareMixin.h"
 
 namespace irr
 {
 namespace scene
 {
-	class CQ3LevelMesh : public IQ3LevelMesh
+	class CQ3LevelMesh : public IQ3LevelMesh, public video::VideoDriverAwareMixin<>, public SceneManagerAwareMixin<>
 	{
 	public:
 
@@ -416,12 +418,10 @@ namespace scene
 		boost::shared_ptr<scene::SMesh>* BrushEntities;
 
 		boost::shared_ptr<scene::SMesh> Mesh[quake3::E_Q3_MESH_SIZE];
-		video::IVideoDriver* Driver;
 		core::stringc LevelName;
 		io::IFileSystem* FileSystem; // needs because there are no file extenstions stored in .bsp files.
 
 		// Additional content
-		boost::shared_ptr<scene::ISceneManager> SceneManager;
 		enum eToken
 		{
 			Q3_TOKEN_UNRESOLVED	= 0,

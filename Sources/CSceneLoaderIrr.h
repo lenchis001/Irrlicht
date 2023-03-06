@@ -6,6 +6,7 @@
 #define __C_SCENE_LOADER_IRR_H_INCLUDED__
 
 #include "ISceneLoader.h"
+#include "SceneManagerAwareMixin.h"
 
 #include "IXMLReader.h"
 
@@ -23,7 +24,7 @@ namespace scene
 class ISceneManager;
 
 //! Class which can load a scene into the scene manager.
-class CSceneLoaderIrr : public virtual ISceneLoader
+class CSceneLoaderIrr : public virtual ISceneLoader, public SceneManagerAwareMixin<>
 {
 public:
 
@@ -59,7 +60,6 @@ private:
 	void readUserData(io::IXMLReader* reader, boost::shared_ptr<ISceneNode> node,
 		ISceneUserDataSerializer* userDataSerializer);
 
-	boost::shared_ptr<ISceneManager> SceneManager;
 	io::IFileSystem *FileSystem;
 
 	//! constants for reading and writing XML.

@@ -175,7 +175,7 @@ struct SSource
 class CScenePrefab;
 
 //! Meshloader capable of loading COLLADA meshes and scene descriptions into Irrlicht.
-class CColladaFileLoader : public IMeshLoader
+class CColladaFileLoader : public IMeshLoader, public SceneManagerAwareMixin<>
 {
 public:
 
@@ -339,7 +339,6 @@ private:
 	//! read a parameter and value
 	void readParameter(io::IXMLReaderUTF8* reader, io::IAttributes* parameters);
 
-	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IFileSystem* FileSystem;
 
 	boost::shared_ptr<scene::IAnimatedMesh> DummyMesh;

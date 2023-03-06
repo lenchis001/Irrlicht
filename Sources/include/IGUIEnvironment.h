@@ -12,6 +12,7 @@
 #include "IEventReceiver.h"
 #include "IXMLReader.h"
 #include "path.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -67,9 +68,10 @@ class IGUIElementFactory;
 \li EGET_ELEMENT_LEFT
 \li EGET_ELEMENT_HOVERED
 */
-class IGUIEnvironment : public virtual IDebugable
+class IGUIEnvironment : public virtual IDebugable, public video::VideoDriverAwareMixin<>
 {
 public:
+	IGUIEnvironment(boost::shared_ptr<video::IVideoDriver> driver): VideoDriverAwareMixin(driver) { }
 
 	//! Draws all gui elements by traversing the GUI environment starting at the root node.
 	virtual void drawAll() = 0;
@@ -105,10 +107,6 @@ public:
 	/** \param element Pointer to the element which is tested.
 	\return True if the element has focus, else false. */
 	virtual bool hasFocus(boost::shared_ptr<IGUIElement> element) const = 0;
-
-	//! Returns the current video driver.
-	/** \return Pointer to the video driver. */
-	virtual video::IVideoDriver* getVideoDriver() const = 0;
 
 	//! Returns the file system.
 	/** \return Pointer to the file system. */

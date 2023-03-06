@@ -336,7 +336,7 @@ namespace video
 
 		//! Returns a pointer to the IVideoDriver interface. (Implementation for
 		//! IMaterialRendererServices)
-		virtual IVideoDriver* getVideoDriver();
+		virtual boost::shared_ptr<IVideoDriver> getVideoDriver();
 
 		//! Returns the maximum amount of primitives (mostly vertices) which
 		//! the device is able to render with one drawIndexedTriangleList

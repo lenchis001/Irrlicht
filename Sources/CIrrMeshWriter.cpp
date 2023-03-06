@@ -19,16 +19,13 @@ namespace scene
 {
 
 
-CIrrMeshWriter::CIrrMeshWriter(video::IVideoDriver* driver,
+CIrrMeshWriter::CIrrMeshWriter(boost::shared_ptr<video::IVideoDriver> driver,
 				io::IFileSystem* fs)
 	: FileSystem(fs), VideoDriver(driver), Writer(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CIrrMeshWriter");
 	#endif
-
-	if (VideoDriver)
-		VideoDriver->grab();
 
 	if (FileSystem)
 		FileSystem->grab();
@@ -37,9 +34,6 @@ CIrrMeshWriter::CIrrMeshWriter(video::IVideoDriver* driver,
 
 CIrrMeshWriter::~CIrrMeshWriter()
 {
-	if (VideoDriver)
-		VideoDriver->drop();
-
 	if (FileSystem)
 		FileSystem->drop();
 }

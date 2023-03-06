@@ -16,8 +16,8 @@ namespace irr
 namespace gui
 {
 
-CGUISkin::CGUISkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver)
-: SpriteBank(0), Driver(driver), Type(type)
+CGUISkin::CGUISkin(EGUI_SKIN_TYPE type, boost::shared_ptr<video::IVideoDriver> driver)
+: VideoDriverAwareMixin(driver), SpriteBank(0), Type(type)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUISkin");
@@ -303,7 +303,9 @@ void CGUISkin::draw3DButtonPaneStandard(boost::shared_ptr<IGUIElement> element,
 					const core::rect<s32>& r,
 					const core::rect<s32>* clip)
 {
-	if (!Driver)
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
+	if (!lockedDriver)
 		return;
 
 	core::rect<s32> rect = r;
@@ -320,28 +322,28 @@ void CGUISkin::draw3DButtonPaneStandard(boost::shared_ptr<IGUIElement> element,
 		return;
 	}
 
-	Driver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
+	lockedDriver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
 
 	rect.LowerRightCorner.X -= 1;
 	rect.LowerRightCorner.Y -= 1;
-	Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
+	lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
 
 	rect.UpperLeftCorner.X += 1;
 	rect.UpperLeftCorner.Y += 1;
-	Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
+	lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
 
 	rect.LowerRightCorner.X -= 1;
 	rect.LowerRightCorner.Y -= 1;
 
 	if (!UseGradient)
 	{
-		Driver->draw2DRectangle(getColor(EGDC_3D_FACE), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_FACE), rect, clip);
 	}
 	else
 	{
 		const video::SColor c1 = getColor(EGDC_3D_FACE);
 		const video::SColor c2 = c1.getInterpolated(getColor(EGDC_3D_DARK_SHADOW), 0.4f);
-		Driver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
+		lockedDriver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
 	}
 }
 
@@ -359,32 +361,34 @@ void CGUISkin::draw3DButtonPanePressed(boost::shared_ptr<IGUIElement> element,
 					const core::rect<s32>& r,
 					const core::rect<s32>* clip)
 {
-	if (!Driver)
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
+	if (!lockedDriver)
 		return;
 
 	core::rect<s32> rect = r;
-	Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
+	lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
 
 	rect.LowerRightCorner.X -= 1;
 	rect.LowerRightCorner.Y -= 1;
-	Driver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
+	lockedDriver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
 
 	rect.UpperLeftCorner.X += 1;
 	rect.UpperLeftCorner.Y += 1;
-	Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
+	lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
 
 	rect.UpperLeftCorner.X += 1;
 	rect.UpperLeftCorner.Y += 1;
 
 	if (!UseGradient)
 	{
-		Driver->draw2DRectangle(getColor(EGDC_3D_FACE), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_FACE), rect, clip);
 	}
 	else
 	{
 		const video::SColor c1 = getColor(EGDC_3D_FACE);
 		const video::SColor c2 = c1.getInterpolated(getColor(EGDC_3D_DARK_SHADOW), 0.4f);
-		Driver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
+		lockedDriver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
 	}
 }
 
@@ -404,79 +408,81 @@ void CGUISkin::draw3DSunkenPane(boost::shared_ptr<IGUIElement> element, video::S
 				const core::rect<s32>& r,
 				const core::rect<s32>* clip)
 {
-	if (!Driver)
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
+	if (!lockedDriver)
 		return;
 
 	core::rect<s32> rect = r;
 
 	if (fillBackGround)
-		Driver->draw2DRectangle(bgcolor, rect, clip);
+		lockedDriver->draw2DRectangle(bgcolor, rect, clip);
 
 	if (flat)
 	{
 		// draw flat sunken pane
 
 		rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + 1;
-		Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);	// top
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);	// top
 
 		++rect.UpperLeftCorner.Y;
 		rect.LowerRightCorner.Y = r.LowerRightCorner.Y;
 		rect.LowerRightCorner.X = rect.UpperLeftCorner.X + 1;
-		Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);	// left
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);	// left
 
 		rect = r;
 		++rect.UpperLeftCorner.Y;
 		rect.UpperLeftCorner.X = rect.LowerRightCorner.X - 1;
-		Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);	// right
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);	// right
 
 		rect = r;
 		++rect.UpperLeftCorner.X;
 		rect.UpperLeftCorner.Y = r.LowerRightCorner.Y - 1;
 		--rect.LowerRightCorner.X;
-		Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);	// bottom
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);	// bottom
 	}
 	else
 	{
 		// draw deep sunken pane
 		rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + 1;
-		Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);	// top
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);	// top
 		++rect.UpperLeftCorner.X;
 		++rect.UpperLeftCorner.Y;
 		--rect.LowerRightCorner.X;
 		++rect.LowerRightCorner.Y;
-		Driver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
 
 		rect.UpperLeftCorner.X = r.UpperLeftCorner.X;
 		rect.UpperLeftCorner.Y = r.UpperLeftCorner.Y+1;
 		rect.LowerRightCorner.X = rect.UpperLeftCorner.X + 1;
 		rect.LowerRightCorner.Y = r.LowerRightCorner.Y;
-		Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);	// left
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);	// left
 		++rect.UpperLeftCorner.X;
 		++rect.UpperLeftCorner.Y;
 		++rect.LowerRightCorner.X;
 		--rect.LowerRightCorner.Y;
-		Driver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
 
 		rect = r;
 		rect.UpperLeftCorner.X = rect.LowerRightCorner.X - 1;
 		++rect.UpperLeftCorner.Y;
-		Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);	// right
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);	// right
 		--rect.UpperLeftCorner.X;
 		++rect.UpperLeftCorner.Y;
 		--rect.LowerRightCorner.X;
 		--rect.LowerRightCorner.Y;
-		Driver->draw2DRectangle(getColor(EGDC_3D_LIGHT), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_LIGHT), rect, clip);
 
 		rect = r;
 		++rect.UpperLeftCorner.X;
 		rect.UpperLeftCorner.Y = r.LowerRightCorner.Y - 1;
 		--rect.LowerRightCorner.X;
-		Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);	// bottom
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);	// bottom
 		++rect.UpperLeftCorner.X;
 		--rect.UpperLeftCorner.Y;
 		--rect.LowerRightCorner.X;
 		--rect.LowerRightCorner.Y;
-		Driver->draw2DRectangle(getColor(EGDC_3D_LIGHT), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_LIGHT), rect, clip);
 	}
 }
 
@@ -489,7 +495,9 @@ core::rect<s32> CGUISkin::draw3DWindowBackground(boost::shared_ptr<IGUIElement> 
 				const core::rect<s32>* clip,
 				core::rect<s32>* checkClientArea)
 {
-	if (!Driver)
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
+	if (!lockedDriver)
 	{
 		if ( checkClientArea )
 		{
@@ -504,7 +512,7 @@ core::rect<s32> CGUISkin::draw3DWindowBackground(boost::shared_ptr<IGUIElement> 
 	rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + 1;
 	if ( !checkClientArea )
 	{
-		Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
 	}
 
 	// left border
@@ -512,7 +520,7 @@ core::rect<s32> CGUISkin::draw3DWindowBackground(boost::shared_ptr<IGUIElement> 
 	rect.LowerRightCorner.X = rect.UpperLeftCorner.X + 1;
 	if ( !checkClientArea )
 	{
-		Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
 	}
 
 	// right border dark outer line
@@ -522,7 +530,7 @@ core::rect<s32> CGUISkin::draw3DWindowBackground(boost::shared_ptr<IGUIElement> 
 	rect.LowerRightCorner.Y = r.LowerRightCorner.Y;
 	if ( !checkClientArea )
 	{
-		Driver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
 	}
 
 	// right border bright innner line
@@ -532,7 +540,7 @@ core::rect<s32> CGUISkin::draw3DWindowBackground(boost::shared_ptr<IGUIElement> 
 	rect.LowerRightCorner.Y -= 1;
 	if ( !checkClientArea )
 	{
-		Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
 	}
 
 	// bottom border dark outer line
@@ -542,7 +550,7 @@ core::rect<s32> CGUISkin::draw3DWindowBackground(boost::shared_ptr<IGUIElement> 
 	rect.LowerRightCorner.X = r.LowerRightCorner.X;
 	if ( !checkClientArea )
 	{
-		Driver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
 	}
 
 	// bottom border bright inner line
@@ -552,7 +560,7 @@ core::rect<s32> CGUISkin::draw3DWindowBackground(boost::shared_ptr<IGUIElement> 
 	rect.LowerRightCorner.Y -= 1;
 	if ( !checkClientArea )
 	{
-		Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
 	}
 
 	// client area for background
@@ -570,20 +578,20 @@ core::rect<s32> CGUISkin::draw3DWindowBackground(boost::shared_ptr<IGUIElement> 
 	{
 		if (!UseGradient)
 		{
-			Driver->draw2DRectangle(getColor(EGDC_3D_FACE), rect, clip);
+			lockedDriver->draw2DRectangle(getColor(EGDC_3D_FACE), rect, clip);
 		}
 		else if ( Type == EGST_BURNING_SKIN )
 		{
 			const video::SColor c1 = getColor(EGDC_WINDOW).getInterpolated ( 0xFFFFFFFF, 0.9f );
 			const video::SColor c2 = getColor(EGDC_WINDOW).getInterpolated ( 0xFFFFFFFF, 0.8f );
 
-			Driver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
+			lockedDriver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
 		}
 		else
 		{
 			const video::SColor c2 = getColor(EGDC_3D_SHADOW);
 			const video::SColor c1 = getColor(EGDC_3D_FACE);
-			Driver->draw2DRectangle(rect, c1, c1, c1, c2, clip);
+			lockedDriver->draw2DRectangle(rect, c1, c1, c1, c2, clip);
 		}
 	}
 
@@ -609,12 +617,12 @@ core::rect<s32> CGUISkin::draw3DWindowBackground(boost::shared_ptr<IGUIElement> 
 			if ( Type == EGST_BURNING_SKIN )
 			{
 				const video::SColor c = titleBarColor.getInterpolated( video::SColor(titleBarColor.getAlpha(),255,255,255), 0.8f);
-				Driver->draw2DRectangle(rect, titleBarColor, titleBarColor, c, c, clip);
+				lockedDriver->draw2DRectangle(rect, titleBarColor, titleBarColor, c, c, clip);
 			}
 			else
 			{
 				const video::SColor c = titleBarColor.getInterpolated(video::SColor(titleBarColor.getAlpha(),0,0,0), 0.2f);
-				Driver->draw2DRectangle(rect, titleBarColor, c, titleBarColor, c, clip);
+				lockedDriver->draw2DRectangle(rect, titleBarColor, c, titleBarColor, c, clip);
 			}
 		}
 	}
@@ -635,7 +643,9 @@ implementations to find out how to draw the part exactly.
 void CGUISkin::draw3DMenuPane(boost::shared_ptr<IGUIElement> element,
 			const core::rect<s32>& r, const core::rect<s32>* clip)
 {
-	if (!Driver)
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
+	if (!lockedDriver)
 		return;
 
 	core::rect<s32> rect = r;
@@ -656,35 +666,35 @@ void CGUISkin::draw3DMenuPane(boost::shared_ptr<IGUIElement> element,
 	// but there aren't that much menus visible anyway.
 
 	rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + 1;
-	Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
+	lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
 
 	rect.LowerRightCorner.Y = r.LowerRightCorner.Y;
 	rect.LowerRightCorner.X = rect.UpperLeftCorner.X + 1;
-	Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
+	lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), rect, clip);
 
 	rect.UpperLeftCorner.X = r.LowerRightCorner.X - 1;
 	rect.LowerRightCorner.X = r.LowerRightCorner.X;
 	rect.UpperLeftCorner.Y = r.UpperLeftCorner.Y;
 	rect.LowerRightCorner.Y = r.LowerRightCorner.Y;
-	Driver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
+	lockedDriver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
 
 	rect.UpperLeftCorner.X -= 1;
 	rect.LowerRightCorner.X -= 1;
 	rect.UpperLeftCorner.Y += 1;
 	rect.LowerRightCorner.Y -= 1;
-	Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
+	lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
 
 	rect.UpperLeftCorner.X = r.UpperLeftCorner.X;
 	rect.UpperLeftCorner.Y = r.LowerRightCorner.Y - 1;
 	rect.LowerRightCorner.Y = r.LowerRightCorner.Y;
 	rect.LowerRightCorner.X = r.LowerRightCorner.X;
-	Driver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
+	lockedDriver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), rect, clip);
 
 	rect.UpperLeftCorner.X += 1;
 	rect.LowerRightCorner.X -= 1;
 	rect.UpperLeftCorner.Y -= 1;
 	rect.LowerRightCorner.Y -= 1;
-	Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
+	lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
 
 	rect = r;
 	rect.UpperLeftCorner.X +=1;
@@ -693,12 +703,12 @@ void CGUISkin::draw3DMenuPane(boost::shared_ptr<IGUIElement> element,
 	rect.LowerRightCorner.Y -= 2;
 
 	if (!UseGradient)
-		Driver->draw2DRectangle(getColor(EGDC_3D_FACE), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_FACE), rect, clip);
 	else
 	{
 		const video::SColor c1 = getColor(EGDC_3D_FACE);
 		const video::SColor c2 = getColor(EGDC_3D_SHADOW);
-		Driver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
+		lockedDriver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
 	}
 }
 
@@ -714,7 +724,9 @@ void CGUISkin::draw3DToolBar(boost::shared_ptr<IGUIElement> element,
 				const core::rect<s32>& r,
 				const core::rect<s32>* clip)
 {
-	if (!Driver)
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
+	if (!lockedDriver)
 		return;
 
 	core::rect<s32> rect = r;
@@ -723,14 +735,14 @@ void CGUISkin::draw3DToolBar(boost::shared_ptr<IGUIElement> element,
 	rect.UpperLeftCorner.Y = r.LowerRightCorner.Y - 1;
 	rect.LowerRightCorner.Y = r.LowerRightCorner.Y;
 	rect.LowerRightCorner.X = r.LowerRightCorner.X;
-	Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
+	lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), rect, clip);
 
 	rect = r;
 	rect.LowerRightCorner.Y -= 1;
 
 	if (!UseGradient)
 	{
-		Driver->draw2DRectangle(getColor(EGDC_3D_FACE), rect, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_FACE), rect, clip);
 	}
 	else
 	if ( Type == EGST_BURNING_SKIN )
@@ -739,13 +751,13 @@ void CGUISkin::draw3DToolBar(boost::shared_ptr<IGUIElement> element,
 		const video::SColor c2 = 0xF0000000 | getColor(EGDC_3D_SHADOW).color;
 
 		rect.LowerRightCorner.Y += 1;
-		Driver->draw2DRectangle(rect, c1, c2, c1, c2, clip);
+		lockedDriver->draw2DRectangle(rect, c1, c2, c1, c2, clip);
 	}
 	else
 	{
 		const video::SColor c1 = getColor(EGDC_3D_FACE);
 		const video::SColor c2 = getColor(EGDC_3D_SHADOW);
-		Driver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
+		lockedDriver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
 	}
 }
 
@@ -761,7 +773,9 @@ implementations to find out how to draw the part exactly.
 void CGUISkin::draw3DTabButton(boost::shared_ptr<IGUIElement> element, bool active,
 	const core::rect<s32>& frameRect, const core::rect<s32>* clip, EGUI_ALIGNMENT alignment)
 {
-	if (!Driver)
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
+	if (!lockedDriver)
 		return;
 
 	core::rect<s32> tr = frameRect;
@@ -771,43 +785,43 @@ void CGUISkin::draw3DTabButton(boost::shared_ptr<IGUIElement> element, bool acti
 		tr.LowerRightCorner.X -= 2;
 		tr.LowerRightCorner.Y = tr.UpperLeftCorner.Y + 1;
 		tr.UpperLeftCorner.X += 1;
-		Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
 
 		// draw left highlight
 		tr = frameRect;
 		tr.LowerRightCorner.X = tr.UpperLeftCorner.X + 1;
 		tr.UpperLeftCorner.Y += 1;
-		Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
 
 		// draw grey background
 		tr = frameRect;
 		tr.UpperLeftCorner.X += 1;
 		tr.UpperLeftCorner.Y += 1;
 		tr.LowerRightCorner.X -= 2;
-		Driver->draw2DRectangle(getColor(EGDC_3D_FACE), tr, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_FACE), tr, clip);
 
 		// draw right middle gray shadow
 		tr.LowerRightCorner.X += 1;
 		tr.UpperLeftCorner.X = tr.LowerRightCorner.X - 1;
-		Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), tr, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), tr, clip);
 
 		tr.LowerRightCorner.X += 1;
 		tr.UpperLeftCorner.X += 1;
 		tr.UpperLeftCorner.Y += 1;
-		Driver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), tr, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), tr, clip);
 	}
 	else
 	{
 		tr.LowerRightCorner.X -= 2;
 		tr.UpperLeftCorner.Y = tr.LowerRightCorner.Y - 1;
 		tr.UpperLeftCorner.X += 1;
-		Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
 
 		// draw left highlight
 		tr = frameRect;
 		tr.LowerRightCorner.X = tr.UpperLeftCorner.X + 1;
 		tr.LowerRightCorner.Y -= 1;
-		Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
 
 		// draw grey background
 		tr = frameRect;
@@ -815,18 +829,18 @@ void CGUISkin::draw3DTabButton(boost::shared_ptr<IGUIElement> element, bool acti
 		tr.UpperLeftCorner.Y -= 1;
 		tr.LowerRightCorner.X -= 2;
 		tr.LowerRightCorner.Y -= 1;
-		Driver->draw2DRectangle(getColor(EGDC_3D_FACE), tr, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_FACE), tr, clip);
 
 		// draw right middle gray shadow
 		tr.LowerRightCorner.X += 1;
 		tr.UpperLeftCorner.X = tr.LowerRightCorner.X - 1;
 		//tr.LowerRightCorner.Y -= 1;
-		Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), tr, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), tr, clip);
 
 		tr.LowerRightCorner.X += 1;
 		tr.UpperLeftCorner.X += 1;
 		tr.LowerRightCorner.Y -= 1;
-		Driver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), tr, clip);
+		lockedDriver->draw2DRectangle(getColor(EGDC_3D_DARK_SHADOW), tr, clip);
 	}
 }
 
@@ -842,7 +856,9 @@ implementations to find out how to draw the part exactly.
 void CGUISkin::draw3DTabBody(boost::shared_ptr<IGUIElement> element, bool border, bool background,
 	const core::rect<s32>& rect, const core::rect<s32>* clip, s32 tabHeight, EGUI_ALIGNMENT alignment)
 {
-	if (!Driver)
+	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
+
+	if (!lockedDriver)
 		return;
 
 	core::rect<s32> tr = rect;
@@ -858,34 +874,34 @@ void CGUISkin::draw3DTabBody(boost::shared_ptr<IGUIElement> element, bool border
 			// draw left hightlight
 			tr.UpperLeftCorner.Y += tabHeight + 2;
 			tr.LowerRightCorner.X = tr.UpperLeftCorner.X + 1;
-			Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
+			lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
 
 			// draw right shadow
 			tr.UpperLeftCorner.X = rect.LowerRightCorner.X - 1;
 			tr.LowerRightCorner.X = tr.UpperLeftCorner.X + 1;
-			Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), tr, clip);
+			lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), tr, clip);
 
 			// draw lower shadow
 			tr = rect;
 			tr.UpperLeftCorner.Y = tr.LowerRightCorner.Y - 1;
-			Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), tr, clip);
+			lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), tr, clip);
 		}
 		else
 		{
 			// draw left hightlight
 			tr.LowerRightCorner.Y -= tabHeight + 2;
 			tr.LowerRightCorner.X = tr.UpperLeftCorner.X + 1;
-			Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
+			lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
 
 			// draw right shadow
 			tr.UpperLeftCorner.X = rect.LowerRightCorner.X - 1;
 			tr.LowerRightCorner.X = tr.UpperLeftCorner.X + 1;
-			Driver->draw2DRectangle(getColor(EGDC_3D_SHADOW), tr, clip);
+			lockedDriver->draw2DRectangle(getColor(EGDC_3D_SHADOW), tr, clip);
 
 			// draw lower shadow
 			tr = rect;
 			tr.LowerRightCorner.Y = tr.UpperLeftCorner.Y + 1;
-			Driver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
+			lockedDriver->draw2DRectangle(getColor(EGDC_3D_HIGH_LIGHT), tr, clip);
 		}
 	}
 
@@ -910,12 +926,12 @@ void CGUISkin::draw3DTabBody(boost::shared_ptr<IGUIElement> element, bool border
 		}
 
 		if (!UseGradient)
-			Driver->draw2DRectangle(getColor(EGDC_3D_FACE), tr, clip);
+			lockedDriver->draw2DRectangle(getColor(EGDC_3D_FACE), tr, clip);
 		else
 		{
 			video::SColor c1 = getColor(EGDC_3D_FACE);
 			video::SColor c2 = getColor(EGDC_3D_SHADOW);
-			Driver->draw2DRectangle(tr, c1, c1, c2, c2, clip);
+			lockedDriver->draw2DRectangle(tr, c1, c1, c2, c2, clip);
 		}
 	}
 }
@@ -956,7 +972,7 @@ void CGUISkin::draw2DRectangle(boost::shared_ptr<IGUIElement> element,
 		const video::SColor &color, const core::rect<s32>& pos,
 		const core::rect<s32>* clip)
 {
-	Driver->draw2DRectangle(color, pos, clip);
+	getVideoDriver()->draw2DRectangle(color, pos, clip);
 }
 
 
@@ -1000,7 +1016,6 @@ void CGUISkin::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWrit
 	for (i=0; i<EGDI_COUNT; ++i)
 		Icons[i] = in->getAttributeAsInt(GUISkinIconNames[i]);
 }
-
 
 } // end namespace gui
 } // end namespace irr

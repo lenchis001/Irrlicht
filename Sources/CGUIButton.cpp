@@ -225,7 +225,7 @@ void CGUIButton::draw()
 
 	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
 	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
-	video::IVideoDriver* driver = lockedEnvironment->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedEnvironment->getVideoDriver();
 
 	// todo:	move sprite up and text down if the pressed state has a sprite
 	const core::position2di spritePos = AbsoluteRect.getCenter();

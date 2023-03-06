@@ -28,16 +28,13 @@ class CGUIEnvironment : public IGUIEnvironment, public IGUIElement
 public:
 
 	//! constructor
-	CGUIEnvironment(io::IFileSystem* fs, video::IVideoDriver* driver, IOSOperator* op);
+	CGUIEnvironment(io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver, IOSOperator* op);
 
 	//! destructor
 	virtual ~CGUIEnvironment();
 
 	//! draws all gui elements
 	virtual void drawAll();
-
-	//! returns the current video driver
-	virtual video::IVideoDriver* getVideoDriver() const;
 
 	//! returns pointer to the filesystem
 	virtual io::IFileSystem* getFileSystem() const;
@@ -305,7 +302,6 @@ private:
 
 	core::array<SFont> Fonts;
 	core::array<SSpriteBank> Banks;
-	video::IVideoDriver* Driver;
 	boost::shared_ptr<IGUIElement> Hovered;
 	boost::shared_ptr<IGUIElement> HoveredNoSubelement;	// subelements replaced by their parent, so you only have 'real' elements here
 	boost::shared_ptr<IGUIElement> Focus;

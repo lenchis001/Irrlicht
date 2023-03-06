@@ -118,7 +118,7 @@ struct tLWOLayerInfo
 //! Constructor
 CLWOMeshFileLoader::CLWOMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr,
 		io::IFileSystem* fs)
-: SceneManager(smgr), FileSystem(fs), File(0), Mesh(0)
+: SceneManagerAwareMixin(smgr), FileSystem(fs), File(0), Mesh(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CLWOMeshFileLoader");
@@ -253,9 +253,12 @@ boost::shared_ptr<IAnimatedMesh> CLWOMeshFileLoader::createMesh(io::IReadFile* f
 			}
 		}
 	}
+
 #ifdef LWO_READER_DEBUG
 	os::Printer::log("LWO loader: Fixing meshbuffers.");
 #endif
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+
 	for (u32 i=0; i<Materials.size(); ++i)
 	{
 #ifdef LWO_READER_DEBUG
@@ -356,7 +359,7 @@ boost::shared_ptr<IAnimatedMesh> CLWOMeshFileLoader::createMesh(io::IReadFile* f
 				resolutionT = core::reciprocal(Materials[i]->Texture[0].Size.Y);
 			}
 			// use the two-way planar mapping
-			SceneManager->getMeshManipulator()->makePlanarTextureMapping(Materials[i]->Meshbuffer, resolutionS, resolutionT, Materials[i]->Texture[0].Axis, Materials[i]->Texture[0].Center);
+			lockedSceneManager->getMeshManipulator()->makePlanarTextureMapping(Materials[i]->Meshbuffer, resolutionS, resolutionT, Materials[i]->Texture[0].Axis, Materials[i]->Texture[0].Center);
 		}
 
 		// add bump maps
@@ -364,13 +367,13 @@ boost::shared_ptr<IAnimatedMesh> CLWOMeshFileLoader::createMesh(io::IReadFile* f
 		{
 			boost::shared_ptr<SMesh> tmpmesh = boost::make_shared<SMesh>();
 			tmpmesh->addMeshBuffer(Materials[i]->Meshbuffer);
-			SceneManager->getMeshManipulator()->createMeshWithTangents(tmpmesh, true, true);
+			lockedSceneManager->getMeshManipulator()->createMeshWithTangents(tmpmesh, true, true);
 			Mesh->addMeshBuffer(tmpmesh->getMeshBuffer(0));
 			tmpmesh->getMeshBuffer(0)->drop();
 		}
 		else
 		{
-			SceneManager->getMeshManipulator()->recalculateNormals(Materials[i]->Meshbuffer);
+			lockedSceneManager->getMeshManipulator()->recalculateNormals(Materials[i]->Meshbuffer);
 			Mesh->addMeshBuffer(Materials[i]->Meshbuffer);
 		}
 		Materials[i]->Meshbuffer->drop();
@@ -2083,7 +2086,7 @@ bool CLWOMeshFileLoader::readFileHeader()
 
 video::ITexture* CLWOMeshFileLoader::loadTexture(const core::stringc& file)
 {
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = getSceneManager()->getVideoDriver();
 
 	if (FileSystem->existFile(file))
 		return driver->getTexture(file);

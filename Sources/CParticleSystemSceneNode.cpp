@@ -283,7 +283,7 @@ void CParticleSystemSceneNode::OnRegisterSceneNode()
 
 	if (IsVisible && (Particles.size() != 0))
 	{
-		SceneManager->registerNodeForRendering(getSharedThis());
+		getSceneManager()->registerNodeForRendering(getSharedThis());
 		ISceneNode::OnRegisterSceneNode();
 	}
 }
@@ -292,8 +292,9 @@ void CParticleSystemSceneNode::OnRegisterSceneNode()
 //! render
 void CParticleSystemSceneNode::render()
 {
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
-	boost::shared_ptr<ICameraSceneNode> camera = SceneManager->getActiveCamera();
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedSceneManager->getVideoDriver();
+	boost::shared_ptr<ICameraSceneNode> camera = lockedSceneManager->getActiveCamera();
 
 	if (!camera || !driver)
 		return;
@@ -543,7 +544,7 @@ void CParticleSystemSceneNode::reallocateBuffers()
 
 
 //! Writes attributes of the scene node.
-void CParticleSystemSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CParticleSystemSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	IParticleSystemSceneNode::serializeAttributes(out, options);
 

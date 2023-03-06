@@ -231,7 +231,7 @@
  *	IrrlichtDevice *device = createDevice(video::EDT_DIRECT3D8,
  *		core::dimension2d<u32>(640,480));
  *
- *	video::IVideoDriver* driver = device->getVideoDriver();
+ *	boost::shared_ptr<video::IVideoDriver> driver = device->getVideoDriver();
  *	boost::shared_ptr<scene::ISceneManager> scenemgr = device->getSceneManager();
  *
  *	device->setWindowCaption(L"Hello World!");

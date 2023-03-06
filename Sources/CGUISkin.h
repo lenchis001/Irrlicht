@@ -10,6 +10,7 @@
 
 #include "IGUISkin.h"
 #include "irrString.h"
+#include "VideoDriverAwareMixin.h"
 
 namespace irr
 {
@@ -20,11 +21,11 @@ namespace video
 namespace gui
 {
 
-	class CGUISkin : public IGUISkin
+	class CGUISkin : public IGUISkin, public video::VideoDriverAwareMixin<>
 	{
 	public:
 
-		CGUISkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver);
+		CGUISkin(EGUI_SKIN_TYPE type, boost::shared_ptr<video::IVideoDriver> driver);
 
 		//! destructor
 		virtual ~CGUISkin();
@@ -232,7 +233,6 @@ namespace gui
 		boost::shared_ptr<IGUIFont> Fonts[EGDF_COUNT];
 		IGUISpriteBank* SpriteBank;
 		core::stringw Texts[EGDT_COUNT];
-		video::IVideoDriver* Driver;
 		bool UseGradient;
 
 		EGUI_SKIN_TYPE Type;

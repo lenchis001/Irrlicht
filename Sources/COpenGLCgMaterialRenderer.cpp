@@ -33,7 +33,7 @@ void COpenGLCgUniformSampler2D::update(const void* data, const SMaterial& materi
 	}
 }
 
-COpenGLCgMaterialRenderer::COpenGLCgMaterialRenderer(COpenGLDriver* driver, s32& materialType,
+COpenGLCgMaterialRenderer::COpenGLCgMaterialRenderer(boost::shared_ptr<COpenGLDriver> driver, s32& materialType,
 	const c8* vertexProgram, const c8* vertexEntry, E_VERTEX_SHADER_TYPE vertexProfile,
 	const c8* fragmentProgram, const c8* fragmentEntry, E_PIXEL_SHADER_TYPE fragmentProfile,
 	const c8* geometryProgram, const c8* geometryEntry, E_GEOMETRY_SHADER_TYPE geometryProfile,
@@ -140,11 +140,6 @@ void COpenGLCgMaterialRenderer::OnUnsetMaterial()
 void COpenGLCgMaterialRenderer::setBasicRenderStates(const SMaterial& material, const SMaterial& lastMaterial, bool resetAllRenderstates)
 {
 	Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
-}
-
-IVideoDriver* COpenGLCgMaterialRenderer::getVideoDriver()
-{
-	return Driver;
 }
 
 void COpenGLCgMaterialRenderer::init(s32& materialType,

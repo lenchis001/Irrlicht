@@ -1371,7 +1371,7 @@ void CSkinnedMesh::addJoints(core::array<boost::shared_ptr<IBoneSceneNode>> &joi
 
 void CSkinnedMesh::setWeakThis(boost::shared_ptr<CSkinnedMesh> value)
 {
-#if _DEBUG
+#ifdef _DEBUG
 	assert(this == value.get());
 #endif
 	WeakThis = value;

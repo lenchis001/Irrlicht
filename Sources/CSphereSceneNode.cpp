@@ -24,7 +24,7 @@ CSphereSceneNode::CSphereSceneNode(f32 radius, u32 polyCountX, u32 polyCountY, b
 	setDebugName("CSphereSceneNode");
 	#endif
 
-	Mesh = SceneManager->getGeometryCreator()->createSphereMesh(radius, polyCountX, polyCountY);
+	Mesh = getSceneManager()->getGeometryCreator()->createSphereMesh(radius, polyCountX, polyCountY);
 }
 
 
@@ -38,7 +38,7 @@ CSphereSceneNode::~CSphereSceneNode()
 //! renders the node.
 void CSphereSceneNode::render()
 {
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = getSceneManager()->getVideoDriver();
 
 	if (Mesh && driver)
 	{
@@ -78,13 +78,14 @@ bool CSphereSceneNode::removeChild(boost::shared_ptr<ISceneNode> child)
 boost::shared_ptr<IShadowVolumeSceneNode> CSphereSceneNode::addShadowVolumeSceneNode(
 		boost::shared_ptr<const IMesh> shadowMesh, s32 id, bool zfailmethod, f32 infinity)
 {
-	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
+	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
+	if (!lockedSceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
 		return 0;
 
 	if (!shadowMesh)
 		shadowMesh = Mesh; // if null is given, use the mesh of node
 
-	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), SceneManager, id, zfailmethod, infinity);
+	Shadow = boost::make_shared<CShadowVolumeSceneNode>(shadowMesh, getSharedThis(), lockedSceneManager, id, zfailmethod, infinity);
 	return Shadow;
 }
 
@@ -99,7 +100,7 @@ const core::aabbox3d<f32>& CSphereSceneNode::getBoundingBox() const
 void CSphereSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(getSharedThis());
+		getSceneManager()->registerNodeForRendering(getSharedThis());
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -127,7 +128,7 @@ u32 CSphereSceneNode::getMaterialCount() const
 
 
 //! Writes attributes of the scene node.
-void CSphereSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CSphereSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	ISceneNode::serializeAttributes(out, options);
 
@@ -156,7 +157,7 @@ void CSphereSceneNode::deserializeAttributes(io::IAttributes* in, io::SAttribute
 
 	if ( !core::equals(Radius, oldRadius) || PolyCountX != oldPolyCountX || PolyCountY != oldPolyCountY)
 	{
-		Mesh = SceneManager->getGeometryCreator()->createSphereMesh(Radius, PolyCountX, PolyCountY);
+		Mesh = getSceneManager()->getGeometryCreator()->createSphereMesh(Radius, PolyCountX, PolyCountY);
 	}
 
 	ISceneNode::deserializeAttributes(in, options);
@@ -168,7 +169,7 @@ boost::shared_ptr<ISceneNode> CSphereSceneNode::clone(boost::shared_ptr<ISceneNo
 	if (!newParent)
 		newParent = Parent.lock();
 	if (!newManager)
-		newManager = SceneManager;
+		newManager = getSceneManager();
 
 	boost::shared_ptr<CSphereSceneNode> nb = boost::make_shared<CSphereSceneNode>(Radius, PolyCountX, PolyCountY, newParent,
 		newManager, ID, RelativeTranslation);

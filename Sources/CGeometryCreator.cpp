@@ -169,7 +169,7 @@ boost::shared_ptr<IMesh> CGeometryCreator::createHillPlaneMesh(
 
 boost::shared_ptr<IMesh> CGeometryCreator::createTerrainMesh(video::IImage* texture,
 		video::IImage* heightmap, const core::dimension2d<f32>& stretchSize,
-		f32 maxHeight, video::IVideoDriver* driver,
+		f32 maxHeight, boost::shared_ptr<video::IVideoDriver> driver,
 		const core::dimension2d<u32>& maxVtxBlockSize,
 		bool debugBorders) const
 {

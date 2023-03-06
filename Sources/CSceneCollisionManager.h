@@ -8,6 +8,8 @@
 #include "ISceneCollisionManager.h"
 #include "ISceneManager.h"
 #include "IVideoDriver.h"
+#include "VideoDriverAwareMixin.h"
+#include "SceneManagerAwareMixin.h"
 
 namespace irr
 {
@@ -15,12 +17,12 @@ namespace scene
 {
 
 	//! The Scene Collision Manager provides methods for performing collision tests and picking on scene nodes.
-	class CSceneCollisionManager : public ISceneCollisionManager
+	class CSceneCollisionManager : public ISceneCollisionManager, public video::VideoDriverAwareMixin<>, public SceneManagerAwareMixin<>
 	{
 	public:
 
 		//! constructor
-		CSceneCollisionManager(boost::shared_ptr<scene::ISceneManager> smanager, video::IVideoDriver* driver);
+		CSceneCollisionManager(boost::shared_ptr<scene::ISceneManager> smanager, boost::shared_ptr<video::IVideoDriver> driver);
 
 		//! destructor
 		virtual ~CSceneCollisionManager();
@@ -145,8 +147,6 @@ namespace scene
 
 		inline bool getLowestRoot(f32 a, f32 b, f32 c, f32 maxR, f32* root);
 
-		boost::shared_ptr<scene::ISceneManager> SceneManager;
-		video::IVideoDriver* Driver;
 		core::array<core::triangle3df> Triangles; // triangle buffer
 	};
 

@@ -41,7 +41,7 @@ CVolumeLightSceneNode::~CVolumeLightSceneNode()
 
 void CVolumeLightSceneNode::constructLight()
 {
-	Mesh = SceneManager->getGeometryCreator()->createVolumeLightMesh(SubdivideU, SubdivideV, FootColor, TailColor, LPDistance, LightDimensions);
+	Mesh = getSceneManager()->getGeometryCreator()->createVolumeLightMesh(SubdivideU, SubdivideV, FootColor, TailColor, LPDistance, LightDimensions);
 }
 
 
@@ -51,7 +51,7 @@ void CVolumeLightSceneNode::render()
 	if (!Mesh)
 		return;
 
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = getSceneManager()->getVideoDriver();
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 
 	driver->setMaterial(Mesh->getMeshBuffer(0)->getMaterial());
@@ -70,7 +70,7 @@ void CVolumeLightSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
 	{
-		SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_TRANSPARENT);
+		getSceneManager()->registerNodeForRendering(getSharedThis(), ESNRP_TRANSPARENT);
 	}
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -135,7 +135,7 @@ void CVolumeLightSceneNode::setTailColor(const video::SColor inColor)
 
 
 //! Writes attributes of the scene node.
-void CVolumeLightSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CVolumeLightSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	ISceneNode::serializeAttributes(out, options);
 
@@ -179,7 +179,7 @@ boost::shared_ptr<ISceneNode> CVolumeLightSceneNode::clone(boost::shared_ptr<ISc
 	if (!newParent)
 		newParent = Parent.lock();
 	if (!newManager)
-		newManager = SceneManager;
+		newManager = getSceneManager();
 
 	boost::shared_ptr<CVolumeLightSceneNode> nb = boost::make_shared<CVolumeLightSceneNode>(newParent,
 		newManager, ID, SubdivideU, SubdivideV, FootColor, TailColor, RelativeTranslation);

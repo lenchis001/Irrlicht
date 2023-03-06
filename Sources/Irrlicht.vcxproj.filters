@@ -1204,6 +1204,12 @@
     <ClInclude Include="CSceneNodeAnimatorCameraThirdPerson.h">
       <Filter>Irrlicht\scene\animators</Filter>
     </ClInclude>
+    <ClInclude Include="include\VideoDriverAwareMixin.h">
+      <Filter>include\video</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SceneManagerAwareMixin.h">
+      <Filter>include\scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CDefaultSceneNodeAnimatorFactory.cpp">
@@ -1983,5 +1989,8 @@
     <ClCompile Include="CSceneNodeAnimatorCameraThirdPerson.cpp">
       <Filter>Irrlicht\scene\animators</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

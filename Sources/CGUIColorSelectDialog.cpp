@@ -77,7 +77,7 @@ CGUIColorSelectDialog::~CGUIColorSelectDialog()
 void CGUIColorSelectDialog::buildColorRing( const core::dimension2d<u32> & dim, s32 supersample, const video::SColor& borderColor )
 {
 	const core::dimension2d<u32> d(dim.Width * supersample, dim.Height * supersample);
-	video::IVideoDriver* driver = getSharedEnvironment()->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = getSharedEnvironment()->getVideoDriver();
 
 	video::IImage *RawTexture = driver->createImage(video::ECF_A8R8G8B8, d);
 
@@ -395,7 +395,7 @@ void CGUIColorSelectDialog::setWeakThis(boost::shared_ptr<IGUIElement> value)
 	CancelButton->setSubElement(true);
 	CancelButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
 
-	video::IVideoDriver* driver = lockedEnvironment->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = lockedEnvironment->getVideoDriver();
 	ColorRing.Texture = driver->getTexture("#colorring");
 	if (0 == ColorRing.Texture)
 	{

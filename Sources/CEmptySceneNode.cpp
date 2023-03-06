@@ -26,7 +26,7 @@ CEmptySceneNode::CEmptySceneNode(boost::shared_ptr<ISceneNode> parent, boost::sh
 void CEmptySceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible)
-		SceneManager->registerNodeForRendering(getSharedThis());
+		getSceneManager()->registerNodeForRendering(getSharedThis());
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -52,7 +52,7 @@ boost::shared_ptr<ISceneNode> CEmptySceneNode::clone(boost::shared_ptr<ISceneNod
 	if (!newParent)
 		newParent = Parent.lock();
 	if (!newManager)
-		newManager = SceneManager;
+		newManager = getSceneManager();
 
 	boost::shared_ptr<CEmptySceneNode> nb = boost::make_shared<CEmptySceneNode>(newParent,
 		newManager, ID);

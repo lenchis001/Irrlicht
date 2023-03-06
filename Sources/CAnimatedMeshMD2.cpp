@@ -451,7 +451,7 @@ const c8* CAnimatedMeshMD2::getAnimationName(s32 nr) const
 }
 
 void CAnimatedMeshMD2::setWeakThis(boost::shared_ptr<CAnimatedMeshMD2> value) {
-#if _DEBUG
+#ifdef _DEBUG
 	assert(this == value.get());
 #endif
 	WeakThis = value;

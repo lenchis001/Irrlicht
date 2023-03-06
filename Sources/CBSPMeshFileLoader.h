@@ -17,7 +17,7 @@ namespace scene
 {
 
 //! Meshloader capable of loading Quake 3 BSP files and shaders
-class CBSPMeshFileLoader : public IMeshLoader
+class CBSPMeshFileLoader : public IMeshLoader, SceneManagerAwareMixin<>
 {
 public:
 
@@ -40,7 +40,6 @@ public:
 private:
 
 	io::IFileSystem* FileSystem;
-	boost::shared_ptr<scene::ISceneManager> SceneManager;
 
 	quake3::Q3LevelLoadParameter LoadParam;
 };

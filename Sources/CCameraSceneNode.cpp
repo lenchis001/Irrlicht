@@ -27,7 +27,7 @@ CCameraSceneNode::CCameraSceneNode(boost::shared_ptr<ISceneNode> parent, boost::
 	// set default projection
 	Fovy = core::PI / 2.5f;	// Field of view, in radians.
 
-	const video::IVideoDriver* const d = mgr?mgr->getVideoDriver():0;
+	const boost::shared_ptr<video::IVideoDriver> const d = mgr?mgr->getVideoDriver():0;
 	if (d)
 		Aspect = (f32)d->getCurrentRenderTargetSize().Width /
 			(f32)d->getCurrentRenderTargetSize().Height;
@@ -234,8 +234,10 @@ void CCameraSceneNode::recalculateProjectionMatrix()
 //! prerender
 void CCameraSceneNode::OnRegisterSceneNode()
 {
-	if ( SceneManager->getActiveCamera().get() == this)
-		SceneManager->registerNodeForRendering(getSharedThis(), ESNRP_CAMERA);
+	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
+
+	if (lockedSceneManager->getActiveCamera().get() == this)
+		lockedSceneManager->registerNodeForRendering(getSharedThis(), ESNRP_CAMERA);
 
 	ISceneNode::OnRegisterSceneNode();
 }
@@ -264,7 +266,7 @@ void CCameraSceneNode::render()
 	ViewArea.getTransform(video::ETS_VIEW) *= Affector;
 	recalculateViewArea();
 
-	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	boost::shared_ptr<video::IVideoDriver> driver = getSceneManager()->getVideoDriver();
 	if ( driver)
 	{
 		driver->setTransform(video::ETS_PROJECTION, ViewArea.getTransform ( video::ETS_PROJECTION) );
@@ -299,7 +301,7 @@ void CCameraSceneNode::recalculateViewArea()
 
 
 //! Writes attributes of the scene node.
-void CCameraSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CCameraSceneNode::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options)
 {
 	ICameraSceneNode::serializeAttributes(out, options);
 
@@ -355,7 +357,7 @@ boost::shared_ptr<ISceneNode> CCameraSceneNode::clone(boost::shared_ptr<ISceneNo
 	if (!newParent)
 		newParent = Parent.lock();
 	if (!newManager)
-		newManager = SceneManager;
+		newManager = getSceneManager();
 
 	boost::shared_ptr<CCameraSceneNode> nb = boost::make_shared<CCameraSceneNode>(newParent,
 		newManager, ID, RelativeTranslation, Target);

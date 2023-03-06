@@ -22,7 +22,7 @@ namespace scene
 class IMeshManipulator;
 
 //! Meshloader capable of loading x meshes.
-class CXMeshFileLoader : public IMeshLoader
+class CXMeshFileLoader : public IMeshLoader, public SceneManagerAwareMixin<>
 {
 public:
 
@@ -165,7 +165,6 @@ private:
 	bool readRGB(video::SColor& color);
 	bool readRGBA(video::SColor& color);
 
-	boost::shared_ptr<scene::ISceneManager> SceneManager;
 	io::IFileSystem* FileSystem;
 
 	core::array<CSkinnedMesh::SJoint*> *AllJoints;
