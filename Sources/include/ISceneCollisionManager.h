@@ -21,7 +21,7 @@ namespace scene
 	class ITriangleSelector;
 
 	//! The Scene Collision Manager provides methods for performing collision tests and picking on scene nodes.
-	class ISceneCollisionManager : public virtual IReferenceCounted
+	class ISceneCollisionManager : public virtual IDebugable
 	{
 	public:
 

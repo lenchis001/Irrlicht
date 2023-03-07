@@ -321,7 +321,7 @@ namespace irr
 	\return Returns pointer to the created IrrlichtDevice or null if the
 	device could not be created.
 	*/
-	extern "C" IRRLICHT_API IrrlichtDevice* IRRCALLCONV createDevice(
+	IRRLICHT_API boost::shared_ptr<IrrlichtDevice> IRRCALLCONV createDevice(
 		video::E_DRIVER_TYPE deviceType = video::E_DRIVER_TYPE::EDT_OPENGL,
 		// parantheses are necessary for some compilers
 		const core::dimension2d<u32>& windowSize = (core::dimension2d<u32>(640,480)),
@@ -332,7 +332,7 @@ namespace irr
 		IEventReceiver* receiver = 0);
 
 	//! typedef for Function Pointer
-	typedef IrrlichtDevice* (IRRCALLCONV *funcptr_createDevice )(
+	typedef boost::shared_ptr<IrrlichtDevice> (IRRCALLCONV *funcptr_createDevice )(
 			video::E_DRIVER_TYPE deviceType,
 			const core::dimension2d<u32>& windowSize,
 			u32 bits,
@@ -350,11 +350,11 @@ namespace irr
 	See irr::SIrrlichtCreationParameters for details.
 	\return Returns pointer to the created IrrlichtDevice or null if the
 	device could not be created. */
-	extern "C" IRRLICHT_API IrrlichtDevice* IRRCALLCONV createDeviceEx(
+	IRRLICHT_API boost::shared_ptr<IrrlichtDevice> IRRCALLCONV createDeviceEx(
 		const SIrrlichtCreationParameters& parameters);
 
 	//! typedef for Function Pointer
-	typedef IrrlichtDevice* (IRRCALLCONV *funcptr_createDeviceEx )( const SIrrlichtCreationParameters& parameters );
+	typedef boost::shared_ptr<IrrlichtDevice> (IRRCALLCONV *funcptr_createDeviceEx )( const SIrrlichtCreationParameters& parameters );
 
 
 	// THE FOLLOWING IS AN EMPTY LIST OF ALL SUB NAMESPACES

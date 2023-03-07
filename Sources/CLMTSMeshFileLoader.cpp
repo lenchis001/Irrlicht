@@ -40,7 +40,7 @@ Version 1.4 - 12 March 2005
   from:
 	CLMTSMeshFileLoader(io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver)
   to:
-	CLMTSMeshFileLoader(IrrlichtDevice* device)
+	CLMTSMeshFileLoader(boost::shared_ptr<IrrlichtDevice> device)
 
 Version 1.3 - 15 February 2005
 - Fixed bug that prevented loading more than one different lmts files.

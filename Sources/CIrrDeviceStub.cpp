@@ -42,7 +42,7 @@ CIrrDeviceStub::CIrrDeviceStub(const SIrrlichtCreationParameters& params)
 	Randomizer = createDefaultRandomizer();
 
 	FileSystem = io::createFileSystem();
-	VideoModeList = new video::CVideoModeList();
+	VideoModeList = boost::make_shared<video::CVideoModeList>();
 
 	core::stringc s = "Irrlicht Engine version ";
 	s.append(getVersion());
@@ -54,7 +54,6 @@ CIrrDeviceStub::CIrrDeviceStub(const SIrrlichtCreationParameters& params)
 
 CIrrDeviceStub::~CIrrDeviceStub()
 {
-	VideoModeList->drop();
 	FileSystem->drop();
 
 	if (Operator)
@@ -145,7 +144,7 @@ boost::shared_ptr<gui::ICursorControl> CIrrDeviceStub::getCursorControl()
 
 //! \return Returns a pointer to a list with all video modes supported
 //! by the gfx adapter.
-video::IVideoModeList* CIrrDeviceStub::getVideoModeList()
+boost::shared_ptr<video::IVideoModeList> CIrrDeviceStub::getVideoModeList()
 {
 	return VideoModeList;
 }

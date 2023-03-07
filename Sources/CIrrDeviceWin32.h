@@ -68,7 +68,7 @@ namespace irr
 
 		//! \return Returns a pointer to a list with all video modes
 		//! supported by the gfx adapter.
-		video::IVideoModeList* getVideoModeList();
+		boost::shared_ptr<video::IVideoModeList> getVideoModeList();
 
 		//! Notifies the device, that it has been resized
 		void OnResized();

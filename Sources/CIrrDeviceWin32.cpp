@@ -1125,7 +1125,7 @@ boost::shared_ptr<CIrrDeviceWin32::CCursorControl> CIrrDeviceWin32::getWin32Curs
 
 //! \return Returns a pointer to a list with all video modes supported
 //! by the gfx adapter.
-video::IVideoModeList* CIrrDeviceWin32::getVideoModeList()
+boost::shared_ptr<video::IVideoModeList> CIrrDeviceWin32::getVideoModeList()
 {
 	if (!VideoModeList->getVideoModeCount())
 	{

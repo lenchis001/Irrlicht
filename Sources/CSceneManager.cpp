@@ -220,7 +220,7 @@ void CSceneManager::setWeakThis(boost::shared_ptr<CSceneManager> value)
 	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
 
 	// create collision manager
-	CollisionManager = new CSceneCollisionManager(lockedSceneManager, lockedDriver);
+	CollisionManager = boost::make_shared<CSceneCollisionManager>(lockedSceneManager, lockedDriver);
 
 	// create geometry creator
 	GeometryCreator = boost::make_shared<CGeometryCreator>();
@@ -302,9 +302,8 @@ void CSceneManager::setWeakThis(boost::shared_ptr<CSceneManager> value)
 
 
 	// factories
-	ISceneNodeFactory* factory = new CDefaultSceneNodeFactory(lockedSceneManager);
+	boost::shared_ptr<ISceneNodeFactory> factory = boost::make_shared<CDefaultSceneNodeFactory>(lockedSceneManager);
 	registerSceneNodeFactory(factory);
-	factory->drop();
 
 	ISceneNodeAnimatorFactory* animatorFactory = new CDefaultSceneNodeAnimatorFactory(lockedSceneManager, CursorControl);
 	registerSceneNodeAnimatorFactory(animatorFactory);
@@ -329,9 +328,6 @@ CSceneManager::~CSceneManager()
 	if (FileSystem)
 		FileSystem->drop();
 
-	if (CollisionManager)
-		CollisionManager->drop();
-
 	u32 i;
 	for (i=0; i<MeshLoaderList.size(); ++i)
 		MeshLoaderList[i]->drop();
@@ -343,9 +339,6 @@ CSceneManager::~CSceneManager()
 
 	if (MeshCache)
 		MeshCache->drop();
-
-	for (i=0; i<SceneNodeFactoryList.size(); ++i)
-		SceneNodeFactoryList[i]->drop();
 
 	for (i=0; i<SceneNodeAnimatorFactoryList.size(); ++i)
 		SceneNodeAnimatorFactoryList[i]->drop();
@@ -1756,7 +1749,7 @@ ISceneLoader* CSceneManager::getSceneLoader(u32 index) const
 
 
 //! Returns a pointer to the scene collision manager.
-ISceneCollisionManager* CSceneManager::getSceneCollisionManager()
+boost::shared_ptr<ISceneCollisionManager> CSceneManager::getSceneCollisionManager()
 {
 	return CollisionManager;
 }
@@ -2012,18 +2005,17 @@ boost::shared_ptr<scene::ISceneManager> CSceneManager::createNewSceneManager(boo
 
 
 //! Returns the default scene node factory which can create all built in scene nodes
-ISceneNodeFactory* CSceneManager::getDefaultSceneNodeFactory()
+boost::shared_ptr<ISceneNodeFactory> CSceneManager::getDefaultSceneNodeFactory()
 {
 	return getSceneNodeFactory(0);
 }
 
 
 //! Adds a scene node factory to the scene manager.
-void CSceneManager::registerSceneNodeFactory(ISceneNodeFactory* factoryToAdd)
+void CSceneManager::registerSceneNodeFactory(boost::shared_ptr<ISceneNodeFactory> factoryToAdd)
 {
 	if (factoryToAdd)
 	{
-		factoryToAdd->grab();
 		SceneNodeFactoryList.push_back(factoryToAdd);
 	}
 }
@@ -2037,7 +2029,7 @@ u32 CSceneManager::getRegisteredSceneNodeFactoryCount() const
 
 
 //! Returns a scene node factory by index
-ISceneNodeFactory* CSceneManager::getSceneNodeFactory(u32 index)
+boost::shared_ptr<ISceneNodeFactory> CSceneManager::getSceneNodeFactory(u32 index)
 {
 	if (index < SceneNodeFactoryList.size())
 		return SceneNodeFactoryList[index];

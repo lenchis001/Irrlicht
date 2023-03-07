@@ -63,7 +63,7 @@ namespace irr
 		virtual void closeDevice();
 
 		//! \return Returns a pointer to a list with all video modes supported
-		video::IVideoModeList* getVideoModeList();
+		boost::shared_ptr<video::IVideoModeList> getVideoModeList();
 
 		//! Sets if the window should be resizable in windowed mode.
 		virtual void setResizable(bool resize=false);

@@ -391,7 +391,7 @@ namespace scene
 		virtual ISceneLoader* getSceneLoader(u32 index) const;
 
 		//! Returns a pointer to the scene collision manager.
-		virtual ISceneCollisionManager* getSceneCollisionManager();
+		virtual boost::shared_ptr<ISceneCollisionManager> getSceneCollisionManager();
 
 		//! Returns a pointer to the mesh manipulator.
 		virtual IMeshManipulator* getMeshManipulator();
@@ -440,18 +440,18 @@ namespace scene
 		virtual ESCENE_NODE_TYPE getType() const { return ESNT_SCENE_MANAGER; }
 
 		//! Returns the default scene node factory which can create all built in scene nodes
-		virtual ISceneNodeFactory* getDefaultSceneNodeFactory();
+		virtual boost::shared_ptr<ISceneNodeFactory> getDefaultSceneNodeFactory();
 
 		//! Adds a scene node factory to the scene manager.
 		/** Use this to extend the scene manager with new scene node types which it should be
 		able to create automaticly, for example when loading data from xml files. */
-		virtual void registerSceneNodeFactory(ISceneNodeFactory* factoryToAdd);
+		virtual void registerSceneNodeFactory(boost::shared_ptr<ISceneNodeFactory> factoryToAdd);
 
 		//! Returns amount of registered scene node factories.
 		virtual u32 getRegisteredSceneNodeFactoryCount() const;
 
 		//! Returns a scene node factory by index
-		virtual ISceneNodeFactory* getSceneNodeFactory(u32 index);
+		virtual boost::shared_ptr<ISceneNodeFactory> getSceneNodeFactory(u32 index);
 
 		//! Returns a typename from a scene node type or null if not found
 		virtual const c8* getSceneNodeTypeName(ESCENE_NODE_TYPE type);
@@ -607,7 +607,7 @@ namespace scene
 		boost::shared_ptr<gui::ICursorControl> CursorControl;
 
 		//! collision manager
-		ISceneCollisionManager* CollisionManager;
+		boost::shared_ptr<ISceneCollisionManager> CollisionManager;
 
 		//! render pass lists
 		core::array<boost::shared_ptr<ISceneNode>> CameraList;
@@ -621,7 +621,7 @@ namespace scene
 		core::array<IMeshLoader*> MeshLoaderList;
 		core::array<ISceneLoader*> SceneLoaderList;
 		core::array<boost::shared_ptr<ISceneNode>> DeletionList;
-		core::array<ISceneNodeFactory*> SceneNodeFactoryList;
+		core::array<boost::shared_ptr<ISceneNodeFactory>> SceneNodeFactoryList;
 		core::array<ISceneNodeAnimatorFactory*> SceneNodeAnimatorFactoryList;
 
 		//! current active camera

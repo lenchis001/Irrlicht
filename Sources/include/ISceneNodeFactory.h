@@ -24,7 +24,7 @@ namespace scene
 	scene node manager will grab() the factory anyway, and otherwise cyclic references will
 	be created and the scene manager and all its nodes won't get deallocated.
 	*/
-	class ISceneNodeFactory : public virtual IReferenceCounted
+	class ISceneNodeFactory : public virtual IDebugable
 	{
 	public:
 		//! adds a scene node to the scene graph based on its type id

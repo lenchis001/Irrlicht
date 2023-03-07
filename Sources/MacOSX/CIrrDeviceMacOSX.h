@@ -83,7 +83,7 @@ namespace irr
 
 		//! \return Returns a pointer to a list with all video modes
 		//! supported by the gfx adapter.
-		virtual video::IVideoModeList* getVideoModeList();
+		virtual boost::shared_ptr<video::IVideoModeList> getVideoModeList();
 
 		//! Get the device type
 		virtual E_DEVICE_TYPE getType() const

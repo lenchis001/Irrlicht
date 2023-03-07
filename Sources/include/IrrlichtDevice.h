@@ -40,7 +40,7 @@ namespace irr
 	this class.  There should be only one instance of this class at any
 	time.
 	*/
-	class IrrlichtDevice : public virtual IReferenceCounted
+	class IrrlichtDevice : public virtual IDebugable
 	{
 	public:
 
@@ -116,7 +116,7 @@ namespace irr
 		reasons) the null driver, EDT_NULL exists.
 		\return Pointer to a list with all video modes supported
 		by the gfx adapter. */
-		virtual video::IVideoModeList* getVideoModeList() = 0;
+		virtual boost::shared_ptr<video::IVideoModeList> getVideoModeList() = 0;
 
 		//! Provides access to the operation system operator object.
 		/** The OS operator provides methods for

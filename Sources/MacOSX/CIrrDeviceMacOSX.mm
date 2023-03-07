@@ -1823,7 +1823,7 @@ void CIrrDeviceMacOSX::pollJoysticks()
 #endif // _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
 }
 
-video::IVideoModeList* CIrrDeviceMacOSX::getVideoModeList()
+boost::shared_ptr<video::IVideoModeList> CIrrDeviceMacOSX::getVideoModeList()
 {
 	if (!VideoModeList->getVideoModeCount())
 	{

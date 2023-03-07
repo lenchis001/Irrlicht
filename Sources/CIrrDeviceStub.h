@@ -74,7 +74,7 @@ namespace irr
 		virtual boost::shared_ptr<gui::ICursorControl> getCursorControl();
 
 		//! Returns a pointer to a list with all video modes supported by the gfx adapter.
-		virtual video::IVideoModeList* getVideoModeList();
+		virtual boost::shared_ptr<video::IVideoModeList> getVideoModeList();
 
 		//! Returns a pointer to the ITimer object. With it the current Time can be received.
 		virtual ITimer* getTimer();
@@ -175,7 +175,7 @@ namespace irr
 			EMOUSE_INPUT_EVENT LastMouseInputEvent;
 		};
 		SMouseMultiClicks MouseMultiClicks;
-		video::CVideoModeList* VideoModeList;
+		boost::shared_ptr<video::CVideoModeList> VideoModeList;
 		SIrrlichtCreationParameters CreationParams;
 		bool Close;
 	};

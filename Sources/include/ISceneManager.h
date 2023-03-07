@@ -1407,7 +1407,7 @@ namespace scene
 		//! Get pointer to the scene collision manager.
 		/** \return Pointer to the collision manager
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ISceneCollisionManager* getSceneCollisionManager() = 0;
+		virtual boost::shared_ptr<ISceneCollisionManager> getSceneCollisionManager() = 0;
 
 		//! Get pointer to the mesh manipulator.
 		/** \return Pointer to the mesh manipulator
@@ -1454,12 +1454,12 @@ namespace scene
 		//! Get the default scene node factory which can create all built in scene nodes
 		/** \return Pointer to the default scene node factory
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ISceneNodeFactory* getDefaultSceneNodeFactory() = 0;
+		virtual boost::shared_ptr<ISceneNodeFactory> getDefaultSceneNodeFactory() = 0;
 
 		//! Adds a scene node factory to the scene manager.
 		/** Use this to extend the scene manager with new scene node types which it should be
 		able to create automaticly, for example when loading data from xml files. */
-		virtual void registerSceneNodeFactory(ISceneNodeFactory* factoryToAdd) = 0;
+		virtual void registerSceneNodeFactory(boost::shared_ptr<ISceneNodeFactory> factoryToAdd) = 0;
 
 		//! Get amount of registered scene node factories.
 		virtual u32 getRegisteredSceneNodeFactoryCount() const = 0;
@@ -1467,7 +1467,7 @@ namespace scene
 		//! Get a scene node factory by index
 		/** \return Pointer to the requested scene node factory, or 0 if it does not exist.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual ISceneNodeFactory* getSceneNodeFactory(u32 index) = 0;
+		virtual boost::shared_ptr<ISceneNodeFactory> getSceneNodeFactory(u32 index) = 0;
 
 		//! Get the default scene node animator factory which can create all built-in scene node animators
 		/** \return Pointer to the default scene node animator factory

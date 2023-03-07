@@ -1309,7 +1309,7 @@ void CIrrDeviceLinux::setResizable(bool resize)
 
 
 //! Return pointer to a list with all video modes supported by the gfx adapter.
-video::IVideoModeList* CIrrDeviceLinux::getVideoModeList()
+boost::shared_ptr<video::IVideoModeList> CIrrDeviceLinux::getVideoModeList()
 {
 #ifdef _IRR_COMPILE_WITH_X11_
 	if (!VideoModeList->getVideoModeCount())

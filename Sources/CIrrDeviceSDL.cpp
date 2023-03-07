@@ -647,7 +647,7 @@ void CIrrDeviceSDL::closeDevice()
 
 
 //! \return Pointer to a list with all video modes supported
-video::IVideoModeList* CIrrDeviceSDL::getVideoModeList()
+boost::shared_ptr<video::IVideoModeList> CIrrDeviceSDL::getVideoModeList()
 {
 	if (!VideoModeList->getVideoModeCount())
 	{

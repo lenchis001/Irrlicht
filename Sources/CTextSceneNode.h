@@ -24,7 +24,7 @@ namespace scene
 
 		//! constructor
 		CTextSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
-			boost::shared_ptr<gui::IGUIFont> font, scene::ISceneCollisionManager* coll,
+			boost::shared_ptr<gui::IGUIFont> font, boost::shared_ptr<scene::ISceneCollisionManager> coll,
 			const core::vector3df& position = core::vector3df(0,0,0), const wchar_t* text=0,
 			video::SColor color=video::SColor(100,0,0,0));
 
@@ -53,7 +53,7 @@ namespace scene
 		core::stringw Text;
 		video::SColor Color;
 		boost::shared_ptr<gui::IGUIFont> Font;
-		scene::ISceneCollisionManager* Coll;
+		boost::shared_ptr<scene::ISceneCollisionManager> Coll;
 		core::aabbox3d<f32> Box;
 	};
 
