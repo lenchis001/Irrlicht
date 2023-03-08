@@ -26,10 +26,10 @@ namespace gui
 			: IGUIElement(EGUIET_IMAGE, environment, parent, id, rectangle) {}
 
 		//! Sets an image texture
-		virtual void setImage(video::ITexture* image) = 0;
+		virtual void setImage(boost::shared_ptr<video::ITexture> image) = 0;
 
 		//! Gets the image texture
-		virtual video::ITexture* getImage() const = 0;
+		virtual boost::shared_ptr<video::ITexture> getImage() const = 0;
 
 		//! Sets the color of the image
 		virtual void setColor(video::SColor color) = 0;

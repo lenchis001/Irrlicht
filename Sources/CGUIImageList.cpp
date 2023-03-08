@@ -29,15 +29,11 @@ CGUIImageList::CGUIImageList( boost::shared_ptr<video::IVideoDriver> driver )
 //! destructor
 CGUIImageList::~CGUIImageList()
 {
-	if( Texture )
-	{
-		Texture->drop();
-	}
 }
 
 
 //! Creates the image list from texture.
-bool CGUIImageList::createImageList(video::ITexture* texture,
+bool CGUIImageList::createImageList(boost::shared_ptr<video::ITexture> texture,
 				core::dimension2d<s32> imageSize,
 				bool useAlphaChannel)
 {
@@ -47,7 +43,6 @@ bool CGUIImageList::createImageList(video::ITexture* texture,
 	}
 
 	Texture = texture;
-	Texture->grab();
 
 	ImageSize = imageSize;
 

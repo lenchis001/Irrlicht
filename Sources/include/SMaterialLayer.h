@@ -181,7 +181,7 @@ namespace video
 		{ return !(b!=*this); }
 
 		//! Texture
-		ITexture* Texture;
+		boost::shared_ptr<ITexture> Texture;
 
 		//! Texture Clamp Mode
 		/** Values are taken from E_TEXTURE_CLAMP. */

@@ -24,7 +24,7 @@ namespace gui
 		//! constructor
 		CGUIMessageBox(boost::shared_ptr<IGUIEnvironment> environment, const wchar_t* caption,
 			const wchar_t* text, s32 flag,
-			boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle, video::ITexture* image=0);
+			boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle, boost::shared_ptr<video::ITexture> image=0);
 
 		//! destructor
 		virtual ~CGUIMessageBox();
@@ -51,7 +51,7 @@ namespace gui
 		boost::shared_ptr<IGUIButton> NoButton;
 		boost::shared_ptr<IGUIStaticText> StaticText;
 		boost::shared_ptr<IGUIImage>  Icon;
-		video::ITexture * IconTexture;
+		boost::shared_ptr<video::ITexture>  IconTexture;
 
 		s32 Flags;
 		core::stringw MessageText;

@@ -663,7 +663,7 @@ boost::shared_ptr<IAnimatedMesh> CMY3DMeshFileLoader::createMesh(io::IReadFile* 
 }
 
 
-video::ITexture* CMY3DMeshFileLoader::readEmbeddedLightmap(io::IReadFile* file, char* namebuf)
+boost::shared_ptr<video::ITexture> CMY3DMeshFileLoader::readEmbeddedLightmap(io::IReadFile* file, char* namebuf)
 {
 	static int LightMapIndex=0;
 	u16 id;
@@ -840,7 +840,7 @@ video::ITexture* CMY3DMeshFileLoader::readEmbeddedLightmap(io::IReadFile* file, 
 
 	const bool oldMipMapState = lockedSceneManager->getVideoDriver()->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
 	lockedSceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
-	video::ITexture* lmtex = lockedSceneManager->getVideoDriver()->addTexture(LightMapName, light_img);
+	boost::shared_ptr<video::ITexture> lmtex = lockedSceneManager->getVideoDriver()->addTexture(LightMapName, light_img);
 	lockedSceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, oldMipMapState);
 
 	light_img->drop();

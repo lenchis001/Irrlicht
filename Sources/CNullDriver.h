@@ -83,25 +83,25 @@ namespace video
 		virtual void setMaterial(const SMaterial& material);
 
 		//! loads a Texture
-		virtual ITexture* getTexture(const io::path& filename);
+		virtual boost::shared_ptr<ITexture> getTexture(const io::path& filename);
 
 		//! loads a Texture
-		virtual ITexture* getTexture(io::IReadFile* file);
+		virtual boost::shared_ptr<ITexture> getTexture(io::IReadFile* file);
 
 		//! Returns a texture by index
-		virtual ITexture* getTextureByIndex(u32 index);
+		virtual boost::shared_ptr<ITexture> getTextureByIndex(u32 index);
 
 		//! Returns amount of textures currently loaded
 		virtual u32 getTextureCount() const;
 
 		//! Renames a texture
-		virtual void renameTexture(ITexture* texture, const io::path& newName);
+		virtual void renameTexture(boost::shared_ptr<ITexture> texture, const io::path& newName);
 
 		//! creates a Texture
-		virtual ITexture* addTexture(const core::dimension2d<u32>& size, const io::path& name, ECOLOR_FORMAT format = ECF_A8R8G8B8);
+		virtual boost::shared_ptr<ITexture> addTexture(const core::dimension2d<u32>& size, const io::path& name, ECOLOR_FORMAT format = ECF_A8R8G8B8);
 
 		//! sets a render target
-		virtual bool setRenderTarget(video::ITexture* texture, bool clearBackBuffer,
+		virtual bool setRenderTarget(boost::shared_ptr<video::ITexture> texture, bool clearBackBuffer,
 						bool clearZBuffer, SColor color);
 
 		//! set or reset special render targets
@@ -141,7 +141,7 @@ namespace video
 			SColor color = SColor(255,255,255,255));
 
 		//! draws an 2d image
-		virtual void draw2DImage(const video::ITexture* texture, const core::position2d<s32>& destPos);
+		virtual void draw2DImage(const boost::shared_ptr<video::ITexture> texture, const core::position2d<s32>& destPos);
 
 		//! draws a set of 2d images, using a color and the alpha
 		/** channel of the texture if desired. The images are drawn
@@ -160,7 +160,7 @@ namespace video
 		Note that the alpha component is used: If alpha is other than 255, the image will be transparent.
 		\param useAlphaChannelOfTexture: If true, the alpha channel of the texture is
 		used to draw the image. */
-		virtual void draw2DImageBatch(const video::ITexture* texture,
+		virtual void draw2DImageBatch(const boost::shared_ptr<video::ITexture> texture,
 				const core::position2d<s32>& pos,
 				const core::array<core::rect<s32> >& sourceRects,
 				const core::array<s32>& indices,
@@ -185,7 +185,7 @@ namespace video
 		255, the image will be transparent.
 		\param useAlphaChannelOfTexture: If true, the alpha channel of
 		the texture is used to draw the image. */
-		virtual void draw2DImageBatch(const video::ITexture* texture,
+		virtual void draw2DImageBatch(const boost::shared_ptr<video::ITexture> texture,
 				const core::array<core::position2d<s32> >& positions,
 				const core::array<core::rect<s32> >& sourceRects,
 				const core::rect<s32>* clipRect=0,
@@ -193,12 +193,12 @@ namespace video
 				bool useAlphaChannelOfTexture=false);
 
 		//! Draws a 2d image, using a color (if color is other then Color(255,255,255,255)) and the alpha channel of the texture if wanted.
-		virtual void draw2DImage(const video::ITexture* texture, const core::position2d<s32>& destPos,
+		virtual void draw2DImage(const boost::shared_ptr<video::ITexture> texture, const core::position2d<s32>& destPos,
 			const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect = 0,
 			SColor color=SColor(255,255,255,255), bool useAlphaChannelOfTexture=false);
 
 		//! Draws a part of the texture into the rectangle.
-		virtual void draw2DImage(const video::ITexture* texture, const core::rect<s32>& destRect,
+		virtual void draw2DImage(const boost::shared_ptr<video::ITexture> texture, const core::rect<s32>& destRect,
 			const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect = 0,
 			const video::SColor* const colors=0, bool useAlphaChannelOfTexture=false);
 
@@ -307,25 +307,25 @@ namespace video
 
 		//! Removes a texture from the texture cache and deletes it, freeing lot of
 		//! memory.
-		virtual void removeTexture(ITexture* texture);
+		virtual void removeTexture(boost::shared_ptr<ITexture> texture);
 
 		//! Removes all texture from the texture cache and deletes them, freeing lot of
 		//! memory.
 		virtual void removeAllTextures();
 
 		//! Creates a render target texture.
-		virtual ITexture* addRenderTargetTexture(const core::dimension2d<u32>& size,
+		virtual boost::shared_ptr<ITexture> addRenderTargetTexture(const core::dimension2d<u32>& size,
 			const io::path& name, const ECOLOR_FORMAT format = ECF_UNKNOWN);
 
 		//! Creates an 1bit alpha channel of the texture based of an color key.
-		virtual void makeColorKeyTexture(video::ITexture* texture, video::SColor color, bool zeroTexels) const;
+		virtual void makeColorKeyTexture(boost::shared_ptr<video::ITexture> texture, video::SColor color, bool zeroTexels) const;
 
 		//! Creates an 1bit alpha channel of the texture based of an color key position.
-		virtual void makeColorKeyTexture(video::ITexture* texture, core::position2d<s32> colorKeyPixelPos, bool zeroTexels) const;
+		virtual void makeColorKeyTexture(boost::shared_ptr<video::ITexture> texture, core::position2d<s32> colorKeyPixelPos, bool zeroTexels) const;
 
 		//! Creates a normal map from a height map texture.
 		//! \param amplitude: Constant value by which the height information is multiplied.
-		virtual void makeNormalMapTexture(video::ITexture* texture, f32 amplitude=1.0f) const;
+		virtual void makeNormalMapTexture(boost::shared_ptr<video::ITexture> texture, f32 amplitude=1.0f) const;
 
 		//! Returns the maximum amount of primitives (mostly vertices) which
 		//! the device is able to render with one drawIndexedTriangleList
@@ -365,7 +365,7 @@ namespace video
 				const core::dimension2d<u32>& size);
 
 		//! Creates a software image from part of a texture.
-		virtual IImage* createImage(ITexture* texture,
+		virtual IImage* createImage(boost::shared_ptr<ITexture> texture,
 				const core::position2d<s32>& pos,
 				const core::dimension2d<u32>& size);
 
@@ -602,7 +602,7 @@ namespace video
 		virtual void fillMaterialStructureFromAttributes(video::SMaterial& outMaterial, io::IAttributes* attributes);
 
 		//! looks if the image is already loaded
-		virtual video::ITexture* findTexture(const io::path& filename);
+		virtual boost::shared_ptr<video::ITexture> findTexture(const io::path& filename);
 
 		//! Set/unset a clipping plane.
 		//! There are at least 6 clipping planes available for the user to set at will.
@@ -657,7 +657,7 @@ namespace video
 				void* dP, ECOLOR_FORMAT dF) const;
 
 		//! deprecated method
-		virtual ITexture* createRenderTargetTexture(const core::dimension2d<u32>& size,
+		virtual boost::shared_ptr<ITexture> createRenderTargetTexture(const core::dimension2d<u32>& size,
 				const c8* name=0);
 
 		virtual bool checkDriverReset() {return false;}
@@ -667,17 +667,17 @@ namespace video
 		void deleteAllTextures();
 
 		//! opens the file and loads it into the surface
-		video::ITexture* loadTextureFromFile(io::IReadFile* file, const io::path& hashName = "");
+		boost::shared_ptr<video::ITexture> loadTextureFromFile(io::IReadFile* file, const io::path& hashName = "");
 
 		//! adds a surface, not loaded or created by the Irrlicht Engine
-		void addTexture(video::ITexture* surface);
+		void addTexture(boost::shared_ptr<video::ITexture> surface);
 
 		//! Creates a texture from a loaded IImage.
-		virtual ITexture* addTexture(const io::path& name, IImage* image, void* mipmapData=0);
+		virtual boost::shared_ptr<ITexture> addTexture(const io::path& name, IImage* image, void* mipmapData=0);
 
 		//! returns a device dependent texture from a software surface (IImage)
 		//! THIS METHOD HAS TO BE OVERRIDDEN BY DERIVED DRIVERS WITH OWN TEXTURES
-		virtual video::ITexture* createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData=0);
+		virtual boost::shared_ptr<video::ITexture> createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData=0);
 
 		//! checks triangle count and print warning if wrong
 		bool checkPrimitiveCount(u32 prmcnt) const;
@@ -722,7 +722,7 @@ namespace video
 
 		struct SSurface
 		{
-			video::ITexture* Surface;
+			boost::shared_ptr<video::ITexture> Surface;
 
 			bool operator < (const SSurface& other) const
 			{

@@ -365,7 +365,7 @@ void CQ3LevelMesh::loadFogs(tBSPLump* l, io::IReadFile* file)
 
 	file->seek( l->offset );
 	tBSPFog fog;
-	const IShader *shader;
+	boost::shared_ptr<const IShader> shader;
 	STexShader t;
 	for ( u32 i = 0; i!= files; ++i )
 	{
@@ -754,7 +754,7 @@ s32 CQ3LevelMesh::setShaderMaterial( video::SMaterial &material, const tBSPFace 
 	// store shader ID
 	material.MaterialTypeParam2 = (f32) shaderState;
 
-	const IShader *shader = getShader(shaderState);
+	boost::shared_ptr<const IShader> shader = getShader(shaderState);
 	if ( 0 == shader )
 		return shaderState;
 
@@ -858,7 +858,7 @@ boost::shared_array<boost::shared_ptr<scene::SMesh>> CQ3LevelMesh::buildMesh(s32
 		s32 shaderState = setShaderMaterial( material, face );
 		itemSize = 0;
 
-		const IShader *shader = getShader(shaderState);
+		boost::shared_ptr<const IShader> shader = getShader(shaderState);
 
 		if ( face->fogNum >= 0 )
 		{
@@ -1430,7 +1430,7 @@ void CQ3LevelMesh::getConfiguration( io::IReadFile* file )
 	parser_parse( entity.pointer(), l.length, &CQ3LevelMesh::scriptcallback_config );
 
 	if ( Entity.size () )
-		Entity.getLast().name = file->getFileName();
+		Entity.getLast()->name = file->getFileName();
 }
 
 
@@ -1473,13 +1473,13 @@ boost::shared_ptr<IMesh> CQ3LevelMesh::getBrushEntityMesh(quake3::IEntity &ent) 
 
 /*!
 */
-const IShader * CQ3LevelMesh::getShader(u32 index) const
+boost::shared_ptr<const IShader>  CQ3LevelMesh::getShader(u32 index) const
 {
 	index &= 0xFFFF;
 
 	if ( index < Shader.size() )
 	{
-		return &Shader[index];
+		return Shader[index];
 	}
 
 	return 0;
@@ -1489,14 +1489,14 @@ const IShader * CQ3LevelMesh::getShader(u32 index) const
 /*!
 	loads the shader definition
 */
-const IShader* CQ3LevelMesh::getShader( const c8 * filename, bool fileNameIsValid )
+boost::shared_ptr<const IShader>  CQ3LevelMesh::getShader( const c8 * filename, bool fileNameIsValid )
 {
 	core::stringc searchName ( filename );
 
-	IShader search;
-	search.name = searchName;
-	search.name.replace( '\\', '/' );
-	search.name.make_lower();
+	boost::shared_ptr<IShader> search = boost::make_shared<IShader>();
+	search->name = searchName;
+	search->name.replace( '\\', '/' );
+	search->name.make_lower();
 
 
 	core::stringc message;
@@ -1508,11 +1508,11 @@ const IShader* CQ3LevelMesh::getShader( const c8 * filename, bool fileNameIsVali
 	{
 		if ( LoadParam.verbose > 1 )
 		{
-			message = searchName + " found " + Shader[index].name;
+			message = searchName + " found " + Shader[index]->name;
 			os::Printer::log("quake3:getShader", message.c_str(), ELL_INFORMATION);
 		}
 
-		return &Shader[index];
+		return Shader[index];
 	}
 
 	io::path loadFile;
@@ -1521,7 +1521,7 @@ const IShader* CQ3LevelMesh::getShader( const c8 * filename, bool fileNameIsVali
 	{
 		// extract the shader name from the last path component in filename
 		// "scripts/[name].shader"
-		core::stringc cut( search.name );
+		core::stringc cut( search->name );
 
 		s32 end = cut.findLast( '/' );
 		s32 start = cut.findLast( '/', end - 1 );
@@ -1532,7 +1532,7 @@ const IShader* CQ3LevelMesh::getShader( const c8 * filename, bool fileNameIsVali
 	}
 	else
 	{
-		loadFile = search.name;
+		loadFile = search->name;
 	}
 
 	// already loaded the file ?
@@ -1570,7 +1570,7 @@ const IShader* CQ3LevelMesh::getShader( const c8 * filename, bool fileNameIsVali
 
 	// search again
 	index = Shader.linear_search( search );
-	return index >= 0 ? &Shader[index] : 0;
+	return index >= 0 ? Shader[index] : 0;
 }
 
 /*!
@@ -1601,18 +1601,18 @@ void CQ3LevelMesh::InitShader()
 {
 	ReleaseShader();
 
-	IShader element;
+	boost::shared_ptr<IShader> element = boost::make_shared< IShader>();
 
 	SVarGroup group;
 	SVariable variable ( "noshader" );
 
 	group.Variable.push_back( variable );
 
-	element.VarGroup = boost::make_shared<SVarGroupList>();
-	element.VarGroup->VariableGroup.push_back( group );
-	element.VarGroup->VariableGroup.push_back( SVarGroup() );
-	element.name = element.VarGroup->VariableGroup[0].Variable[0].name;
-	element.ID = Shader.size();
+	element->VarGroup = boost::make_shared<SVarGroupList>();
+	element->VarGroup->VariableGroup.push_back( group );
+	element->VarGroup->VariableGroup.push_back( SVarGroup() );
+	element->name = element->VarGroup->VariableGroup[0].Variable[0].name;
+	element->ID = Shader.size();
 	Shader.push_back( element );
 
 	if ( LoadParam.loadAllShaders )
@@ -1670,25 +1670,25 @@ void CQ3LevelMesh::ReleaseEntity()
 // config in simple (quake3) and advanced style
 void CQ3LevelMesh::scriptcallback_config( boost::shared_ptr<SVarGroupList> & grouplist, eToken token )
 {
-	IShader element;
+	boost::shared_ptr<IShader> element = boost::make_shared<IShader>();
 
 	if ( token == Q3_TOKEN_END_LIST )
 	{
 		if ( 0 == grouplist->VariableGroup[0].Variable.size() )
 			return;
 
-		element.name = grouplist->VariableGroup[0].Variable[0].name;
+		element->name = grouplist->VariableGroup[0].Variable[0].name;
 	}
 	else
 	{
 		if ( grouplist->VariableGroup.size() != 2 )
 			return;
 
-		element.name = "configuration";
+		element->name = "configuration";
 	}
 
-	element.VarGroup = grouplist;
-	element.ID = Entity.size();
+	element->VarGroup = grouplist;
+	element->ID = Entity.size();
 	Entity.push_back( element );
 }
 
@@ -1699,10 +1699,10 @@ void CQ3LevelMesh::scriptcallback_entity( boost::shared_ptr<SVarGroupList> & gro
 	if ( token != Q3_TOKEN_END_LIST || grouplist->VariableGroup.size() != 2 )
 		return;
 
-	IEntity element;
-	element.VarGroup = grouplist;
-	element.ID = Entity.size();
-	element.name = grouplist->VariableGroup[1].get( "classname" );
+	boost::shared_ptr<IEntity> element = boost::make_shared< IEntity>();
+	element->VarGroup = grouplist;
+	element->ID = Entity.size();
+	element->name = grouplist->VariableGroup[1].get( "classname" );
 
 
 	Entity.push_back( element );
@@ -1716,11 +1716,11 @@ void CQ3LevelMesh::scriptcallback_shader( boost::shared_ptr<SVarGroupList> & gro
 		return;
 
 
-	IShader element;
+	boost::shared_ptr<IShader> element = boost::make_shared<IShader>();
 
-	element.VarGroup = grouplist;
-	element.name = element.VarGroup->VariableGroup[0].Variable[0].name;
-	element.ID = Shader.size();
+	element->VarGroup = grouplist;
+	element->name = element->VarGroup->VariableGroup[0].Variable[0].name;
+	element->ID = Shader.size();
 /*
 	core::stringc s;
 	dumpShader ( s, &element );
@@ -1955,7 +1955,7 @@ void CQ3LevelMesh::loadTextures()
 	// load textures
 	Tex.set_used( NumTextures );
 
-	const IShader* shader;
+	boost::shared_ptr<const IShader>  shader;
 
 	core::stringc list;
 	io::path check;

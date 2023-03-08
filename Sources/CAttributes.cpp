@@ -545,7 +545,7 @@ void CAttributes::getAttributeEnumerationLiteralsOfEnumeration(const c8* attribu
 }
 
 //! Sets an attribute as texture reference
-void CAttributes::setAttribute(const c8* attributeName, video::ITexture* value, const io::path& filename)
+void CAttributes::setAttribute(const c8* attributeName, boost::shared_ptr<video::ITexture> value, const io::path& filename)
 {
 	IAttribute* att = getAttributeP(attributeName);
 	if (att)
@@ -557,7 +557,7 @@ void CAttributes::setAttribute(const c8* attributeName, video::ITexture* value, 
 
 //! Gets an attribute as texture reference
 //! \param attributeName: Name of the attribute to get.
-video::ITexture* CAttributes::getAttributeAsTexture(const c8* attributeName)
+boost::shared_ptr<video::ITexture> CAttributes::getAttributeAsTexture(const c8* attributeName)
 {
 	IAttribute* att = getAttributeP(attributeName);
 	if (att)
@@ -568,7 +568,7 @@ video::ITexture* CAttributes::getAttributeAsTexture(const c8* attributeName)
 
 //! Gets an attribute as texture reference
 //! \param index: Index value, must be between 0 and getAttributeCount()-1.
-video::ITexture* CAttributes::getAttributeAsTexture(s32 index)
+boost::shared_ptr<video::ITexture> CAttributes::getAttributeAsTexture(s32 index)
 {
 	if ((u32)index < Attributes.size())
 		return Attributes[index]->getTexture();
@@ -886,7 +886,7 @@ void CAttributes::addBinary(const c8* attributeName, void* data, s32 dataSizeInB
 }
 
 //! Adds an attribute as texture reference
-void CAttributes::addTexture(const c8* attributeName, video::ITexture* texture, const io::path& filename)
+void CAttributes::addTexture(const c8* attributeName, boost::shared_ptr<video::ITexture> texture, const io::path& filename)
 {
 	Attributes.push_back(new CTextureAttribute(attributeName, texture, getVideoDriver(), _fileSystem, filename));
 }
@@ -1000,7 +1000,7 @@ void CAttributes::setAttribute(s32 index, const char* enumValue, const char* con
 
 
 //! Sets an attribute as texture reference
-void CAttributes::setAttribute(s32 index, video::ITexture* texture, const io::path& filename)
+void CAttributes::setAttribute(s32 index, boost::shared_ptr<video::ITexture> texture, const io::path& filename)
 {
 	if ((u32)index < Attributes.size())
 		Attributes[index]->setTexture(texture, filename);

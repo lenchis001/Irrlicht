@@ -195,7 +195,7 @@ boost::shared_ptr<IAnimatedMesh> COCTLoader::createMesh(io::IReadFile* file)
 	}
 
 	// load textures
-	core::array<video::ITexture*> tex;
+	core::array<boost::shared_ptr<video::ITexture>> tex;
 	tex.reallocate(header.numTextures + 1);
 	tex.push_back(0);
 
@@ -213,7 +213,7 @@ boost::shared_ptr<IAnimatedMesh> COCTLoader::createMesh(io::IReadFile* file)
 	}
 
 	// prepare lightmaps
-	core::array<video::ITexture*> lig;
+	core::array<boost::shared_ptr<video::ITexture>> lig;
 	lig.set_used(header.numLightmaps + 1);
 	lig[0] = 0;
 

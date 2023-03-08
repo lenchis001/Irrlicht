@@ -79,23 +79,23 @@ namespace gui
 
 		//! Sets an image which should be displayed on the button when it is in normal state.
 		/** \param image: Image to be displayed */
-		virtual void setImage(video::ITexture* image=0) = 0;
+		virtual void setImage(boost::shared_ptr<video::ITexture> image=0) = 0;
 
 		//! Sets a background image for the button when it is in normal state.
 		/** \param image: Texture containing the image to be displayed
 		\param pos: Position in the texture, where the image is located */
-		virtual void setImage(video::ITexture* image, const core::rect<s32>& pos) = 0;
+		virtual void setImage(boost::shared_ptr<video::ITexture> image, const core::rect<s32>& pos) = 0;
 
 		//! Sets a background image for the button when it is in pressed state.
 		/** If no images is specified for the pressed state via
 		setPressedImage(), this image is also drawn in pressed state.
 		\param image: Image to be displayed */
-		virtual void setPressedImage(video::ITexture* image=0) = 0;
+		virtual void setPressedImage(boost::shared_ptr<video::ITexture> image=0) = 0;
 
 		//! Sets an image which should be displayed on the button when it is in pressed state.
 		/** \param image: Texture containing the image to be displayed
 		\param pos: Position in the texture, where the image is located */
-		virtual void setPressedImage(video::ITexture* image, const core::rect<s32>& pos) = 0;
+		virtual void setPressedImage(boost::shared_ptr<video::ITexture> image, const core::rect<s32>& pos) = 0;
 
 		//! Sets the sprite bank used by the button
 		virtual void setSpriteBank(IGUISpriteBank* bank=0) = 0;

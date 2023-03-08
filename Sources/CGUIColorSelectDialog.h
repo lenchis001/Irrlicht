@@ -60,7 +60,7 @@ namespace gui
 		struct SColorCircle
 		{
 			boost::shared_ptr<IGUIImage>  Control;
-			video::ITexture * Texture;
+			boost::shared_ptr<video::ITexture>  Texture;
 		};
 		SColorCircle ColorRing;
 

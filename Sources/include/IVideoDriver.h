@@ -210,7 +210,7 @@ namespace video
 
 	struct IRenderTarget
 	{
-		IRenderTarget(ITexture* texture,
+		IRenderTarget(boost::shared_ptr<ITexture> texture,
 				E_COLOR_PLANE colorMask=ECP_ALL,
 				E_BLEND_FACTOR blendFuncSrc=EBF_ONE,
 				E_BLEND_FACTOR blendFuncDst=EBF_ONE_MINUS_SRC_ALPHA,
@@ -237,7 +237,7 @@ namespace video
 				(BlendFuncDst != other.BlendFuncDst) ||
 				(BlendOp != other.BlendOp));
 		}
-		ITexture* RenderTexture;
+		boost::shared_ptr<ITexture> RenderTexture;
 		E_RENDER_TARGET TargetType:8;
 		E_COLOR_PLANE ColorMask:8;
 		E_BLEND_FACTOR BlendFuncSrc:4;
@@ -370,7 +370,7 @@ namespace video
 		\return Pointer to the texture, or 0 if the texture
 		could not be loaded. This pointer should not be dropped. See
 		IReferenceCounted::drop() for more information. */
-		virtual ITexture* getTexture(const io::path& filename) = 0;
+		virtual boost::shared_ptr<ITexture> getTexture(const io::path& filename) = 0;
 
 		//! Get access to a named texture.
 		/** Loads the texture from disk if it is not
@@ -382,7 +382,7 @@ namespace video
 		\return Pointer to the texture, or 0 if the texture
 		could not be loaded. This pointer should not be dropped. See
 		IReferenceCounted::drop() for more information. */
-		virtual ITexture* getTexture(io::IReadFile* file) =0;
+		virtual boost::shared_ptr<ITexture> getTexture(io::IReadFile* file) =0;
 
 		//! Returns a texture by index
 		/** \param index: Index of the texture, must be smaller than
@@ -391,7 +391,7 @@ namespace video
 		\return Pointer to the texture, or 0 if the texture was not
 		set or index is out of bounds. This pointer should not be
 		dropped. See IReferenceCounted::drop() for more information. */
-		virtual ITexture* getTextureByIndex(u32 index) =0;
+		virtual boost::shared_ptr<ITexture> getTextureByIndex(u32 index) =0;
 
 		//! Returns amount of textures currently loaded
 		/** \return Amount of textures currently loaded */
@@ -400,7 +400,7 @@ namespace video
 		//! Renames a texture
 		/** \param texture Pointer to the texture to rename.
 		\param newName New name for the texture. This should be a unique name. */
-		virtual void renameTexture(ITexture* texture, const io::path& newName) = 0;
+		virtual void renameTexture(boost::shared_ptr<ITexture> texture, const io::path& newName) = 0;
 
 		//! Creates an empty texture of specified size.
 		/** \param size: Size of the texture.
@@ -412,7 +412,7 @@ namespace video
 		\return Pointer to the newly created texture. This pointer
 		should not be dropped. See IReferenceCounted::drop() for more
 		information. */
-		virtual ITexture* addTexture(const core::dimension2d<u32>& size,
+		virtual boost::shared_ptr<ITexture> addTexture(const core::dimension2d<u32>& size,
 			const io::path& name, ECOLOR_FORMAT format = ECF_A8R8G8B8) = 0;
 
 		//! Creates a texture from an IImage.
@@ -426,7 +426,7 @@ namespace video
 		\return Pointer to the newly created texture. This pointer
 		should not be dropped. See IReferenceCounted::drop() for more
 		information. */
-		virtual ITexture* addTexture(const io::path& name, IImage* image, void* mipmapData=0) = 0;
+		virtual boost::shared_ptr<ITexture> addTexture(const io::path& name, IImage* image, void* mipmapData=0) = 0;
 
 		//! Adds a new render target texture to the texture cache.
 		/** \param size Size of the texture, in pixels. Width and
@@ -438,7 +438,7 @@ namespace video
 		\return Pointer to the created texture or 0 if the texture
 		could not be created. This pointer should not be dropped. See
 		IReferenceCounted::drop() for more information. */
-		virtual ITexture* addRenderTargetTexture(const core::dimension2d<u32>& size,
+		virtual boost::shared_ptr<ITexture> addRenderTargetTexture(const core::dimension2d<u32>& size,
 				const io::path& name = "rt", const ECOLOR_FORMAT format = ECF_UNKNOWN) =0;
 
 		//! Removes a texture from the texture cache and deletes it.
@@ -449,7 +449,7 @@ namespace video
 		good idea to set all materials which are using this texture to
 		0 or another texture first.
 		\param texture Texture to delete from the engine cache. */
-		virtual void removeTexture(ITexture* texture) =0;
+		virtual void removeTexture(boost::shared_ptr<ITexture> texture) =0;
 
 		//! Removes all textures from the texture cache and deletes them.
 		/** This method can free a lot of memory!
@@ -520,7 +520,7 @@ namespace video
 		(i.e. black). This behavior matches the legacy (buggy) behavior prior
 		to release 1.5 and is provided for backwards compatibility only.
 		This parameter may be removed by Irrlicht 1.9. */
-		virtual void makeColorKeyTexture(video::ITexture* texture,
+		virtual void makeColorKeyTexture(boost::shared_ptr<video::ITexture> texture,
 						video::SColor color,
 						bool zeroTexels = false) const =0;
 
@@ -537,7 +537,7 @@ namespace video
 		(i.e. black). This behavior matches the legacy (buggy) behavior prior
 		to release 1.5 and is provided for backwards compatibility only.
 		This parameter may be removed by Irrlicht 1.9. */
-		virtual void makeColorKeyTexture(video::ITexture* texture,
+		virtual void makeColorKeyTexture(boost::shared_ptr<video::ITexture> texture,
 				core::position2d<s32> colorKeyPixelPos,
 				bool zeroTexels = false) const =0;
 
@@ -549,7 +549,7 @@ namespace video
 		\param texture Texture whose alpha channel is modified.
 		\param amplitude Constant value by which the height
 		information is multiplied.*/
-		virtual void makeNormalMapTexture(video::ITexture* texture, f32 amplitude=1.0f) const =0;
+		virtual void makeNormalMapTexture(boost::shared_ptr<video::ITexture> texture, f32 amplitude=1.0f) const =0;
 
 		//! Sets a new render target.
 		/** This will only work if the driver supports the
@@ -558,7 +558,7 @@ namespace video
 		way:
 		\code
 		// create render target
-		ITexture* target = driver->addRenderTargetTexture(core::dimension2d<u32>(128,128), "rtt1");
+		boost::shared_ptr<ITexture> target = driver->addRenderTargetTexture(core::dimension2d<u32>(128,128), "rtt1");
 
 		// ...
 
@@ -583,7 +583,7 @@ namespace video
 		by this.
 		\param color The background color for the render target.
 		\return True if sucessful and false if not. */
-		virtual bool setRenderTarget(video::ITexture* texture,
+		virtual bool setRenderTarget(boost::shared_ptr<video::ITexture> texture,
 			bool clearBackBuffer=true, bool clearZBuffer=true,
 			SColor color=video::SColor(0,0,0,0)) =0;
 
@@ -809,7 +809,7 @@ namespace video
 		/** \param texture Pointer to texture to use.
 		\param destPos Upper left 2d destination position where the
 		image will be drawn. */
-		virtual void draw2DImage(const video::ITexture* texture,
+		virtual void draw2DImage(const boost::shared_ptr<video::ITexture> texture,
 			const core::position2d<s32>& destPos) =0;
 
 		//! Draws a 2d image using a color
@@ -828,7 +828,7 @@ namespace video
 		will be transparent.
 		\param useAlphaChannelOfTexture: If true, the alpha channel of
 		the texture is used to draw the image.*/
-		virtual void draw2DImage(const video::ITexture* texture, const core::position2d<s32>& destPos,
+		virtual void draw2DImage(const boost::shared_ptr<video::ITexture> texture, const core::position2d<s32>& destPos,
 			const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect =0,
 			SColor color=SColor(255,255,255,255), bool useAlphaChannelOfTexture=false) =0;
 
@@ -852,7 +852,7 @@ namespace video
 		255, the image will be transparent.
 		\param useAlphaChannelOfTexture: If true, the alpha channel of
 		the texture is used to draw the image. */
-		virtual void draw2DImageBatch(const video::ITexture* texture,
+		virtual void draw2DImageBatch(const boost::shared_ptr<video::ITexture> texture,
 				const core::position2d<s32>& pos,
 				const core::array<core::rect<s32> >& sourceRects,
 				const core::array<s32>& indices,
@@ -877,7 +877,7 @@ namespace video
 		255, the image will be transparent.
 		\param useAlphaChannelOfTexture: If true, the alpha channel of
 		the texture is used to draw the image. */
-		virtual void draw2DImageBatch(const video::ITexture* texture,
+		virtual void draw2DImageBatch(const boost::shared_ptr<video::ITexture> texture,
 				const core::array<core::position2d<s32> >& positions,
 				const core::array<core::rect<s32> >& sourceRects,
 				const core::rect<s32>* clipRect=0,
@@ -894,7 +894,7 @@ namespace video
 		the corners of the destRect
 		\param useAlphaChannelOfTexture True if alpha channel will be
 		blended. */
-		virtual void draw2DImage(const video::ITexture* texture, const core::rect<s32>& destRect,
+		virtual void draw2DImage(const boost::shared_ptr<video::ITexture> texture, const core::rect<s32>& destRect,
 			const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect =0,
 			const video::SColor * const colors=0, bool useAlphaChannelOfTexture=false) =0;
 
@@ -1256,7 +1256,7 @@ namespace video
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual IImage* createImage(ITexture* texture,
+		virtual IImage* createImage(boost::shared_ptr<ITexture> texture,
 				const core::position2d<s32>& pos,
 				const core::dimension2d<u32>& size) =0;
 
@@ -1378,7 +1378,7 @@ namespace video
 		if it is not currently loaded.
 		\param filename Name of the texture.
 		\return Pointer to loaded texture, or 0 if not found. */
-		virtual video::ITexture* findTexture(const io::path& filename) = 0;
+		virtual boost::shared_ptr<video::ITexture> findTexture(const io::path& filename) = 0;
 
 		//! Set or unset a clipping plane.
 		/** There are at least 6 clipping planes available for the user

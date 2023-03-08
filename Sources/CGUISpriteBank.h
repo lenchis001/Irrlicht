@@ -37,12 +37,12 @@ public:
 	virtual core::array< SGUISprite >& getSprites();
 
 	virtual u32 getTextureCount() const;
-	virtual video::ITexture* getTexture(u32 index) const;
-	virtual void addTexture(video::ITexture* texture);
-	virtual void setTexture(u32 index, video::ITexture* texture);
+	virtual boost::shared_ptr<video::ITexture> getTexture(u32 index) const;
+	virtual void addTexture(boost::shared_ptr<video::ITexture> texture);
+	virtual void setTexture(u32 index, boost::shared_ptr<video::ITexture> texture);
 
 	//! Add the texture and use it for a single non-animated sprite.
-	virtual s32 addTextureAsSprite(video::ITexture* texture);
+	virtual s32 addTextureAsSprite(boost::shared_ptr<video::ITexture> texture);
 
 	//! clears sprites, rectangles and textures
 	virtual void clear();
@@ -70,7 +70,7 @@ protected:
 
 	core::array<SGUISprite> Sprites;
 	core::array< core::rect<s32> > Rectangles;
-	core::array<video::ITexture*> Textures;
+	core::array<boost::shared_ptr<video::ITexture>> Textures;
 	boost::shared_ptr<IGUIEnvironment> Environment;
 
 };

@@ -26,7 +26,7 @@ public:
 	CQuake3ShaderSceneNode( boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
 				io::IFileSystem* fileSystem,
 				const IMeshBuffer* original,
-				const quake3::IShader* shader
+				const boost::shared_ptr<quake3::IShader> shader
 			);
 
 	virtual ~CQuake3ShaderSceneNode();
@@ -58,7 +58,7 @@ public:
 	virtual bool removeChild(boost::shared_ptr<ISceneNode> child);
 
 private:
-	const quake3::IShader* Shader;
+	const boost::shared_ptr<quake3::IShader> Shader;
 	boost::shared_ptr<SMesh> Mesh;
 	boost::shared_ptr<IShadowVolumeSceneNode> Shadow;
 	const SMeshBufferLightMap* Original;

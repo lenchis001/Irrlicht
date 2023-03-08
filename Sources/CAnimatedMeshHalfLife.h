@@ -591,7 +591,7 @@ namespace scene
 
 #ifdef HL_TEXTURE_ATLAS
 		STextureAtlas TextureAtlas;
-		video::ITexture *TextureMaster;
+		boost::shared_ptr<video::ITexture> TextureMaster;
 #endif
 
 	};

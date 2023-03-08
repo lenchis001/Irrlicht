@@ -74,10 +74,10 @@ namespace scene
 		virtual void getShader( io::IReadFile* file );
 
 		//! loads the shader definition
-		virtual const quake3::IShader * getShader( const c8 * filename, bool fileNameIsValid=true );
+		virtual boost::shared_ptr<const quake3::IShader>  getShader( const c8 * filename, bool fileNameIsValid=true );
 
 		//! returns a already loaded Shader
-		virtual const quake3::IShader * getShader( u32 index  ) const;
+		virtual boost::shared_ptr<const quake3::IShader>  getShader( u32 index  ) const;
 
 
 		//! loads a configuration file
@@ -141,12 +141,12 @@ namespace scene
 
 		struct STexShader
 		{
-			video::ITexture* Texture;
+			boost::shared_ptr<video::ITexture> Texture;
 			s32 ShaderID;
 		};
 
 		core::array< STexShader > Tex;
-		core::array<video::ITexture*> Lightmap;
+		core::array<boost::shared_ptr<video::ITexture>> Lightmap;
 
 		enum eLumps
 		{
@@ -457,8 +457,8 @@ namespace scene
 		void scriptcallback_shader( boost::shared_ptr<quake3::SVarGroupList> & grouplist, eToken token );
 		void scriptcallback_config( boost::shared_ptr<quake3::SVarGroupList> & grouplist, eToken token );
 
-		core::array < quake3::IShader > Shader;
-		core::array < quake3::IShader > Entity;		//quake3::tQ3EntityList Entity;
+		core::array<boost::shared_ptr<quake3::IShader>> Shader;
+		core::array<boost::shared_ptr<quake3::IShader>> Entity;		//quake3::tQ3EntityList Entity;
 
 
 		quake3::tStringList ShaderFile;

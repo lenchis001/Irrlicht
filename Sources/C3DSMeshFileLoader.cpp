@@ -1135,7 +1135,7 @@ void C3DSMeshFileLoader::loadMaterials(io::IReadFile* file)
 		m->getMaterial() = Materials[i].Material;
 		if (Materials[i].Filename[0].size())
 		{
-			video::ITexture* texture = 0;
+			boost::shared_ptr<video::ITexture> texture = 0;
 			if (FileSystem->existFile(Materials[i].Filename[0]))
 				texture = lockedSceneManager->getVideoDriver()->getTexture(Materials[i].Filename[0]);
 			if (!texture)
@@ -1153,7 +1153,7 @@ void C3DSMeshFileLoader::loadMaterials(io::IReadFile* file)
 
 		if (Materials[i].Filename[2].size())
 		{
-			video::ITexture* texture = 0;
+			boost::shared_ptr<video::ITexture> texture = 0;
 			if (FileSystem->existFile(Materials[i].Filename[2]))
 				texture = lockedSceneManager->getVideoDriver()->getTexture(Materials[i].Filename[2]);
 			if (!texture)
@@ -1176,7 +1176,7 @@ void C3DSMeshFileLoader::loadMaterials(io::IReadFile* file)
 
 		if (Materials[i].Filename[3].size())
 		{
-			video::ITexture* texture = 0;
+			boost::shared_ptr<video::ITexture> texture = 0;
 			if (FileSystem->existFile(Materials[i].Filename[3]))
 				texture = lockedSceneManager->getVideoDriver()->getTexture(Materials[i].Filename[3]);
 			if (!texture)
@@ -1201,7 +1201,7 @@ void C3DSMeshFileLoader::loadMaterials(io::IReadFile* file)
 
 		if (Materials[i].Filename[4].size())
 		{
-			video::ITexture* texture = 0;
+			boost::shared_ptr<video::ITexture> texture = 0;
 			if (FileSystem->existFile(Materials[i].Filename[4]))
 				texture = lockedSceneManager->getVideoDriver()->getTexture(Materials[i].Filename[4]);
 			if (!texture)

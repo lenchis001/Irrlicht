@@ -25,7 +25,7 @@ COpenGLTexture::COpenGLTexture(IImage* origImage, const io::path& name, void* mi
 	TextureName(0), InternalFormat(GL_RGBA), PixelFormat(GL_BGRA_EXT),
 	PixelType(GL_UNSIGNED_BYTE), MipLevelStored(0), MipmapLegacyMode(true),
 	IsRenderTarget(false), AutomaticMipmapUpdate(false),
-	ReadOnlyLock(false), KeepImage(true)
+	ReadOnlyLock(false), KeepImage(true), _mipmapData(mipmapData)
 {
 	#ifdef _DEBUG
 	setDebugName("COpenGLTexture");
@@ -38,7 +38,7 @@ COpenGLTexture::COpenGLTexture(IImage* origImage, const io::path& name, void* mi
 
 	glGenTextures(1, &TextureName);
 
-	if (ImageSize==TextureSize)
+	if (ImageSize == TextureSize)
 	{
 		Image = lockedDriver->createImage(ColorFormat, ImageSize);
 		origImage->copyTo(Image);
@@ -48,12 +48,6 @@ COpenGLTexture::COpenGLTexture(IImage* origImage, const io::path& name, void* mi
 		Image = lockedDriver->createImage(ColorFormat, TextureSize);
 		// scale texture
 		origImage->copyToScaling(Image);
-	}
-	uploadTexture(true, mipmapData);
-	if (!KeepImage)
-	{
-		Image->drop();
-		Image=0;
 	}
 }
 
@@ -325,7 +319,7 @@ void COpenGLTexture::uploadTexture(bool newTexture, void* mipmapData, u32 level)
 
 	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
 
-	lockedDriver->setActiveTexture(0, this);
+	lockedDriver->setActiveTexture(0, getSharedThis());
 	if (lockedDriver->testGLError())
 		os::Printer::log("Could not bind Texture", ELL_ERROR);
 
@@ -645,6 +639,22 @@ void COpenGLTexture::setIsRenderTarget(bool isTarget)
 	IsRenderTarget = isTarget;
 }
 
+void COpenGLTexture::setWeakThis(boost::shared_ptr<COpenGLTexture> value)
+{
+#ifdef _DEBUG
+	assert(this == value.get());
+#endif
+	WeakThis = value;
+
+	uploadTexture(true, _mipmapData);
+	_mipmapData = nullptr;
+	if (!KeepImage)
+	{
+		Image->drop();
+		Image = 0;
+	}
+}
+
 
 bool COpenGLTexture::isFrameBufferObject() const
 {
@@ -661,7 +671,7 @@ void COpenGLTexture::bindRTT()
 //! Unbind Render Target Texture
 void COpenGLTexture::unbindRTT()
 {
-	getVideoDriver()->setActiveTexture(0, this);
+	getVideoDriver()->setActiveTexture(0, getSharedThis());
 
 	// Copy Our ViewPort To The Texture
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, getSize().Width, getSize().Height);
@@ -705,7 +715,7 @@ COpenGLFBOTexture::COpenGLFBOTexture(const core::dimension2d<u32>& size,
 
 	// generate color texture
 	glGenTextures(1, &TextureName);
-	lockedDriver->setActiveTexture(0, this);
+	lockedDriver->setActiveTexture(0, getSharedThis());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilteringType);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -735,9 +745,8 @@ COpenGLFBOTexture::~COpenGLFBOTexture()
 {
 	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
 
-	if (DepthTexture)
-		if (DepthTexture->drop())
-			lockedDriver->removeDepthTexture(DepthTexture);
+	if (DepthTexture.unique())
+		lockedDriver->removeDepthTexture(DepthTexture);
 	if (ColorFrameBuffer)
 		lockedDriver->extGlDeleteFramebuffers(1, &ColorFrameBuffer);
 }
@@ -852,11 +861,11 @@ COpenGLFBODepthTexture::~COpenGLFBODepthTexture()
 
 
 //combine depth texture and rtt
-bool COpenGLFBODepthTexture::attach(ITexture* renderTex)
+bool COpenGLFBODepthTexture::attach(boost::shared_ptr<ITexture> renderTex)
 {
 	if (!renderTex)
 		return false;
-	video::COpenGLFBOTexture* rtt = static_cast<video::COpenGLFBOTexture*>(renderTex);
+	boost::shared_ptr<video::COpenGLFBOTexture> rtt = boost::static_pointer_cast<video::COpenGLFBOTexture>(renderTex);
 	rtt->bindRTT();
 
 	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
@@ -893,8 +902,7 @@ bool COpenGLFBODepthTexture::attach(ITexture* renderTex)
 		os::Printer::log("FBO incomplete");
 		return false;
 	}
-	rtt->DepthTexture=this;
-	grab(); // grab the depth buffer, not the RTT
+	rtt->DepthTexture= getSharedThis();
 	rtt->unbindRTT();
 	return true;
 }

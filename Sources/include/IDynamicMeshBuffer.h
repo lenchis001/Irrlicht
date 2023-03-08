@@ -21,7 +21,7 @@ namespace scene
 		virtual IVertexBuffer &getVertexBuffer() const =0;
 		virtual IIndexBuffer &getIndexBuffer() const =0;
 
-		virtual void setVertexBuffer(IVertexBuffer *vertexBuffer) =0;
+		virtual void setVertexBuffer(boost::shared_ptr<IVertexBuffer> vertexBuffer) =0;
 		virtual void setIndexBuffer(IIndexBuffer *indexBuffer) =0;
 
 		//! Get the material of this meshbuffer

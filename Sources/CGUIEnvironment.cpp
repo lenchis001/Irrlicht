@@ -984,7 +984,7 @@ boost::shared_ptr<IGUIElement> CGUIEnvironment::addModalScreen(boost::shared_ptr
 
 //! Adds a message box.
 boost::shared_ptr<IGUIWindow> CGUIEnvironment::addMessageBox(const wchar_t* caption, const wchar_t* text,
-	bool modal, s32 flag, boost::shared_ptr<IGUIElement> parent, s32 id, video::ITexture* image)
+	bool modal, s32 flag, boost::shared_ptr<IGUIElement> parent, s32 id, boost::shared_ptr<video::ITexture> image)
 {
 	if (!CurrentSkin)
 		return 0;
@@ -1056,7 +1056,7 @@ boost::shared_ptr<IGUIElement> CGUIEnvironment::addEmpty(boost::shared_ptr<IGUIE
 
 
 //! Adds an image element.
-boost::shared_ptr<IGUIImage> CGUIEnvironment::addImage(video::ITexture* image, core::position2d<s32> pos,
+boost::shared_ptr<IGUIImage> CGUIEnvironment::addImage(boost::shared_ptr<video::ITexture> image, core::position2d<s32> pos,
 	bool useAlphaChannel, boost::shared_ptr<IGUIElement> parent, s32 id, const wchar_t* text)
 {
 	core::dimension2d<s32> sz(0,0);
@@ -1542,7 +1542,7 @@ IGUISpriteBank* CGUIEnvironment::addEmptySpriteBank(const io::path& name)
 
 
 //! Creates the image list from the given texture.
-IGUIImageList* CGUIEnvironment::createImageList(  video::ITexture* texture,
+IGUIImageList* CGUIEnvironment::createImageList(  boost::shared_ptr<video::ITexture> texture,
 					core::dimension2d<s32>	imageSize, bool useAlphaChannel )
 {
 	CGUIImageList* imageList = new CGUIImageList(getVideoDriver());

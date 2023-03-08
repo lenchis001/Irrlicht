@@ -174,13 +174,13 @@ namespace scene
 
 		//! Adds a skybox scene node. A skybox is a big cube with 6 textures on it and
 		//! is drawn around the camera position.
-		virtual boost::shared_ptr<ISceneNode> addSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom,
-			video::ITexture* left, video::ITexture* right, video::ITexture* front,
-			video::ITexture* back, boost::shared_ptr<ISceneNode> parent = 0, s32 id=-1);
+		virtual boost::shared_ptr<ISceneNode> addSkyBoxSceneNode(boost::shared_ptr<video::ITexture> top, boost::shared_ptr<video::ITexture> bottom,
+			boost::shared_ptr<video::ITexture> left, boost::shared_ptr<video::ITexture> right, boost::shared_ptr<video::ITexture> front,
+			boost::shared_ptr<video::ITexture> back, boost::shared_ptr<ISceneNode> parent = 0, s32 id=-1);
 
 		//! Adds a skydome scene node. A skydome is a large (half-) sphere with a
 		//! panoramic texture on it and is drawn around the camera position.
-		virtual boost::shared_ptr<ISceneNode> addSkyDomeSceneNode(video::ITexture* texture,
+		virtual boost::shared_ptr<ISceneNode> addSkyDomeSceneNode(boost::shared_ptr<video::ITexture> texture,
 			u32 horiRes=16, u32 vertRes=8,
 			f32 texturePercentage=0.9, f32 spherePercentage=2.0,f32 radius = 1000.f,
 			boost::shared_ptr<ISceneNode> parent=0, s32 id=-1);
@@ -200,7 +200,7 @@ namespace scene
 			video::SColor colorTop = 0xFFFFFFFF, video::SColor colorBottom = 0xFFFFFFFF);
 
 		//! Adds a scene node, which can render a quake3 shader
-		virtual boost::shared_ptr<IMeshSceneNode> addQuake3SceneNode(const IMeshBuffer* meshBuffer, const quake3::IShader * shader,
+		virtual boost::shared_ptr<IMeshSceneNode> addQuake3SceneNode(const IMeshBuffer* meshBuffer, const boost::shared_ptr<quake3::IShader>  shader,
 												boost::shared_ptr<ISceneNode> parent=0, s32 id=-1
 												);
 
@@ -322,7 +322,7 @@ namespace scene
 
 		//! Creates a texture animator, which switches the textures of the target scene
 		//! node based on a list of textures.
-		virtual boost::shared_ptr<ISceneNodeAnimator> createTextureAnimator(const core::array<video::ITexture*>& textures,
+		virtual boost::shared_ptr<ISceneNodeAnimator> createTextureAnimator(const core::array<boost::shared_ptr<video::ITexture>>& textures,
 			s32 timePerFrame, bool loop);
 
 		//! Creates a scene node animator, which deletes the scene node after
@@ -382,13 +382,13 @@ namespace scene
 		virtual IMeshLoader* getMeshLoader(u32 index) const;
 
 		//! Adds an external scene loader.
-		virtual void addExternalSceneLoader(ISceneLoader* externalLoader);
+		virtual void addExternalSceneLoader(boost::shared_ptr<ISceneLoader> externalLoader);
 
 		//! Returns the number of scene loaders supported by Irrlicht at this time
 		virtual u32 getSceneLoaderCount() const;
 
 		//! Retrieve the given scene loader
-		virtual ISceneLoader* getSceneLoader(u32 index) const;
+		virtual boost::shared_ptr<ISceneLoader> getSceneLoader(u32 index) const;
 
 		//! Returns a pointer to the scene collision manager.
 		virtual boost::shared_ptr<ISceneCollisionManager> getSceneCollisionManager();
@@ -539,7 +539,7 @@ namespace scene
 				Node(n), TextureValue(0)
 			{
 				if (n->getMaterialCount())
-					TextureValue = (n->getMaterial(0).getTexture(0));
+					TextureValue = n->getMaterial(0).getTexture(0).get();
 			}
 
 			bool operator < (const DefaultNodeEntry& other) const
@@ -619,7 +619,7 @@ namespace scene
 		core::array<TransparentNodeEntry> TransparentEffectNodeList;
 
 		core::array<IMeshLoader*> MeshLoaderList;
-		core::array<ISceneLoader*> SceneLoaderList;
+		core::array<boost::shared_ptr<ISceneLoader>> SceneLoaderList;
 		core::array<boost::shared_ptr<ISceneNode>> DeletionList;
 		core::array<boost::shared_ptr<ISceneNodeFactory>> SceneNodeFactoryList;
 		core::array<ISceneNodeAnimatorFactory*> SceneNodeAnimatorFactoryList;

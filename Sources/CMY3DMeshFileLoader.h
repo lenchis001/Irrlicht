@@ -85,7 +85,7 @@ public:
 
 private:
 
-	video::ITexture* readEmbeddedLightmap(io::IReadFile* file, char* namebuf);
+	boost::shared_ptr<video::ITexture> readEmbeddedLightmap(io::IReadFile* file, char* namebuf);
 
 	io::IFileSystem* FileSystem;
 
@@ -98,8 +98,8 @@ private:
 		SMyMaterialHeader Header;
 		core::stringc Texture1FileName;
 		core::stringc Texture2FileName;
-		video::ITexture *Texture1;
-		video::ITexture *Texture2;
+		boost::shared_ptr<video::ITexture> Texture1;
+		boost::shared_ptr<video::ITexture> Texture2;
 		video::E_MATERIAL_TYPE MaterialType;
 	};
 

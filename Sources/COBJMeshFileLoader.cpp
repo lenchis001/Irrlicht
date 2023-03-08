@@ -422,7 +422,7 @@ const c8* COBJMeshFileLoader::readTextures(const c8* bufPtr, const c8* const buf
 	texname.replace('\\', '/');
 
 	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
-	video::ITexture * texture = 0;
+	boost::shared_ptr<video::ITexture>  texture = 0;
 	bool newTexture=false;
 	if (texname.size())
 	{

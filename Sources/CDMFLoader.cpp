@@ -260,8 +260,8 @@ boost::shared_ptr<IAnimatedMesh> CDMFLoader::createMesh(io::IReadFile* file)
 		for (i=0; i<mesh->getMeshBufferCount(); i++)
 		{
 			//texture and lightmap
-			video::ITexture *tex = 0;
-			video::ITexture *lig = 0;
+			boost::shared_ptr<video::ITexture> tex = 0;
+			boost::shared_ptr<video::ITexture> lig = 0;
 
 			//current buffer to apply material
 			video::SMaterial& mat = mesh->getMeshBuffer(i)->getMaterial();

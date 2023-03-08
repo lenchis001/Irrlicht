@@ -284,7 +284,7 @@ boost::shared_ptr<IAnimatedMesh> CLWOMeshFileLoader::createMesh(io::IReadFile* f
 #ifdef LWO_READER_DEBUG
 			os::Printer::log("LWO loader: loading reflection texture.");
 #endif
-			video::ITexture* reflTexture = loadTexture(Materials[i]->Texture[3].Map);
+			boost::shared_ptr<video::ITexture> reflTexture = loadTexture(Materials[i]->Texture[3].Map);
 			if (reflTexture && irrMat.getTexture(0))
 				irrMat.setTexture(1, irrMat.getTexture(0));
 			irrMat.setTexture(0, reflTexture);
@@ -295,7 +295,7 @@ boost::shared_ptr<IAnimatedMesh> CLWOMeshFileLoader::createMesh(io::IReadFile* f
 #ifdef LWO_READER_DEBUG
 			os::Printer::log("LWO loader: loading transparency texture.");
 #endif
-			video::ITexture* transTexture = loadTexture(Materials[i]->Texture[4].Map);
+			boost::shared_ptr<video::ITexture> transTexture = loadTexture(Materials[i]->Texture[4].Map);
 			if (transTexture && irrMat.getTexture(0))
 				irrMat.setTexture(1, irrMat.getTexture(0));
 			irrMat.setTexture(0, transTexture);
@@ -2084,7 +2084,7 @@ bool CLWOMeshFileLoader::readFileHeader()
 }
 
 
-video::ITexture* CLWOMeshFileLoader::loadTexture(const core::stringc& file)
+boost::shared_ptr<video::ITexture> CLWOMeshFileLoader::loadTexture(const core::stringc& file)
 {
 	boost::shared_ptr<video::IVideoDriver> driver = getSceneManager()->getVideoDriver();
 

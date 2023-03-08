@@ -34,7 +34,7 @@ namespace gui
 
 		//! Adds a button to the tool bar
 		virtual boost::shared_ptr<IGUIButton> addButton(s32 id=-1, const wchar_t* text=0,const wchar_t* tooltiptext=0,
-			video::ITexture* img=0, video::ITexture* pressed=0,
+			boost::shared_ptr<video::ITexture> img=0, boost::shared_ptr<video::ITexture> pressed=0,
 			bool isPushButton=false, bool useAlphaChannel=false);
 
 		virtual void setWeakThis(boost::shared_ptr<IGUIElement> value) override;

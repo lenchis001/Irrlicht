@@ -15,8 +15,8 @@ namespace scene
 {
 
 //! constructor
-CSkyBoxSceneNode::CSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom, video::ITexture* left,
-			video::ITexture* right, video::ITexture* front, video::ITexture* back, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id)
+CSkyBoxSceneNode::CSkyBoxSceneNode(boost::shared_ptr<video::ITexture> top, boost::shared_ptr<video::ITexture> bottom, boost::shared_ptr<video::ITexture> left,
+			boost::shared_ptr<video::ITexture> right, boost::shared_ptr<video::ITexture> front, boost::shared_ptr<video::ITexture> back, boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id)
 : ISceneNode(parent, mgr, id)
 {
 	#ifdef _DEBUG
@@ -60,7 +60,7 @@ CSkyBoxSceneNode::CSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom
 	                     0--------1
 	*/
 
-	video::ITexture* tex = front;
+	boost::shared_ptr<video::ITexture> tex = front;
 	if (!tex) tex = left;
 	if (!tex) tex = back;
 	if (!tex) tex = right;
@@ -189,7 +189,7 @@ void CSkyBoxSceneNode::render()
 			idx = lookVect.Z > 0 ? 1 : 3;
 		}
 
-		video::ITexture* tex = Material[idx].getTexture(0);
+		boost::shared_ptr<video::ITexture> tex = Material[idx].getTexture(0);
 
 		if ( tex )
 		{

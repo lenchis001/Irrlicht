@@ -29,7 +29,7 @@ public:
 	//! \return
 	//! true if the image list was created
 	bool createImageList( 
-				video::ITexture*			texture, 
+				boost::shared_ptr<video::ITexture>			texture, 
 				core::dimension2d<s32>	imageSize, 
 				bool							useAlphaChannel );
 
@@ -54,7 +54,7 @@ public:
 private:
 
 	boost::shared_ptr<video::IVideoDriver>		Driver;
-	video::ITexture*			Texture;
+	boost::shared_ptr<video::ITexture>			Texture;
 	s32							ImageCount;
 	core::dimension2d<s32>	ImageSize;
 	s32							ImagesPerRow;

@@ -35,12 +35,6 @@ CGUIButton::CGUIButton(boost::shared_ptr<IGUIEnvironment> environment, boost::sh
 //! destructor
 CGUIButton::~CGUIButton()
 {
-	if (Image)
-		Image->drop();
-
-	if (PressedImage)
-		PressedImage->drop();
-
 	if (SpriteBank)
 		SpriteBank->drop();
 }
@@ -353,13 +347,8 @@ boost::shared_ptr<IGUIFont> CGUIButton::getActiveFont()
 }
 
 //! Sets an image which should be displayed on the button when it is in normal state.
-void CGUIButton::setImage(video::ITexture* image)
+void CGUIButton::setImage(boost::shared_ptr<video::ITexture> image)
 {
-	if (image)
-		image->grab();
-	if (Image)
-		Image->drop();
-
 	Image = image;
 	if (image)
 		ImageRect = core::rect<s32>(core::position2d<s32>(0,0), image->getOriginalSize());
@@ -370,7 +359,7 @@ void CGUIButton::setImage(video::ITexture* image)
 
 
 //! Sets the image which should be displayed on the button when it is in its normal state.
-void CGUIButton::setImage(video::ITexture* image, const core::rect<s32>& pos)
+void CGUIButton::setImage(boost::shared_ptr<video::ITexture> image, const core::rect<s32>& pos)
 {
 	setImage(image);
 	ImageRect = pos;
@@ -378,14 +367,8 @@ void CGUIButton::setImage(video::ITexture* image, const core::rect<s32>& pos)
 
 
 //! Sets an image which should be displayed on the button when it is in pressed state.
-void CGUIButton::setPressedImage(video::ITexture* image)
+void CGUIButton::setPressedImage(boost::shared_ptr<video::ITexture> image)
 {
-	if (image)
-		image->grab();
-
-	if (PressedImage)
-		PressedImage->drop();
-
 	PressedImage = image;
 	if (image)
 		PressedImageRect = core::rect<s32>(core::position2d<s32>(0,0), image->getOriginalSize());
@@ -393,7 +376,7 @@ void CGUIButton::setPressedImage(video::ITexture* image)
 
 
 //! Sets the image which should be displayed on the button when it is in its pressed state.
-void CGUIButton::setPressedImage(video::ITexture* image, const core::rect<s32>& pos)
+void CGUIButton::setPressedImage(boost::shared_ptr<video::ITexture> image, const core::rect<s32>& pos)
 {
 	setPressedImage(image);
 	PressedImageRect = pos;

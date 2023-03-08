@@ -72,7 +72,7 @@ boost::shared_ptr<ISceneNodeAnimator> CDefaultSceneNodeAnimatorFactory::createSc
 		break;
 	case ESNAT_TEXTURE:
 		{
-			core::array<video::ITexture*> textures;
+			core::array<boost::shared_ptr<video::ITexture>> textures;
 			anim = Manager->createTextureAnimator(textures, 250);
 		}
 		break;

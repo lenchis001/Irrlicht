@@ -687,21 +687,21 @@ public:
 	*/
 
 	//! Adds an attribute as texture reference
-	virtual void addTexture(const c8* attributeName, video::ITexture* texture, const io::path& filename = "") = 0;
+	virtual void addTexture(const c8* attributeName, boost::shared_ptr<video::ITexture> texture, const io::path& filename = "") = 0;
 
 	//! Sets an attribute as texture reference
-	virtual void setAttribute(const c8* attributeName, video::ITexture* texture, const io::path& filename = "") = 0;
+	virtual void setAttribute(const c8* attributeName, boost::shared_ptr<video::ITexture> texture, const io::path& filename = "") = 0;
 
 	//! Gets an attribute as texture reference
 	//! \param attributeName: Name of the attribute to get.
-	virtual video::ITexture* getAttributeAsTexture(const c8* attributeName) = 0;
+	virtual boost::shared_ptr<video::ITexture> getAttributeAsTexture(const c8* attributeName) = 0;
 
 	//! Gets an attribute as texture reference
 	//! \param index: Index value, must be between 0 and getAttributeCount()-1.
-	virtual video::ITexture* getAttributeAsTexture(s32 index) = 0;
+	virtual boost::shared_ptr<video::ITexture> getAttributeAsTexture(s32 index) = 0;
 
 	//! Sets an attribute as texture reference
-	virtual void setAttribute(s32 index, video::ITexture* texture, const io::path& filename = "") = 0;
+	virtual void setAttribute(s32 index, boost::shared_ptr<video::ITexture> texture, const io::path& filename = "") = 0;
 
 
 	/*

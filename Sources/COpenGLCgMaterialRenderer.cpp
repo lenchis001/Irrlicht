@@ -26,7 +26,7 @@ void COpenGLCgUniformSampler2D::update(const void* data, const SMaterial& materi
 
 	if (material.TextureLayer[LayerID].Texture)
 	{
-		int TextureID = reinterpret_cast<COpenGLTexture*>(material.TextureLayer[LayerID].Texture)->getOpenGLTextureName();
+		int TextureID = reinterpret_cast<boost::shared_ptr<COpenGLTexture>>(material.TextureLayer[LayerID].Texture)->getOpenGLTextureName();
 
 		cgGLSetTextureParameter(Parameter, TextureID);
 		cgGLEnableTextureParameter(Parameter);

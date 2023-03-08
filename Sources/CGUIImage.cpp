@@ -29,28 +29,20 @@ CGUIImage::CGUIImage(boost::shared_ptr<IGUIEnvironment> environment, boost::shar
 //! destructor
 CGUIImage::~CGUIImage()
 {
-	if (Texture)
-		Texture->drop();
 }
 
 
 //! sets an image
-void CGUIImage::setImage(video::ITexture* image)
+void CGUIImage::setImage(boost::shared_ptr<video::ITexture> image)
 {
 	if (image == Texture)
 		return;
 
-	if (Texture)
-		Texture->drop();
-
 	Texture = image;
-
-	if (Texture)
-		Texture->grab();
 }
 
 //! Gets the image texture
-video::ITexture* CGUIImage::getImage() const
+boost::shared_ptr<video::ITexture> CGUIImage::getImage() const
 {
 	return Texture;
 }

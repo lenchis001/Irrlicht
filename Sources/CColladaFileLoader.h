@@ -109,7 +109,7 @@ struct SColladaImage
 //! Collada texture
 struct SColladaTexture
 {
-	video::ITexture* Texture;
+	boost::shared_ptr<video::ITexture> Texture;
 	core::stringc Id;
 };
 
@@ -334,7 +334,7 @@ private:
 	void readBindMaterialSection(io::IXMLReaderUTF8* reader, const core::stringc & id);
 
 	//! create an Irrlicht texture from the SColladaImage
-	video::ITexture* getTextureFromImage(core::stringc uri, SColladaEffect * effect);
+	boost::shared_ptr<video::ITexture> getTextureFromImage(core::stringc uri, SColladaEffect * effect);
 
 	//! read a parameter and value
 	void readParameter(io::IXMLReaderUTF8* reader, io::IAttributes* parameters);

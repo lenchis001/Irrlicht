@@ -17,7 +17,7 @@ namespace scene
 class CSkyDomeSceneNode : public ISceneNode
 {
 	public:
-		CSkyDomeSceneNode(video::ITexture* texture, u32 horiRes, u32 vertRes,
+		CSkyDomeSceneNode(boost::shared_ptr<video::ITexture> texture, u32 horiRes, u32 vertRes,
 			f32 texturePercentage, f32 spherePercentage, f32 radius,
 			boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> smgr, s32 id);
 		virtual ~CSkyDomeSceneNode();

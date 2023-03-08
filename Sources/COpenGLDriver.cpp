@@ -1911,7 +1911,7 @@ void COpenGLDriver::draw2DVertexPrimitiveList(const void* vertices, u32 vertexCo
 
 //! draws a set of 2d images, using a color and the alpha channel of the
 //! texture if desired.
-void COpenGLDriver::draw2DImageBatch(const video::ITexture* texture,
+void COpenGLDriver::draw2DImageBatch(const boost::shared_ptr<video::ITexture> texture,
 				const core::array<core::position2d<s32> >& positions,
 				const core::array<core::rect<s32> >& sourceRects,
 				const core::rect<s32>* clipRect,
@@ -2048,7 +2048,7 @@ void COpenGLDriver::draw2DImageBatch(const video::ITexture* texture,
 //! draws a 2d image, using a color and the alpha channel of the texture if
 //! desired. The image is drawn at pos, clipped against clipRect (if != 0).
 //! Only the subtexture defined by sourceRect is used.
-void COpenGLDriver::draw2DImage(const video::ITexture* texture,
+void COpenGLDriver::draw2DImage(const boost::shared_ptr<video::ITexture> texture,
 				const core::position2d<s32>& pos,
 				const core::rect<s32>& sourceRect,
 				const core::rect<s32>* clipRect, SColor color,
@@ -2178,7 +2178,7 @@ void COpenGLDriver::draw2DImage(const video::ITexture* texture,
 
 
 //! The same, but with a four element array of colors, one for each vertex
-void COpenGLDriver::draw2DImage(const video::ITexture* texture, const core::rect<s32>& destRect,
+void COpenGLDriver::draw2DImage(const boost::shared_ptr<video::ITexture> texture, const core::rect<s32>& destRect,
 		const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect,
 		const video::SColor* const colors, bool useAlphaChannelOfTexture)
 {
@@ -2251,7 +2251,7 @@ void COpenGLDriver::draw2DImage(const video::ITexture* texture, const core::rect
 //! in one line. All drawings are clipped against clipRect (if != 0).
 //! The subtextures are defined by the array of sourceRects and are chosen
 //! by the indices given.
-void COpenGLDriver::draw2DImage(const video::ITexture* texture,
+void COpenGLDriver::draw2DImage(const boost::shared_ptr<video::ITexture> texture,
 				const core::position2d<s32>& pos,
 				const core::array<core::rect<s32> >& sourceRects,
 				const core::array<s32>& indices,
@@ -2428,7 +2428,7 @@ void COpenGLDriver::drawPixel(u32 x, u32 y, const SColor &color)
 	glEnd();
 }
 
-bool COpenGLDriver::setActiveTexture(u32 stage, const video::ITexture* texture)
+bool COpenGLDriver::setActiveTexture(u32 stage, const boost::shared_ptr<video::ITexture> texture)
 {
 	if (stage >= MaxSupportedTextures)
 		return false;
@@ -2458,7 +2458,7 @@ bool COpenGLDriver::setActiveTexture(u32 stage, const video::ITexture* texture)
 
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D,
-			static_cast<const COpenGLTexture*>(texture)->getOpenGLTextureName());
+			boost::static_pointer_cast<COpenGLTexture>(texture)->getOpenGLTextureName());
 	}
 	return true;
 }
@@ -2508,9 +2508,12 @@ inline void COpenGLDriver::getGLTextureMatrix(GLfloat *o, const core::matrix4& m
 
 
 //! returns a device dependent texture from a software surface (IImage)
-video::ITexture* COpenGLDriver::createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData)
+boost::shared_ptr<video::ITexture> COpenGLDriver::createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData)
 {
-	return new COpenGLTexture(surface, name, mipmapData, getSharedThis<COpenGLDriver>());
+	boost::shared_ptr<COpenGLTexture> texture = boost::make_shared<COpenGLTexture>(surface, name, mipmapData, getSharedThis<COpenGLDriver>());
+	texture->setWeakThis(texture);
+
+	return texture;
 }
 
 
@@ -3278,7 +3281,7 @@ void COpenGLDriver::setRenderStates2DMode(bool alpha, bool texture, bool alphaCh
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		}
-		Material.setTexture(0, const_cast<video::ITexture*>(CurrentTexture[0]));
+		Material.setTexture(0, CurrentTexture[0]);
 		setTransform(ETS_TEXTURE_0, core::IdentityMatrix);
 		// Due to the transformation change, the previous line would call a reset each frame
 		// but we can safely reset the variable as it was false before
@@ -3825,7 +3828,7 @@ void COpenGLDriver::draw3DLine(const core::vector3df& start,
 
 
 //! Removes a texture from the texture cache and deletes it, freeing lot of memory.
-void COpenGLDriver::removeTexture(ITexture* texture)
+void COpenGLDriver::removeTexture(boost::shared_ptr<ITexture> texture)
 {
 	if (!texture)
 		return;
@@ -3997,7 +4000,7 @@ boost::shared_ptr<IVideoDriver> COpenGLDriver::getVideoDriver()
 }
 
 
-ITexture* COpenGLDriver::addRenderTargetTexture(const core::dimension2d<u32>& size,
+boost::shared_ptr<ITexture> COpenGLDriver::addRenderTargetTexture(const core::dimension2d<u32>& size,
 					const io::path& name,
 					const ECOLOR_FORMAT format)
 {
@@ -4005,27 +4008,29 @@ ITexture* COpenGLDriver::addRenderTargetTexture(const core::dimension2d<u32>& si
 	bool generateMipLevels = getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
 	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
 
-	video::ITexture* rtt = 0;
+	boost::shared_ptr<video::ITexture> rtt = 0;
 #if defined(GL_EXT_framebuffer_object)
 	// if driver supports FrameBufferObjects, use them
 	if (queryFeature(EVDF_FRAMEBUFFER_OBJECT))
 	{
-		rtt = new COpenGLFBOTexture(size, name, getSharedThis<COpenGLDriver>(), format);
+		boost::shared_ptr<COpenGLFBOTexture> texture = boost::make_shared<COpenGLFBOTexture>(size, name, getSharedThis<COpenGLDriver>(), format);
+		texture->setWeakThis(texture);
+		rtt = texture;
+
 		if (rtt)
 		{
 			bool success = false;
 			addTexture(rtt);
-			ITexture* tex = createDepthTexture(rtt);
+			boost::shared_ptr<ITexture> tex = createDepthTexture(rtt);
 			if (tex)
 			{
-				success = static_cast<video::COpenGLFBODepthTexture*>(tex)->attach(rtt);
+				success = boost::static_pointer_cast<video::COpenGLFBODepthTexture>(tex)->attach(rtt);
 				if ( !success )
 				{
 					removeDepthTexture(tex);
 				}
-				tex->drop();
 			}
-			rtt->drop();
+
 			if (!success)
 			{
 				removeTexture(rtt);
@@ -4043,7 +4048,7 @@ ITexture* COpenGLDriver::addRenderTargetTexture(const core::dimension2d<u32>& si
 		rtt = addTexture(destSize, name, ECF_A8R8G8B8);
 		if (rtt)
 		{
-			static_cast<video::COpenGLTexture*>(rtt)->setIsRenderTarget(true);
+			boost::static_pointer_cast<video::COpenGLTexture>(rtt)->setIsRenderTarget(true);
 		}
 	}
 
@@ -4068,7 +4073,7 @@ bool COpenGLDriver::setRenderTarget(video::E_RENDER_TARGET target, bool clearTar
 					bool clearZBuffer, SColor color)
 {
 	if (target != CurrentTarget)
-		setRenderTarget(0, false, false, 0x0);
+		setRenderTarget(nullptr, false, false, 0x0);
 
 	if (ERT_RENDER_TEXTURE == target)
 	{
@@ -4116,7 +4121,7 @@ bool COpenGLDriver::setRenderTarget(video::E_RENDER_TARGET target, bool clearTar
 
 
 //! set or reset render target
-bool COpenGLDriver::setRenderTarget(video::ITexture* texture, bool clearBackBuffer,
+bool COpenGLDriver::setRenderTarget(boost::shared_ptr<video::ITexture> texture, bool clearBackBuffer,
 					bool clearZBuffer, SColor color)
 {
 	// check for right driver type
@@ -4158,7 +4163,7 @@ bool COpenGLDriver::setRenderTarget(video::ITexture* texture, bool clearBackBuff
 		{
 			// we want to set a new target. so do this.
 			glViewport(0, 0, texture->getSize().Width, texture->getSize().Height);
-			RenderTargetTexture = static_cast<COpenGLTexture*>(texture);
+			RenderTargetTexture = boost::static_pointer_cast<COpenGLTexture>(texture);
 			// calls glDrawBuffer as well
 			RenderTargetTexture->bindRTT();
 			CurrentRendertargetSize = texture->getSize();
@@ -4188,10 +4193,10 @@ bool COpenGLDriver::setRenderTarget(const core::array<video::IRenderTarget>& tar
 {
 	// if simply disabling the MRT via array call
 	if (targets.size()==0)
-		return setRenderTarget(0, clearBackBuffer, clearZBuffer, color);
+		return setRenderTarget(nullptr, clearBackBuffer, clearZBuffer, color);
 	// if disabling old MRT, but enabling new one as well
 	if ((MRTargets.size()!=0) && (targets != MRTargets))
-		setRenderTarget(0, clearBackBuffer, clearZBuffer, color);
+		setRenderTarget(nullptr, clearBackBuffer, clearZBuffer, color);
 	// if no change, simply clear buffers
 	else if (targets == MRTargets)
 	{
@@ -4235,7 +4240,7 @@ bool COpenGLDriver::setRenderTarget(const core::array<video::IRenderTarget>& tar
 			}
 
 			// check for valid render target
-			if (!targets[i].RenderTexture->isRenderTarget() || !static_cast<COpenGLTexture*>(targets[i].RenderTexture)->isFrameBufferObject())
+			if (!targets[i].RenderTexture->isRenderTarget() || !boost::static_pointer_cast<COpenGLTexture>(targets[i].RenderTexture)->isFrameBufferObject())
 			{
 				maxMultipleRTTs=i;
 				os::Printer::log("Tried to set a non FBO-RTT as render target.", ELL_WARNING);
@@ -4341,7 +4346,7 @@ bool COpenGLDriver::setRenderTarget(const core::array<video::IRenderTarget>& tar
 				// attach texture to FrameBuffer Object on Color [i]
 				attachment = GL_COLOR_ATTACHMENT0_EXT+i;
 				if ((i != 0) && (targets[i].RenderTexture != RenderTargetTexture))
-					extGlFramebufferTexture2D(GL_FRAMEBUFFER_EXT, attachment, GL_TEXTURE_2D, static_cast<COpenGLTexture*>(targets[i].RenderTexture)->getOpenGLTextureName(), 0);
+					extGlFramebufferTexture2D(GL_FRAMEBUFFER_EXT, attachment, GL_TEXTURE_2D, boost::static_pointer_cast<COpenGLTexture>(targets[i].RenderTexture)->getOpenGLTextureName(), 0);
 #endif
 				MRTs[i]=attachment;
 			}
@@ -4571,11 +4576,11 @@ IImage* COpenGLDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RE
 
 
 //! get depth texture for the given render target texture
-ITexture* COpenGLDriver::createDepthTexture(ITexture* texture, bool shared)
+boost::shared_ptr<ITexture> COpenGLDriver::createDepthTexture(boost::shared_ptr<ITexture> texture, bool shared)
 {
 	if ((texture->getDriverType() != EDT_OPENGL) || (!texture->isRenderTarget()))
 		return 0;
-	COpenGLTexture* tex = static_cast<COpenGLTexture*>(texture);
+	boost::shared_ptr<COpenGLTexture> tex = boost::static_pointer_cast<COpenGLTexture>(texture);
 
 	if (!tex->isFrameBufferObject())
 		return 0;
@@ -4588,18 +4593,24 @@ ITexture* COpenGLDriver::createDepthTexture(ITexture* texture, bool shared)
 		{
 			if (DepthTextures[i]->getSize()==texture->getSize())
 			{
-				DepthTextures[i]->grab();
 				return DepthTextures[i];
 			}
 		}
-		DepthTextures.push_back(new COpenGLFBODepthTexture(texture->getSize(), "depth1", lockedDriver));
+
+		boost::shared_ptr<COpenGLFBODepthTexture> texture = boost::make_shared<COpenGLFBODepthTexture>(texture->getSize(), "depth1", lockedDriver);
+		texture->setWeakThis(texture);
+
+		DepthTextures.push_back(texture);
 		return DepthTextures.getLast();
 	}
-	return (new COpenGLFBODepthTexture(texture->getSize(), "depth1", lockedDriver));
+
+	boost::shared_ptr<COpenGLFBODepthTexture> fboTexture = boost::make_shared<COpenGLFBODepthTexture>(texture->getSize(), "depth1", lockedDriver);
+	fboTexture->setWeakThis(fboTexture);
+	return fboTexture;
 }
 
 
-void COpenGLDriver::removeDepthTexture(ITexture* texture)
+void COpenGLDriver::removeDepthTexture(boost::shared_ptr<ITexture> texture)
 {
 	for (u32 i=0; i<DepthTextures.size(); ++i)
 	{

@@ -297,7 +297,7 @@ void CSceneManager::setWeakThis(boost::shared_ptr<CSceneManager> value)
 
 		// scene loaders
 	#ifdef _IRR_COMPILE_WITH_IRR_SCENE_LOADER_
-		SceneLoaderList.push_back(new CSceneLoaderIrr(lockedSceneManager, FileSystem));
+		SceneLoaderList.push_back(boost::make_shared<CSceneLoaderIrr>(lockedSceneManager, FileSystem));
 	#endif
 
 
@@ -331,9 +331,6 @@ CSceneManager::~CSceneManager()
 	u32 i;
 	for (i=0; i<MeshLoaderList.size(); ++i)
 		MeshLoaderList[i]->drop();
-
-	for (i=0; i<SceneLoaderList.size(); ++i)
-		SceneLoaderList[i]->drop();
 
 	ActiveCamera = 0;
 
@@ -491,7 +488,7 @@ boost::shared_ptr<IBillboardTextSceneNode> CSceneManager::addBillboardTextSceneN
 
 //! Adds a scene node, which can render a quake3 shader
 boost::shared_ptr<IMeshSceneNode> CSceneManager::addQuake3SceneNode(const IMeshBuffer* meshBuffer,
-					const quake3::IShader * shader,
+					const boost::shared_ptr<quake3::IShader>  shader,
 					boost::shared_ptr<ISceneNode> parent, s32 id )
 {
 #ifdef _IRR_COMPILE_WITH_BSP_LOADER_
@@ -781,9 +778,9 @@ boost::shared_ptr<IBillboardSceneNode> CSceneManager::addBillboardSceneNode(boos
 
 //! Adds a skybox scene node. A skybox is a big cube with 6 textures on it and
 //! is drawn around the camera position.
-boost::shared_ptr<ISceneNode> CSceneManager::addSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom,
-	video::ITexture* left, video::ITexture* right, video::ITexture* front,
-	video::ITexture* back, boost::shared_ptr<ISceneNode> parent, s32 id)
+boost::shared_ptr<ISceneNode> CSceneManager::addSkyBoxSceneNode(boost::shared_ptr<video::ITexture> top, boost::shared_ptr<video::ITexture> bottom,
+	boost::shared_ptr<video::ITexture> left, boost::shared_ptr<video::ITexture> right, boost::shared_ptr<video::ITexture> front,
+	boost::shared_ptr<video::ITexture> back, boost::shared_ptr<ISceneNode> parent, s32 id)
 {
 	if (!parent)
 		parent = getSharedThis();
@@ -798,7 +795,7 @@ boost::shared_ptr<ISceneNode> CSceneManager::addSkyBoxSceneNode(video::ITexture*
 
 //! Adds a skydome scene node. A skydome is a large (half-) sphere with a
 //! panoramic texture on it and is drawn around the camera position.
-boost::shared_ptr<ISceneNode> CSceneManager::addSkyDomeSceneNode(video::ITexture* texture,
+boost::shared_ptr<ISceneNode> CSceneManager::addSkyDomeSceneNode(boost::shared_ptr<video::ITexture> texture,
 	u32 horiRes, u32 vertRes, f32 texturePercentage,f32 spherePercentage, f32 radius,
 	boost::shared_ptr<ISceneNode> parent, s32 id)
 {
@@ -1647,7 +1644,7 @@ boost::shared_ptr<ISceneNodeAnimator> CSceneManager::createFlyStraightAnimator(c
 
 //! Creates a texture animator, which switches the textures of the target scene
 //! node based on a list of textures.
-boost::shared_ptr<ISceneNodeAnimator> CSceneManager::createTextureAnimator(const core::array<video::ITexture*>& textures,
+boost::shared_ptr<ISceneNodeAnimator> CSceneManager::createTextureAnimator(const core::array<boost::shared_ptr<video::ITexture>>& textures,
 	s32 timePerFrame, bool loop)
 {
 	boost::shared_ptr<ISceneNodeAnimator> anim = boost::make_shared<CSceneNodeAnimatorTexture>(textures,
@@ -1721,12 +1718,11 @@ IMeshLoader* CSceneManager::getMeshLoader(u32 index) const
 
 
 //! Adds an external scene loader.
-void CSceneManager::addExternalSceneLoader(ISceneLoader* externalLoader)
+void CSceneManager::addExternalSceneLoader(boost::shared_ptr<ISceneLoader> externalLoader)
 {
 	if (!externalLoader)
 		return;
 
-	externalLoader->grab();
 	SceneLoaderList.push_back(externalLoader);
 }
 
@@ -1739,7 +1735,7 @@ u32 CSceneManager::getSceneLoaderCount() const
 
 
 //! Retrieve the given scene loader
-ISceneLoader* CSceneManager::getSceneLoader(u32 index) const
+boost::shared_ptr<ISceneLoader> CSceneManager::getSceneLoader(u32 index) const
 {
 	if (index < SceneLoaderList.size())
 		return SceneLoaderList[index];

@@ -167,7 +167,7 @@ public:
 	\return Pointer to the font. Returns 0 if the font could not be loaded.
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
-	virtual IGUIImageList* createImageList( video::ITexture* texture,
+	virtual IGUIImageList* createImageList( boost::shared_ptr<video::ITexture> texture,
 					core::dimension2d<s32> imageSize,
 					bool useAlphaChannel ) = 0;
 
@@ -269,7 +269,7 @@ public:
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
 	virtual boost::shared_ptr<IGUIWindow> addMessageBox(const wchar_t* caption, const wchar_t* text=0,
-		bool modal = true, s32 flags = EMBF_OK, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, video::ITexture* image=0) = 0;
+		bool modal = true, s32 flags = EMBF_OK, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, boost::shared_ptr<video::ITexture> image=0) = 0;
 
 	//! Adds a scrollbar.
 	/** \param horizontal Specifies if the scroll bar is drawn horizontal
@@ -295,7 +295,7 @@ public:
 	\return Pointer to the created image element. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual boost::shared_ptr<IGUIImage> addImage(video::ITexture* image, core::position2d<s32> pos,
+	virtual boost::shared_ptr<IGUIImage> addImage(boost::shared_ptr<video::ITexture> image, core::position2d<s32> pos,
 		bool useAlphaChannel=true, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, const wchar_t* text=0) = 0;
 
 	//! Adds an image element.

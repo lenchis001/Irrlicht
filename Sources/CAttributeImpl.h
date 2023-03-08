@@ -1871,7 +1871,7 @@ class CTextureAttribute : public IAttribute, public video::VideoDriverAwareMixin
 {
 public:
 
-	CTextureAttribute(const char* name, video::ITexture* value, boost::shared_ptr<video::IVideoDriver> driver, io::IFileSystem* fileSystem, const io::path& filename)
+	CTextureAttribute(const char* name, boost::shared_ptr<video::ITexture> value, boost::shared_ptr<video::IVideoDriver> driver, io::IFileSystem* fileSystem, const io::path& filename)
 		: VideoDriverAwareMixin(driver), Value(0), _fileSystem(fileSystem), OverrideName(filename)
 	{
 		Name = name;
@@ -1880,11 +1880,9 @@ public:
 
 	~CTextureAttribute()
 	{
-		if (Value)
-			Value->drop();
 	}
 
-	virtual video::ITexture* getTexture()
+	virtual boost::shared_ptr<video::ITexture> getTexture()
 	{
 		return Value;
 	}
@@ -1938,18 +1936,12 @@ public:
 		}
 	}
 
-	virtual void setTexture(video::ITexture* value)
+	virtual void setTexture(boost::shared_ptr<video::ITexture> value)
 	{
 		if ( value == Value )
 			return;
 
-		if (Value)
-			Value->drop();
-
 		Value = value;
-
-		if (Value)
-			Value->grab();
 	}
 
 	virtual E_ATTRIBUTE_TYPE getType() const
@@ -1963,7 +1955,7 @@ public:
 		return L"texture";
 	}
 
-	video::ITexture* Value;
+	boost::shared_ptr<video::ITexture> Value;
 	io::IFileSystem* _fileSystem;
 	io::path OverrideName;
 };

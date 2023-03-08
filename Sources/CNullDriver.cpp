@@ -285,9 +285,6 @@ void CNullDriver::deleteAllTextures()
 	// last set material member. Could be optimized to reduce state changes.
 	setMaterial(SMaterial());
 
-	for (u32 i=0; i<Textures.size(); ++i)
-		Textures[i].Surface->drop();
-
 	Textures.clear();
 }
 
@@ -355,7 +352,7 @@ void CNullDriver::setMaterial(const SMaterial& material)
 
 //! Removes a texture from the texture cache and deletes it, freeing lot of
 //! memory.
-void CNullDriver::removeTexture(ITexture* texture)
+void CNullDriver::removeTexture(boost::shared_ptr<ITexture> texture)
 {
 	if (!texture)
 		return;
@@ -364,7 +361,6 @@ void CNullDriver::removeTexture(ITexture* texture)
 	{
 		if (Textures[i].Surface == texture)
 		{
-			texture->drop();
 			Textures.erase(i);
 		}
 	}
@@ -381,7 +377,7 @@ void CNullDriver::removeAllTextures()
 
 
 //! Returns a texture by index
-ITexture* CNullDriver::getTextureByIndex(u32 i)
+boost::shared_ptr<ITexture> CNullDriver::getTextureByIndex(u32 i)
 {
 	if ( i < Textures.size() )
 		return Textures[i].Surface;
@@ -398,7 +394,7 @@ u32 CNullDriver::getTextureCount() const
 
 
 //! Renames a texture
-void CNullDriver::renameTexture(ITexture* texture, const io::path& newName)
+void CNullDriver::renameTexture(boost::shared_ptr<ITexture> texture, const io::path& newName)
 {
 	// we can do a const_cast here safely, the name of the ITexture interface
 	// is just readonly to prevent the user changing the texture name without invoking
@@ -412,12 +408,12 @@ void CNullDriver::renameTexture(ITexture* texture, const io::path& newName)
 
 
 //! loads a Texture
-ITexture* CNullDriver::getTexture(const io::path& filename)
+boost::shared_ptr<ITexture> CNullDriver::getTexture(const io::path& filename)
 {
 	// Identify textures by their absolute filenames if possible.
 	const io::path absolutePath = FileSystem->getAbsolutePath(filename);
 
-	ITexture* texture = findTexture(absolutePath);
+	boost::shared_ptr<ITexture> texture = findTexture(absolutePath);
 	if (texture)
 		return texture;
 
@@ -451,7 +447,6 @@ ITexture* CNullDriver::getTexture(const io::path& filename)
 		if (texture)
 		{
 			addTexture(texture);
-			texture->drop(); // drop it because we created it, one grab too much
 		}
 		else
 			os::Printer::log("Could not load texture", filename, ELL_ERROR);
@@ -466,9 +461,9 @@ ITexture* CNullDriver::getTexture(const io::path& filename)
 
 
 //! loads a Texture
-ITexture* CNullDriver::getTexture(io::IReadFile* file)
+boost::shared_ptr<ITexture> CNullDriver::getTexture(io::IReadFile* file)
 {
-	ITexture* texture = 0;
+	boost::shared_ptr<ITexture> texture = 0;
 
 	if (file)
 	{
@@ -482,7 +477,6 @@ ITexture* CNullDriver::getTexture(io::IReadFile* file)
 		if (texture)
 		{
 			addTexture(texture);
-			texture->drop(); // drop it because we created it, one grab too much
 		}
 
 		if (!texture)
@@ -494,9 +488,9 @@ ITexture* CNullDriver::getTexture(io::IReadFile* file)
 
 
 //! opens the file and loads it into the surface
-video::ITexture* CNullDriver::loadTextureFromFile(io::IReadFile* file, const io::path& hashName )
+boost::shared_ptr<video::ITexture> CNullDriver::loadTextureFromFile(io::IReadFile* file, const io::path& hashName )
 {
-	ITexture* texture = 0;
+	boost::shared_ptr<ITexture> texture = 0;
 	IImage* image = createImageFromFile(file);
 
 	if (image)
@@ -512,13 +506,12 @@ video::ITexture* CNullDriver::loadTextureFromFile(io::IReadFile* file, const io:
 
 
 //! adds a surface, not loaded or created by the Irrlicht Engine
-void CNullDriver::addTexture(video::ITexture* texture)
+void CNullDriver::addTexture(boost::shared_ptr<video::ITexture> texture)
 {
 	if (texture)
 	{
 		SSurface s;
 		s.Surface = texture;
-		texture->grab();
 
 		Textures.push_back(s);
 
@@ -533,11 +526,10 @@ void CNullDriver::addTexture(video::ITexture* texture)
 
 
 //! looks if the image is already loaded
-video::ITexture* CNullDriver::findTexture(const io::path& filename)
+boost::shared_ptr<video::ITexture> CNullDriver::findTexture(const io::path& filename)
 {
 	SSurface s;
-	SDummyTexture dummy(filename);
-	s.Surface = &dummy;
+	s.Surface = boost::make_shared<SDummyTexture>(filename);
 
 	s32 index = Textures.binary_search(s);
 	if (index != -1)
@@ -548,23 +540,22 @@ video::ITexture* CNullDriver::findTexture(const io::path& filename)
 
 
 //! Creates a texture from a loaded IImage.
-ITexture* CNullDriver::addTexture(const io::path& name, IImage* image, void* mipmapData)
+boost::shared_ptr<ITexture> CNullDriver::addTexture(const io::path& name, IImage* image, void* mipmapData)
 {
 	if ( 0 == name.size() || !image)
 		return 0;
 
-	ITexture* t = createDeviceDependentTexture(image, name, mipmapData);
+	boost::shared_ptr<ITexture> t = createDeviceDependentTexture(image, name, mipmapData);
 	if (t)
 	{
 		addTexture(t);
-		t->drop();
 	}
 	return t;
 }
 
 
 //! creates a Texture
-ITexture* CNullDriver::addTexture(const core::dimension2d<u32>& size,
+boost::shared_ptr<ITexture> CNullDriver::addTexture(const core::dimension2d<u32>& size,
 				  const io::path& name, ECOLOR_FORMAT format)
 {
 	if(IImage::isRenderTargetOnlyFormat(format))
@@ -577,12 +568,9 @@ ITexture* CNullDriver::addTexture(const core::dimension2d<u32>& size,
 		return 0;
 
 	IImage* image = new CImage(format, size);
-	ITexture* t = createDeviceDependentTexture(image, name);
+	boost::shared_ptr<ITexture> t = createDeviceDependentTexture(image, name);
 	image->drop();
 	addTexture(t);
-
-	if (t)
-		t->drop();
 
 	return t;
 }
@@ -591,9 +579,9 @@ ITexture* CNullDriver::addTexture(const core::dimension2d<u32>& size,
 
 //! returns a device dependent texture from a software surface (IImage)
 //! THIS METHOD HAS TO BE OVERRIDDEN BY DERIVED DRIVERS WITH OWN TEXTURES
-ITexture* CNullDriver::createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData)
+boost::shared_ptr<ITexture> CNullDriver::createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData)
 {
-	return new SDummyTexture(name);
+	return boost::make_shared<SDummyTexture>(name);
 }
 
 
@@ -602,14 +590,14 @@ bool CNullDriver::setRenderTarget(video::E_RENDER_TARGET target, bool clearTarge
 			bool clearZBuffer, SColor color)
 {
 	if (ERT_FRAME_BUFFER==target)
-		return setRenderTarget(0,clearTarget, clearZBuffer, color);
+		return setRenderTarget(nullptr, clearTarget, clearZBuffer, color);
 	else
 		return false;
 }
 
 
 //! sets a render target
-bool CNullDriver::setRenderTarget(video::ITexture* texture, bool clearBackBuffer,
+bool CNullDriver::setRenderTarget(boost::shared_ptr<video::ITexture> texture, bool clearBackBuffer,
 					bool clearZBuffer, SColor color)
 {
 	return false;
@@ -708,7 +696,7 @@ void CNullDriver::draw3DBox(const core::aabbox3d<f32>& box, SColor color)
 
 
 //! draws an 2d image
-void CNullDriver::draw2DImage(const video::ITexture* texture, const core::position2d<s32>& destPos)
+void CNullDriver::draw2DImage(const boost::shared_ptr<video::ITexture> texture, const core::position2d<s32>& destPos)
 {
 	if (!texture)
 		return;
@@ -724,7 +712,7 @@ void CNullDriver::draw2DImage(const video::ITexture* texture, const core::positi
 //! in one line. All drawings are clipped against clipRect (if != 0).
 //! The subtextures are defined by the array of sourceRects and are chosen
 //! by the indices given.
-void CNullDriver::draw2DImageBatch(const video::ITexture* texture,
+void CNullDriver::draw2DImageBatch(const boost::shared_ptr<video::ITexture> texture,
 				const core::position2d<s32>& pos,
 				const core::array<core::rect<s32> >& sourceRects,
 				const core::array<s32>& indices,
@@ -745,7 +733,7 @@ void CNullDriver::draw2DImageBatch(const video::ITexture* texture,
 
 //! draws a set of 2d images, using a color and the alpha channel of the
 //! texture if desired.
-void CNullDriver::draw2DImageBatch(const video::ITexture* texture,
+void CNullDriver::draw2DImageBatch(const boost::shared_ptr<video::ITexture> texture,
 				const core::array<core::position2d<s32> >& positions,
 				const core::array<core::rect<s32> >& sourceRects,
 				const core::rect<s32>* clipRect,
@@ -763,7 +751,7 @@ void CNullDriver::draw2DImageBatch(const video::ITexture* texture,
 
 
 //! Draws a part of the texture into the rectangle.
-void CNullDriver::draw2DImage(const video::ITexture* texture, const core::rect<s32>& destRect,
+void CNullDriver::draw2DImage(const boost::shared_ptr<video::ITexture> texture, const core::rect<s32>& destRect,
 	const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect,
 	const video::SColor* const colors, bool useAlphaChannelOfTexture)
 {
@@ -775,7 +763,7 @@ void CNullDriver::draw2DImage(const video::ITexture* texture, const core::rect<s
 
 
 //! Draws a 2d image, using a color (if color is other then Color(255,255,255,255)) and the alpha channel of the texture if wanted.
-void CNullDriver::draw2DImage(const video::ITexture* texture, const core::position2d<s32>& destPos,
+void CNullDriver::draw2DImage(const boost::shared_ptr<video::ITexture> texture, const core::position2d<s32>& destPos,
 				const core::rect<s32>& sourceRect,
 				const core::rect<s32>* clipRect, SColor color,
 				bool useAlphaChannelOfTexture)
@@ -977,7 +965,7 @@ const SLight& CNullDriver::getDynamicLight(u32 idx) const
 
 
 //! Creates a boolean alpha channel of the texture based of an color key.
-void CNullDriver::makeColorKeyTexture(video::ITexture* texture,
+void CNullDriver::makeColorKeyTexture(boost::shared_ptr<video::ITexture> texture,
 									video::SColor color,
 									bool zeroTexels) const
 {
@@ -1066,7 +1054,7 @@ void CNullDriver::makeColorKeyTexture(video::ITexture* texture,
 
 
 //! Creates an boolean alpha channel of the texture based of an color key position.
-void CNullDriver::makeColorKeyTexture(video::ITexture* texture,
+void CNullDriver::makeColorKeyTexture(boost::shared_ptr<video::ITexture> texture,
 					core::position2d<s32> colorKeyPixelPos,
 					bool zeroTexels) const
 {
@@ -1120,7 +1108,7 @@ void CNullDriver::makeColorKeyTexture(video::ITexture* texture,
 
 //! Creates a normal map from a height map texture.
 //! \param amplitude: Constant value by which the height information is multiplied.
-void CNullDriver::makeNormalMapTexture(video::ITexture* texture, f32 amplitude) const
+void CNullDriver::makeNormalMapTexture(boost::shared_ptr<video::ITexture> texture, f32 amplitude) const
 {
 	if (!texture)
 		return;
@@ -1436,7 +1424,7 @@ IImage* CNullDriver::createImage(IImage* imageToCopy, const core::position2d<s32
 
 
 //! Creates a software image from part of a texture.
-IImage* CNullDriver::createImage(ITexture* texture, const core::position2d<s32>& pos, const core::dimension2d<u32>& size)
+IImage* CNullDriver::createImage(boost::shared_ptr<ITexture> texture, const core::position2d<s32>& pos, const core::dimension2d<u32>& size)
 {
 	if ((pos==core::position2di(0,0)) && (size == texture->getSize()))
 	{
@@ -2306,7 +2294,7 @@ s32 CNullDriver::addShaderMaterialFromFiles(const io::path& vertexShaderProgramF
 
 
 //! Creates a render target texture.
-ITexture* CNullDriver::addRenderTargetTexture(const core::dimension2d<u32>& size,
+boost::shared_ptr<ITexture> CNullDriver::addRenderTargetTexture(const core::dimension2d<u32>& size,
 		const io::path&name, const ECOLOR_FORMAT format)
 {
 	return 0;
@@ -2377,12 +2365,12 @@ void CNullDriver::enableClipPlane(u32 index, bool enable)
 }
 
 
-ITexture* CNullDriver::createRenderTargetTexture(const core::dimension2d<u32>& size,
+boost::shared_ptr<ITexture> CNullDriver::createRenderTargetTexture(const core::dimension2d<u32>& size,
 		const c8* name)
 {
 	os::Printer::log("createRenderTargetTexture is deprecated, use addRenderTargetTexture instead");
-	ITexture* tex = addRenderTargetTexture(size, name);
-	tex->grab();
+	boost::shared_ptr<ITexture> tex = addRenderTargetTexture(size, name);
+	
 	return tex;
 }
 

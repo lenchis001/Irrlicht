@@ -60,7 +60,7 @@ private:
 	u32 readVec(core::vector3df& vec);
 	u32 readVX(u32& num);
 	u32 readColor(video::SColor& color);
-	video::ITexture* loadTexture(const core::stringc& file);
+	boost::shared_ptr<video::ITexture> loadTexture(const core::stringc& file);
 
 	io::IFileSystem* FileSystem;
 	io::IReadFile* File;

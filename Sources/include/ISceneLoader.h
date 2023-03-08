@@ -23,7 +23,7 @@ namespace scene
 /** If you want Irrlicht to be able to load currently unsupported
 scene file formats (e.g. .vrml), then implement this and add your
 new Sceneloader to the engine with ISceneManager::addExternalSceneLoader(). */
-class ISceneLoader : public virtual IReferenceCounted
+class ISceneLoader : public virtual IDebugable
 {
 public:
 

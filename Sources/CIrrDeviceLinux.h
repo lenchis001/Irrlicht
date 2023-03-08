@@ -129,10 +129,10 @@ namespace irr
 
 #ifdef _IRR_COMPILE_WITH_X11_
 		// convert an Irrlicht texture to a X11 cursor
-		Cursor TextureToCursor(irr::video::ITexture * tex, const core::rect<s32>& sourceRect, const core::position2d<s32> &hotspot);
-		Cursor TextureToMonochromeCursor(irr::video::ITexture * tex, const core::rect<s32>& sourceRect, const core::position2d<s32> &hotspot);
+		Cursor TextureToCursor(boost::shared_ptr<irr::video::ITexture>  tex, const core::rect<s32>& sourceRect, const core::position2d<s32> &hotspot);
+		Cursor TextureToMonochromeCursor(boost::shared_ptr<irr::video::ITexture>  tex, const core::rect<s32>& sourceRect, const core::position2d<s32> &hotspot);
 #ifdef _IRR_LINUX_XCURSOR_
-		Cursor TextureToARGBCursor(irr::video::ITexture * tex, const core::rect<s32>& sourceRect, const core::position2d<s32> &hotspot);
+		Cursor TextureToARGBCursor(boost::shared_ptr<irr::video::ITexture>  tex, const core::rect<s32>& sourceRect, const core::position2d<s32> &hotspot);
 #endif
 #endif
 

@@ -151,7 +151,7 @@ namespace video
 
 		//! draws a set of 2d images, using a color and the alpha channel of the
 		//! texture if desired.
-		void draw2DImageBatch(const video::ITexture* texture,
+		void draw2DImageBatch(const boost::shared_ptr<video::ITexture> texture,
 				const core::array<core::position2d<s32> >& positions,
 				const core::array<core::rect<s32> >& sourceRects,
 				const core::rect<s32>* clipRect,
@@ -159,7 +159,7 @@ namespace video
 				bool useAlphaChannelOfTexture);
 
 		//! draws an 2d image, using a color (if color is other then Color(255,255,255,255)) and the alpha channel of the texture if wanted.
-		virtual void draw2DImage(const video::ITexture* texture, const core::position2d<s32>& destPos,
+		virtual void draw2DImage(const boost::shared_ptr<video::ITexture> texture, const core::position2d<s32>& destPos,
 			const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect = 0,
 			SColor color=SColor(255,255,255,255), bool useAlphaChannelOfTexture=false);
 
@@ -179,7 +179,7 @@ namespace video
 		Note that the alpha component is used: If alpha is other than 255, the image will be transparent.
 		\param useAlphaChannelOfTexture: If true, the alpha channel of the texture is
 		used to draw the image. */
-		virtual void draw2DImage(const video::ITexture* texture,
+		virtual void draw2DImage(const boost::shared_ptr<video::ITexture> texture,
 				const core::position2d<s32>& pos,
 				const core::array<core::rect<s32> >& sourceRects,
 				const core::array<s32>& indices,
@@ -188,7 +188,7 @@ namespace video
 				bool useAlphaChannelOfTexture=false);
 
 		//! Draws a part of the texture into the rectangle.
-		virtual void draw2DImage(const video::ITexture* texture, const core::rect<s32>& destRect,
+		virtual void draw2DImage(const boost::shared_ptr<video::ITexture> texture, const core::rect<s32>& destRect,
 			const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect = 0,
 			const video::SColor* const colors=0, bool useAlphaChannelOfTexture=false);
 
@@ -303,7 +303,7 @@ namespace video
 
 		//! sets the current Texture
 		//! Returns whether setting was a success or not.
-		bool setActiveTexture(u32 stage, const video::ITexture* texture);
+		bool setActiveTexture(u32 stage, const boost::shared_ptr<video::ITexture> texture);
 
 		//! disables all textures beginning with the optional fromStage parameter. Otherwise all texture stages are disabled.
 		//! Returns whether disabling was successful or not.
@@ -343,7 +343,7 @@ namespace video
 		//! call.
 		virtual u32 getMaximalPrimitiveCount() const;
 
-		virtual ITexture* addRenderTargetTexture(const core::dimension2d<u32>& size,
+		virtual boost::shared_ptr<ITexture> addRenderTargetTexture(const core::dimension2d<u32>& size,
 				const io::path& name, const ECOLOR_FORMAT format = ECF_UNKNOWN);
 
 		//! set or reset render target
@@ -351,7 +351,7 @@ namespace video
 					bool clearZBuffer, SColor color);
 
 		//! set or reset render target texture
-		virtual bool setRenderTarget(video::ITexture* texture, bool clearBackBuffer,
+		virtual bool setRenderTarget(boost::shared_ptr<video::ITexture> texture, bool clearBackBuffer,
 					bool clearZBuffer, SColor color);
 
 		//! Sets multiple render targets
@@ -390,11 +390,11 @@ namespace video
 		//! Returns the maximum texture size supported.
 		virtual core::dimension2du getMaxTextureSize() const;
 
-		ITexture* createDepthTexture(ITexture* texture, bool shared=true);
-		void removeDepthTexture(ITexture* texture);
+		boost::shared_ptr<ITexture> createDepthTexture(boost::shared_ptr<ITexture> texture, bool shared=true);
+		void removeDepthTexture(boost::shared_ptr<ITexture> texture);
 
 		//! Removes a texture from the texture cache and deletes it, freeing lot of memory.
-		void removeTexture(ITexture* texture);
+		void removeTexture(boost::shared_ptr<ITexture> texture);
 
 		//! Convert E_PRIMITIVE_TYPE to OpenGL equivalent
 		GLenum primitiveTypeToGL(scene::E_PRIMITIVE_TYPE type) const;
@@ -423,7 +423,7 @@ namespace video
 		//! inits the parts of the open gl driver used on all platforms
 		bool genericDriverInit();
 		//! returns a device dependent texture from a software surface (IImage)
-		virtual video::ITexture* createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData);
+		virtual boost::shared_ptr<video::ITexture> createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData);
 
 		//! creates a transposed matrix in supplied GLfloat array to pass to OpenGL
 		inline void getGLMatrix(GLfloat gl_matrix[16], const core::matrix4& m);
@@ -477,11 +477,11 @@ namespace video
 		u8 AntiAlias;
 
 		SMaterial Material, LastMaterial;
-		COpenGLTexture* RenderTargetTexture;
+		boost::shared_ptr<COpenGLTexture> RenderTargetTexture;
 		core::array<video::IRenderTarget> MRTargets;
 		class STextureStageCache
 		{
-			const ITexture* CurrentTexture[MATERIAL_MAX_TEXTURES];
+			boost::shared_ptr<ITexture> CurrentTexture[MATERIAL_MAX_TEXTURES];
 		public:
 			STextureStageCache()
 			{
@@ -496,20 +496,16 @@ namespace video
 				clear();
 			}
 
-			void set(u32 stage, const ITexture* tex)
+			void set(u32 stage, const boost::shared_ptr<ITexture> tex)
 			{
 				if (stage<MATERIAL_MAX_TEXTURES)
 				{
-					const ITexture* oldTexture=CurrentTexture[stage];
-					if (tex)
-						tex->grab();
+					const boost::shared_ptr<ITexture> oldTexture=CurrentTexture[stage];
 					CurrentTexture[stage]=tex;
-					if (oldTexture)
-						oldTexture->drop();
 				}
 			}
 
-			const ITexture* operator[](int stage) const
+			const boost::shared_ptr<ITexture> operator[](int stage) const
 			{
 				if ((u32)stage<MATERIAL_MAX_TEXTURES)
 					return CurrentTexture[stage];
@@ -517,13 +513,12 @@ namespace video
 					return 0;
 			}
 
-			void remove(const ITexture* tex)
+			void remove(const boost::shared_ptr<ITexture> tex)
 			{
 				for (s32 i = MATERIAL_MAX_TEXTURES-1; i>= 0; --i)
 				{
 					if (CurrentTexture[i] == tex)
 					{
-						tex->drop();
 						CurrentTexture[i] = 0;
 					}
 				}
@@ -536,14 +531,13 @@ namespace video
 				{
 					if (CurrentTexture[i])
 					{
-						CurrentTexture[i]->drop();
 						CurrentTexture[i] = 0;
 					}
 				}
 			}
 		};
 		STextureStageCache CurrentTexture;
-		core::array<ITexture*> DepthTextures;
+		core::array<boost::shared_ptr<ITexture>> DepthTextures;
 		struct SUserClipPlane
 		{
 			SUserClipPlane() : Enabled(false) {}

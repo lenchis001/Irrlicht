@@ -767,9 +767,9 @@ namespace scene
 		\param id: An id of the node. This id can be used to identify the node.
 		\return Pointer to the sky box if successful, otherwise NULL.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual boost::shared_ptr<ISceneNode> addSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom,
-			video::ITexture* left, video::ITexture* right, video::ITexture* front,
-			video::ITexture* back, boost::shared_ptr<ISceneNode> parent = 0, s32 id=-1) = 0;
+		virtual boost::shared_ptr<ISceneNode> addSkyBoxSceneNode(boost::shared_ptr<video::ITexture> top, boost::shared_ptr<video::ITexture> bottom,
+			boost::shared_ptr<video::ITexture> left, boost::shared_ptr<video::ITexture> right, boost::shared_ptr<video::ITexture> front,
+			boost::shared_ptr<video::ITexture> back, boost::shared_ptr<ISceneNode> parent = 0, s32 id=-1) = 0;
 
 		//! Adds a skydome scene node to the scene graph.
 		/** A skydome is a large (half-) sphere with a panoramic texture
@@ -789,7 +789,7 @@ namespace scene
 		\param id: An id of the node. This id can be used to identify the node.
 		\return Pointer to the sky dome if successful, otherwise NULL.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual boost::shared_ptr<ISceneNode> addSkyDomeSceneNode(video::ITexture* texture,
+		virtual boost::shared_ptr<ISceneNode> addSkyDomeSceneNode(boost::shared_ptr<video::ITexture> texture,
 			u32 horiRes=16, u32 vertRes=8,
 			f32 texturePercentage=0.9, f32 spherePercentage=2.0,f32 radius = 1000.f,
 			boost::shared_ptr<ISceneNode> parent=0, s32 id=-1) = 0;
@@ -921,7 +921,7 @@ namespace scene
 		/** A Quake3 Scene renders multiple meshes for a specific HighLanguage Shader (Quake3 Style )
 		\return Pointer to the quake3 scene node if successful, otherwise NULL.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual boost::shared_ptr<IMeshSceneNode> addQuake3SceneNode(const IMeshBuffer* meshBuffer, const quake3::IShader * shader,
+		virtual boost::shared_ptr<IMeshSceneNode> addQuake3SceneNode(const IMeshBuffer* meshBuffer, const boost::shared_ptr<quake3::IShader>  shader,
 												boost::shared_ptr<ISceneNode> parent=0, s32 id=-1
 												) = 0;
 
@@ -1212,7 +1212,7 @@ namespace scene
 		and the animator will animate it.
 		If you no longer need the animator, you should call ISceneNodeAnimator::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual boost::shared_ptr<ISceneNodeAnimator> createTextureAnimator(const core::array<video::ITexture*>& textures,
+		virtual boost::shared_ptr<ISceneNodeAnimator> createTextureAnimator(const core::array<boost::shared_ptr<video::ITexture>>& textures,
 			s32 timePerFrame, bool loop=true) = 0;
 
 		//! Creates a scene node animator, which deletes the scene node after some time automatically.
@@ -1393,7 +1393,7 @@ namespace scene
 		Using this method it is also possible to override the built-in scene loaders
 		with newer or updated versions without the need to recompile the engine.
 		\param externalLoader: Implementation of a new mesh loader. */
-		virtual void addExternalSceneLoader(ISceneLoader* externalLoader) = 0;
+		virtual void addExternalSceneLoader(boost::shared_ptr<ISceneLoader> externalLoader) = 0;
 
 		//! Returns the number of scene loaders supported by Irrlicht at this time
 		virtual u32 getSceneLoaderCount() const = 0;
@@ -1402,7 +1402,7 @@ namespace scene
 		/** \param index The index of the loader to retrieve. This parameter is an 0-based
 		array index.
 		\return A pointer to the specified loader, 0 if the index is incorrect. */
-		virtual ISceneLoader* getSceneLoader(u32 index) const = 0;
+		virtual boost::shared_ptr<ISceneLoader> getSceneLoader(u32 index) const = 0;
 
 		//! Get pointer to the scene collision manager.
 		/** \return Pointer to the collision manager

@@ -29,7 +29,7 @@ using namespace quake3;
 CQuake3ShaderSceneNode::CQuake3ShaderSceneNode(
 			boost::shared_ptr<scene::ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,s32 id,
 			io::IFileSystem *fileSystem, const scene::IMeshBuffer *original,
-			const IShader * shader)
+			const boost::shared_ptr<IShader>  shader)
 : scene::IMeshSceneNode(parent, mgr, id, 
 		core::vector3df(0.f, 0.f, 0.f),
 		core::vector3df(0.f, 0.f, 0.f),
@@ -120,7 +120,7 @@ void CQuake3ShaderSceneNode::cloneBuffer( scene::SMeshBuffer *dest, const scene:
 	}
 
 	// No Texture!. Use Shader-Pointer for sorting
-	dest->Material.setTexture(0, (video::ITexture*) Shader);
+	dest->Material.setTexture(0, boost::reinterpret_pointer_cast<video::ITexture>(Shader));
 }
 
 
@@ -351,7 +351,7 @@ void CQuake3ShaderSceneNode::render()
 		animate( stage, textureMatrix );
 
 		// stage finished, no drawing stage ( vertex transform only )
-		video::ITexture * tex = q.Texture.size() ? q.Texture [ q.TextureIndex ] : 0;
+		boost::shared_ptr<video::ITexture>  tex = q.Texture.size() ? q.Texture [ q.TextureIndex ] : 0;
 		if ( 0 == tex )
 			continue;
 

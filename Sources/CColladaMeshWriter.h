@@ -175,7 +175,7 @@ protected:
 	io::IFileSystem* FileSystem;
 	boost::shared_ptr<video::IVideoDriver> VideoDriver;
 	io::IXMLWriter* Writer;
-	core::array<video::ITexture*> LibraryImages;
+	core::array<boost::shared_ptr<video::ITexture>> LibraryImages;
 	io::path Directory;
 
 	// Helper struct for creating geometry copies for the ECGI_PER_MESH_AND_MATERIAL settings.

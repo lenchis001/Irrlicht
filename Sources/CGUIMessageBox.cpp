@@ -19,7 +19,7 @@ namespace gui
 //! constructor
 CGUIMessageBox::CGUIMessageBox(boost::shared_ptr<IGUIEnvironment> environment, const wchar_t* caption,
 	const wchar_t* text, s32 flags,
-	boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle, video::ITexture* image)
+	boost::shared_ptr<IGUIElement> parent, s32 id, core::rect<s32> rectangle, boost::shared_ptr<video::ITexture> image)
 : CGUIWindow(environment, parent, id, rectangle),
 	OkButton(0), CancelButton(0), YesButton(0), NoButton(0), StaticText(0),
 	Icon(0), IconTexture(image),
@@ -37,8 +37,6 @@ CGUIMessageBox::CGUIMessageBox(boost::shared_ptr<IGUIEnvironment> environment, c
 //! destructor
 CGUIMessageBox::~CGUIMessageBox()
 {
-	if ( IconTexture )
-		IconTexture->drop();
 }
 
 void CGUIMessageBox::setButton(boost::shared_ptr<IGUIButton>& button, bool isAvailable, const core::rect<s32> & btnRect, const wchar_t * text, boost::shared_ptr<IGUIElement>& focusMe)
@@ -406,12 +404,9 @@ void CGUIMessageBox::deserializeAttributes(io::IAttributes* in, io::SAttributeRe
 
 	if ( IconTexture )
 	{
-		IconTexture->drop();
 		IconTexture = NULL;
 	}
 	IconTexture = in->getAttributeAsTexture("Texture");
-	if ( IconTexture )
-		IconTexture->grab();
 
 	MessageText = in->getAttributeAsStringW("MessageText").c_str();
 
@@ -438,9 +433,6 @@ void CGUIMessageBox::setWeakThis(boost::shared_ptr<IGUIElement> value)
 	getMinimizeButton()->remove();
 
 	lockedEnvironment->setFocus(getSharedThis());
-
-	if (IconTexture)
-		IconTexture->grab();
 
 	refreshControls();
 }

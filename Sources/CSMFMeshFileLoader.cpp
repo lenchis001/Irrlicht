@@ -86,7 +86,7 @@ void CSMFMeshFileLoader::loadLimb(io::IReadFile* file, boost::shared_ptr<SMesh> 
 	io::BinaryFile::read(file, textureName);
 
 	// attempt to load texture using known formats
-	video::ITexture* texture = 0;
+	boost::shared_ptr<video::ITexture> texture = 0;
 	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
 
 	const c8* extensions[] = {".jpg", ".png", ".tga", ".bmp", 0};

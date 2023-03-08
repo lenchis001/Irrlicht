@@ -470,7 +470,7 @@ namespace video
 		//! Gets the i-th texture
 		/** \param i The desired level.
 		\return Texture for texture level i, if defined, else 0. */
-		ITexture* getTexture(u32 i) const
+		boost::shared_ptr<ITexture> getTexture(u32 i) const
 		{
 			return i < MATERIAL_MAX_TEXTURES ? TextureLayer[i].Texture : 0;
 		}
@@ -479,7 +479,7 @@ namespace video
 		/** If i>=MATERIAL_MAX_TEXTURES this setting will be ignored.
 		\param i The desired level.
 		\param tex Texture for texture level i. */
-		void setTexture(u32 i, ITexture* tex)
+		void setTexture(u32 i, boost::shared_ptr<ITexture> tex)
 		{
 			if (i>=MATERIAL_MAX_TEXTURES)
 				return;

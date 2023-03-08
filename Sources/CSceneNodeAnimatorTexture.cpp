@@ -12,7 +12,7 @@ namespace scene
 
 
 //! constructor
-CSceneNodeAnimatorTexture::CSceneNodeAnimatorTexture(const core::array<video::ITexture*>& textures, 
+CSceneNodeAnimatorTexture::CSceneNodeAnimatorTexture(const core::array<boost::shared_ptr<video::ITexture>>& textures, 
 					 s32 timePerFrame, bool loop, u32 now)
 : ISceneNodeAnimatorFinishing(0),
 	TimePerFrame(timePerFrame), StartTime(now), Loop(loop)
@@ -23,9 +23,6 @@ CSceneNodeAnimatorTexture::CSceneNodeAnimatorTexture(const core::array<video::IT
 
 	for (u32 i=0; i<textures.size(); ++i)
 	{
-		if (textures[i])
-			textures[i]->grab();
-
 		Textures.push_back(textures[i]);
 	}
 
@@ -42,9 +39,6 @@ CSceneNodeAnimatorTexture::~CSceneNodeAnimatorTexture()
 
 void CSceneNodeAnimatorTexture::clearTextures()
 {
-	for (u32 i=0; i<Textures.size(); ++i)
-		if (Textures[i])
-			Textures[i]->drop();
 }
 
 
@@ -113,10 +107,9 @@ void CSceneNodeAnimatorTexture::deserializeAttributes(io::IAttributes* in, io::S
 
 		if (in->existsAttribute(tname.c_str()))
 		{
-			video::ITexture* tex = in->getAttributeAsTexture(tname.c_str());
+			boost::shared_ptr<video::ITexture> tex = in->getAttributeAsTexture(tname.c_str());
 			if (tex)
 			{
-				tex->grab();
 				Textures.push_back(tex);
 			}
 		}

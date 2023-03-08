@@ -17,7 +17,7 @@ namespace scene
 	public:
 
 		//! constructor
-		CSceneNodeAnimatorTexture(const core::array<video::ITexture*>& textures,
+		CSceneNodeAnimatorTexture(const core::array<boost::shared_ptr<video::ITexture>>& textures,
 			s32 timePerFrame, bool loop, u32 now);
 
 		//! destructor
@@ -45,7 +45,7 @@ namespace scene
 
 		void clearTextures();
 
-		core::array<video::ITexture*> Textures;
+		core::array<boost::shared_ptr<video::ITexture>> Textures;
 		u32 TimePerFrame;
 		u32 StartTime;
 		bool Loop;

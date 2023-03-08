@@ -79,7 +79,7 @@ void CGUIToolBar::updateAbsolutePosition()
 
 //! Adds a button to the tool bar
 boost::shared_ptr<IGUIButton> CGUIToolBar::addButton(s32 id, const wchar_t* text,const wchar_t* tooltiptext,
-	video::ITexture* img, video::ITexture* pressed, bool isPushButton,
+	boost::shared_ptr<video::ITexture> img, boost::shared_ptr<video::ITexture> pressed, bool isPushButton,
 	bool useAlphaChannel)
 {
 	ButtonX += 3;

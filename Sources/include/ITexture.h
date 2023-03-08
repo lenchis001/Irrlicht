@@ -95,7 +95,7 @@ NULL device, their textures are compatible. If you try to use a texture
 created by one device with an other device, the device will refuse to do that
 and write a warning or an error message to the output buffer.
 */
-class ITexture : public virtual IReferenceCounted
+class ITexture : public virtual IDebugable
 {
 public:
 

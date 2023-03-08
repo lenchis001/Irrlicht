@@ -319,9 +319,9 @@ void CLMTSMeshFileLoader::loadTextures(boost::shared_ptr<SMesh> mesh)
 	// load textures
 
 	// a little too much space, but won't matter here
-	core::array<video::ITexture*> tex;
+	core::array<boost::shared_ptr<video::ITexture>> tex;
 	tex.reallocate(Header.TextureCount);
-	core::array<video::ITexture*> lig;
+	core::array<boost::shared_ptr<video::ITexture>> lig;
 	lig.reallocate(Header.TextureCount);
 	core::array<u32> id2id;
 	id2id.reallocate(Header.TextureCount);
@@ -331,7 +331,7 @@ void CLMTSMeshFileLoader::loadTextures(boost::shared_ptr<SMesh> mesh)
 	core::stringc s;
 	for (u32 t=0; t<Header.TextureCount; ++t)
 	{
-		video::ITexture* tmptex = 0;
+		boost::shared_ptr<video::ITexture> tmptex = 0;
 		s = Path;
 		s.append(Textures[t].Filename);
 

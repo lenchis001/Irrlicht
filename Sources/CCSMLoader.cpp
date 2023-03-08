@@ -445,7 +445,7 @@ namespace scene
 				}
 				texName+= surface->getTextureName();
 
-				video::ITexture* texture = 0;
+				boost::shared_ptr<video::ITexture> texture = 0;
 				if (texName.size())
 				{
 					if (FileSystem->existFile(texName))

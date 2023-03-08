@@ -44,16 +44,16 @@ namespace gui
 		virtual boost::shared_ptr<IGUIFont> getActiveFont() ;
 
 		//! Sets an image which should be displayed on the button when it is in normal state.
-		virtual void setImage(video::ITexture* image=0);
+		virtual void setImage(boost::shared_ptr<video::ITexture> image=0);
 
 		//! Sets an image which should be displayed on the button when it is in normal state.
-		virtual void setImage(video::ITexture* image, const core::rect<s32>& pos);
+		virtual void setImage(boost::shared_ptr<video::ITexture> image, const core::rect<s32>& pos);
 
 		//! Sets an image which should be displayed on the button when it is in pressed state.
-		virtual void setPressedImage(video::ITexture* image=0);
+		virtual void setPressedImage(boost::shared_ptr<video::ITexture> image=0);
 
 		//! Sets an image which should be displayed on the button when it is in pressed state.
-		virtual void setPressedImage(video::ITexture* image, const core::rect<s32>& pos);
+		virtual void setPressedImage(boost::shared_ptr<video::ITexture> image, const core::rect<s32>& pos);
 
 		//! Sets the sprite bank used by the button
 		virtual void setSpriteBank(IGUISpriteBank* bank=0);
@@ -120,8 +120,8 @@ namespace gui
 		IGUISpriteBank* SpriteBank;
 		boost::shared_ptr<IGUIFont> OverrideFont;
 
-		video::ITexture* Image;
-		video::ITexture* PressedImage;
+		boost::shared_ptr<video::ITexture> Image;
+		boost::shared_ptr<video::ITexture> PressedImage;
 
 		core::rect<s32> ImageRect;
 		core::rect<s32> PressedImageRect;

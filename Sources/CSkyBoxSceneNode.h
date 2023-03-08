@@ -19,8 +19,8 @@ namespace scene
 	public:
 
 		//! constructor
-		CSkyBoxSceneNode(video::ITexture* top, video::ITexture* bottom, video::ITexture* left,
-			video::ITexture* right, video::ITexture* front, video::ITexture* back,
+		CSkyBoxSceneNode(boost::shared_ptr<video::ITexture> top, boost::shared_ptr<video::ITexture> bottom, boost::shared_ptr<video::ITexture> left,
+			boost::shared_ptr<video::ITexture> right, boost::shared_ptr<video::ITexture> front, boost::shared_ptr<video::ITexture> back,
 			boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id);
 
 		virtual void OnRegisterSceneNode();

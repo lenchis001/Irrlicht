@@ -62,7 +62,7 @@ public:
 	virtual core::aabbox3d<f32> getBBox()		{ return core::aabbox3d<f32>(); }
 	virtual core::plane3df getPlane()		{ return core::plane3df(); }
 
-	virtual video::ITexture* getTexture()		{ return 0; }
+	virtual boost::shared_ptr<video::ITexture> getTexture()		{ return 0; }
 	virtual const char* getEnum()			{ return 0; }
 	virtual void* getUserPointer()			{ return 0; }
 
@@ -93,7 +93,7 @@ public:
 	virtual void setUserPointer(void* v)	{};
 
 	virtual void setEnum(const char* enumValue, const char* const* enumerationLiterals) {};
-	virtual void setTexture(video::ITexture*, const path& filename)	{};
+	virtual void setTexture(boost::shared_ptr<video::ITexture>, const path& filename)	{};
 
 	core::stringc Name;
 

@@ -68,7 +68,7 @@ public:
 	virtual boost::shared_ptr<IGUISkin> createSkin(EGUI_SKIN_TYPE type);
 
 	//! Creates the image list from the given texture.
-	virtual IGUIImageList* createImageList( video::ITexture* texture,
+	virtual IGUIImageList* createImageList( boost::shared_ptr<video::ITexture> texture,
 					core::dimension2d<s32> imageSize, bool useAlphaChannel );
 
 	//! returns the font
@@ -101,14 +101,14 @@ public:
 
 	//! Adds a message box.
 	virtual boost::shared_ptr<IGUIWindow> addMessageBox(const wchar_t* caption, const wchar_t* text=0,
-		bool modal = true, s32 flag = EMBF_OK, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, video::ITexture* image=0);
+		bool modal = true, s32 flag = EMBF_OK, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, boost::shared_ptr<video::ITexture> image=0);
 
 	//! adds a scrollbar. The returned pointer must not be dropped.
 	virtual boost::shared_ptr<IGUIScrollBar> addScrollBar(bool horizontal, const core::rect<s32>& rectangle,
 		boost::shared_ptr<IGUIElement> parent=0, s32 id=-1);
 
 	//! Adds an image element.
-	virtual boost::shared_ptr<IGUIImage> addImage(video::ITexture* image, core::position2d<s32> pos,
+	virtual boost::shared_ptr<IGUIImage> addImage(boost::shared_ptr<video::ITexture> image, core::position2d<s32> pos,
 		bool useAlphaChannel=true, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, const wchar_t* text=0);
 
 	//! adds an image. The returned pointer must not be dropped.

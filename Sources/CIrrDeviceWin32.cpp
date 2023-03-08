@@ -1565,7 +1565,7 @@ void CIrrDeviceWin32::ReportLastWinApiError()
 
 // Convert an Irrlicht texture to a Windows cursor
 // Based on http://www.codeguru.com/cpp/w-p/win32/cursors/article.php/c4529/
-HCURSOR CIrrDeviceWin32::TextureToCursor(HWND hwnd, irr::video::ITexture * tex, const core::rect<s32>& sourceRect, const core::position2d<s32> &hotspot)
+HCURSOR CIrrDeviceWin32::TextureToCursor(HWND hwnd, boost::shared_ptr<irr::video::ITexture>  tex, const core::rect<s32>& sourceRect, const core::position2d<s32> &hotspot)
 {
 	//
 	// create the bitmaps needed for cursors from the texture

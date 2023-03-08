@@ -119,7 +119,7 @@ namespace irr
 		static void ReportLastWinApiError();
 
 		// convert an Irrlicht texture to a windows cursor
-		HCURSOR TextureToCursor(HWND hwnd, irr::video::ITexture * tex, const core::rect<s32>& sourceRect, const core::position2d<s32> &hotspot);
+		HCURSOR TextureToCursor(HWND hwnd, boost::shared_ptr<irr::video::ITexture>  tex, const core::rect<s32>& sourceRect, const core::position2d<s32> &hotspot);
 
 		//! Implementation of the win32 cursor control
 		class CCursorControl : public gui::ICursorControl

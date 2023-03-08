@@ -21,10 +21,10 @@ namespace scene
 		//! loads the shader definition from file
 		/** \param filename Name of the shaderfile, defaults to /scripts if fileNameIsValid is false.
 		\param fileNameIsValid Specifies whether the filename is valid in the current situation. */
-		virtual const quake3::IShader* getShader( const c8* filename, bool fileNameIsValid=true ) = 0;
+		virtual boost::shared_ptr<const quake3::IShader> getShader( const c8* filename, bool fileNameIsValid=true ) = 0;
 
 		//! returns a already loaded Shader
-		virtual const quake3::IShader* getShader(u32 index) const = 0;
+		virtual boost::shared_ptr<const quake3::IShader> getShader(u32 index) const = 0;
 
 		//! get's an interface to the entities
 		virtual quake3::tQ3EntityList& getEntityList() = 0;

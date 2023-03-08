@@ -104,6 +104,8 @@ public:
 	//! sets whether this texture is intended to be used as a render target.
 	void setIsRenderTarget(bool isTarget);
 
+	virtual void setWeakThis(boost::shared_ptr<COpenGLTexture> value);
+
 protected:
 
 	//! protected constructor with basic setup, no GL texture name created, for derived classes
@@ -125,6 +127,12 @@ protected:
 	\param mipLevel If set to non-zero, only that specific miplevel is updated, using the MipImage member. */
 	void uploadTexture(bool newTexture=false, void* mipmapData=0, u32 mipLevel=0);
 
+	inline boost::shared_ptr<COpenGLTexture> getSharedThis() {
+		assert(!WeakThis.expired());
+
+		return WeakThis.lock();
+	}
+
 	core::dimension2d<u32> ImageSize;
 	core::dimension2d<u32> TextureSize;
 	ECOLOR_FORMAT ColorFormat;
@@ -143,6 +151,11 @@ protected:
 	bool AutomaticMipmapUpdate;
 	bool ReadOnlyLock;
 	bool KeepImage;
+
+	//! Weak pointer to this object
+	boost::weak_ptr<COpenGLTexture> WeakThis;
+
+	void* _mipmapData;
 };
 
 //! OpenGL FBO texture.
@@ -166,7 +179,7 @@ public:
 	//! Unbind RenderTargetTexture
 	virtual void unbindRTT();
 
-	ITexture* DepthTexture;
+	boost::shared_ptr<ITexture> DepthTexture;
 protected:
 	GLuint ColorFrameBuffer;
 };
@@ -188,7 +201,7 @@ public:
 	//! Unbind RenderTargetTexture
 	virtual void unbindRTT();
 
-	bool attach(ITexture*);
+	bool attach(boost::shared_ptr<ITexture>);
 
 protected:
 	GLuint DepthRenderBuffer;

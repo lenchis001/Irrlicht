@@ -14,7 +14,7 @@ namespace irr
 namespace scene
 {
 
-	class IVertexBuffer : public virtual IReferenceCounted
+	class IVertexBuffer : public virtual IDebugable
 	{
 	public:
 		virtual void* getData() =0;

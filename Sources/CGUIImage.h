@@ -26,10 +26,10 @@ namespace gui
 		virtual ~CGUIImage();
 
 		//! sets an image
-		virtual void setImage(video::ITexture* image);
+		virtual void setImage(boost::shared_ptr<video::ITexture> image);
 
 		//! Gets the image texture
-		virtual video::ITexture* getImage() const;
+		virtual boost::shared_ptr<video::ITexture> getImage() const;
 
 		//! sets the color of the image
 		virtual void setColor(video::SColor color);
@@ -59,7 +59,7 @@ namespace gui
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
 
 	private:
-		video::ITexture* Texture;
+		boost::shared_ptr<video::ITexture> Texture;
 		video::SColor Color;
 		bool UseAlphaChannel;
 		bool ScaleImage;

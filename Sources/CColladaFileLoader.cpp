@@ -2773,7 +2773,7 @@ core::stringc CColladaFileLoader::readId(io::IXMLReaderUTF8* reader)
 
 
 //! create an Irrlicht texture from the reference
-video::ITexture* CColladaFileLoader::getTextureFromImage(core::stringc uri, SColladaEffect * effect)
+boost::shared_ptr<video::ITexture> CColladaFileLoader::getTextureFromImage(core::stringc uri, SColladaEffect * effect)
 {
 	#ifdef COLLADA_READER_DEBUG
 	os::Printer::log("COLLADA searching texture", uri, ELL_DEBUG);
@@ -2807,7 +2807,7 @@ video::ITexture* CColladaFileLoader::getTextureFromImage(core::stringc uri, SCol
 						ptrsrc += 4;
 					}
 					video::IImage* img = driver->createImageFromData(video::ECF_A8R8G8B8, Images[i].Dimension, data, true, true);
-					video::ITexture* tex = driver->addTexture((CurrentlyLoadingMesh+"#"+Images[i].Id).c_str(), img);
+					boost::shared_ptr<video::ITexture> tex = driver->addTexture((CurrentlyLoadingMesh+"#"+Images[i].Id).c_str(), img);
 					img->drop();
 					return tex;
 				}

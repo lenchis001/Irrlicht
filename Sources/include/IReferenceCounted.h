@@ -29,12 +29,12 @@ namespace irr
 
 	If you want to create a texture, you may want to call an imaginable method
 	IDriver::createTexture. You call
-	ITexture* texture = driver->createTexture(dimension2d<u32>(128, 128));
+	boost::shared_ptr<ITexture> texture = driver->createTexture(dimension2d<u32>(128, 128));
 	If you no longer need the texture, call texture->drop().
 
 	If you want to load a texture, you may want to call imaginable method
 	IDriver::loadTexture. You do this like
-	ITexture* texture = driver->loadTexture("example.jpg");
+	boost::shared_ptr<ITexture> texture = driver->loadTexture("example.jpg");
 	You will not have to drop the pointer to the loaded texture, because
 	the name of the method does not start with 'create'. The texture
 	is stored somewhere by the driver.
@@ -108,11 +108,11 @@ namespace irr
 
 		If you want to create a texture, you may want to call an
 		imaginable method IDriver::createTexture. You call
-		ITexture* texture = driver->createTexture(dimension2d<u32>(128, 128));
+		boost::shared_ptr<ITexture> texture = driver->createTexture(dimension2d<u32>(128, 128));
 		If you no longer need the texture, call texture->drop().
 		If you want to load a texture, you may want to call imaginable
 		method IDriver::loadTexture. You do this like
-		ITexture* texture = driver->loadTexture("example.jpg");
+		boost::shared_ptr<ITexture> texture = driver->loadTexture("example.jpg");
 		You will not have to drop the pointer to the loaded texture,
 		because the name of the method does not start with 'create'.
 		The texture is stored somewhere by the driver. */
@@ -137,11 +137,11 @@ namespace irr
 
 		If you want to create a texture, you may want to call an
 		imaginable method IDriver::createTexture. You call
-		ITexture* texture = driver->createTexture(dimension2d<u32>(128, 128));
+		boost::shared_ptr<ITexture> texture = driver->createTexture(dimension2d<u32>(128, 128));
 		If you no longer need the texture, call texture->drop().
 		If you want to load a texture, you may want to call imaginable
 		method IDriver::loadTexture. You do this like
-		ITexture* texture = driver->loadTexture("example.jpg");
+		boost::shared_ptr<ITexture> texture = driver->loadTexture("example.jpg");
 		You will not have to drop the pointer to the loaded texture,
 		because the name of the method does not start with 'create'.
 		The texture is stored somewhere by the driver.

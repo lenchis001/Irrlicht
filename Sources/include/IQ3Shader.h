@@ -77,7 +77,7 @@ namespace quake3
 
 	// some useful typedefs
 	typedef core::array< core::stringc > tStringList;
-	typedef core::array< video::ITexture* > tTexArray;
+	typedef core::array< boost::shared_ptr<video::ITexture> > tTexArray;
 
 	// string helper.. TODO: move to generic files
 	inline s16 isEqual ( const core::stringc &string, u32 &pos, const c8 *list[], u16 listSize )
@@ -686,7 +686,7 @@ namespace quake3
 
 	typedef IShader IEntity;
 
-	typedef core::array < IEntity > tQ3EntityList;
+	typedef core::array <boost::shared_ptr<IEntity> > tQ3EntityList;
 
 	/*
 		dump shader like original layout, regardless of internal data holding
@@ -736,7 +736,7 @@ namespace quake3
 	/*!
 		dump a Shader or an Entity
 	*/
-	inline core::stringc & dumpShader ( core::stringc &dest, const IShader * shader, bool entity = false )
+	inline core::stringc & dumpShader ( core::stringc &dest, const boost::shared_ptr<IShader>  shader, bool entity = false )
 	{
 		if ( 0 == shader )
 			return dest;
@@ -791,7 +791,7 @@ namespace quake3
 		io::path loadFile;
 		for ( u32 i = 0; i!= stringList.size (); ++i )
 		{
-			video::ITexture* texture = 0;
+			boost::shared_ptr<video::ITexture> texture = 0;
 			for (u32 g = 0; g != 7 ; ++g)
 			{
 				core::cutFilenameExtension ( loadFile, stringList[i] );

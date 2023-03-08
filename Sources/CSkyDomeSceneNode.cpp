@@ -30,7 +30,7 @@ namespace scene
 	to use a value slightly bigger than 1 to avoid a gap between some ground place and the sky. This
 	parameters stretches the image to fit the chosen "sphere-size". */
 
-CSkyDomeSceneNode::CSkyDomeSceneNode(video::ITexture* sky, u32 horiRes, u32 vertRes,
+CSkyDomeSceneNode::CSkyDomeSceneNode(boost::shared_ptr<video::ITexture> sky, u32 horiRes, u32 vertRes,
 		f32 texturePercentage, f32 spherePercentage, f32 radius,
 		boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id)
 	: ISceneNode(parent, mgr, id), Buffer(0),

@@ -30,13 +30,6 @@ CGUISpriteBank::CGUISpriteBank(boost::shared_ptr<IGUIEnvironment> env) :
 
 CGUISpriteBank::~CGUISpriteBank()
 {
-	// drop textures
-	for (u32 i=0; i<Textures.size(); ++i)
-		if (Textures[i])
-			Textures[i]->drop();
-
-	// drop video driver
-
 }
 
 
@@ -58,7 +51,7 @@ u32 CGUISpriteBank::getTextureCount() const
 }
 
 
-video::ITexture* CGUISpriteBank::getTexture(u32 index) const
+boost::shared_ptr<video::ITexture> CGUISpriteBank::getTexture(u32 index) const
 {
 	if (index < Textures.size())
 		return Textures[index];
@@ -67,25 +60,16 @@ video::ITexture* CGUISpriteBank::getTexture(u32 index) const
 }
 
 
-void CGUISpriteBank::addTexture(video::ITexture* texture)
+void CGUISpriteBank::addTexture(boost::shared_ptr<video::ITexture> texture)
 {
-	if (texture)
-		texture->grab();
-
 	Textures.push_back(texture);
 }
 
 
-void CGUISpriteBank::setTexture(u32 index, video::ITexture* texture)
+void CGUISpriteBank::setTexture(u32 index, boost::shared_ptr<video::ITexture> texture)
 {
 	while (index >= Textures.size())
 		Textures.push_back(0);
-
-	if (texture)
-		texture->grab();
-
-	if (Textures[index])
-		Textures[index]->drop();
 
 	Textures[index] = texture;
 }
@@ -95,16 +79,13 @@ void CGUISpriteBank::setTexture(u32 index, video::ITexture* texture)
 void CGUISpriteBank::clear()
 {
 	// drop textures
-	for (u32 i=0; i<Textures.size(); ++i)
-		if (Textures[i])
-			Textures[i]->drop();
 	Textures.clear();
 	Sprites.clear();
 	Rectangles.clear();
 }
 
 //! Add the texture and use it for a single non-animated sprite.
-s32 CGUISpriteBank::addTextureAsSprite(video::ITexture* texture)
+s32 CGUISpriteBank::addTextureAsSprite(boost::shared_ptr<video::ITexture> texture)
 {
 	if ( !texture )
 		return -1;
@@ -147,7 +128,7 @@ void CGUISpriteBank::draw2DSprite(u32 index, const core::position2di& pos,
 			frame = (f >= Sprites[index].Frames.size()) ? Sprites[index].Frames.size()-1 : f;
 	}
 
-	const video::ITexture* tex = Textures[Sprites[index].Frames[frame].textureNumber];
+	const boost::shared_ptr<video::ITexture> tex = Textures[Sprites[index].Frames[frame].textureNumber];
 	if (!tex)
 		return;
 
