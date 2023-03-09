@@ -53,7 +53,7 @@ namespace irr
 	namespace video
 	{
 		boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParameters& params,
-				io::IFileSystem* io, CIrrDeviceLinux* device);
+				boost::shared_ptr<io::IFileSystem> io, CIrrDeviceLinux* device);
 	}
 } // end namespace irr
 
@@ -1186,7 +1186,7 @@ void CIrrDeviceLinux::setWindowCaption(const wchar_t* text)
 
 
 //! presents a surface in the client area
-bool CIrrDeviceLinux::present(video::IImage* image, void* windowId, core::rect<s32>* srcRect)
+bool CIrrDeviceLinux::present(boost::shared_ptr<video::IImage> image, void* windowId, core::rect<s32>* srcRect)
 {
 #ifdef _IRR_COMPILE_WITH_X11_
 	// this is only necessary for software drivers.

@@ -24,7 +24,7 @@ CIrrDeviceStub::CIrrDeviceStub(const SIrrlichtCreationParameters& params)
 	InputReceivingSceneManager(0), VideoModeList(0),
 	CreationParams(params), Close(false)
 {
-	Timer = new CTimer(params.UsePerformanceTimer);
+	Timer = boost::make_shared<CTimer>(params.UsePerformanceTimer);
 	if (os::Printer::Logger)
 	{
 		os::Printer::Logger->grab();
@@ -54,18 +54,10 @@ CIrrDeviceStub::CIrrDeviceStub(const SIrrlichtCreationParameters& params)
 
 CIrrDeviceStub::~CIrrDeviceStub()
 {
-	FileSystem->drop();
-
-	if (Operator)
-		Operator->drop();
-
 	if (Randomizer)
 		Randomizer->drop();
 
 	CursorControl = 0;
-
-	if (Timer)
-		Timer->drop();
 
 	if (Logger->drop())
 		os::Printer::Logger = 0;
@@ -99,7 +91,7 @@ boost::shared_ptr<video::IVideoDriver> CIrrDeviceStub::getVideoDriver()
 
 
 //! return file system
-io::IFileSystem* CIrrDeviceStub::getFileSystem()
+boost::shared_ptr<io::IFileSystem> CIrrDeviceStub::getFileSystem()
 {
 	return FileSystem;
 }
@@ -123,7 +115,7 @@ boost::shared_ptr<scene::ISceneManager> CIrrDeviceStub::getSceneManager()
 
 //! \return Returns a pointer to the ITimer object. With it the
 //! current Time can be received.
-ITimer* CIrrDeviceStub::getTimer()
+boost::shared_ptr<ITimer> CIrrDeviceStub::getTimer()
 {
 	return Timer;
 }
@@ -248,7 +240,7 @@ ILogger* CIrrDeviceStub::getLogger()
 
 
 //! Returns the operation system opertator object.
-IOSOperator* CIrrDeviceStub::getOSOperator()
+boost::shared_ptr<IOSOperator> CIrrDeviceStub::getOSOperator()
 {
 	return Operator;
 }

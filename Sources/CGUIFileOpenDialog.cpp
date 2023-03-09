@@ -56,7 +56,6 @@ CGUIFileOpenDialog::~CGUIFileOpenDialog()
 		// revert to original CWD if path was set in constructor
 		if (RestoreDirectory.size())
 			FileSystem->changeWorkingDirectoryTo(RestoreDirectory);
-		FileSystem->drop();
 	}
 
 	if (FileList)
@@ -288,8 +287,6 @@ void CGUIFileOpenDialog::setWeakThis(boost::shared_ptr<IGUIElement> value)
 
 	if (FileSystem)
 	{
-		FileSystem->grab();
-
 		if (_restoreCWD)
 			RestoreDirectory = FileSystem->getWorkingDirectory();
 		if (_startDir)

@@ -216,7 +216,7 @@ void CImageLoaderBMP::decompress4BitRLE(u8*& bmpData, s32 size, s32 width, s32 h
 
 
 //! creates a surface from the file
-IImage* CImageLoaderBMP::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderBMP::loadImage(io::IReadFile* file) const
 {
 	SBMPHeader header;
 
@@ -312,36 +312,42 @@ IImage* CImageLoaderBMP::loadImage(io::IReadFile* file) const
 	dim.Width = header.Width;
 	dim.Height = header.Height;
 
-	IImage* image = 0;
+	boost::shared_ptr<CImage> image = 0;
 	switch(header.BPP)
 	{
 	case 1:
-		image = new CImage(ECF_A1R5G5B5, dim);
+		image = boost::make_shared<CImage>(ECF_A1R5G5B5, dim);
+		image->setWeakPtr(image);
 		if (image)
 			CColorConverter::convert1BitTo16Bit(bmpData, (s16*)image->lock(), header.Width, header.Height, pitch, true);
 		break;
 	case 4:
-		image = new CImage(ECF_A1R5G5B5, dim);
+		image = boost::make_shared<CImage>(ECF_A1R5G5B5, dim);
+		image->setWeakPtr(image);
 		if (image)
 			CColorConverter::convert4BitTo16Bit(bmpData, (s16*)image->lock(), header.Width, header.Height, paletteData, pitch, true);
 		break;
 	case 8:
-		image = new CImage(ECF_A1R5G5B5, dim);
+		image = boost::make_shared<CImage>(ECF_A1R5G5B5, dim);
+		image->setWeakPtr(image);
 		if (image)
 			CColorConverter::convert8BitTo16Bit(bmpData, (s16*)image->lock(), header.Width, header.Height, paletteData, pitch, true);
 		break;
 	case 16:
-		image = new CImage(ECF_A1R5G5B5, dim);
+		image = boost::make_shared<CImage>(ECF_A1R5G5B5, dim);
+		image->setWeakPtr(image);
 		if (image)
 			CColorConverter::convert16BitTo16Bit((s16*)bmpData, (s16*)image->lock(), header.Width, header.Height, pitch, true);
 		break;
 	case 24:
-		image = new CImage(ECF_R8G8B8, dim);
+		image = boost::make_shared<CImage>(ECF_R8G8B8, dim);
+		image->setWeakPtr(image);
 		if (image)
 			CColorConverter::convert24BitTo24Bit(bmpData, (u8*)image->lock(), header.Width, header.Height, pitch, true, true);
 		break;
 	case 32: // thx to Reinhard Ostermeier
-		image = new CImage(ECF_A8R8G8B8, dim);
+		image = boost::make_shared<CImage>(ECF_A8R8G8B8, dim);
+		image->setWeakPtr(image);
 		if (image)
 			CColorConverter::convert32BitTo32Bit((s32*)bmpData, (s32*)image->lock(), header.Width, header.Height, pitch, true);
 		break;
@@ -359,9 +365,9 @@ IImage* CImageLoaderBMP::loadImage(io::IReadFile* file) const
 
 
 //! creates a loader which is able to load windows bitmaps
-IImageLoader* createImageLoaderBMP()
+boost::shared_ptr<IImageLoader> createImageLoaderBMP()
 {
-	return new CImageLoaderBMP;
+	return boost::make_shared<CImageLoaderBMP>();
 }
 
 

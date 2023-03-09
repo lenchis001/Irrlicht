@@ -20,22 +20,17 @@ namespace scene
 
 
 CIrrMeshWriter::CIrrMeshWriter(boost::shared_ptr<video::IVideoDriver> driver,
-				io::IFileSystem* fs)
+				boost::shared_ptr<io::IFileSystem> fs)
 	: FileSystem(fs), VideoDriver(driver), Writer(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CIrrMeshWriter");
 	#endif
-
-	if (FileSystem)
-		FileSystem->grab();
 }
 
 
 CIrrMeshWriter::~CIrrMeshWriter()
 {
-	if (FileSystem)
-		FileSystem->drop();
 }
 
 

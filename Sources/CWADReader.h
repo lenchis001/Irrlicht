@@ -85,7 +85,7 @@ namespace io
 	public:
 
 		//! Constructor
-		CArchiveLoaderWAD(io::IFileSystem* fs);
+		CArchiveLoaderWAD(boost::shared_ptr<io::IFileSystem> fs);
 
 		//! returns true if the file maybe is able to be loaded by this class
 		//! based on the file extension (e.g. ".zip")
@@ -113,7 +113,7 @@ namespace io
 		virtual io::IFileArchive* createArchive(io::IReadFile* file, bool ignoreCase, bool ignorePaths) const;
 
 	private:
-		io::IFileSystem* FileSystem;
+		boost::shared_ptr<io::IFileSystem> FileSystem;
 	};
 
 
@@ -164,7 +164,7 @@ namespace io
 
 		//core::array<SWADFileEntry> FileInfo;
 
-		io::IFileSystem* FileSystem;
+		boost::shared_ptr<io::IFileSystem> FileSystem;
 	};
 
 } // end namespace io

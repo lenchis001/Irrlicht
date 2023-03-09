@@ -23,7 +23,7 @@ namespace io
 	public:
 
 		//! Constructor
-		CArchiveLoaderMount(io::IFileSystem* fs);
+		CArchiveLoaderMount(boost::shared_ptr<io::IFileSystem> fs);
 
 		//! returns true if the file maybe is able to be loaded by this class
 		//! based on the file extension (e.g. ".zip")
@@ -51,7 +51,7 @@ namespace io
 		virtual IFileArchive* createArchive(io::IReadFile* file, bool ignoreCase, bool ignorePaths) const;
 
 	private:
-		io::IFileSystem* FileSystem;
+		boost::shared_ptr<io::IFileSystem> FileSystem;
 	};
 
 	//! A File Archive which uses a mountpoint
@@ -60,7 +60,7 @@ namespace io
 	public:
 
 		//! Constructor
-		CMountPointReader(IFileSystem *parent, const io::path& basename,
+		CMountPointReader(boost::shared_ptr<IFileSystem> parent, const io::path& basename,
 				bool ignoreCase, bool ignorePaths);
 
 		//! opens a file by index
@@ -79,7 +79,7 @@ namespace io
 
 		core::array<io::path> RealFileNames;
 
-		IFileSystem *Parent;
+		boost::shared_ptr<IFileSystem> Parent;
 		void buildDirectory();
 	};
 } // io

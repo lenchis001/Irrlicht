@@ -16,7 +16,7 @@ namespace scene
 {
 
 //! Constructor
-CSceneLoaderIrr::CSceneLoaderIrr(boost::shared_ptr<ISceneManager> smgr, io::IFileSystem* fs)
+CSceneLoaderIrr::CSceneLoaderIrr(boost::shared_ptr<ISceneManager> smgr, boost::shared_ptr<io::IFileSystem> fs)
  : SceneManagerAwareMixin(smgr), FileSystem(fs),
    IRR_XML_FORMAT_SCENE(L"irr_scene"), IRR_XML_FORMAT_NODE(L"node"), IRR_XML_FORMAT_NODE_ATTR_TYPE(L"type"),
    IRR_XML_FORMAT_ATTRIBUTES(L"attributes"), IRR_XML_FORMAT_MATERIALS(L"materials"),

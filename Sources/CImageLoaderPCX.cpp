@@ -48,7 +48,7 @@ bool CImageLoaderPCX::isALoadableFileFormat(io::IReadFile* file) const
 
 
 //! creates a image from the file
-IImage* CImageLoaderPCX::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderPCX::loadImage(io::IReadFile* file) const
 {
 	SPCXHeader header;
 	s32* paletteData = 0;
@@ -158,7 +158,7 @@ IImage* CImageLoaderPCX::loadImage(io::IReadFile* file) const
 	}
 
 	// create image
-	video::IImage* image = 0;
+	boost::shared_ptr<video::CImage> image = 0;
 	s32 pad = (header.BytesPerLine - width * header.BitsPerPixel / 8) * header.Planes;
 
 	if (pad < 0)
@@ -169,12 +169,14 @@ IImage* CImageLoaderPCX::loadImage(io::IReadFile* file) const
 		switch(header.Planes) // TODO: Other formats
 		{
 		case 1:
-			image = new CImage(ECF_A1R5G5B5, core::dimension2d<u32>(width, height));
+			image = boost::make_shared<CImage>(ECF_A1R5G5B5, core::dimension2d<u32>(width, height));
+			image->setWeakPtr(image);
 			if (image)
 				CColorConverter::convert8BitTo16Bit(PCXData, (s16*)image->lock(), width, height, paletteData, pad);
 			break;
 		case 3:
-			image = new CImage(ECF_R8G8B8, core::dimension2d<u32>(width, height));
+			image = boost::make_shared<CImage>(ECF_R8G8B8, core::dimension2d<u32>(width, height));
+			image->setWeakPtr(image);
 			if (image)
 				CColorConverter::convert24BitTo24Bit(PCXData, (u8*)image->lock(), width, height, pad);
 			break;
@@ -184,7 +186,8 @@ IImage* CImageLoaderPCX::loadImage(io::IReadFile* file) const
 	{
 		if (header.Planes==1)
 		{
-			image = new CImage(ECF_A1R5G5B5, core::dimension2d<u32>(width, height));
+			image = boost::make_shared<CImage>(ECF_A1R5G5B5, core::dimension2d<u32>(width, height));
+			image->setWeakPtr(image);
 			if (image)
 				CColorConverter::convert4BitTo16Bit(PCXData, (s16*)image->lock(), width, height, paletteData, pad);
 		}
@@ -193,13 +196,15 @@ IImage* CImageLoaderPCX::loadImage(io::IReadFile* file) const
 	{
 		if (header.Planes==4)
 		{
-			image = new CImage(ECF_A1R5G5B5, core::dimension2d<u32>(width, height));
+			image = boost::make_shared<CImage>(ECF_A1R5G5B5, core::dimension2d<u32>(width, height));
+			image->setWeakPtr(image);
 			if (image)
 				CColorConverter::convert4BitTo16Bit(PCXData, (s16*)image->lock(), width, height, paletteData, pad);
 		}
 		else if (header.Planes==1)
 		{
-			image = new CImage(ECF_A1R5G5B5, core::dimension2d<u32>(width, height));
+			image = boost::make_shared<CImage>(ECF_A1R5G5B5, core::dimension2d<u32>(width, height));
+			image->setWeakPtr(image);
 			if (image)
 				CColorConverter::convert1BitTo16Bit(PCXData, (s16*)image->lock(), width, height, pad);
 		}
@@ -217,9 +222,9 @@ IImage* CImageLoaderPCX::loadImage(io::IReadFile* file) const
 
 
 //! creates a loader which is able to load pcx images
-IImageLoader* createImageLoaderPCX()
+boost::shared_ptr<IImageLoader> createImageLoaderPCX()
 {
-	return new CImageLoaderPCX();
+	return boost::make_shared<CImageLoaderPCX>();
 }
 
 

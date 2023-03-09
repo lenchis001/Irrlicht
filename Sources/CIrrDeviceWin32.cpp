@@ -35,7 +35,7 @@ namespace irr
 	{
 		#ifdef _IRR_COMPILE_WITH_OPENGL_
 		boost::shared_ptr<IVideoDriver> createOpenGLDriver(const irr::SIrrlichtCreationParameters& params,
-			io::IFileSystem* io, CIrrDeviceWin32* device);
+			boost::shared_ptr<io::IFileSystem> io, CIrrDeviceWin32* device);
 		#endif
 	}
 } // end namespace irr
@@ -672,7 +672,7 @@ CIrrDeviceWin32::CIrrDeviceWin32(const SIrrlichtCreationParameters& params)
 	// get windows version and create OS operator
 	core::stringc winversion;
 	getWindowsVersion(winversion);
-	Operator = new COSOperator(winversion);
+	Operator = boost::make_shared<COSOperator>(winversion);
 	os::Printer::log(winversion.c_str(), ELL_INFORMATION);
 
 	// get handle to exe file
@@ -953,7 +953,7 @@ void CIrrDeviceWin32::setWindowCaption(const wchar_t* text)
 
 
 //! presents a surface in the client area
-bool CIrrDeviceWin32::present(video::IImage* image, void* windowId, core::rect<s32>* src)
+bool CIrrDeviceWin32::present(boost::shared_ptr<video::IImage> image, void* windowId, core::rect<s32>* src)
 {
 	HWND hwnd = HWnd;
 	if ( windowId )

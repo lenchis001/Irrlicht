@@ -73,7 +73,7 @@ bool CImageWriterPNG::isAWriteableFileExtension(const io::path& filename) const
 #endif
 }
 
-bool CImageWriterPNG::writeImage(io::IWriteFile* file, IImage* image,u32 param) const
+bool CImageWriterPNG::writeImage(io::IWriteFile* file, boost::shared_ptr<IImage> image,u32 param) const
 {
 #ifdef _IRR_COMPILE_WITH_LIBPNG_
 	if (!file || !image)

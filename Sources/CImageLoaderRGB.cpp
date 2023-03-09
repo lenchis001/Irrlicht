@@ -167,9 +167,9 @@ bool CImageLoaderRGB::isALoadableFileFormat(io::IReadFile* file) const
 /** The main entry point, read and format the image file.
 \return Pointer to the image data on success
 				null pointer on fail */
-IImage* CImageLoaderRGB::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderRGB::loadImage(io::IReadFile* file) const
 {
-	IImage* image = 0;
+	boost::shared_ptr<CImage> image = 0;
 	s32* paletteData = 0;
 
 	rgbStruct rgb;   // construct our structure for holding data
@@ -234,14 +234,16 @@ IImage* CImageLoaderRGB::loadImage(io::IReadFile* file) const
 				for (int n=0; n<256; n++)
 					paletteData[n] = n;
 
-				image = new CImage(ECF_A1R5G5B5, core::dimension2d<u32>(rgb.Header.Xsize, rgb.Header.Ysize));
+				image = boost::make_shared<CImage>(ECF_A1R5G5B5, core::dimension2d<u32>(rgb.Header.Xsize, rgb.Header.Ysize));
+				image->setWeakPtr(image);
 				if (image)
 					CColorConverter::convert8BitTo16Bit(rgb.rgbData, (s16*)image->lock(), rgb.Header.Xsize, rgb.Header.Ysize, paletteData, 0, true);
 				break;
 			case 3:
 				// RGB image
 				// one byte per COLOR VALUE, eg, 24bpp
-				image = new CImage(ECF_R8G8B8, core::dimension2d<u32>(rgb.Header.Xsize, rgb.Header.Ysize));
+				image = boost::make_shared<CImage>(ECF_R8G8B8, core::dimension2d<u32>(rgb.Header.Xsize, rgb.Header.Ysize));
+				image->setWeakPtr(image);
 				if (image)
 					CColorConverter::convert24BitTo24Bit(rgb.rgbData, (u8*)image->lock(), rgb.Header.Xsize, rgb.Header.Ysize, 0, true, false);
 				break;
@@ -251,7 +253,8 @@ IImage* CImageLoaderRGB::loadImage(io::IReadFile* file) const
 
 				converttoARGB(reinterpret_cast<u32*>(rgb.rgbData), 	rgb.Header.Ysize * rgb.Header.Xsize);
 
-				image = new CImage(ECF_A8R8G8B8, core::dimension2d<u32>(rgb.Header.Xsize, rgb.Header.Ysize));
+				image = boost::make_shared<CImage>(ECF_A8R8G8B8, core::dimension2d<u32>(rgb.Header.Xsize, rgb.Header.Ysize));
+				image->setWeakPtr(image);
 				if (image)
 					CColorConverter::convert32BitTo32Bit((s32*)rgb.rgbData, (s32*)image->lock(), rgb.Header.Xsize, rgb.Header.Ysize, 0, true);
 
@@ -641,9 +644,9 @@ void CImageLoaderRGB::converttoARGB(u32* in, const u32 size) const
 
 
 //! creates a loader which is able to load SGI RGB images
-IImageLoader* createImageLoaderRGB()
+boost::shared_ptr<IImageLoader> createImageLoaderRGB()
 {
-	return new CImageLoaderRGB;
+	return boost::make_shared<CImageLoaderRGB>();
 }
 
 

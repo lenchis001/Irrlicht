@@ -24,7 +24,7 @@ namespace scene
 	is shared between them. With this interface, it is possible to manually
 	add new loaded meshes (if ISceneManager::getMesh() is not sufficient),
 	to remove them and to iterate through already loaded meshes. */
-	class IMeshCache : public virtual IReferenceCounted
+	class IMeshCache : public virtual IDebugable
 	{
 	public:
 

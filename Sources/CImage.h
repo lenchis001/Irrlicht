@@ -7,6 +7,7 @@
 
 #include "IImage.h"
 #include "rect.h"
+#include "SharedThisMixin.h"
 
 namespace irr
 {
@@ -15,7 +16,7 @@ namespace video
 
 //! IImage implementation with a lot of special image operations for
 //! 16 bit A1R5G5B5/32 Bit A8R8G8B8 images, which are used by the SoftwareDevice.
-class CImage : public IImage
+class CImage : public IImage, public SharedThisMixin<IImage>
 {
 public:
 
@@ -84,21 +85,21 @@ public:
 	virtual void copyToScaling(void* target, u32 width, u32 height, ECOLOR_FORMAT format, u32 pitch=0);
 
 	//! copies this surface into another, scaling it to fit.
-	virtual void copyToScaling(IImage* target);
+	virtual void copyToScaling(boost::shared_ptr<IImage> target);
 
 	//! copies this surface into another
-	virtual void copyTo(IImage* target, const core::position2d<s32>& pos=core::position2d<s32>(0,0));
+	virtual void copyTo(boost::shared_ptr<IImage> target, const core::position2d<s32>& pos=core::position2d<s32>(0,0));
 
 	//! copies this surface into another
-	virtual void copyTo(IImage* target, const core::position2d<s32>& pos, const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect=0);
+	virtual void copyTo(boost::shared_ptr<IImage> target, const core::position2d<s32>& pos, const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect=0);
 
 	//! copies this surface into another, using the alpha mask, an cliprect and a color to add with
-	virtual void copyToWithAlpha(IImage* target, const core::position2d<s32>& pos,
+	virtual void copyToWithAlpha(boost::shared_ptr<IImage> target, const core::position2d<s32>& pos,
 			const core::rect<s32>& sourceRect, const SColor &color,
 			const core::rect<s32>* clipRect = 0);
 
 	//! copies this surface into another, scaling it to fit, appyling a box filter
-	virtual void copyToScalingBoxFilter(IImage* target, s32 bias = 0, bool blend = false);
+	virtual void copyToScalingBoxFilter(boost::shared_ptr<IImage> target, s32 bias = 0, bool blend = false);
 
 	//! fills the surface with given color
 	virtual void fill(const SColor &color);

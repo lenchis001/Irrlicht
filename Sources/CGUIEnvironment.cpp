@@ -55,18 +55,12 @@ const wchar_t* IRR_XML_FORMAT_GUI_ELEMENT_ATTR_TYPE	= L"type";
 const io::path CGUIEnvironment::DefaultFontName = "#DefaultFont";
 
 //! constructor
-CGUIEnvironment::CGUIEnvironment(io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver, IOSOperator* op)
+CGUIEnvironment::CGUIEnvironment(boost::shared_ptr<io::IFileSystem> fs, boost::shared_ptr<video::IVideoDriver> driver, boost::shared_ptr<IOSOperator> op)
 : IGUIEnvironment(driver), IGUIElement(EGUIET_ROOT, 0, 0, 0, core::rect<s32>(core::position2d<s32>(0,0), driver ? core::dimension2d<s32>(driver->getScreenSize()) : core::dimension2d<s32>(0,0))),
 	Hovered(0), HoveredNoSubelement(0), Focus(0), LastHoveredMousePos(0,0), CurrentSkin(0),
 	FileSystem(fs), UserReceiver(0), Operator(op)
 {
 
-
-	if (FileSystem)
-		FileSystem->grab();
-
-	if (Operator)
-		Operator->grab();
 
 	#ifdef _DEBUG
 	IGUIEnvironment::setDebugName("CGUIEnvironment");
@@ -113,14 +107,7 @@ CGUIEnvironment::~CGUIEnvironment()
 
 	if (Operator)
 	{
-		Operator->drop();
 		Operator = 0;
-	}
-
-	if (FileSystem)
-	{
-		FileSystem->drop();
-		FileSystem = 0;
 	}
 }
 
@@ -278,14 +265,14 @@ bool CGUIEnvironment::hasFocus(boost::shared_ptr<IGUIElement> element) const
 
 
 //! returns the current file system
-io::IFileSystem* CGUIEnvironment::getFileSystem() const
+boost::shared_ptr<io::IFileSystem> CGUIEnvironment::getFileSystem() const
 {
 	return FileSystem;
 }
 
 
 //! returns a pointer to the OS operator
-IOSOperator* CGUIEnvironment::getOSOperator() const
+boost::shared_ptr<IOSOperator> CGUIEnvironment::getOSOperator() const
 {
 	return Operator;
 }
@@ -1612,9 +1599,9 @@ boost::shared_ptr<IGUIElement> CGUIEnvironment::getNextElement(bool reverse, boo
 
 
 //! creates an GUI Environment
-boost::shared_ptr<IGUIEnvironment> createGUIEnvironment(io::IFileSystem* fs,
+boost::shared_ptr<IGUIEnvironment> createGUIEnvironment(boost::shared_ptr<io::IFileSystem> fs,
 					boost::shared_ptr<video::IVideoDriver> Driver,
-					IOSOperator* op)
+					boost::shared_ptr<IOSOperator> op)
 {
 	boost::shared_ptr<CGUIEnvironment> env = boost::make_shared<CGUIEnvironment>(fs, Driver, op);
 	env->setWeakThis(env);

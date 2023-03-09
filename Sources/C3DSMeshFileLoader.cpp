@@ -125,7 +125,7 @@ enum e3DSChunk
 
 
 //! Constructor
-C3DSMeshFileLoader::C3DSMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs): SceneManagerAwareMixin(smgr),
+C3DSMeshFileLoader::C3DSMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, boost::shared_ptr<io::IFileSystem> fs): SceneManagerAwareMixin(smgr),
 	FileSystem(fs), Vertices(0), Indices(0), SmoothingGroups(0), TCoords(0),
 	CountVertices(0), CountFaces(0), CountTCoords(0), Mesh(0)
 {
@@ -133,9 +133,6 @@ C3DSMeshFileLoader::C3DSMeshFileLoader(boost::shared_ptr<scene::ISceneManager> s
 	#ifdef _DEBUG
 	setDebugName("C3DSMeshFileLoader");
 	#endif
-
-	if (FileSystem)
-		FileSystem->grab();
 }
 
 
@@ -143,9 +140,6 @@ C3DSMeshFileLoader::C3DSMeshFileLoader(boost::shared_ptr<scene::ISceneManager> s
 C3DSMeshFileLoader::~C3DSMeshFileLoader()
 {
 	cleanUp();
-
-	if (FileSystem)
-		FileSystem->drop();
 }
 
 

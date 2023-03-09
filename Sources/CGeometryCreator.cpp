@@ -167,8 +167,8 @@ boost::shared_ptr<IMesh> CGeometryCreator::createHillPlaneMesh(
 }
 
 
-boost::shared_ptr<IMesh> CGeometryCreator::createTerrainMesh(video::IImage* texture,
-		video::IImage* heightmap, const core::dimension2d<f32>& stretchSize,
+boost::shared_ptr<IMesh> CGeometryCreator::createTerrainMesh(boost::shared_ptr<video::IImage> texture,
+		boost::shared_ptr<video::IImage> heightmap, const core::dimension2d<f32>& stretchSize,
 		f32 maxHeight, boost::shared_ptr<video::IVideoDriver> driver,
 		const core::dimension2d<u32>& maxVtxBlockSize,
 		bool debugBorders) const
@@ -264,7 +264,7 @@ boost::shared_ptr<IMesh> CGeometryCreator::createTerrainMesh(video::IImage* text
 			{
 				c8 textureName[64];
 				// create texture for this block
-				video::IImage* img = driver->createImage(texture->getColorFormat(), core::dimension2d<u32>(core::floor32(blockSize.Width*thRel.X), core::floor32(blockSize.Height*thRel.Y)));
+				boost::shared_ptr<video::IImage> img = driver->createImage(texture->getColorFormat(), core::dimension2d<u32>(core::floor32(blockSize.Width*thRel.X), core::floor32(blockSize.Height*thRel.Y)));
 				texture->copyTo(img, core::position2di(0,0), core::recti(
 					core::position2d<s32>(core::floor32(processed.X*thRel.X), core::floor32(processed.Y*thRel.Y)),
 					core::dimension2d<u32>(core::floor32(blockSize.Width*thRel.X), core::floor32(blockSize.Height*thRel.Y))), 0);
@@ -284,8 +284,6 @@ boost::shared_ptr<IMesh> CGeometryCreator::createTerrainMesh(video::IImage* text
 				}
 				else
 					os::Printer::log("Could not create terrain texture.", textureName, ELL_ERROR);
-
-				img->drop();
 			}
 
 			buffer->recalculateBoundingBox();

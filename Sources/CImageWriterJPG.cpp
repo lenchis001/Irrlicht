@@ -104,7 +104,7 @@ static void jpeg_file_dest(j_compress_ptr cinfo, io::IWriteFile* file)
 
 /* write_JPEG_memory: store JPEG compressed image into memory.
 */
-static bool writeJPEGFile(io::IWriteFile* file, IImage* image, u32 quality)
+static bool writeJPEGFile(io::IWriteFile* file, boost::shared_ptr<IImage> image, u32 quality)
 {
 	void (*format)(const void*, s32, void*) = 0;
 	switch( image->getColorFormat () )
@@ -213,7 +213,7 @@ bool CImageWriterJPG::isAWriteableFileExtension(const io::path& filename) const
 }
 
 
-bool CImageWriterJPG::writeImage(io::IWriteFile *file, IImage *image, u32 quality) const
+bool CImageWriterJPG::writeImage(io::IWriteFile *file, boost::shared_ptr<IImage> image, u32 quality) const
 {
 #ifndef _IRR_COMPILE_WITH_LIBJPEG_
 	return false;

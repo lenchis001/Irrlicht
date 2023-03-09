@@ -63,16 +63,13 @@ namespace
 }
 
 //! Constructor
-COgreMeshFileLoader::COgreMeshFileLoader(io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver)
+COgreMeshFileLoader::COgreMeshFileLoader(boost::shared_ptr<io::IFileSystem> fs, boost::shared_ptr<video::IVideoDriver> driver)
 : VideoDriverAwareMixin(driver), FileSystem(fs), SwapEndian(false), Mesh(0), NumUV(0)
 {
 
 	#ifdef _DEBUG
 	setDebugName("COgreMeshFileLoader");
 	#endif
-
-	if (FileSystem)
-		FileSystem->grab();
 
 
 }
@@ -82,12 +79,6 @@ COgreMeshFileLoader::COgreMeshFileLoader(io::IFileSystem* fs, boost::shared_ptr<
 COgreMeshFileLoader::~COgreMeshFileLoader()
 {
 	clearMeshes();
-
-	if (FileSystem)
-		FileSystem->drop();
-
-
-
 }
 
 

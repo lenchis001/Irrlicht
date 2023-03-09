@@ -180,7 +180,7 @@ class CColladaFileLoader : public IMeshLoader, public SceneManagerAwareMixin<>
 public:
 
 	//! Constructor
-	CColladaFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs);
+	CColladaFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, boost::shared_ptr<io::IFileSystem> fs);
 
 	//! destructor
 	virtual ~CColladaFileLoader();
@@ -339,7 +339,7 @@ private:
 	//! read a parameter and value
 	void readParameter(io::IXMLReaderUTF8* reader, io::IAttributes* parameters);
 
-	io::IFileSystem* FileSystem;
+	boost::shared_ptr<io::IFileSystem> FileSystem;
 
 	boost::shared_ptr<scene::IAnimatedMesh> DummyMesh;
 	core::stringc CurrentlyLoadingMesh;

@@ -13,7 +13,7 @@ namespace irr
 namespace io
 {
 
-CAttributes::CAttributes(boost::shared_ptr<video::IVideoDriver> driver, io::IFileSystem* fileSystem)
+CAttributes::CAttributes(boost::shared_ptr<video::IVideoDriver> driver, boost::shared_ptr<io::IFileSystem> fileSystem)
 : VideoDriverAwareMixin(driver), _fileSystem(fileSystem)
 {
 	#ifdef _DEBUG

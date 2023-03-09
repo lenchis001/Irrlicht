@@ -158,7 +158,7 @@ namespace gui
 
 		video::SColor OverrideColor;
 		boost::shared_ptr<gui::IGUIFont> OverrideFont, LastBreakFont;
-		IOSOperator* Operator;
+		boost::shared_ptr<IOSOperator> Operator;
 
 		u32 BlinkStartTime;
 		s32 CursorPos;

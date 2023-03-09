@@ -247,21 +247,19 @@ bool CGUIFont::load(const io::path& filename)
 
 
 //! load & prepare font from ITexture
-bool CGUIFont::loadTexture(video::IImage* image, const io::path& name)
+bool CGUIFont::loadTexture(boost::shared_ptr<video::IImage> image, const io::path& name)
 {
 	if (!image || !SpriteBank)
 		return false;
 
 	s32 lowerRightPositions = 0;
 
-	video::IImage* tmpImage=image;
-	bool deleteTmpImage=false;
+	boost::shared_ptr<video::IImage> tmpImage=image;
 	switch(image->getColorFormat())
 	{
 	case video::ECF_R5G6B5:
 		tmpImage =  Driver->createImage(video::ECF_A1R5G5B5,image->getDimension());
 		image->copyTo(tmpImage);
-		deleteTmpImage=true;
 		break;
 	case video::ECF_A1R5G5B5:
 	case video::ECF_A8R8G8B8:
@@ -269,7 +267,6 @@ bool CGUIFont::loadTexture(video::IImage* image, const io::path& name)
 	case video::ECF_R8G8B8:
 		tmpImage = Driver->createImage(video::ECF_A8R8G8B8,image->getDimension());
 		image->copyTo(tmpImage);
-		deleteTmpImage=true;
 		break;
 	default:
 		os::Printer::log("Unknown texture format provided for CGUIFont::loadTexture", ELL_ERROR);
@@ -302,9 +299,6 @@ bool CGUIFont::loadTexture(video::IImage* image, const io::path& name)
 		Driver->setTextureCreationFlag(video::ETCF_ALLOW_NON_POWER_2, flag[0] );
 		Driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, flag[1] );
 	}
-	if (deleteTmpImage)
-		tmpImage->drop();
-	image->drop();
 
 	setMaxHeight();
 
@@ -312,7 +306,7 @@ bool CGUIFont::loadTexture(video::IImage* image, const io::path& name)
 }
 
 
-void CGUIFont::readPositions(video::IImage* image, s32& lowerRightPositions)
+void CGUIFont::readPositions(boost::shared_ptr<video::IImage> image, s32& lowerRightPositions)
 {
 	if (!SpriteBank )
 		return;

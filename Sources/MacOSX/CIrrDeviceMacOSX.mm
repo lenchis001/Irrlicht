@@ -466,7 +466,7 @@ namespace irr
 {
 	namespace video
 	{
-		boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParameters& param, io::IFileSystem* io, CIrrDeviceMacOSX *device);
+		boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParameters& param, boost::shared_ptr<io::IFileSystem> io, CIrrDeviceMacOSX *device);
 	}
 } // end namespace irr
 
@@ -1500,7 +1500,7 @@ void CIrrDeviceMacOSX::restoreWindow()
 }
 
 
-bool CIrrDeviceMacOSX::present(video::IImage* surface, void* windowId, core::rect<s32>* src )
+bool CIrrDeviceMacOSX::present(boost::shared_ptr<video::IImage> surface, void* windowId, core::rect<s32>* src )
 {
 	// todo: implement window ID and src rectangle
 

@@ -29,7 +29,7 @@ class CLWOMeshFileLoader : public IMeshLoader, public SceneManagerAwareMixin<>
 public:
 
 	//! Constructor
-	CLWOMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs);
+	CLWOMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, boost::shared_ptr<io::IFileSystem> fs);
 
 	//! destructor
 	virtual ~CLWOMeshFileLoader();
@@ -62,7 +62,7 @@ private:
 	u32 readColor(video::SColor& color);
 	boost::shared_ptr<video::ITexture> loadTexture(const core::stringc& file);
 
-	io::IFileSystem* FileSystem;
+	boost::shared_ptr<io::IFileSystem> FileSystem;
 	io::IReadFile* File;
 	boost::shared_ptr<SMesh> Mesh;
 

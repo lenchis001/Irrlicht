@@ -137,7 +137,7 @@ bool CImageLoaderJPG::isALoadableFileFormat(io::IReadFile* file) const
 }
 
 //! creates a surface from the file
-IImage* CImageLoaderJPG::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderJPG::loadImage(io::IReadFile* file) const
 {
 	#ifndef _IRR_COMPILE_WITH_LIBJPEG_
 	os::Printer::log("Can't load as not compiled with _IRR_COMPILE_WITH_LIBJPEG_:", file->getFileName(), ELL_DEBUG);
@@ -259,11 +259,12 @@ IImage* CImageLoaderJPG::loadImage(io::IReadFile* file) const
 	jpeg_destroy_decompress(&cinfo);
 
 	// convert image
-	IImage* image = 0;
+	boost::shared_ptr<CImage> image = 0;
 	if (useCMYK)
 	{
-		image = new CImage(ECF_R8G8B8,
+		image = boost::make_shared<CImage>(ECF_R8G8B8,
 				core::dimension2d<u32>(width, height));
+		image->setWeakPtr(image);
 		const u32 size = 3*width*height;
 		u8* data = (u8*)image->lock();
 		if (data)
@@ -282,9 +283,11 @@ IImage* CImageLoaderJPG::loadImage(io::IReadFile* file) const
 		image->unlock();
 		delete [] output;
 	}
-	else
-		image = new CImage(ECF_R8G8B8,
-				core::dimension2d<u32>(width, height), output);
+	else {
+		image = boost::make_shared<CImage>(ECF_R8G8B8,
+			core::dimension2d<u32>(width, height), output);
+		image->setWeakPtr(image);
+	}
 
 	delete [] input;
 
@@ -296,9 +299,9 @@ IImage* CImageLoaderJPG::loadImage(io::IReadFile* file) const
 
 
 //! creates a loader which is able to load jpeg images
-IImageLoader* createImageLoaderJPG()
+boost::shared_ptr<IImageLoader> createImageLoaderJPG()
 {
-	return new CImageLoaderJPG();
+	return boost::make_shared<CImageLoaderJPG>();
 }
 
 } // end namespace video

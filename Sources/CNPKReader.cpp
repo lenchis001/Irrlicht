@@ -34,7 +34,7 @@ namespace
 
 
 //! Constructor
-CArchiveLoaderNPK::CArchiveLoaderNPK( io::IFileSystem* fs)
+CArchiveLoaderNPK::CArchiveLoaderNPK( boost::shared_ptr<io::IFileSystem> fs)
 : FileSystem(fs)
 {
 #ifdef _DEBUG

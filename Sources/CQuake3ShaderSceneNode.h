@@ -24,7 +24,7 @@ class CQuake3ShaderSceneNode : public scene::IMeshSceneNode
 public:
 
 	CQuake3ShaderSceneNode( boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr, s32 id,
-				io::IFileSystem* fileSystem,
+				boost::shared_ptr<io::IFileSystem> fileSystem,
 				const IMeshBuffer* original,
 				const boost::shared_ptr<quake3::IShader> shader
 			);
@@ -84,7 +84,7 @@ private:
 
 	core::array< SQ3Texture > Q3Texture;
 
-	void loadTextures ( io::IFileSystem * fileSystem );
+	void loadTextures ( boost::shared_ptr<io::IFileSystem>  fileSystem );
 	void addBuffer ( scene::SMeshBufferLightMap * buffer );
 	void cloneBuffer ( scene::SMeshBuffer *dest, const scene::SMeshBufferLightMap * buffer, bool translateCenter );
 

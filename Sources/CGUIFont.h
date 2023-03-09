@@ -90,9 +90,9 @@ private:
 	};
 
 	//! load & prepare font from ITexture
-	bool loadTexture(video::IImage * image, const io::path& name);
+	bool loadTexture(boost::shared_ptr<video::IImage>  image, const io::path& name);
 
-	void readPositions(video::IImage* texture, s32& lowerRightPositions);
+	void readPositions(boost::shared_ptr<video::IImage> texture, s32& lowerRightPositions);
 
 	s32 getAreaFromCharacter (const wchar_t c) const;
 	void setMaxHeight();

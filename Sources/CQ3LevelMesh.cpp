@@ -25,7 +25,7 @@ namespace scene
 	using namespace quake3;
 
 //! constructor
-CQ3LevelMesh::CQ3LevelMesh(io::IFileSystem* fs, boost::shared_ptr<scene::ISceneManager> smgr,
+CQ3LevelMesh::CQ3LevelMesh(boost::shared_ptr<io::IFileSystem> fs, boost::shared_ptr<scene::ISceneManager> smgr,
 				const Q3LevelLoadParameter &loadParam)
 	: VideoDriverAwareMixin(smgr ? smgr->getVideoDriver() : 0), SceneManagerAwareMixin(smgr), LoadParam(loadParam), Textures(0), NumTextures(0), LightMaps(0), NumLightMaps(0),
 	Vertices(0), NumVertices(0), Faces(0), NumFaces(0), Models(0), NumModels(0),
@@ -43,9 +43,6 @@ CQ3LevelMesh::CQ3LevelMesh(io::IFileSystem* fs, boost::shared_ptr<scene::ISceneM
 		Mesh[i] = 0;
 	}
 
-	if (FileSystem)
-		FileSystem->grab();
-
 	// load default shaders
 	InitShader();
 }
@@ -55,11 +52,6 @@ CQ3LevelMesh::CQ3LevelMesh(io::IFileSystem* fs, boost::shared_ptr<scene::ISceneM
 CQ3LevelMesh::~CQ3LevelMesh()
 {
 	cleanLoader ();
-
-
-
-	if (FileSystem)
-		FileSystem->drop();
 
 	s32 i;
 
@@ -1936,7 +1928,7 @@ void CQ3LevelMesh::loadTextures()
 */
 	core::dimension2d<u32> lmapsize(128,128);
 
-	video::IImage* lmapImg;
+	boost::shared_ptr<video::IImage> lmapImg;
 	for ( t = 0; t < NumLightMaps ; ++t)
 	{
 		sprintf(lightmapname, "%s.lightmap.%d", LevelName.c_str(), t);
@@ -1947,7 +1939,6 @@ void CQ3LevelMesh::loadTextures()
 			LightMaps[t].imageBits, false, true );
 
 		Lightmap[t] = lockedDriver->addTexture( lightmapname, lmapImg );
-		lmapImg->drop();
 	}
 
 //	Driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, oldMipMapState);

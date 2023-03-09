@@ -7,6 +7,7 @@
 
 #include "IFileSystem.h"
 #include "irrArray.h"
+#include "SharedThisMixin.h"
 
 namespace irr
 {
@@ -20,7 +21,7 @@ namespace io
 /*!
 	FileSystem which uses normal files and one zipfile
 */
-class CFileSystem : public IFileSystem
+class CFileSystem : public IFileSystem, public SharedThisMixin<IFileSystem>
 {
 public:
 
@@ -148,6 +149,7 @@ public:
 	//! Creates a new empty collection of attributes, usable for serialization and more.
 	virtual IAttributes* createEmptyAttributes(boost::shared_ptr<video::IVideoDriver> driver);
 
+	virtual void setWeakPtr(boost::shared_ptr<IFileSystem> thisShared) override;
 private:
 
 	// don't expose, needs refactoring

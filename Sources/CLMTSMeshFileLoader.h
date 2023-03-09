@@ -35,7 +35,7 @@ class CLMTSMeshFileLoader : public IMeshLoader, public video::VideoDriverAwareMi
 {
 public:
 
-	CLMTSMeshFileLoader(io::IFileSystem* fs,
+	CLMTSMeshFileLoader(boost::shared_ptr<io::IFileSystem> fs,
 		boost::shared_ptr<video::IVideoDriver> driver, io::IAttributes* parameters);
 
 	virtual ~CLMTSMeshFileLoader();
@@ -98,7 +98,7 @@ private:
 	SLMTSTriangleDataEntry* Triangles;
 
 	io::IAttributes* Parameters;
-	io::IFileSystem* FileSystem;
+	boost::shared_ptr<io::IFileSystem> FileSystem;
 	bool FlipEndianess;
 };
 

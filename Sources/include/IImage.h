@@ -19,7 +19,7 @@ namespace video
 /** Image loaders create these images from files. IVideoDrivers convert
 these images into their (hardware) textures.
 */
-class IImage : public virtual IReferenceCounted
+class IImage : public virtual IDebugable
 {
 public:
 
@@ -79,21 +79,21 @@ public:
 	virtual void copyToScaling(void* target, u32 width, u32 height, ECOLOR_FORMAT format=ECF_A8R8G8B8, u32 pitch=0) =0;
 
 	//! Copies the image into the target, scaling the image to fit
-	virtual void copyToScaling(IImage* target) =0;
+	virtual void copyToScaling(boost::shared_ptr<IImage> target) =0;
 
 	//! copies this surface into another
-	virtual void copyTo(IImage* target, const core::position2d<s32>& pos=core::position2d<s32>(0,0)) =0;
+	virtual void copyTo(boost::shared_ptr<IImage> target, const core::position2d<s32>& pos=core::position2d<s32>(0,0)) =0;
 
 	//! copies this surface into another
-	virtual void copyTo(IImage* target, const core::position2d<s32>& pos, const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect=0) =0;
+	virtual void copyTo(boost::shared_ptr<IImage> target, const core::position2d<s32>& pos, const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect=0) =0;
 
 	//! copies this surface into another, using the alpha mask and cliprect and a color to add with
-	virtual void copyToWithAlpha(IImage* target, const core::position2d<s32>& pos,
+	virtual void copyToWithAlpha(boost::shared_ptr<IImage> target, const core::position2d<s32>& pos,
 			const core::rect<s32>& sourceRect, const SColor &color,
 			const core::rect<s32>* clipRect = 0) =0;
 
 	//! copies this surface into another, scaling it to fit, appyling a box filter
-	virtual void copyToScalingBoxFilter(IImage* target, s32 bias = 0, bool blend = false) = 0;
+	virtual void copyToScalingBoxFilter(boost::shared_ptr<IImage> target, s32 bias = 0, bool blend = false) = 0;
 
 	//! fills the surface with given color
 	virtual void fill(const SColor &color) =0;

@@ -57,35 +57,6 @@ CFileSystem::CFileSystem()
 	#ifdef _DEBUG
 	setDebugName("CFileSystem");
 	#endif
-
-	setFileListSystem(FILESYSTEM_NATIVE);
-	//! reset current working directory
-	getWorkingDirectory();
-
-#ifdef __IRR_COMPILE_WITH_PAK_ARCHIVE_LOADER_
-	ArchiveLoader.push_back(new CArchiveLoaderPAK(this));
-#endif
-
-#ifdef __IRR_COMPILE_WITH_NPK_ARCHIVE_LOADER_
-	ArchiveLoader.push_back(new CArchiveLoaderNPK(this));
-#endif
-
-#ifdef __IRR_COMPILE_WITH_TAR_ARCHIVE_LOADER_
-	ArchiveLoader.push_back(new CArchiveLoaderTAR(this));
-#endif
-
-#ifdef __IRR_COMPILE_WITH_WAD_ARCHIVE_LOADER_
-	ArchiveLoader.push_back(new CArchiveLoaderWAD(this));
-#endif
-
-#ifdef __IRR_COMPILE_WITH_MOUNT_ARCHIVE_LOADER_
-	ArchiveLoader.push_back(new CArchiveLoaderMount(this));
-#endif
-
-#ifdef __IRR_COMPILE_WITH_ZIP_ARCHIVE_LOADER_
-	ArchiveLoader.push_back(new CArchiveLoaderZIP(this));
-#endif
-
 }
 
 
@@ -1043,16 +1014,52 @@ IXMLWriter* CFileSystem::createXMLWriter(IWriteFile* file)
 
 //! creates a filesystem which is able to open files from the ordinary file system,
 //! and out of zipfiles, which are able to be added to the filesystem.
-IFileSystem* createFileSystem()
+boost::shared_ptr<IFileSystem> createFileSystem()
 {
-	return new CFileSystem();
+	boost::shared_ptr<CFileSystem> fileSystem = boost::make_shared<CFileSystem>();
+	fileSystem->setWeakPtr(fileSystem);
+
+	return fileSystem;
 }
 
 
 //! Creates a new empty collection of attributes, usable for serialization and more.
 IAttributes* CFileSystem::createEmptyAttributes(boost::shared_ptr<video::IVideoDriver> driver)
 {
-	return new CAttributes(driver, this);
+	return new CAttributes(driver, getSharedThis());
+}
+
+void CFileSystem::setWeakPtr(boost::shared_ptr<IFileSystem> thisShared)
+{
+	SharedThisMixin::setWeakPtr(thisShared);
+
+	setFileListSystem(FILESYSTEM_NATIVE);
+	//! reset current working directory
+	getWorkingDirectory();
+
+#ifdef __IRR_COMPILE_WITH_PAK_ARCHIVE_LOADER_
+	ArchiveLoader.push_back(new CArchiveLoaderPAK(getSharedThis()));
+#endif
+
+#ifdef __IRR_COMPILE_WITH_NPK_ARCHIVE_LOADER_
+	ArchiveLoader.push_back(new CArchiveLoaderNPK(getSharedThis()));
+#endif
+
+#ifdef __IRR_COMPILE_WITH_TAR_ARCHIVE_LOADER_
+	ArchiveLoader.push_back(new CArchiveLoaderTAR(getSharedThis()));
+#endif
+
+#ifdef __IRR_COMPILE_WITH_WAD_ARCHIVE_LOADER_
+	ArchiveLoader.push_back(new CArchiveLoaderWAD(getSharedThis()));
+#endif
+
+#ifdef __IRR_COMPILE_WITH_MOUNT_ARCHIVE_LOADER_
+	ArchiveLoader.push_back(new CArchiveLoaderMount(getSharedThis()));
+#endif
+
+#ifdef __IRR_COMPILE_WITH_ZIP_ARCHIVE_LOADER_
+	ArchiveLoader.push_back(new CArchiveLoaderZIP(getSharedThis()));
+#endif
 }
 
 

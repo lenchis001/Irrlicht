@@ -64,7 +64,7 @@ namespace scene
 	{
 	public:
 		//! constructor
-		COCTLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs);
+		COCTLoader(boost::shared_ptr<scene::ISceneManager> smgr, boost::shared_ptr<io::IFileSystem> fs);
 
 		//! destructor
 		virtual ~COCTLoader();
@@ -131,7 +131,7 @@ namespace scene
 			u32 intensity;
 		};
 
-		io::IFileSystem* FileSystem;
+		boost::shared_ptr<io::IFileSystem> FileSystem;
 	};
 
 } // end namespace scene

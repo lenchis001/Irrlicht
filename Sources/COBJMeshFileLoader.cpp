@@ -29,23 +29,18 @@ namespace scene
 static const u32 WORD_BUFFER_LENGTH = 512;
 
 //! Constructor
-COBJMeshFileLoader::COBJMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs)
+COBJMeshFileLoader::COBJMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr, boost::shared_ptr<io::IFileSystem> fs)
 : SceneManagerAwareMixin(smgr), FileSystem(fs)
 {
 	#ifdef _DEBUG
 	setDebugName("COBJMeshFileLoader");
 	#endif
-
-	if (FileSystem)
-		FileSystem->grab();
 }
 
 
 //! destructor
 COBJMeshFileLoader::~COBJMeshFileLoader()
 {
-	if (FileSystem)
-		FileSystem->drop();
 }
 
 

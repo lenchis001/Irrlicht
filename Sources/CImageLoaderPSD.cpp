@@ -50,7 +50,7 @@ bool CImageLoaderPSD::isALoadableFileFormat(io::IReadFile* file) const
 
 
 //! creates a surface from the file
-IImage* CImageLoaderPSD::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderPSD::loadImage(io::IReadFile* file) const
 {
 	u32* imageData = 0;
 
@@ -146,13 +146,14 @@ IImage* CImageLoaderPSD::loadImage(io::IReadFile* file) const
 	else
 		res = readRLEImageData(file, header, imageData); // RLE compressed data
 
-	video::IImage* image = 0;
+	boost::shared_ptr<video::CImage> image = nullptr;
 
 	if (res)
 	{
 		// create surface
-		image = new CImage(ECF_A8R8G8B8,
+		image = boost::make_shared<CImage>(ECF_A8R8G8B8,
 			core::dimension2d<u32>(header.width, header.height), imageData);
+		image->setWeakPtr(image);
 	}
 
 	if (!image)
@@ -362,9 +363,9 @@ s16 CImageLoaderPSD::getShiftFromChannel(c8 channelNr, const PsdHeader& header) 
 
 
 //! creates a loader which is able to load tgas
-IImageLoader* createImageLoaderPSD()
+boost::shared_ptr<IImageLoader> createImageLoaderPSD()
 {
-	return new CImageLoaderPSD();
+	return boost::make_shared<CImageLoaderPSD>();
 }
 
 

@@ -31,7 +31,7 @@ namespace scene
 
 		//! loads a quake3 md3 file
 		virtual bool loadModelFile(u32 modelIndex, io::IReadFile* file, 
-				io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver);
+				boost::shared_ptr<io::IFileSystem> fs, boost::shared_ptr<video::IVideoDriver> driver);
 
 		// IAnimatedMeshMD3
 		virtual void setInterpolationShift(u32 shift, u32 loopMode);
@@ -117,7 +117,7 @@ namespace scene
 		SMD3QuaternionTagList TagListIPol;
 
 		IMeshBuffer* createMeshBuffer(const boost::shared_ptr<SMD3MeshBuffer> source,
-				io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver);
+				boost::shared_ptr<io::IFileSystem> fs, boost::shared_ptr<video::IVideoDriver> driver);
 
 		void buildVertexArray(u32 frameA, u32 frameB, f32 interpolate,
 					const boost::shared_ptr<SMD3MeshBuffer> source,

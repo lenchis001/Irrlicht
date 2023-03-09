@@ -27,23 +27,16 @@ namespace scene
 {
 
 //! constructor
-COCTLoader::COCTLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs)
+COCTLoader::COCTLoader(boost::shared_ptr<scene::ISceneManager> smgr, boost::shared_ptr<io::IFileSystem> fs)
 	: SceneManagerAwareMixin(smgr), FileSystem(fs)
 {
 	#ifdef _DEBUG
 	setDebugName("COCTLoader");
 	#endif
-	if (FileSystem)
-		FileSystem->grab();
 }
-
 
 //! destructor
-COCTLoader::~COCTLoader()
-{
-	if (FileSystem)
-		FileSystem->drop();
-}
+COCTLoader::~COCTLoader() {}
 
 
 // Doesn't really belong here, but it's jammed in for now.
@@ -224,7 +217,7 @@ boost::shared_ptr<IAnimatedMesh> COCTLoader::createMesh(io::IReadFile* file)
 	bool oldMipMapState = lockedSceneManager->getVideoDriver()->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
 	lockedSceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
 
-	video::IImage* tmpImage = lockedSceneManager->getVideoDriver()->createImage(video::ECF_R8G8B8, lmapsize);
+	boost::shared_ptr<video::IImage> tmpImage = lockedSceneManager->getVideoDriver()->createImage(video::ECF_R8G8B8, lmapsize);
 	for (i = 1; i < (header.numLightmaps + 1); ++i)
 	{
 		core::stringc lightmapname = file->getFileName();
@@ -247,7 +240,6 @@ boost::shared_ptr<IAnimatedMesh> COCTLoader::createMesh(io::IReadFile* file)
 
 		lig[i] = lockedSceneManager->getVideoDriver()->addTexture(lightmapname.c_str(), tmpImage);
 	}
-	tmpImage->drop();
 	lockedSceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, oldMipMapState);
 
 	// Free stuff

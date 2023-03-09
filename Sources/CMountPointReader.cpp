@@ -15,7 +15,7 @@ namespace io
 {
 
 //! Constructor
-CArchiveLoaderMount::CArchiveLoaderMount( io::IFileSystem* fs)
+CArchiveLoaderMount::CArchiveLoaderMount( boost::shared_ptr<io::IFileSystem> fs)
 : FileSystem(fs)
 {
 	#ifdef _DEBUG
@@ -86,7 +86,7 @@ IFileArchive* CArchiveLoaderMount::createArchive(io::IReadFile* file, bool ignor
 }
 
 //! compatible Folder Architecture
-CMountPointReader::CMountPointReader(IFileSystem * parent, const io::path& basename, bool ignoreCase, bool ignorePaths)
+CMountPointReader::CMountPointReader(boost::shared_ptr<IFileSystem>  parent, const io::path& basename, bool ignoreCase, bool ignorePaths)
 	: CFileList(basename, ignoreCase, ignorePaths), Parent(parent)
 {
 	//! ensure CFileList path ends in a slash

@@ -110,11 +110,11 @@ public:
 
 	//! Returns the file system.
 	/** \return Pointer to the file system. */
-	virtual io::IFileSystem* getFileSystem() const = 0;
+	virtual boost::shared_ptr<io::IFileSystem> getFileSystem() const = 0;
 
 	//! returns a pointer to the OS operator
 	/** \return Pointer to the OS operator. */
-	virtual IOSOperator* getOSOperator() const = 0;
+	virtual boost::shared_ptr<IOSOperator> getOSOperator() const = 0;
 
 	//! Removes all elements from the environment.
 	virtual void clear() = 0;

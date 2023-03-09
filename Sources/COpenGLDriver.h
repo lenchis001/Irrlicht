@@ -41,25 +41,25 @@ namespace video
 	public:
 
 		#ifdef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
-		COpenGLDriver(const SIrrlichtCreationParameters& params, io::IFileSystem* io, CIrrDeviceWin32* device);
+		COpenGLDriver(const SIrrlichtCreationParameters& params, boost::shared_ptr<io::IFileSystem> io, CIrrDeviceWin32* device);
 		//! inits the windows specific parts of the open gl driver
 		bool initDriver(CIrrDeviceWin32* device);
 		bool changeRenderContext(const SExposedVideoData& videoData, CIrrDeviceWin32* device);
 		#endif
 
 		#ifdef _IRR_COMPILE_WITH_X11_DEVICE_
-		COpenGLDriver(const SIrrlichtCreationParameters& params, io::IFileSystem* io, CIrrDeviceLinux* device);
+		COpenGLDriver(const SIrrlichtCreationParameters& params, boost::shared_ptr<io::IFileSystem> io, CIrrDeviceLinux* device);
 		//! inits the GLX specific parts of the open gl driver
 		bool initDriver(CIrrDeviceLinux* device);
 		bool changeRenderContext(const SExposedVideoData& videoData, CIrrDeviceLinux* device);
 		#endif
 
 		#ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
-		COpenGLDriver(const SIrrlichtCreationParameters& params, io::IFileSystem* io, CIrrDeviceSDL* device);
+		COpenGLDriver(const SIrrlichtCreationParameters& params, boost::shared_ptr<io::IFileSystem> io, CIrrDeviceSDL* device);
 		#endif
 
 		#ifdef _IRR_COMPILE_WITH_OSX_DEVICE_
-		COpenGLDriver(const SIrrlichtCreationParameters& params, io::IFileSystem* io, CIrrDeviceMacOSX *device);
+		COpenGLDriver(const SIrrlichtCreationParameters& params, boost::shared_ptr<io::IFileSystem> io, CIrrDeviceMacOSX *device);
 		#endif
 
 		//! generic version which overloads the unimplemented versions
@@ -362,7 +362,7 @@ namespace video
 		virtual void clearZBuffer();
 
 		//! Returns an image created from the last rendered frame.
-		virtual IImage* createScreenShot(video::ECOLOR_FORMAT format=video::ECF_UNKNOWN, video::E_RENDER_TARGET target=video::ERT_FRAME_BUFFER);
+		virtual boost::shared_ptr<IImage> createScreenShot(video::ECOLOR_FORMAT format=video::ECF_UNKNOWN, video::E_RENDER_TARGET target=video::ERT_FRAME_BUFFER);
 
 		//! checks if an OpenGL error has happend and prints it
 		//! for performance reasons only available in debug mode
@@ -423,7 +423,7 @@ namespace video
 		//! inits the parts of the open gl driver used on all platforms
 		bool genericDriverInit();
 		//! returns a device dependent texture from a software surface (IImage)
-		virtual boost::shared_ptr<video::ITexture> createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData);
+		virtual boost::shared_ptr<video::ITexture> createDeviceDependentTexture(boost::shared_ptr<IImage> surface, const io::path& name, void* mipmapData);
 
 		//! creates a transposed matrix in supplied GLfloat array to pass to OpenGL
 		inline void getGLMatrix(GLfloat gl_matrix[16], const core::matrix4& m);

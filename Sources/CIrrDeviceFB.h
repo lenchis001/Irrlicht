@@ -64,7 +64,7 @@ namespace irr
 		virtual void restoreWindow();
 
 		//! presents a surface in the client area
-		virtual bool present(video::IImage* surface, void* windowId = 0, core::rect<s32>* src=0 );
+		virtual bool present(boost::shared_ptr<video::IImage> surface, void* windowId = 0, core::rect<s32>* src=0 );
 
 		//! notifies the device that it should close itself
 		virtual void closeDevice();

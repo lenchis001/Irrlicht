@@ -157,7 +157,7 @@ static int ClipLine(const AbsRectangle &clipping,
 
 /*
 */
-inline void GetClip(AbsRectangle &clipping, video::IImage * t)
+inline void GetClip(AbsRectangle &clipping, boost::shared_ptr<video::IImage>  t)
 {
 	clipping.x0 = 0;
 	clipping.y0 = 0;
@@ -208,7 +208,7 @@ inline u32 PixelLerp32(const u32 source, const u32 value)
 
 /*
 */
-static void RenderLine32_Decal(video::IImage *t,
+static void RenderLine32_Decal(boost::shared_ptr<video::IImage> t,
 				const core::position2d<s32> &p0,
 				const core::position2d<s32> &p1,
 				u32 argb )
@@ -274,7 +274,7 @@ static void RenderLine32_Decal(video::IImage *t,
 
 /*
 */
-static void RenderLine32_Blend(video::IImage *t,
+static void RenderLine32_Blend(boost::shared_ptr<video::IImage> t,
 				const core::position2d<s32> &p0,
 				const core::position2d<s32> &p1,
 				u32 argb, u32 alpha)
@@ -340,7 +340,7 @@ static void RenderLine32_Blend(video::IImage *t,
 
 /*
 */
-static void RenderLine16_Decal(video::IImage *t,
+static void RenderLine16_Decal(boost::shared_ptr<video::IImage> t,
 				const core::position2d<s32> &p0,
 				const core::position2d<s32> &p1,
 				u32 argb )
@@ -405,7 +405,7 @@ static void RenderLine16_Decal(video::IImage *t,
 
 /*
 */
-static void RenderLine16_Blend(video::IImage *t,
+static void RenderLine16_Blend(boost::shared_ptr<video::IImage> t,
 				const core::position2d<s32> &p0,
 				const core::position2d<s32> &p1,
 				u16 argb,
@@ -1034,7 +1034,7 @@ static const blitterTable blitTable[] =
 };
 
 
-static inline tExecuteBlit getBlitter2( eBlitter operation,const video::IImage * dest,const video::IImage * source )
+static inline tExecuteBlit getBlitter2( eBlitter operation,const boost::shared_ptr<video::IImage>  dest,const boost::shared_ptr<video::IImage>  source )
 {
 	video::ECOLOR_FORMAT sourceFormat = (video::ECOLOR_FORMAT) ( source ? source->getColorFormat() : -1 );
 	video::ECOLOR_FORMAT destFormat = (video::ECOLOR_FORMAT) ( dest ? dest->getColorFormat() : -1 );
@@ -1060,7 +1060,7 @@ static inline tExecuteBlit getBlitter2( eBlitter operation,const video::IImage *
 
 // bounce clipping to texture
 inline void setClip ( AbsRectangle &out, const core::rect<s32> *clip,
-					 const video::IImage * tex, s32 passnative )
+					 const boost::shared_ptr<video::IImage>  tex, s32 passnative )
 {
 	if ( clip && 0 == tex && passnative )
 	{
@@ -1094,10 +1094,10 @@ inline void setClip ( AbsRectangle &out, const core::rect<s32> *clip,
 	a generic 2D Blitter
 */
 static s32 Blit(eBlitter operation,
-		video::IImage * dest,
+		boost::shared_ptr<video::IImage>  dest,
 		const core::rect<s32> *destClipping,
 		const core::position2d<s32> *destPos,
-		video::IImage * const source,
+		boost::shared_ptr<video::IImage>  const source,
 		const core::rect<s32> *sourceClipping,
 		u32 argb)
 {

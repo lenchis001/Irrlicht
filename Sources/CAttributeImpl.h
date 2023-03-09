@@ -1871,7 +1871,7 @@ class CTextureAttribute : public IAttribute, public video::VideoDriverAwareMixin
 {
 public:
 
-	CTextureAttribute(const char* name, boost::shared_ptr<video::ITexture> value, boost::shared_ptr<video::IVideoDriver> driver, io::IFileSystem* fileSystem, const io::path& filename)
+	CTextureAttribute(const char* name, boost::shared_ptr<video::ITexture> value, boost::shared_ptr<video::IVideoDriver> driver, boost::shared_ptr<io::IFileSystem> fileSystem, const io::path& filename)
 		: VideoDriverAwareMixin(driver), Value(0), _fileSystem(fileSystem), OverrideName(filename)
 	{
 		Name = name;
@@ -1956,7 +1956,7 @@ public:
 	}
 
 	boost::shared_ptr<video::ITexture> Value;
-	io::IFileSystem* _fileSystem;
+	boost::shared_ptr<io::IFileSystem> _fileSystem;
 	io::path OverrideName;
 };
 

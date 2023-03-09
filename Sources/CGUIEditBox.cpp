@@ -50,8 +50,6 @@ CGUIEditBox::CGUIEditBox(const wchar_t* text, bool border,
 //! destructor
 CGUIEditBox::~CGUIEditBox()
 {
-	if (Operator)
-		Operator->drop();
 }
 
 
@@ -1545,9 +1543,6 @@ void CGUIEditBox::setWeakThis(boost::shared_ptr<IGUIElement> value)
 	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
 	if (lockedEnvironment)
 		Operator = lockedEnvironment->getOSOperator();
-
-	if (Operator)
-		Operator->grab();
 
 	// this element can be tabbed to
 	setTabStop(true);

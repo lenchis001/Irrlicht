@@ -668,19 +668,20 @@ bool CImageLoaderDDS::isALoadableFileFormat(io::IReadFile* file) const
 
 
 //! creates a surface from the file
-IImage* CImageLoaderDDS::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderDDS::loadImage(io::IReadFile* file) const
 {
 	u8 *memFile = new u8 [ file->getSize() ];
 	file->read ( memFile, file->getSize() );
 
 	ddsBuffer *header = (ddsBuffer*) memFile;
-	IImage* image = 0;
+	boost::shared_ptr<CImage> image = nullptr;
 	s32 width, height;
 	eDDSPixelFormat pixelFormat;
 
 	if ( 0 == DDSGetInfo( header, &width, &height, &pixelFormat) )
 	{
-		image = new CImage(ECF_A8R8G8B8, core::dimension2d<u32>(width, height));
+		image = boost::make_shared<CImage>(ECF_A8R8G8B8, core::dimension2d<u32>(width, height));
+		image->setWeakPtr(image);
 
 		if ( DDSDecompress( header, (u8*) image->lock() ) == -1)
 		{
@@ -699,9 +700,9 @@ IImage* CImageLoaderDDS::loadImage(io::IReadFile* file) const
 
 
 //! creates a loader which is able to load dds images
-IImageLoader* createImageLoaderDDS()
+boost::shared_ptr<IImageLoader> createImageLoaderDDS()
 {
-	return new CImageLoaderDDS();
+	return boost::make_shared<CImageLoaderDDS>();
 }
 
 

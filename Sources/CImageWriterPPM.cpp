@@ -37,7 +37,7 @@ bool CImageWriterPPM::isAWriteableFileExtension(const io::path& filename) const
 }
 
 
-bool CImageWriterPPM::writeImage(io::IWriteFile *file, IImage *image, u32 param) const
+bool CImageWriterPPM::writeImage(io::IWriteFile *file, boost::shared_ptr<IImage> image, u32 param) const
 {
 	char cache[70];
 	int size;

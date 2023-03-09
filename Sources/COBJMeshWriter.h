@@ -26,7 +26,7 @@ namespace scene
 	{
 	public:
 
-		COBJMeshWriter(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs);
+		COBJMeshWriter(boost::shared_ptr<scene::ISceneManager> smgr, boost::shared_ptr<io::IFileSystem> fs);
 		virtual ~COBJMeshWriter();
 
 		//! Returns the type of the mesh writer
@@ -48,7 +48,7 @@ namespace scene
 		void getColorAsStringLine(const video::SColor& color,
 				const c8* const prefix, core::stringc& s) const;
 
-		io::IFileSystem* FileSystem;
+		boost::shared_ptr<io::IFileSystem> FileSystem;
 	};
 
 } // end namespace

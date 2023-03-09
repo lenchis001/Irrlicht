@@ -93,7 +93,7 @@ bool CImageLoaderTGA::isALoadableFileFormat(io::IReadFile* file) const
 
 
 //! creates a surface from the file
-IImage* CImageLoaderTGA::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderTGA::loadImage(io::IReadFile* file) const
 {
 	STGAHeader header;
 	u32 *palette = 0;
@@ -161,7 +161,7 @@ IImage* CImageLoaderTGA::loadImage(io::IReadFile* file) const
 		return 0;
 	}
 
-	IImage* image = 0;
+	boost::shared_ptr<CImage> image = 0;
 
 	switch(header.PixelDepth)
 	{
@@ -169,8 +169,9 @@ IImage* CImageLoaderTGA::loadImage(io::IReadFile* file) const
 		{
 			if (header.ImageType==3) // grey image
 			{
-				image = new CImage(ECF_R8G8B8,
+				image = boost::make_shared<CImage>(ECF_R8G8B8,
 					core::dimension2d<u32>(header.ImageWidth, header.ImageHeight));
+				image->setWeakPtr(image);
 				if (image)
 					CColorConverter::convert8BitTo24Bit((u8*)data,
 						(u8*)image->lock(),
@@ -179,8 +180,9 @@ IImage* CImageLoaderTGA::loadImage(io::IReadFile* file) const
 			}
 			else
 			{
-				image = new CImage(ECF_A1R5G5B5,
+				image = boost::make_shared<CImage>(ECF_A1R5G5B5,
 					core::dimension2d<u32>(header.ImageWidth, header.ImageHeight));
+				image->setWeakPtr(image);
 				if (image)
 					CColorConverter::convert8BitTo16Bit((u8*)data,
 						(s16*)image->lock(),
@@ -191,22 +193,25 @@ IImage* CImageLoaderTGA::loadImage(io::IReadFile* file) const
 		}
 		break;
 	case 16:
-		image = new CImage(ECF_A1R5G5B5,
+		image = boost::make_shared<CImage>(ECF_A1R5G5B5,
 			core::dimension2d<u32>(header.ImageWidth, header.ImageHeight));
+		image->setWeakPtr(image);
 		if (image)
 			CColorConverter::convert16BitTo16Bit((s16*)data,
 				(s16*)image->lock(), header.ImageWidth,	header.ImageHeight, 0, (header.ImageDescriptor&0x20)==0);
 		break;
 	case 24:
-			image = new CImage(ECF_R8G8B8,
+			image = boost::make_shared<CImage>(ECF_R8G8B8,
 				core::dimension2d<u32>(header.ImageWidth, header.ImageHeight));
+			image->setWeakPtr(image);
 			if (image)
 				CColorConverter::convert24BitTo24Bit(
 					(u8*)data, (u8*)image->lock(), header.ImageWidth, header.ImageHeight, 0, (header.ImageDescriptor&0x20)==0, true);
 		break;
 	case 32:
-			image = new CImage(ECF_A8R8G8B8,
+			image = boost::make_shared<CImage>(ECF_A8R8G8B8,
 				core::dimension2d<u32>(header.ImageWidth, header.ImageHeight));
+			image->setWeakPtr(image);
 			if (image)
 				CColorConverter::convert32BitTo32Bit((s32*)data,
 					(s32*)image->lock(), header.ImageWidth, header.ImageHeight, 0, (header.ImageDescriptor&0x20)==0);
@@ -226,9 +231,9 @@ IImage* CImageLoaderTGA::loadImage(io::IReadFile* file) const
 
 
 //! creates a loader which is able to load tgas
-IImageLoader* createImageLoaderTGA()
+boost::shared_ptr<IImageLoader> createImageLoaderTGA()
 {
-	return new CImageLoaderTGA();
+	return boost::make_shared<CImageLoaderTGA>();
 }
 
 

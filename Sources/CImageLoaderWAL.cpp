@@ -71,7 +71,7 @@ bool CImageLoaderLMP::isALoadableFileFormat(irr::io::IReadFile* file) const
 /*!
 	Quake1, Quake2, Hallife lmp texture
 */
-IImage* CImageLoaderLMP::loadImage(irr::io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderLMP::loadImage(irr::io::IReadFile* file) const
 {
 	SLMPHeader header;
 
@@ -87,7 +87,8 @@ IImage* CImageLoaderLMP::loadImage(irr::io::IReadFile* file) const
 
 	file->read(rawtex, rawtexsize);
 
-	IImage* image = new CImage(ECF_A8R8G8B8, core::dimension2d<u32>(header.width, header.height));
+	boost::shared_ptr<CImage> image = boost::make_shared<CImage>(ECF_A8R8G8B8, core::dimension2d<u32>(header.width, header.height));
+	image->setWeakPtr(image);
 
 	CColorConverter::convert8BitTo32Bit(rawtex, (u8*)image->lock(), header.width, header.height, (u8*) colormap_h, 0, false);
 	image->unlock();
@@ -98,9 +99,9 @@ IImage* CImageLoaderLMP::loadImage(irr::io::IReadFile* file) const
 }
 
 
-IImageLoader* createImageLoaderLMP()
+boost::shared_ptr<IImageLoader> createImageLoaderLMP()
 {
-	return new irr::video::CImageLoaderLMP();
+	return boost::make_shared<irr::video::CImageLoaderLMP>();
 }
 
 #endif
@@ -161,7 +162,7 @@ bool CImageLoaderWAL2::isALoadableFileFormat(irr::io::IReadFile* file) const
 /*
 	Halflite Texture WAD
 */
-IImage* CImageLoaderWAL2::loadImage(irr::io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderWAL2::loadImage(irr::io::IReadFile* file) const
 {
 	miptex_halflife header;
 
@@ -204,7 +205,8 @@ IImage* CImageLoaderWAL2::loadImage(irr::io::IReadFile* file) const
 	file->seek ( header.mipmap[0] );
 	file->read(rawtex, rawtexsize);
 
-	IImage* image = new CImage(format, core::dimension2d<u32>(header.width, header.height));
+	boost::shared_ptr<CImage> image = boost::make_shared<CImage>(format, core::dimension2d<u32>(header.width, header.height));
+	image->setWeakPtr(image);
 
 	switch ( format )
 	{
@@ -239,7 +241,7 @@ bool CImageLoaderWAL::isALoadableFileFormat(irr::io::IReadFile* file) const
 /*!
 	quake2
 */
-IImage* CImageLoaderWAL::loadImage(irr::io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderWAL::loadImage(irr::io::IReadFile* file) const
 {
 	miptex_quake2 header;
 
@@ -258,7 +260,8 @@ IImage* CImageLoaderWAL::loadImage(irr::io::IReadFile* file) const
 	file->seek ( header.mipmap[0] );
 	file->read(rawtex, rawtexsize);
 
-	IImage* image = new CImage(ECF_A8R8G8B8, core::dimension2d<u32>(header.width, header.height));
+	boost::shared_ptr<CImage> image = boost::make_shared<CImage>(ECF_A8R8G8B8, core::dimension2d<u32>(header.width, header.height));
+	image->setWeakPtr(image);
 
 	CColorConverter::convert8BitTo32Bit(rawtex, (u8*)image->lock(), header.width, header.height, (u8*) colormap_pcx, 0, false);
 	image->unlock();
@@ -268,14 +271,14 @@ IImage* CImageLoaderWAL::loadImage(irr::io::IReadFile* file) const
 	return image;
 }
 
-IImageLoader* createImageLoaderWAL()
+boost::shared_ptr<IImageLoader> createImageLoaderWAL()
 {
-	return new irr::video::CImageLoaderWAL();
+	return boost::make_shared<irr::video::CImageLoaderWAL>();
 }
 
-IImageLoader* createImageLoaderHalfLife()
+boost::shared_ptr<IImageLoader> createImageLoaderHalfLife()
 {
-	return new irr::video::CImageLoaderWAL2();
+	return boost::make_shared<irr::video::CImageLoaderWAL2>();
 }
 
 #endif

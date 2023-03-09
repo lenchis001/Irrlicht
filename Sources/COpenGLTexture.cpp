@@ -20,7 +20,7 @@ namespace video
 {
 
 //! constructor for usual textures
-COpenGLTexture::COpenGLTexture(IImage* origImage, const io::path& name, void* mipmapData, boost::shared_ptr<COpenGLDriver> driver)
+COpenGLTexture::COpenGLTexture(boost::shared_ptr<IImage> origImage, const io::path& name, void* mipmapData, boost::shared_ptr<COpenGLDriver> driver)
 	: ITexture(name), VideoDriverAwareMixin(driver), ColorFormat(ECF_A8R8G8B8), Image(0), MipImage(0),
 	TextureName(0), InternalFormat(GL_RGBA), PixelFormat(GL_BGRA_EXT),
 	PixelType(GL_UNSIGNED_BYTE), MipLevelStored(0), MipmapLegacyMode(true),
@@ -71,8 +71,6 @@ COpenGLTexture::~COpenGLTexture()
 {
 	if (TextureName)
 		glDeleteTextures(1, &TextureName);
-	if (Image)
-		Image->drop();
 }
 
 
@@ -263,7 +261,7 @@ GLint COpenGLTexture::getOpenGLFormatAndParametersFromColorFormat(ECOLOR_FORMAT 
 
 
 // prepare values ImageSize, TextureSize, and ColorFormat based on image
-void COpenGLTexture::getImageValues(IImage* image)
+void COpenGLTexture::getImageValues(boost::shared_ptr<IImage> image)
 {
 	if (!image)
 	{
@@ -302,7 +300,7 @@ void COpenGLTexture::getImageValues(IImage* image)
 void COpenGLTexture::uploadTexture(bool newTexture, void* mipmapData, u32 level)
 {
 	// check which image needs to be uploaded
-	IImage* image = level?MipImage:Image;
+	boost::shared_ptr<IImage> image = level?MipImage:Image;
 	if (!image)
 	{
 		os::Printer::log("No image for OpenGL texture to upload", ELL_ERROR);
@@ -399,7 +397,7 @@ void COpenGLTexture::uploadTexture(bool newTexture, void* mipmapData, u32 level)
 void* COpenGLTexture::lock(E_TEXTURE_LOCK_MODE mode, u32 mipmapLevel)
 {
 	// store info about which image is locked
-	IImage* image = (mipmapLevel==0)?Image:MipImage;
+	boost::shared_ptr<IImage> image = (mipmapLevel==0)?Image:MipImage;
 	ReadOnlyLock |= (mode==ETLM_READ_ONLY);
 	MipLevelStored = mipmapLevel;
 	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
@@ -506,7 +504,7 @@ void* COpenGLTexture::lock(E_TEXTURE_LOCK_MODE mode, u32 mipmapLevel)
 void COpenGLTexture::unlock()
 {
 	// test if miplevel or main texture was locked
-	IImage* image = MipImage?MipImage:Image;
+	boost::shared_ptr<IImage> image = MipImage?MipImage:Image;
 	if (!image)
 		return;
 	// unlock image to see changes
@@ -518,13 +516,11 @@ void COpenGLTexture::unlock()
 	// cleanup local image
 	if (MipImage)
 	{
-		MipImage->drop();
-		MipImage=0;
+		MipImage=nullptr;
 	}
 	else if (!KeepImage)
 	{
-		Image->drop();
-		Image=0;
+		Image=nullptr;
 	}
 	// update information
 	if (Image)
@@ -650,8 +646,7 @@ void COpenGLTexture::setWeakThis(boost::shared_ptr<COpenGLTexture> value)
 	_mipmapData = nullptr;
 	if (!KeepImage)
 	{
-		Image->drop();
-		Image = 0;
+		Image = nullptr;
 	}
 }
 

@@ -20,7 +20,7 @@ namespace scene
 	class IMesh;
 
 	//! Interface for writing meshes
-	class IMeshWriter : public virtual IReferenceCounted
+	class IMeshWriter : public virtual IDebugable
 	{
 	public:
 

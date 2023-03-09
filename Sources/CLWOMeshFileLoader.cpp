@@ -117,7 +117,7 @@ struct tLWOLayerInfo
 
 //! Constructor
 CLWOMeshFileLoader::CLWOMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr,
-		io::IFileSystem* fs)
+		boost::shared_ptr<io::IFileSystem> fs)
 : SceneManagerAwareMixin(smgr), FileSystem(fs), File(0), Mesh(0)
 {
 	#ifdef _DEBUG

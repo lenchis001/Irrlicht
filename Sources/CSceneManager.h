@@ -35,8 +35,8 @@ namespace scene
 	public:
 
 		//! constructor
-		CSceneManager(boost::shared_ptr<video::IVideoDriver> driver, io::IFileSystem* fs,
-			boost::shared_ptr<gui::ICursorControl> cursorControl, IMeshCache* cache = 0,
+		CSceneManager(boost::shared_ptr<video::IVideoDriver> driver, boost::shared_ptr<io::IFileSystem> fs,
+			boost::shared_ptr<gui::ICursorControl> cursorControl, boost::shared_ptr<IMeshCache> cache = 0,
 			boost::shared_ptr<gui::IGUIEnvironment> guiEnvironment = 0);
 
 		virtual void setWeakThis(boost::shared_ptr<CSceneManager> value);
@@ -51,13 +51,13 @@ namespace scene
 		virtual boost::shared_ptr<IAnimatedMesh> getMesh(io::IReadFile* file);
 
 		//! Returns an interface to the mesh cache which is shared beween all existing scene managers.
-		virtual IMeshCache* getMeshCache();
+		virtual boost::shared_ptr<IMeshCache> getMeshCache();
 
 		//! return the gui environment
 		virtual boost::shared_ptr<gui::IGUIEnvironment> getGUIEnvironment();
 
 		//! return the filesystem
-		virtual io::IFileSystem* getFileSystem();
+		virtual boost::shared_ptr<io::IFileSystem> getFileSystem();
 
 		//! adds Volume Lighting Scene Node.
 		//! the returned pointer must not be dropped.
@@ -219,7 +219,7 @@ namespace scene
 			const core::dimension2d<f32>& textureRepeatCount = core::dimension2d<f32>(1.0f, 1.0f));
 
 		//! Adds a terrain mesh to the mesh pool.
-		virtual boost::shared_ptr<IAnimatedMesh> addTerrainMesh(const io::path& meshname,	video::IImage* texture, video::IImage* heightmap,
+		virtual boost::shared_ptr<IAnimatedMesh> addTerrainMesh(const io::path& meshname,	boost::shared_ptr<video::IImage> texture, boost::shared_ptr<video::IImage> heightmap,
 			const core::dimension2d<f32>& stretchSize = core::dimension2d<f32>(10.0f,10.0f),
 			f32 maxHeight=200.0f,
 			const core::dimension2d<u32>& defaultVertexBlockSize = core::dimension2d<u32>(64,64));
@@ -373,13 +373,13 @@ namespace scene
 			boost::shared_ptr<ITerrainSceneNode> node, s32 LOD=0);
 
 		//! Adds an external mesh loader.
-		virtual void addExternalMeshLoader(IMeshLoader* externalLoader);
+		virtual void addExternalMeshLoader(boost::shared_ptr<IMeshLoader> externalLoader);
 
 		//! Returns the number of mesh loaders supported by Irrlicht at this time
 		virtual u32 getMeshLoaderCount() const;
 
 		//! Retrieve the given mesh loader
-		virtual IMeshLoader* getMeshLoader(u32 index) const;
+		virtual boost::shared_ptr<IMeshLoader> getMeshLoader(u32 index) const;
 
 		//! Adds an external scene loader.
 		virtual void addExternalSceneLoader(boost::shared_ptr<ISceneLoader> externalLoader);
@@ -499,7 +499,7 @@ namespace scene
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0);
 
 		//! Returns a mesh writer implementation if available
-		virtual IMeshWriter* createMeshWriter(EMESH_WRITER_TYPE type);
+		virtual boost::shared_ptr<IMeshWriter> createMeshWriter(EMESH_WRITER_TYPE type);
 
 		//! Get a skinned mesh, which is not available as header-only code
 		virtual boost::shared_ptr<ISkinnedMesh> createSkinnedMesh();
@@ -598,7 +598,7 @@ namespace scene
 		};
 
 		//! file system
-		io::IFileSystem* FileSystem;
+		boost::shared_ptr<io::IFileSystem> FileSystem;
 
 		//! GUI Enviroment ( Debug Purpose )
 		boost::shared_ptr<gui::IGUIEnvironment> GUIEnvironment;
@@ -618,7 +618,7 @@ namespace scene
 		core::array<TransparentNodeEntry> TransparentNodeList;
 		core::array<TransparentNodeEntry> TransparentEffectNodeList;
 
-		core::array<IMeshLoader*> MeshLoaderList;
+		core::array<boost::shared_ptr<IMeshLoader>> MeshLoaderList;
 		core::array<boost::shared_ptr<ISceneLoader>> SceneLoaderList;
 		core::array<boost::shared_ptr<ISceneNode>> DeletionList;
 		core::array<boost::shared_ptr<ISceneNodeFactory>> SceneNodeFactoryList;
@@ -636,7 +636,7 @@ namespace scene
 		io::CAttributes Parameters;
 
 		//! Mesh cache
-		IMeshCache* MeshCache;
+		boost::shared_ptr<IMeshCache> MeshCache;
 
 		E_SCENE_NODE_RENDER_PASS CurrentRendertime;
 

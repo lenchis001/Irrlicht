@@ -26,7 +26,7 @@ namespace scene
 	public:
 
 		//! constructor
-		CQ3LevelMesh(io::IFileSystem* fs, boost::shared_ptr<scene::ISceneManager> smgr,
+		CQ3LevelMesh(boost::shared_ptr<io::IFileSystem> fs, boost::shared_ptr<scene::ISceneManager> smgr,
 		             const quake3::Q3LevelLoadParameter &loadParam);
 
 		//! destructor
@@ -419,7 +419,7 @@ namespace scene
 
 		boost::shared_ptr<scene::SMesh> Mesh[quake3::E_Q3_MESH_SIZE];
 		core::stringc LevelName;
-		io::IFileSystem* FileSystem; // needs because there are no file extenstions stored in .bsp files.
+		boost::shared_ptr<io::IFileSystem> FileSystem; // needs because there are no file extenstions stored in .bsp files.
 
 		// Additional content
 		enum eToken

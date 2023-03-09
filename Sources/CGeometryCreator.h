@@ -26,8 +26,8 @@ public:
 		video::SMaterial* material, f32 hillHeight, const core::dimension2d<f32>& countHills,
 		const core::dimension2d<f32>& textureRepeatCount) const;
 
-	boost::shared_ptr<IMesh> createTerrainMesh(video::IImage* texture,
-		video::IImage* heightmap, const core::dimension2d<f32>& stretchSize,
+	boost::shared_ptr<IMesh> createTerrainMesh(boost::shared_ptr<video::IImage> texture,
+		boost::shared_ptr<video::IImage> heightmap, const core::dimension2d<f32>& stretchSize,
 		f32 maxHeight, boost::shared_ptr<video::IVideoDriver> driver,
 		const core::dimension2d<u32>& defaultVertexBlockSize,
 		bool debugBorders=false) const;

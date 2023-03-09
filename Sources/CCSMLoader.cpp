@@ -356,7 +356,7 @@ namespace scene
 		CameraData cameraData;
 	};
 
-	CCSMLoader::CCSMLoader(boost::shared_ptr<scene::ISceneManager> manager, io::IFileSystem* fs)
+	CCSMLoader::CCSMLoader(boost::shared_ptr<scene::ISceneManager> manager, boost::shared_ptr<io::IFileSystem> fs)
 		: SceneManagerAwareMixin(manager), FileSystem(fs)
 	{
 
@@ -420,13 +420,12 @@ namespace scene
 			lmapName += io::path(l+1);
 			os::Printer::log("CCSMLoader loading light map", lmapName.c_str());
 
-			video::IImage* lmapImg = driver->createImageFromData(
+			boost::shared_ptr<video::IImage> lmapImg = driver->createImageFromData(
 				video::ECF_A8R8G8B8,
 				core::dimension2d<u32>(lmap->getWidth(),lmap->getHeight()),
 				lmap->getPixelData());
 
 			driver->addTexture(lmapName.c_str(), lmapImg);
-			lmapImg->drop();
 		}
 
 		for(u32 m = 0; m<csmFile->getMeshCount(); m++)

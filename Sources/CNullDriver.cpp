@@ -23,40 +23,40 @@ namespace video
 {
 
 //! creates a loader which is able to load windows bitmaps
-IImageLoader* createImageLoaderBMP();
+boost::shared_ptr<IImageLoader> createImageLoaderBMP();
 
 //! creates a loader which is able to load jpeg images
-IImageLoader* createImageLoaderJPG();
+boost::shared_ptr<IImageLoader> createImageLoaderJPG();
 
 //! creates a loader which is able to load targa images
-IImageLoader* createImageLoaderTGA();
+boost::shared_ptr<IImageLoader> createImageLoaderTGA();
 
 //! creates a loader which is able to load psd images
-IImageLoader* createImageLoaderPSD();
+boost::shared_ptr<IImageLoader> createImageLoaderPSD();
 
 //! creates a loader which is able to load dds images
-IImageLoader* createImageLoaderDDS();
+boost::shared_ptr<IImageLoader> createImageLoaderDDS();
 
 //! creates a loader which is able to load pcx images
-IImageLoader* createImageLoaderPCX();
+boost::shared_ptr<IImageLoader> createImageLoaderPCX();
 
 //! creates a loader which is able to load png images
-IImageLoader* createImageLoaderPNG();
+boost::shared_ptr<IImageLoader> createImageLoaderPNG();
 
 //! creates a loader which is able to load WAL images
-IImageLoader* createImageLoaderWAL();
+boost::shared_ptr<IImageLoader> createImageLoaderWAL();
 
 //! creates a loader which is able to load halflife images
-IImageLoader* createImageLoaderHalfLife();
+boost::shared_ptr<IImageLoader> createImageLoaderHalfLife();
 
 //! creates a loader which is able to load lmp images
-IImageLoader* createImageLoaderLMP();
+boost::shared_ptr<IImageLoader> createImageLoaderLMP();
 
 //! creates a loader which is able to load ppm/pgm/pbm images
-IImageLoader* createImageLoaderPPM();
+boost::shared_ptr<IImageLoader> createImageLoaderPPM();
 
 //! creates a loader which is able to load rgb images
-IImageLoader* createImageLoaderRGB();
+boost::shared_ptr<IImageLoader> createImageLoaderRGB();
 
 
 //! creates a writer which is able to save bmp images
@@ -81,7 +81,7 @@ boost::shared_ptr<IImageWriter> createImageWriterPNG();
 boost::shared_ptr<IImageWriter> createImageWriterPPM();
 
 //! constructor
-CNullDriver::CNullDriver(io::IFileSystem* io, const core::dimension2d<u32>& screenSize)
+CNullDriver::CNullDriver(boost::shared_ptr<io::IFileSystem> io, const core::dimension2d<u32>& screenSize)
 : FileSystem(io), MeshManipulator(0), ViewPort(0,0,0,0), ScreenSize(screenSize),
 	PrimitivesDrawn(0), MinVertexCountForVBO(500), TextureCreationFlags(0),
 	OverrideMaterial2DEnabled(false), AllowZWriteOnTransparent(false)
@@ -115,9 +115,6 @@ CNullDriver::CNullDriver(io::IFileSystem* io, const core::dimension2d<u32>& scre
 
 	// create manipulator
 	MeshManipulator = new scene::CMeshManipulator();
-
-	if (FileSystem)
-		FileSystem->grab();
 
 	// create surface loader
 
@@ -206,16 +203,9 @@ CNullDriver::~CNullDriver()
 	if (DriverAttributes)
 		DriverAttributes->drop();
 
-	if (FileSystem)
-		FileSystem->drop();
-
 	if (MeshManipulator)
 		MeshManipulator->drop();
 	deleteAllTextures();
-
-	u32 i;
-	for (i=0; i<SurfaceLoader.size(); ++i)
-		SurfaceLoader[i]->drop();
 
 	// delete material renderers
 	deleteMaterialRenders();
@@ -226,12 +216,11 @@ CNullDriver::~CNullDriver()
 
 
 //! Adds an external surface loader to the engine.
-void CNullDriver::addExternalImageLoader(IImageLoader* loader)
+void CNullDriver::addExternalImageLoader(boost::shared_ptr<IImageLoader> loader)
 {
 	if (!loader)
 		return;
 
-	loader->grab();
 	SurfaceLoader.push_back(loader);
 }
 
@@ -254,7 +243,7 @@ u32 CNullDriver::getImageLoaderCount() const
 
 
 //! Retrieve the given image loader
-IImageLoader* CNullDriver::getImageLoader(u32 n)
+boost::shared_ptr<IImageLoader> CNullDriver::getImageLoader(u32 n)
 {
 	if (n < SurfaceLoader.size())
 		return SurfaceLoader[n];
@@ -491,14 +480,13 @@ boost::shared_ptr<ITexture> CNullDriver::getTexture(io::IReadFile* file)
 boost::shared_ptr<video::ITexture> CNullDriver::loadTextureFromFile(io::IReadFile* file, const io::path& hashName )
 {
 	boost::shared_ptr<ITexture> texture = 0;
-	IImage* image = createImageFromFile(file);
+	boost::shared_ptr<IImage> image = createImageFromFile(file);
 
 	if (image)
 	{
 		// create texture from surface
 		texture = createDeviceDependentTexture(image, hashName.size() ? hashName : file->getFileName() );
 		os::Printer::log("Loaded texture", file->getFileName());
-		image->drop();
 	}
 
 	return texture;
@@ -540,7 +528,7 @@ boost::shared_ptr<video::ITexture> CNullDriver::findTexture(const io::path& file
 
 
 //! Creates a texture from a loaded IImage.
-boost::shared_ptr<ITexture> CNullDriver::addTexture(const io::path& name, IImage* image, void* mipmapData)
+boost::shared_ptr<ITexture> CNullDriver::addTexture(const io::path& name, boost::shared_ptr<IImage> image, void* mipmapData)
 {
 	if ( 0 == name.size() || !image)
 		return 0;
@@ -567,9 +555,10 @@ boost::shared_ptr<ITexture> CNullDriver::addTexture(const core::dimension2d<u32>
 	if ( 0 == name.size () )
 		return 0;
 
-	IImage* image = new CImage(format, size);
+	boost::shared_ptr<CImage> image = boost::make_shared<CImage>(format, size);
+	image->setWeakPtr(image);
+
 	boost::shared_ptr<ITexture> t = createDeviceDependentTexture(image, name);
-	image->drop();
 	addTexture(t);
 
 	return t;
@@ -579,7 +568,7 @@ boost::shared_ptr<ITexture> CNullDriver::addTexture(const core::dimension2d<u32>
 
 //! returns a device dependent texture from a software surface (IImage)
 //! THIS METHOD HAS TO BE OVERRIDDEN BY DERIVED DRIVERS WITH OWN TEXTURES
-boost::shared_ptr<ITexture> CNullDriver::createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData)
+boost::shared_ptr<ITexture> CNullDriver::createDeviceDependentTexture(boost::shared_ptr<IImage> surface, const io::path& name, void* mipmapData)
 {
 	return boost::make_shared<SDummyTexture>(name);
 }
@@ -1275,12 +1264,12 @@ bool CNullDriver::getTextureCreationFlag(E_TEXTURE_CREATION_FLAG flag) const
 
 
 //! Creates a software image from a file.
-IImage* CNullDriver::createImageFromFile(const io::path& filename)
+boost::shared_ptr<IImage> CNullDriver::createImageFromFile(const io::path& filename)
 {
 	if (!filename.size())
 		return 0;
 
-	IImage* image = 0;
+	boost::shared_ptr<IImage> image = 0;
 	io::IReadFile* file = FileSystem->createAndOpenFile(filename);
 
 	if (file)
@@ -1296,12 +1285,12 @@ IImage* CNullDriver::createImageFromFile(const io::path& filename)
 
 
 //! Creates a software image from a file.
-IImage* CNullDriver::createImageFromFile(io::IReadFile* file)
+boost::shared_ptr<IImage> CNullDriver::createImageFromFile(io::IReadFile* file)
 {
 	if (!file)
 		return 0;
 
-	IImage* image = 0;
+	boost::shared_ptr<IImage> image = 0;
 
 	s32 i;
 
@@ -1337,7 +1326,7 @@ IImage* CNullDriver::createImageFromFile(io::IReadFile* file)
 
 
 //! Writes the provided image to disk file
-bool CNullDriver::writeImageToFile(IImage* image, const io::path& filename,u32 param)
+bool CNullDriver::writeImageToFile(boost::shared_ptr<IImage> image, const io::path& filename,u32 param)
 {
 	io::IWriteFile* file = FileSystem->createAndWriteFile(filename);
 	if(!file)
@@ -1350,7 +1339,7 @@ bool CNullDriver::writeImageToFile(IImage* image, const io::path& filename,u32 p
 }
 
 //! Writes the provided image to a file.
-bool CNullDriver::writeImageToFile(IImage* image, io::IWriteFile * file, u32 param)
+bool CNullDriver::writeImageToFile(boost::shared_ptr<IImage> image, io::IWriteFile * file, u32 param)
 {
 	if(!file)
 		return false;
@@ -1369,7 +1358,7 @@ bool CNullDriver::writeImageToFile(IImage* image, io::IWriteFile * file, u32 par
 
 
 //! Creates a software image from a byte array.
-IImage* CNullDriver::createImageFromData(ECOLOR_FORMAT format,
+boost::shared_ptr<IImage> CNullDriver::createImageFromData(ECOLOR_FORMAT format,
 					const core::dimension2d<u32>& size,
 					void *data, bool ownForeignMemory,
 					bool deleteMemory)
@@ -1377,15 +1366,18 @@ IImage* CNullDriver::createImageFromData(ECOLOR_FORMAT format,
 	if(IImage::isRenderTargetOnlyFormat(format))
 	{
 		os::Printer::log("Could not create IImage, format only supported for render target textures.", ELL_WARNING);
-		return 0;
+		return nullptr;
 	}
 
-	return new CImage(format, size, data, ownForeignMemory, deleteMemory);
+	boost::shared_ptr<CImage> image = boost::make_shared<CImage>(format, size, data, ownForeignMemory, deleteMemory);
+	image->setWeakPtr(image);
+
+	return image;
 }
 
 
 //! Creates an empty software image.
-IImage* CNullDriver::createImage(ECOLOR_FORMAT format, const core::dimension2d<u32>& size)
+boost::shared_ptr<IImage> CNullDriver::createImage(ECOLOR_FORMAT format, const core::dimension2d<u32>& size)
 {
 	if(IImage::isRenderTargetOnlyFormat(format))
 	{
@@ -1393,12 +1385,15 @@ IImage* CNullDriver::createImage(ECOLOR_FORMAT format, const core::dimension2d<u
 		return 0;
 	}
 
-	return new CImage(format, size);
+	boost::shared_ptr<CImage> image = boost::make_shared<CImage>(format, size);
+	image->setWeakPtr(image);
+
+	return image;
 }
 
 
 //! Creates a software image from another image.
-IImage* CNullDriver::createImage(ECOLOR_FORMAT format, IImage *imageToCopy)
+boost::shared_ptr<IImage> CNullDriver::createImage(ECOLOR_FORMAT format, boost::shared_ptr<IImage> imageToCopy)
 {
 	os::Printer::log("Deprecated method, please create an empty image instead and use copyTo().", ELL_WARNING);
 	if(IImage::isRenderTargetOnlyFormat(format))
@@ -1407,28 +1402,31 @@ IImage* CNullDriver::createImage(ECOLOR_FORMAT format, IImage *imageToCopy)
 		return 0;
 	}
 
-	CImage* tmp = new CImage(format, imageToCopy->getDimension());
+	boost::shared_ptr<CImage> tmp = boost::make_shared<CImage>(format, imageToCopy->getDimension());
+	tmp->setWeakPtr(tmp);
 	imageToCopy->copyTo(tmp);
 	return tmp;
 }
 
 
 //! Creates a software image from part of another image.
-IImage* CNullDriver::createImage(IImage* imageToCopy, const core::position2d<s32>& pos, const core::dimension2d<u32>& size)
+boost::shared_ptr<IImage> CNullDriver::createImage(boost::shared_ptr<IImage> imageToCopy, const core::position2d<s32>& pos, const core::dimension2d<u32>& size)
 {
 	os::Printer::log("Deprecated method, please create an empty image instead and use copyTo().", ELL_WARNING);
-	CImage* tmp = new CImage(imageToCopy->getColorFormat(), imageToCopy->getDimension());
+	boost::shared_ptr<CImage> tmp = boost::make_shared<CImage>(imageToCopy->getColorFormat(), imageToCopy->getDimension());
+	tmp->setWeakPtr(tmp);
 	imageToCopy->copyTo(tmp, core::position2di(0,0), core::recti(pos,size));
 	return tmp;
 }
 
 
 //! Creates a software image from part of a texture.
-IImage* CNullDriver::createImage(boost::shared_ptr<ITexture> texture, const core::position2d<s32>& pos, const core::dimension2d<u32>& size)
+boost::shared_ptr<IImage> CNullDriver::createImage(boost::shared_ptr<ITexture> texture, const core::position2d<s32>& pos, const core::dimension2d<u32>& size)
 {
 	if ((pos==core::position2di(0,0)) && (size == texture->getSize()))
 	{
-		IImage* image = new CImage(texture->getColorFormat(), size, texture->lock(ETLM_READ_ONLY), false);
+		boost::shared_ptr<CImage> image = boost::make_shared<CImage>(texture->getColorFormat(), size, texture->lock(ETLM_READ_ONLY), false);
+		image->setWeakPtr(image);
 		texture->unlock();
 		return image;
 	}
@@ -1446,7 +1444,8 @@ IImage* CNullDriver::createImage(boost::shared_ptr<ITexture> texture, const core
 		u8* src = static_cast<u8*>(texture->lock(ETLM_READ_ONLY));
 		if (!src)
 			return 0;
-		IImage* image = new CImage(texture->getColorFormat(), clamped.getSize());
+		boost::shared_ptr<CImage> image = boost::make_shared<CImage>(texture->getColorFormat(), clamped.getSize());
+		image->setWeakPtr(image);
 		u8* dst = static_cast<u8*>(image->lock());
 		src += clamped.UpperLeftCorner.Y * texture->getPitch() + image->getBytesPerPixel() * clamped.UpperLeftCorner.X;
 		for (u32 i=0; i<clamped.getHeight(); ++i)
@@ -2315,7 +2314,7 @@ scene::IMeshManipulator* CNullDriver::getMeshManipulator()
 
 
 //! Returns an image created from the last rendered frame.
-IImage* CNullDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RENDER_TARGET target)
+boost::shared_ptr<IImage> CNullDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RENDER_TARGET target)
 {
 	return 0;
 }
@@ -2331,7 +2330,7 @@ void CNullDriver::printVersion()
 
 
 //! creates a video driver
-boost::shared_ptr<IVideoDriver> createNullDriver(io::IFileSystem* io, const core::dimension2d<u32>& screenSize)
+boost::shared_ptr<IVideoDriver> createNullDriver(boost::shared_ptr<io::IFileSystem> io, const core::dimension2d<u32>& screenSize)
 {
 	boost::shared_ptr<CNullDriver> nullDriver = boost::make_shared<CNullDriver>(io, screenSize);
 

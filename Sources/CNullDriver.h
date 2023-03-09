@@ -43,7 +43,7 @@ namespace video
 	public:
 
 		//! constructor
-		CNullDriver(io::IFileSystem* io, const core::dimension2d<u32>& screenSize);
+		CNullDriver(boost::shared_ptr<io::IFileSystem> io, const core::dimension2d<u32>& screenSize);
 
 		//! destructor
 		virtual ~CNullDriver();
@@ -71,7 +71,7 @@ namespace video
 		virtual u32 getImageLoaderCount() const;
 
 		//! Retrieve the given image loader
-		virtual IImageLoader* getImageLoader(u32 n);
+		virtual boost::shared_ptr<IImageLoader> getImageLoader(u32 n);
 
 		//! Retrieve the number of image writers
 		virtual u32 getImageWriterCount() const;
@@ -276,7 +276,7 @@ namespace video
 		virtual void setAmbientLight(const SColorf& color);
 
 		//! Adds an external image loader to the engine.
-		virtual void addExternalImageLoader(IImageLoader* loader);
+		virtual void addExternalImageLoader(boost::shared_ptr<IImageLoader> loader);
 
 		//! Adds an external image writer to the engine.
 		virtual void addExternalImageWriter(boost::shared_ptr<IImageWriter> writer);
@@ -339,33 +339,33 @@ namespace video
 		virtual bool getTextureCreationFlag(E_TEXTURE_CREATION_FLAG flag) const;
 
 		//! Creates a software image from a file.
-		virtual IImage* createImageFromFile(const io::path& filename);
+		virtual boost::shared_ptr<IImage> createImageFromFile(const io::path& filename);
 
 		//! Creates a software image from a file.
-		virtual IImage* createImageFromFile(io::IReadFile* file);
+		virtual boost::shared_ptr<IImage> createImageFromFile(io::IReadFile* file);
 
 		//! Creates a software image from a byte array.
 		/** \param useForeignMemory: If true, the image will use the data pointer
 		directly and own it from now on, which means it will also try to delete [] the
 		data when the image will be destructed. If false, the memory will by copied. */
-		virtual IImage* createImageFromData(ECOLOR_FORMAT format,
+		virtual boost::shared_ptr<IImage> createImageFromData(ECOLOR_FORMAT format,
 			const core::dimension2d<u32>& size, void *data,
 			bool ownForeignMemory=true, bool deleteForeignMemory = true);
 
 		//! Creates an empty software image.
-		virtual IImage* createImage(ECOLOR_FORMAT format, const core::dimension2d<u32>& size);
+		virtual boost::shared_ptr<IImage> createImage(ECOLOR_FORMAT format, const core::dimension2d<u32>& size);
 
 
 		//! Creates a software image from another image.
-		virtual IImage* createImage(ECOLOR_FORMAT format, IImage *imageToCopy);
+		virtual boost::shared_ptr<IImage> createImage(ECOLOR_FORMAT format, boost::shared_ptr<IImage> imageToCopy);
 
 		//! Creates a software image from part of another image.
-		virtual IImage* createImage(IImage* imageToCopy,
+		virtual boost::shared_ptr<IImage> createImage(boost::shared_ptr<IImage> imageToCopy,
 				const core::position2d<s32>& pos,
 				const core::dimension2d<u32>& size);
 
 		//! Creates a software image from part of a texture.
-		virtual IImage* createImage(boost::shared_ptr<ITexture> texture,
+		virtual boost::shared_ptr<IImage> createImage(boost::shared_ptr<ITexture> texture,
 				const core::position2d<s32>& pos,
 				const core::dimension2d<u32>& size);
 
@@ -583,13 +583,13 @@ namespace video
 		virtual void clearZBuffer();
 
 		//! Returns an image created from the last rendered frame.
-		virtual IImage* createScreenShot(video::ECOLOR_FORMAT format=video::ECF_UNKNOWN, video::E_RENDER_TARGET target=video::ERT_FRAME_BUFFER);
+		virtual boost::shared_ptr<IImage> createScreenShot(video::ECOLOR_FORMAT format=video::ECF_UNKNOWN, video::E_RENDER_TARGET target=video::ERT_FRAME_BUFFER);
 
 		//! Writes the provided image to disk file
-		virtual bool writeImageToFile(IImage* image, const io::path& filename, u32 param = 0);
+		virtual bool writeImageToFile(boost::shared_ptr<IImage> image, const io::path& filename, u32 param = 0);
 
 		//! Writes the provided image to a file.
-		virtual bool writeImageToFile(IImage* image, io::IWriteFile * file, u32 param = 0);
+		virtual bool writeImageToFile(boost::shared_ptr<IImage> image, io::IWriteFile * file, u32 param = 0);
 
 		//! Sets the name of a material renderer.
 		virtual void setMaterialRendererName(s32 idx, const char* name);
@@ -673,11 +673,11 @@ namespace video
 		void addTexture(boost::shared_ptr<video::ITexture> surface);
 
 		//! Creates a texture from a loaded IImage.
-		virtual boost::shared_ptr<ITexture> addTexture(const io::path& name, IImage* image, void* mipmapData=0);
+		virtual boost::shared_ptr<ITexture> addTexture(const io::path& name, boost::shared_ptr<IImage> image, void* mipmapData=0);
 
 		//! returns a device dependent texture from a software surface (IImage)
 		//! THIS METHOD HAS TO BE OVERRIDDEN BY DERIVED DRIVERS WITH OWN TEXTURES
-		virtual boost::shared_ptr<video::ITexture> createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData=0);
+		virtual boost::shared_ptr<video::ITexture> createDeviceDependentTexture(boost::shared_ptr<IImage> surface, const io::path& name, void* mipmapData=0);
 
 		//! checks triangle count and print warning if wrong
 		bool checkPrimitiveCount(u32 prmcnt) const;
@@ -794,7 +794,7 @@ namespace video
 		};
 		core::array<SOccQuery> OcclusionQueries;
 
-		core::array<video::IImageLoader*> SurfaceLoader;
+		core::array<boost::shared_ptr<video::IImageLoader>> SurfaceLoader;
 		core::array<boost::shared_ptr<video::IImageWriter>> SurfaceWriter;
 		core::array<SLight> Lights;
 		core::array<SMaterialRenderer> MaterialRenderers;
@@ -802,7 +802,7 @@ namespace video
 		//core::array<SHWBufferLink*> HWBufferLinks;
 		core::map< const scene::IMeshBuffer* , SHWBufferLink* > HWBufferMap;
 
-		io::IFileSystem* FileSystem;
+		boost::shared_ptr<io::IFileSystem> FileSystem;
 
 		//! mesh manipulator
 		scene::IMeshManipulator* MeshManipulator;

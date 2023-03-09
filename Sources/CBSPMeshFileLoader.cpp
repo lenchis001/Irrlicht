@@ -15,24 +15,19 @@ namespace scene
 
 //! Constructor
 CBSPMeshFileLoader::CBSPMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr,
-		io::IFileSystem* fs)
+		boost::shared_ptr<io::IFileSystem> fs)
 : SceneManagerAwareMixin(smgr), FileSystem(fs)
 {
 
 	#ifdef _DEBUG
 	setDebugName("CBSPMeshFileLoader");
 	#endif
-
-	if (FileSystem)
-		FileSystem->grab();
 }
 
 
 //! destructor
 CBSPMeshFileLoader::~CBSPMeshFileLoader()
 {
-	if (FileSystem)
-		FileSystem->drop();
 }
 
 

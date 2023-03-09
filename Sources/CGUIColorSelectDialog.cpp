@@ -79,7 +79,7 @@ void CGUIColorSelectDialog::buildColorRing( const core::dimension2d<u32> & dim, 
 	const core::dimension2d<u32> d(dim.Width * supersample, dim.Height * supersample);
 	boost::shared_ptr<video::IVideoDriver> driver = getSharedEnvironment()->getVideoDriver();
 
-	video::IImage *RawTexture = driver->createImage(video::ECF_A8R8G8B8, d);
+	boost::shared_ptr<video::IImage> RawTexture = driver->createImage(video::ECF_A8R8G8B8, d);
 
 	RawTexture->fill ( 0x00808080 );
 
@@ -172,9 +172,8 @@ void CGUIColorSelectDialog::buildColorRing( const core::dimension2d<u32> & dim, 
 
 	if ( supersample > 1 )
 	{
-		video::IImage * filter = driver->createImage(video::ECF_A8R8G8B8, dim );
+		boost::shared_ptr<video::IImage>  filter = driver->createImage(video::ECF_A8R8G8B8, dim );
 		RawTexture->copyToScalingBoxFilter(filter);
-		RawTexture->drop();
 		RawTexture = filter;
 	}
 
@@ -182,7 +181,6 @@ void CGUIColorSelectDialog::buildColorRing( const core::dimension2d<u32> & dim, 
 	driver->setTextureCreationFlag( video::ETCF_CREATE_MIP_MAPS, false);
 
 	ColorRing.Texture = driver->addTexture ( "#colorring", RawTexture);
-	RawTexture->drop();
 
 	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, generateMipLevels);
 }

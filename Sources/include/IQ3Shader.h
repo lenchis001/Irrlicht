@@ -769,7 +769,7 @@ namespace quake3
 	*/
 	inline void getTextures(tTexArray &textures,
 				const core::stringc &name, u32 &startPos,
-				io::IFileSystem *fileSystem,
+				boost::shared_ptr<io::IFileSystem> fileSystem,
 				boost::shared_ptr<video::IVideoDriver> driver)
 	{
 		static const char* extension[] =
@@ -803,9 +803,8 @@ namespace quake3
 					{
 						core::dimension2du s ( 2, 2 );
 						u32 image[4] = { 0xFFFFFFFF, 0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF };
-						video::IImage* w = driver->createImageFromData ( video::ECF_A8R8G8B8, s,&image );
+						boost::shared_ptr<video::IImage> w = driver->createImageFromData ( video::ECF_A8R8G8B8, s,&image );
 						texture = driver->addTexture( "$whiteimage", w );
-						w->drop ();
 					}
 
 				}
@@ -817,9 +816,8 @@ namespace quake3
 					{
 						core::dimension2du s ( 2, 2 );
 						u32 image[4] = { 0xFFFF0000, 0xFFFF0000,0xFFFF0000,0xFFFF0000 };
-						video::IImage* w = driver->createImageFromData ( video::ECF_A8R8G8B8, s,&image );
+						boost::shared_ptr<video::IImage> w = driver->createImageFromData ( video::ECF_A8R8G8B8, s,&image );
 						texture = driver->addTexture( "$redimage", w );
-						w->drop ();
 					}
 				}
 				else
@@ -830,9 +828,8 @@ namespace quake3
 					{
 						core::dimension2du s ( 2, 2 );
 						u32 image[4] = { 0xFF0000FF, 0xFF0000FF,0xFF0000FF,0xFF0000FF };
-						video::IImage* w = driver->createImageFromData ( video::ECF_A8R8G8B8, s,&image );
+						boost::shared_ptr<video::IImage> w = driver->createImageFromData ( video::ECF_A8R8G8B8, s,&image );
 						texture = driver->addTexture( "$blueimage", w );
-						w->drop ();
 					}
 				}
 				else
@@ -843,9 +840,8 @@ namespace quake3
 					{
 						core::dimension2du s ( 2, 2 );
 						u32 image[4] = { 0xFFFFFFFF, 0xFF000000,0xFF000000,0xFFFFFFFF };
-						video::IImage* w = driver->createImageFromData ( video::ECF_A8R8G8B8, s,&image );
+						boost::shared_ptr<video::IImage> w = driver->createImageFromData ( video::ECF_A8R8G8B8, s,&image );
 						texture = driver->addTexture( "$checkerimage", w );
-						w->drop ();
 					}
 				}
 				else

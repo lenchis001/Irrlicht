@@ -46,9 +46,9 @@ bool CImageLoaderPPM::isALoadableFileFormat(io::IReadFile* file) const
 
 
 //! creates a surface from the file
-IImage* CImageLoaderPPM::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderPPM::loadImage(io::IReadFile* file) const
 {
-	IImage* image;
+	boost::shared_ptr<CImage> image;
 
 	if (file->getSize() < 12)
 		return 0;
@@ -99,7 +99,8 @@ IImage* CImageLoaderPPM::loadImage(io::IReadFile* file) const
 					shift=0;
 			}
 		}
-		image = new CImage(ECF_A1R5G5B5, core::dimension2d<u32>(width, height));
+		image = boost::make_shared<CImage>(ECF_A1R5G5B5, core::dimension2d<u32>(width, height));
+		image->setWeakPtr(image);
 		if (image)
 			CColorConverter::convert1BitTo16Bit(data, (s16*)image->lock(), width, height);
 	}
@@ -120,7 +121,8 @@ IImage* CImageLoaderPPM::loadImage(io::IReadFile* file) const
 					return 0;
 				data = new u8[size];
 				file->read(data, size);
-				image = new CImage(ECF_A8R8G8B8, core::dimension2d<u32>(width, height));
+				image = boost::make_shared<CImage>(ECF_A8R8G8B8, core::dimension2d<u32>(width, height));
+				image->setWeakPtr(image);
 				if (image)
 				{
 					u8* ptr = (u8*)image->lock();
@@ -137,7 +139,8 @@ IImage* CImageLoaderPPM::loadImage(io::IReadFile* file) const
 			{
 				if (file->getSize()-file->getPos() < (long)(2*size)) // optimistic test
 					return 0;
-				image = new CImage(ECF_A8R8G8B8, core::dimension2d<u32>(width, height));
+				image = boost::make_shared<CImage>(ECF_A8R8G8B8, core::dimension2d<u32>(width, height));
+				image->setWeakPtr(image);
 				if (image)
 				{
 					u8* ptr = (u8*)image->lock();
@@ -159,10 +162,11 @@ IImage* CImageLoaderPPM::loadImage(io::IReadFile* file) const
 			if (binary)
 			{
 				if (file->getSize()-file->getPos() < (long)bytesize)
-					return 0;
+					return nullptr;
 				data = new u8[bytesize];
 				file->read(data, bytesize);
-				image = new CImage(ECF_A8R8G8B8, core::dimension2d<u32>(width, height));
+				image = boost::make_shared<CImage>(ECF_A8R8G8B8, core::dimension2d<u32>(width, height));
+				image->setWeakPtr(image);
 				if (image)
 				{
 					u8* ptr = (u8*)image->lock();
@@ -179,7 +183,8 @@ IImage* CImageLoaderPPM::loadImage(io::IReadFile* file) const
 			{
 				if (file->getSize()-file->getPos() < (long)(2*bytesize)) // optimistic test
 					return 0;
-				image = new CImage(ECF_A8R8G8B8, core::dimension2d<u32>(width, height));
+				image = boost::make_shared<CImage>(ECF_A8R8G8B8, core::dimension2d<u32>(width, height));
+				image->setWeakPtr(image);
 				if (image)
 				{
 					u8* ptr = (u8*)image->lock();
@@ -264,9 +269,9 @@ void CImageLoaderPPM::skipToNextToken(io::IReadFile* file) const
 
 
 //! creates a loader which is able to load windows bitmaps
-IImageLoader* createImageLoaderPPM()
+boost::shared_ptr<IImageLoader> createImageLoaderPPM()
 {
-	return new CImageLoaderPPM;
+	return boost::make_shared<CImageLoaderPPM>();
 }
 
 

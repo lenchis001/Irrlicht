@@ -28,7 +28,7 @@ class CGUIEnvironment : public IGUIEnvironment, public IGUIElement
 public:
 
 	//! constructor
-	CGUIEnvironment(io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver, IOSOperator* op);
+	CGUIEnvironment(boost::shared_ptr<io::IFileSystem> fs, boost::shared_ptr<video::IVideoDriver> driver, boost::shared_ptr<IOSOperator> op);
 
 	//! destructor
 	virtual ~CGUIEnvironment();
@@ -37,10 +37,10 @@ public:
 	virtual void drawAll();
 
 	//! returns pointer to the filesystem
-	virtual io::IFileSystem* getFileSystem() const;
+	virtual boost::shared_ptr<io::IFileSystem> getFileSystem() const;
 
 	//! returns a pointer to the OS operator
-	virtual IOSOperator* getOSOperator() const;
+	virtual boost::shared_ptr<IOSOperator> getOSOperator() const;
 
 	//! posts an input event to the environment
 	virtual bool postEventFromUser(const SEvent& event);
@@ -307,9 +307,9 @@ private:
 	boost::shared_ptr<IGUIElement> Focus;
 	core::position2d<s32> LastHoveredMousePos;
 	boost::shared_ptr<IGUISkin> CurrentSkin;
-	io::IFileSystem* FileSystem;
+	boost::shared_ptr<io::IFileSystem> FileSystem;
 	IEventReceiver* UserReceiver;
-	IOSOperator* Operator;
+	boost::shared_ptr<IOSOperator> Operator;
 	static const io::path DefaultFontName;
 };
 

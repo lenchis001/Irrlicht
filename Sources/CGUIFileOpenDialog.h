@@ -71,7 +71,7 @@ namespace gui
 		boost::shared_ptr<IGUIListBox> FileBox;
 		boost::shared_ptr<IGUIEditBox> FileNameText;
 		boost::shared_ptr<IGUIElement> EventParent;
-		io::IFileSystem* FileSystem;
+		boost::shared_ptr<io::IFileSystem> FileSystem;
 		io::IFileList* FileList;
 		bool Dragging;
 		bool _restoreCWD;

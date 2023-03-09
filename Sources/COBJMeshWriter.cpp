@@ -22,22 +22,17 @@ namespace irr
 namespace scene
 {
 
-COBJMeshWriter::COBJMeshWriter(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* fs)
+COBJMeshWriter::COBJMeshWriter(boost::shared_ptr<scene::ISceneManager> smgr, boost::shared_ptr<io::IFileSystem> fs)
 	: SceneManagerAwareMixin(smgr), FileSystem(fs)
 {
 	#ifdef _DEBUG
 	setDebugName("COBJMeshWriter");
 	#endif
-
-	if (FileSystem)
-		FileSystem->grab();
 }
 
 
 COBJMeshWriter::~COBJMeshWriter()
 {
-	if (FileSystem)
-		FileSystem->drop();
 }
 
 

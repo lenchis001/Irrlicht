@@ -30,7 +30,7 @@ namespace scene
 
 	//! constructor
 	CTerrainSceneNode::CTerrainSceneNode(boost::shared_ptr<ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,
-			io::IFileSystem* fs, s32 id, s32 maxLOD, E_TERRAIN_PATCH_SIZE patchSize,
+			boost::shared_ptr<io::IFileSystem> fs, s32 id, s32 maxLOD, E_TERRAIN_PATCH_SIZE patchSize,
 			const core::vector3df& position,
 			const core::vector3df& rotation,
 			const core::vector3df& scale)
@@ -50,9 +50,6 @@ namespace scene
 		RenderBuffer->setHardwareMappingHint(scene::EHM_STATIC, scene::EBT_VERTEX);
 		RenderBuffer->setHardwareMappingHint(scene::EHM_DYNAMIC, scene::EBT_INDEX);
 
-		if (FileSystem)
-			FileSystem->grab();
-
 		setAutomaticCulling(scene::EAC_OFF);
 	}
 
@@ -61,9 +58,6 @@ namespace scene
 	CTerrainSceneNode::~CTerrainSceneNode()
 	{
 		delete [] TerrainData.Patches;
-
-		if (FileSystem)
-			FileSystem->drop();
 
 		if (RenderBuffer)
 			RenderBuffer->drop();
@@ -79,7 +73,7 @@ namespace scene
 
 		Mesh->MeshBuffers.clear();
 		const u32 startTime = os::Timer::getRealTime();
-		video::IImage* heightMap = getSceneManager()->getVideoDriver()->createImageFromFile(file);
+		boost::shared_ptr<video::IImage> heightMap = getSceneManager()->getVideoDriver()->createImageFromFile(file);
 
 		if (!heightMap)
 		{
@@ -175,9 +169,6 @@ namespace scene
 			++fx;
 			fx2 += tdSize;
 		}
-
-		// drop heightMap, no longer needed
-		heightMap->drop();
 
 		smoothTerrain(mb, smoothFactor);
 

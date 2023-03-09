@@ -413,7 +413,7 @@ namespace scene
 		/** With this interface, it is possible to manually add new loaded
 		meshes (if ISceneManager::getMesh() is not sufficient), to remove them and to iterate
 		through already loaded meshes. */
-		virtual IMeshCache* getMeshCache() = 0;
+		virtual boost::shared_ptr<IMeshCache> getMeshCache() = 0;
 
 		//! Get the active GUIEnvironment
 		/** \return Pointer to the GUIEnvironment
@@ -423,7 +423,7 @@ namespace scene
 		//! Get the active FileSystem
 		/** \return Pointer to the FileSystem
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual io::IFileSystem* getFileSystem() = 0;
+		virtual boost::shared_ptr<io::IFileSystem> getFileSystem() = 0;
 
 		//! adds Volume Lighting Scene Node.
 		/** Example Usage:
@@ -1024,7 +1024,7 @@ namespace scene
 		exists, or that a texture could not be found. If successful, a pointer to the mesh is returned.
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
 		virtual boost::shared_ptr<IAnimatedMesh> addTerrainMesh(const io::path& meshname,
-			video::IImage* texture, video::IImage* heightmap,
+			boost::shared_ptr<video::IImage> texture, boost::shared_ptr<video::IImage> heightmap,
 			const core::dimension2d<f32>& stretchSize = core::dimension2d<f32>(10.0f,10.0f),
 			f32 maxHeight=200.0f,
 			const core::dimension2d<u32>& defaultVertexBlockSize = core::dimension2d<u32>(64,64)) = 0;
@@ -1375,7 +1375,7 @@ namespace scene
 		Using this method it is also possible to override built-in mesh loaders with
 		newer or updated versions without the need to recompile the engine.
 		\param externalLoader: Implementation of a new mesh loader. */
-		virtual void addExternalMeshLoader(IMeshLoader* externalLoader) = 0;
+		virtual void addExternalMeshLoader(boost::shared_ptr<IMeshLoader> externalLoader) = 0;
 
 		//! Returns the number of mesh loaders supported by Irrlicht at this time
 		virtual u32 getMeshLoaderCount() const = 0;
@@ -1384,7 +1384,7 @@ namespace scene
 		/** \param index The index of the loader to retrieve. This parameter is an 0-based
 		array index.
 		\return A pointer to the specified loader, 0 if the index is incorrect. */
-		virtual IMeshLoader* getMeshLoader(u32 index) const = 0;
+		virtual boost::shared_ptr<IMeshLoader> getMeshLoader(u32 index) const = 0;
 
 		//! Adds an external scene loader for extending the engine with new file formats.
 		/** If you want the engine to be extended with
@@ -1623,7 +1623,7 @@ namespace scene
 		//! Get a mesh writer implementation if available
 		/** Note: You need to drop() the pointer after use again, see IReferenceCounted::drop()
 		for details. */
-		virtual IMeshWriter* createMeshWriter(EMESH_WRITER_TYPE type) = 0;
+		virtual boost::shared_ptr<IMeshWriter> createMeshWriter(EMESH_WRITER_TYPE type) = 0;
 
 		//! Get a skinned mesh, which is not available as header-only code
 		/** Note: You need to drop() the pointer after use again, see IReferenceCounted::drop()

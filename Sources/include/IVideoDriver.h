@@ -343,7 +343,7 @@ namespace video
 		/** \param n The index of the loader to retrieve. This parameter is an 0-based
 		array index.
 		\return A pointer to the specified loader, 0 if the index is incorrect. */
-		virtual IImageLoader* getImageLoader(u32 n) = 0;
+		virtual boost::shared_ptr<IImageLoader> getImageLoader(u32 n) = 0;
 
 		//! Retrieve the number of image writers
 		/** \return Number of image writers */
@@ -426,7 +426,7 @@ namespace video
 		\return Pointer to the newly created texture. This pointer
 		should not be dropped. See IReferenceCounted::drop() for more
 		information. */
-		virtual boost::shared_ptr<ITexture> addTexture(const io::path& name, IImage* image, void* mipmapData=0) = 0;
+		virtual boost::shared_ptr<ITexture> addTexture(const io::path& name, boost::shared_ptr<IImage> image, void* mipmapData=0) = 0;
 
 		//! Adds a new render target texture to the texture cache.
 		/** \param size Size of the texture, in pixels. Width and
@@ -1121,7 +1121,7 @@ namespace video
 		format. A pointer to the implementation can be passed to the
 		engine using this method.
 		\param loader Pointer to the external loader created. */
-		virtual void addExternalImageLoader(IImageLoader* loader) =0;
+		virtual void addExternalImageLoader(boost::shared_ptr<IImageLoader> loader) =0;
 
 		//! Adds an external image writer to the engine.
 		/** This is useful if the Irrlicht Engine should be able to
@@ -1165,7 +1165,7 @@ namespace video
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual IImage* createImageFromFile(const io::path& filename) = 0;
+		virtual boost::shared_ptr<IImage> createImageFromFile(const io::path& filename) = 0;
 
 		//! Creates a software image from a file.
 		/** No hardware texture will be created for this image. This
@@ -1175,7 +1175,7 @@ namespace video
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual IImage* createImageFromFile(io::IReadFile* file) =0;
+		virtual boost::shared_ptr<IImage> createImageFromFile(io::IReadFile* file) =0;
 
 		//! Writes the provided image to a file.
 		/** Requires that there is a suitable image writer registered
@@ -1185,7 +1185,7 @@ namespace video
 		\param param Control parameter for the backend (e.g. compression
 		level).
 		\return True on successful write. */
-		virtual bool writeImageToFile(IImage* image, const io::path& filename, u32 param = 0) = 0;
+		virtual bool writeImageToFile(boost::shared_ptr<IImage> image, const io::path& filename, u32 param = 0) = 0;
 
 		//! Writes the provided image to a file.
 		/** Requires that there is a suitable image writer registered
@@ -1196,7 +1196,7 @@ namespace video
 		\param param Control parameter for the backend (e.g. compression
 		level).
 		\return True on successful write. */
-		virtual bool writeImageToFile(IImage* image, io::IWriteFile* file, u32 param =0) =0;
+		virtual bool writeImageToFile(boost::shared_ptr<IImage> image, io::IWriteFile* file, u32 param =0) =0;
 
 		//! Creates a software image from a byte array.
 		/** No hardware texture will be created for this image. This
@@ -1213,7 +1213,7 @@ namespace video
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual IImage* createImageFromData(ECOLOR_FORMAT format,
+		virtual boost::shared_ptr<IImage> createImageFromData(ECOLOR_FORMAT format,
 			const core::dimension2d<u32>& size, void *data,
 			bool ownForeignMemory=false,
 			bool deleteMemory = true) =0;
@@ -1225,7 +1225,7 @@ namespace video
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual IImage* createImage(ECOLOR_FORMAT format, const core::dimension2d<u32>& size) =0;
+		virtual boost::shared_ptr<IImage> createImage(ECOLOR_FORMAT format, const core::dimension2d<u32>& size) =0;
 
 		//! Creates a software image by converting it to given format from another image.
 		/** \deprecated Create an empty image and use copyTo(). This method may be removed by Irrlicht 1.9.
@@ -1234,7 +1234,7 @@ namespace video
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		_IRR_DEPRECATED_ virtual IImage* createImage(ECOLOR_FORMAT format, IImage *imageToCopy) =0;
+		_IRR_DEPRECATED_ virtual boost::shared_ptr<IImage> createImage(ECOLOR_FORMAT format, boost::shared_ptr<IImage> imageToCopy) =0;
 
 		//! Creates a software image from a part of another image.
 		/** \deprecated Create an empty image and use copyTo(). This method may be removed by Irrlicht 1.9.
@@ -1244,7 +1244,7 @@ namespace video
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		_IRR_DEPRECATED_ virtual IImage* createImage(IImage* imageToCopy,
+		_IRR_DEPRECATED_ virtual boost::shared_ptr<IImage> createImage(boost::shared_ptr<IImage> imageToCopy,
 				const core::position2d<s32>& pos,
 				const core::dimension2d<u32>& size) =0;
 
@@ -1256,7 +1256,7 @@ namespace video
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual IImage* createImage(boost::shared_ptr<ITexture> texture,
+		virtual boost::shared_ptr<IImage> createImage(boost::shared_ptr<ITexture> texture,
 				const core::position2d<s32>& pos,
 				const core::dimension2d<u32>& size) =0;
 
@@ -1371,7 +1371,7 @@ namespace video
 
 		//! Make a screenshot of the last rendered frame.
 		/** \return An image created from the last rendered frame. */
-		virtual IImage* createScreenShot(video::ECOLOR_FORMAT format=video::ECF_UNKNOWN, video::E_RENDER_TARGET target=video::ERT_FRAME_BUFFER) =0;
+		virtual boost::shared_ptr<IImage> createScreenShot(video::ECOLOR_FORMAT format=video::ECF_UNKNOWN, video::E_RENDER_TARGET target=video::ERT_FRAME_BUFFER) =0;
 
 		//! Check if the image is already loaded.
 		/** Works similar to getTexture(), but does not load the texture

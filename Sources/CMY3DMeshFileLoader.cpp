@@ -51,22 +51,17 @@ static const unsigned long MY3D_TEXDATA_COMPR_RLE_ID = 0x20524c45;
 static const unsigned long MY3D_PIXEL_FORMAT_24 = 0x5f32345f;
 static const unsigned long MY3D_PIXEL_FORMAT_16 = 0x5f31365f;
 
-CMY3DMeshFileLoader::CMY3DMeshFileLoader(boost::shared_ptr<scene::ISceneManager> scmgr, io::IFileSystem* fs)
+CMY3DMeshFileLoader::CMY3DMeshFileLoader(boost::shared_ptr<scene::ISceneManager> scmgr, boost::shared_ptr<io::IFileSystem> fs)
 	: SceneManagerAwareMixin(scmgr), FileSystem(fs)
 {
 	#ifdef _DEBUG
 	setDebugName("CMY3DMeshFileLoader");
 	#endif
-
-	if (FileSystem)
-		FileSystem->grab();
 }
 
 
 CMY3DMeshFileLoader::~CMY3DMeshFileLoader()
 {
-	if (FileSystem)
-		FileSystem->drop();
 }
 
 
@@ -818,7 +813,7 @@ boost::shared_ptr<video::ITexture> CMY3DMeshFileLoader::readEmbeddedLightmap(io:
 	}
 
 	//! Creates a software image from a byte array.
-	video::IImage* light_img = 0;
+	boost::shared_ptr<video::IImage> light_img = 0;
 	boost::shared_ptr<scene::ISceneManager> lockedSceneManager = getSceneManager();
 
 	if (texDataHeader.PixelFormat == MY3D_PIXEL_FORMAT_24)
@@ -843,7 +838,6 @@ boost::shared_ptr<video::ITexture> CMY3DMeshFileLoader::readEmbeddedLightmap(io:
 	boost::shared_ptr<video::ITexture> lmtex = lockedSceneManager->getVideoDriver()->addTexture(LightMapName, light_img);
 	lockedSceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, oldMipMapState);
 
-	light_img->drop();
 	return lmtex;
 }
 

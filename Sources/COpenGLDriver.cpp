@@ -36,7 +36,7 @@ namespace video
 #ifdef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
 //! Windows constructor and init code
 COpenGLDriver::COpenGLDriver(const irr::SIrrlichtCreationParameters& params,
-		io::IFileSystem* io, CIrrDeviceWin32* device)
+		boost::shared_ptr<io::IFileSystem> io, CIrrDeviceWin32* device)
 : CNullDriver(io, params.WindowSize), IMaterialRendererServices(nullptr), COpenGLExtensionHandler(),
 	CurrentRenderMode(ERM_NONE), ResetRenderStates(true), Transformation3DChanged(true),
 	AntiAlias(params.AntiAlias), RenderTargetTexture(0),
@@ -473,7 +473,7 @@ bool COpenGLDriver::initDriver(CIrrDeviceWin32* device)
 #ifdef _IRR_COMPILE_WITH_OSX_DEVICE_
 //! Windows constructor and init code
 COpenGLDriver::COpenGLDriver(const SIrrlichtCreationParameters& params,
-		io::IFileSystem* io, CIrrDeviceMacOSX *device)
+		boost::shared_ptr<io::IFileSystem> io, CIrrDeviceMacOSX *device)
 : CNullDriver(io, params.WindowSize), COpenGLExtensionHandler(),
 	CurrentRenderMode(ERM_NONE), ResetRenderStates(true), Transformation3DChanged(true),
 	AntiAlias(params.AntiAlias), RenderTargetTexture(0),
@@ -500,7 +500,7 @@ COpenGLDriver::COpenGLDriver(const SIrrlichtCreationParameters& params,
 #ifdef _IRR_COMPILE_WITH_X11_DEVICE_
 //! Linux constructor and init code
 COpenGLDriver::COpenGLDriver(const SIrrlichtCreationParameters& params,
-		io::IFileSystem* io, CIrrDeviceLinux* device)
+		boost::shared_ptr<io::IFileSystem> io, CIrrDeviceLinux* device)
 : CNullDriver(io, params.WindowSize), COpenGLExtensionHandler(),
 	CurrentRenderMode(ERM_NONE), ResetRenderStates(true),
 	Transformation3DChanged(true), AntiAlias(params.AntiAlias),
@@ -593,7 +593,7 @@ bool COpenGLDriver::initDriver(CIrrDeviceLinux* device)
 #ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
 //! SDL constructor and init code
 COpenGLDriver::COpenGLDriver(const SIrrlichtCreationParameters& params,
-		io::IFileSystem* io, CIrrDeviceSDL* device)
+		boost::shared_ptr<io::IFileSystem> io, CIrrDeviceSDL* device)
 : CNullDriver(io, params.WindowSize), COpenGLExtensionHandler(),
 	CurrentRenderMode(ERM_NONE), ResetRenderStates(true),
 	Transformation3DChanged(true), AntiAlias(params.AntiAlias),
@@ -2508,7 +2508,7 @@ inline void COpenGLDriver::getGLTextureMatrix(GLfloat *o, const core::matrix4& m
 
 
 //! returns a device dependent texture from a software surface (IImage)
-boost::shared_ptr<video::ITexture> COpenGLDriver::createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData)
+boost::shared_ptr<video::ITexture> COpenGLDriver::createDeviceDependentTexture(boost::shared_ptr<IImage> surface, const io::path& name, void* mipmapData)
 {
 	boost::shared_ptr<COpenGLTexture> texture = boost::make_shared<COpenGLTexture>(surface, name, mipmapData, getSharedThis<COpenGLDriver>());
 	texture->setWeakThis(texture);
@@ -4399,7 +4399,7 @@ void COpenGLDriver::clearZBuffer()
 
 
 //! Returns an image created from the last rendered frame.
-IImage* COpenGLDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RENDER_TARGET target)
+boost::shared_ptr<IImage> COpenGLDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RENDER_TARGET target)
 {
 	if (target==video::ERT_MULTI_RENDER_TEXTURES || target==video::ERT_RENDER_TEXTURE || target==video::ERT_STEREO_BOTH_BUFFERS)
 		return 0;
@@ -4504,7 +4504,7 @@ IImage* COpenGLDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RE
 		type = GL_UNSIGNED_BYTE;
 		break;
 	}
-	IImage* newImage = createImage(format, ScreenSize);
+	boost::shared_ptr<IImage> newImage = createImage(format, ScreenSize);
 
 	u8* pixels = 0;
 	if (newImage)
@@ -4567,8 +4567,7 @@ IImage* COpenGLDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RE
 		newImage->unlock();
 		if (testGLError() || !pixels)
 		{
-			newImage->drop();
-			return 0;
+			return nullptr;
 		}
 	}
 	return newImage;
@@ -4774,7 +4773,7 @@ namespace video
 // -----------------------------------
 #ifdef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
 boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParameters& params,
-	io::IFileSystem* io, CIrrDeviceWin32* device)
+	boost::shared_ptr<io::IFileSystem> io, CIrrDeviceWin32* device)
 {
 #ifdef _IRR_COMPILE_WITH_OPENGL_
 	boost::shared_ptr<COpenGLDriver> ogl =  boost::make_shared<COpenGLDriver>(params, io, device);
@@ -4797,7 +4796,7 @@ boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParame
 // -----------------------------------
 #if defined(_IRR_COMPILE_WITH_OSX_DEVICE_)
 boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParameters& params,
-		io::IFileSystem* io, CIrrDeviceMacOSX *device)
+		boost::shared_ptr<io::IFileSystem> io, CIrrDeviceMacOSX *device)
 {
 #ifdef _IRR_COMPILE_WITH_OPENGL_
 	boost::shared_ptr<COpenGLDriver> driver = boost::make_shared<COpenGLDriver>(params, io, device);
@@ -4816,7 +4815,7 @@ boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParame
 // -----------------------------------
 #ifdef _IRR_COMPILE_WITH_X11_DEVICE_
 boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParameters& params,
-		io::IFileSystem* io, CIrrDeviceLinux* device)
+		boost::shared_ptr<io::IFileSystem> io, CIrrDeviceLinux* device)
 {
 #ifdef _IRR_COMPILE_WITH_OPENGL_
 	boost::shared_ptr<COpenGLDriver> ogl = boost::make_shared<COpenGLDriver>(params, io, device);
@@ -4840,7 +4839,7 @@ boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParame
 // -----------------------------------
 #ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
 boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParameters& params,
-		io::IFileSystem* io, CIrrDeviceSDL* device)
+		boost::shared_ptr<io::IFileSystem> io, CIrrDeviceSDL* device)
 {
 #ifdef _IRR_COMPILE_WITH_OPENGL_
 	boost::shared_ptr<COpenGLDriver> driver =  boost::make_shared<COpenGLDriver>(params, io, device);

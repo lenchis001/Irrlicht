@@ -47,7 +47,7 @@ namespace io
 	public:
 
 		//! Constructor
-		CArchiveLoaderNPK(io::IFileSystem* fs);
+		CArchiveLoaderNPK(boost::shared_ptr<io::IFileSystem> fs);
 
 		//! returns true if the file maybe is able to be loaded by this class
 		//! based on the file extension (e.g. ".zip")
@@ -78,7 +78,7 @@ namespace io
 		virtual E_FILE_ARCHIVE_TYPE getType() const { return EFAT_NPK; }
 
 	private:
-		io::IFileSystem* FileSystem;
+		boost::shared_ptr<io::IFileSystem> FileSystem;
 	};
 
 

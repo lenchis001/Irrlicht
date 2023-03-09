@@ -52,7 +52,7 @@ namespace io
 // -----------------------------------------------------------------------------
 
 //! Constructor
-CArchiveLoaderZIP::CArchiveLoaderZIP(io::IFileSystem* fs)
+CArchiveLoaderZIP::CArchiveLoaderZIP(boost::shared_ptr<io::IFileSystem> fs)
 : FileSystem(fs)
 {
 	#ifdef _DEBUG

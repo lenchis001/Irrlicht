@@ -36,11 +36,11 @@ namespace scene
 {
 
 /** Constructor*/
-CDMFLoader::CDMFLoader(boost::shared_ptr<scene::ISceneManager> smgr, io::IFileSystem* filesys)
+CDMFLoader::CDMFLoader(boost::shared_ptr<scene::ISceneManager> smgr, boost::shared_ptr<io::IFileSystem> filesys)
 : SceneMgr(smgr), FileSystem(filesys)
 {
 	#ifdef _DEBUG
-	IReferenceCounted::setDebugName("CDMFLoader");
+	IDebugable::setDebugName("CDMFLoader");
 	#endif
 }
 
@@ -284,11 +284,10 @@ boost::shared_ptr<IAnimatedMesh> CDMFLoader::createMesh(io::IReadFile* file)
 				if (color.getAlpha()!=255 && materiali[i].textureBlend==4)
 					driver->setTextureCreationFlag(video::ETCF_ALWAYS_32_BIT,true);
 
-				video::IImage *immagine= driver->createImage(video::ECF_A8R8G8B8,
+				boost::shared_ptr<video::IImage> immagine= driver->createImage(video::ECF_A8R8G8B8,
 					core::dimension2d<u32>(8,8));
 				immagine->fill(color);
 				tex = driver->addTexture("", immagine);
-				immagine->drop();
 
 				//to support transparent materials
 				if (color.getAlpha()!=255 && materiali[i].textureBlend==4)

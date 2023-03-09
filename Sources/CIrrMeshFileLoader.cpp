@@ -24,7 +24,7 @@ namespace scene
 
 //! Constructor
 CIrrMeshFileLoader::CIrrMeshFileLoader(boost::shared_ptr<scene::ISceneManager> smgr,
-		io::IFileSystem* fs)
+		boost::shared_ptr<io::IFileSystem> fs)
 	: SceneManagerAwareMixin(smgr), FileSystem(fs)
 {
 

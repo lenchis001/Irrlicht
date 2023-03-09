@@ -29,7 +29,7 @@ class IAttributes;
 /** It manages where files are, so that modules which use the the IO do not
 need to know where every file is located. A file could be in a .zip-Archive or
 as file on disk, using the IFileSystem makes no difference to this. */
-class IFileSystem : public virtual IReferenceCounted
+class IFileSystem : public virtual IDebugable
 {
 public:
 

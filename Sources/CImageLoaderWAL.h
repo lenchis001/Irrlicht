@@ -39,7 +39,7 @@ class CImageLoaderLMP : public irr::video::IImageLoader
 public:
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 	virtual bool isALoadableFileFormat(irr::io::IReadFile* file) const;
-	virtual irr::video::IImage* loadImage(irr::io::IReadFile* file) const;
+	virtual boost::shared_ptr<irr::video::IImage> loadImage(irr::io::IReadFile* file) const;
 };
 
 #endif
@@ -52,7 +52,7 @@ class CImageLoaderWAL : public irr::video::IImageLoader
 public:
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 	virtual bool isALoadableFileFormat(irr::io::IReadFile* file) const;
-	virtual irr::video::IImage* loadImage(irr::io::IReadFile* file) const;
+	virtual boost::shared_ptr<irr::video::IImage> loadImage(irr::io::IReadFile* file) const;
 };
 
 //! An Irrlicht image loader for Halflife 1 engine textures
@@ -61,7 +61,7 @@ class CImageLoaderWAL2 : public irr::video::IImageLoader
 public:
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 	virtual bool isALoadableFileFormat(irr::io::IReadFile* file) const;
-	virtual irr::video::IImage* loadImage(irr::io::IReadFile* file) const;
+	virtual boost::shared_ptr<irr::video::IImage> loadImage(irr::io::IReadFile* file) const;
 };
 
 // byte-align structures

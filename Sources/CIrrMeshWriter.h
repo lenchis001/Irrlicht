@@ -28,7 +28,7 @@ namespace scene
 	{
 	public:
 
-		CIrrMeshWriter(boost::shared_ptr<video::IVideoDriver> driver, io::IFileSystem* fs);
+		CIrrMeshWriter(boost::shared_ptr<video::IVideoDriver> driver, boost::shared_ptr<io::IFileSystem> fs);
 		virtual ~CIrrMeshWriter();
 
 		//! Returns the type of the mesh writer
@@ -51,7 +51,7 @@ namespace scene
 
 		// member variables:
 
-		io::IFileSystem* FileSystem;
+		boost::shared_ptr<io::IFileSystem> FileSystem;
 		boost::shared_ptr<video::IVideoDriver> VideoDriver;
 		io::IXMLWriter* Writer;
 	};

@@ -256,25 +256,25 @@ ECOLOR_FORMAT CImage::getColorFormat() const
 
 
 //! copies this surface into another at given position
-void CImage::copyTo(IImage* target, const core::position2d<s32>& pos)
+void CImage::copyTo(boost::shared_ptr<IImage> target, const core::position2d<s32>& pos)
 {
-	Blit(BLITTER_TEXTURE, target, 0, &pos, this, 0, 0);
+	Blit(BLITTER_TEXTURE, target, 0, &pos, getSharedThis(), 0, 0);
 }
 
 
 //! copies this surface partially into another at given position
-void CImage::copyTo(IImage* target, const core::position2d<s32>& pos, const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect)
+void CImage::copyTo(boost::shared_ptr<IImage> target, const core::position2d<s32>& pos, const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect)
 {
-	Blit(BLITTER_TEXTURE, target, clipRect, &pos, this, &sourceRect, 0);
+	Blit(BLITTER_TEXTURE, target, clipRect, &pos, getSharedThis(), &sourceRect, 0);
 }
 
 
 //! copies this surface into another, using the alpha mask, a cliprect and a color to add with
-void CImage::copyToWithAlpha(IImage* target, const core::position2d<s32>& pos, const core::rect<s32>& sourceRect, const SColor &color, const core::rect<s32>* clipRect)
+void CImage::copyToWithAlpha(boost::shared_ptr<IImage> target, const core::position2d<s32>& pos, const core::rect<s32>& sourceRect, const SColor &color, const core::rect<s32>* clipRect)
 {
 	// color blend only necessary on not full spectrum aka. color.color != 0xFFFFFFFF
 	Blit(color.color == 0xFFFFFFFF ? BLITTER_TEXTURE_ALPHA_BLEND: BLITTER_TEXTURE_ALPHA_COLOR_BLEND,
-			target, clipRect, &pos, this, &sourceRect, color.color);
+			target, clipRect, &pos, getSharedThis(), &sourceRect, color.color);
 }
 
 
@@ -336,7 +336,7 @@ void CImage::copyToScaling(void* target, u32 width, u32 height, ECOLOR_FORMAT fo
 
 //! copies this surface into another, scaling it to the target image size
 // note: this is very very slow.
-void CImage::copyToScaling(IImage* target)
+void CImage::copyToScaling(boost::shared_ptr<IImage> target)
 {
 	if (!target)
 		return;
@@ -355,7 +355,7 @@ void CImage::copyToScaling(IImage* target)
 
 
 //! copies this surface into another, scaling it to fit it.
-void CImage::copyToScalingBoxFilter(IImage* target, s32 bias, bool blend)
+void CImage::copyToScalingBoxFilter(boost::shared_ptr<IImage> target, s32 bias, bool blend)
 {
 	const core::dimension2d<u32> destSize = target->getDimension();
 

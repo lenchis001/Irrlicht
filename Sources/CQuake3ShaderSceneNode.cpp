@@ -28,7 +28,7 @@ using namespace quake3;
 */
 CQuake3ShaderSceneNode::CQuake3ShaderSceneNode(
 			boost::shared_ptr<scene::ISceneNode> parent, boost::shared_ptr<scene::ISceneManager> mgr,s32 id,
-			io::IFileSystem *fileSystem, const scene::IMeshBuffer *original,
+			boost::shared_ptr<io::IFileSystem> fileSystem, const scene::IMeshBuffer *original,
 			const boost::shared_ptr<IShader>  shader)
 : scene::IMeshSceneNode(parent, mgr, id, 
 		core::vector3df(0.f, 0.f, 0.f),
@@ -127,7 +127,7 @@ void CQuake3ShaderSceneNode::cloneBuffer( scene::SMeshBuffer *dest, const scene:
 /*
 	load the textures for all stages
 */
-void CQuake3ShaderSceneNode::loadTextures( io::IFileSystem * fileSystem )
+void CQuake3ShaderSceneNode::loadTextures( boost::shared_ptr<io::IFileSystem>  fileSystem )
 {
 	const SVarGroup *group;
 	u32 i;

@@ -56,7 +56,7 @@ namespace scene
 	{
 	public:
 
-		CCSMLoader(boost::shared_ptr<scene::ISceneManager> manager, io::IFileSystem* fs);
+		CCSMLoader(boost::shared_ptr<scene::ISceneManager> manager, boost::shared_ptr<io::IFileSystem> fs);
 
 		//! returns true if the file maybe is able to be loaded by this class
 		//! based on the file extension (e.g. ".bsp")
@@ -72,7 +72,7 @@ namespace scene
 		boost::shared_ptr<scene::IMesh> createIrrlichtMesh(const CSMFile* csmFile,
 			const core::stringc& textureRoot, const io::path& lmprefix);
 
-		io::IFileSystem* FileSystem;
+		boost::shared_ptr<io::IFileSystem> FileSystem;
 	};
 
 } // end namespace

@@ -11,7 +11,7 @@ namespace irr
 {
 
 //! Interface for getting and manipulating the virtual time
-class ITimer : public virtual IReferenceCounted
+class ITimer : public virtual IDebugable
 {
 public:
 	//! Returns current real time in milliseconds of the system.

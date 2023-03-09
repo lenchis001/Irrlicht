@@ -23,7 +23,7 @@ namespace video
 currently unsupported file formats (e.g .gif), then implement
 this and add your new Surface loader with
 IVideoDriver::addExternalImageLoader() to the engine. */
-class IImageLoader : public virtual IReferenceCounted
+class IImageLoader : public virtual IDebugable
 {
 public:
 
@@ -42,7 +42,7 @@ public:
 	//! Creates a surface from the file
 	/** \param file File handle to check.
 	\return Pointer to newly created image, or 0 upon error. */
-	virtual IImage* loadImage(io::IReadFile* file) const = 0;
+	virtual boost::shared_ptr<IImage> loadImage(io::IReadFile* file) const = 0;
 };
 
 

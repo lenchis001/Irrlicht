@@ -89,7 +89,7 @@ namespace irr
 
 		//! Provides access to the virtual file system.
 		/** \return Pointer to the file system. */
-		virtual io::IFileSystem* getFileSystem() = 0;
+		virtual boost::shared_ptr<io::IFileSystem> getFileSystem() = 0;
 
 		//! Provides access to the 2d user interface environment.
 		/** \return Pointer to the gui environment. */
@@ -124,13 +124,13 @@ namespace irr
 		specific operations, such as exchanging data with the clipboard
 		or reading the operation system version.
 		\return Pointer to the OS operator. */
-		virtual IOSOperator* getOSOperator() = 0;
+		virtual boost::shared_ptr<IOSOperator> getOSOperator() = 0;
 
 		//! Provides access to the engine's timer.
 		/** The system time can be retrieved by it as
 		well as the virtual time, which also can be manipulated.
 		\return Pointer to the ITimer object. */
-		virtual ITimer* getTimer() = 0;
+		virtual boost::shared_ptr<ITimer> getTimer() = 0;
 
 		//! Provides access to the engine's currently set randomizer.
 		/** \return Pointer to the IRandomizer object. */

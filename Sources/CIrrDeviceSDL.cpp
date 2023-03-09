@@ -30,7 +30,7 @@ namespace irr
 	{
 		#ifdef _IRR_COMPILE_WITH_OPENGL_
 		boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParameters& params,
-				io::IFileSystem* io, CIrrDeviceSDL* device);
+				boost::shared_ptr<io::IFileSystem> io, CIrrDeviceSDL* device);
 		#endif
 	} // end namespace video
 
@@ -559,7 +559,7 @@ void CIrrDeviceSDL::setWindowCaption(const wchar_t* text)
 
 
 //! presents a surface in the client area
-bool CIrrDeviceSDL::present(video::IImage* surface, void* windowId, core::rect<s32>* srcClip)
+bool CIrrDeviceSDL::present(boost::shared_ptr<video::IImage> surface, void* windowId, core::rect<s32>* srcClip)
 {
 	SDL_Surface *sdlSurface = SDL_CreateRGBSurfaceFrom(
 			surface->lock(), surface->getDimension().Width, surface->getDimension().Height,

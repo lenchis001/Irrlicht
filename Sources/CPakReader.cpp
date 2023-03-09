@@ -30,7 +30,7 @@ inline bool isHeaderValid(const SPAKFileHeader& header)
 } // end namespace
 
 //! Constructor
-CArchiveLoaderPAK::CArchiveLoaderPAK( io::IFileSystem* fs)
+CArchiveLoaderPAK::CArchiveLoaderPAK( boost::shared_ptr<io::IFileSystem> fs)
 : FileSystem(fs)
 {
 #ifdef _DEBUG

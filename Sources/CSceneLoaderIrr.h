@@ -29,7 +29,7 @@ class CSceneLoaderIrr : public virtual ISceneLoader, public SceneManagerAwareMix
 public:
 
 	//! Constructor
-	CSceneLoaderIrr(boost::shared_ptr<ISceneManager> smgr, io::IFileSystem* fs);
+	CSceneLoaderIrr(boost::shared_ptr<ISceneManager> smgr, boost::shared_ptr<io::IFileSystem> fs);
 
 	//! Destructor
 	virtual ~CSceneLoaderIrr();
@@ -60,7 +60,7 @@ private:
 	void readUserData(io::IXMLReader* reader, boost::shared_ptr<ISceneNode> node,
 		ISceneUserDataSerializer* userDataSerializer);
 
-	io::IFileSystem *FileSystem;
+	boost::shared_ptr<io::IFileSystem> FileSystem;
 
 	//! constants for reading and writing XML.
 	//! Not made static due to portability problems.

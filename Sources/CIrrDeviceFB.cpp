@@ -287,7 +287,7 @@ void CIrrDeviceFB::sleep(u32 timeMs, bool pauseTimer=false)
 
 
 //! presents a surface in the client area
-bool CIrrDeviceFB::present(video::IImage* image, void* windowId, core::rect<s32>* src )
+bool CIrrDeviceFB::present(boost::shared_ptr<video::IImage> image, void* windowId, core::rect<s32>* src )
 {
 	// this is only necessary for software drivers.
 	if (CreationParams.DriverType != video::EDT_SOFTWARE && CreationParams.DriverType != video::EDT_BURNINGSVIDEO)

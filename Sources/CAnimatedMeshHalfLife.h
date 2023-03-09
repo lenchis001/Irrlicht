@@ -357,7 +357,7 @@ namespace scene
 		}
 
 		void release ();
-		void addSource ( const c8 * name, video::IImage * image );
+		void addSource ( const c8 * name, boost::shared_ptr<video::IImage>  image );
 		void create ( u32 pixelborder, video::E_TEXTURE_CLAMP texmode );
 		void getScale ( core::vector2df &scale );
 		void getTranslation ( const c8 * name, core::vector2di &pos );
@@ -370,7 +370,7 @@ namespace scene
 
 			core::vector2di pos;
 
-			video::IImage * image;
+			boost::shared_ptr<video::IImage>  image;
 
 			bool operator < ( const TextureAtlasEntry & other )
 			{
@@ -380,7 +380,7 @@ namespace scene
 
 
 		core::array < TextureAtlasEntry > atlas;
-		video::IImage * Master;
+		boost::shared_ptr<video::IImage>  Master;
 	};
 
 

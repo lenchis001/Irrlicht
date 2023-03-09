@@ -353,7 +353,7 @@ bool CIrrDeviceConsole::isWindowMinimized() const
 }
 
 //! presents a surface in the client area
-bool CIrrDeviceConsole::present(video::IImage* surface, void* windowId, core::rect<s32>* src)
+bool CIrrDeviceConsole::present(boost::shared_ptr<video::IImage> surface, void* windowId, core::rect<s32>* src)
 {
 
 	if (surface)

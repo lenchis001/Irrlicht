@@ -27,7 +27,7 @@ class CAttributes : public IAttributes, public video::VideoDriverAwareMixin<>
 {
 public:
 
-	CAttributes(boost::shared_ptr<video::IVideoDriver> driver=nullptr, io::IFileSystem* fileSystem = nullptr);
+	CAttributes(boost::shared_ptr<video::IVideoDriver> driver=nullptr, boost::shared_ptr<io::IFileSystem> fileSystem = nullptr);
 	~CAttributes();
 
 	//! Returns amount of attributes in this collection of attributes.
@@ -705,7 +705,7 @@ protected:
 
 	IAttribute* getAttributeP(const c8* attributeName) const;
 
-	io::IFileSystem* _fileSystem;
+	boost::shared_ptr<io::IFileSystem> _fileSystem;
 };
 
 } // end namespace io

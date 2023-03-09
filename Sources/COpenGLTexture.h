@@ -52,7 +52,7 @@ class COpenGLTexture : public ITexture, public VideoDriverAwareMixin<COpenGLDriv
 public:
 
 	//! constructor
-	COpenGLTexture(IImage* surface, const io::path& name, void* mipmapData=0, boost::shared_ptr<COpenGLDriver> driver=0);
+	COpenGLTexture(boost::shared_ptr<IImage> surface, const io::path& name, void* mipmapData=0, boost::shared_ptr<COpenGLDriver> driver=0);
 
 	//! destructor
 	virtual ~COpenGLTexture();
@@ -119,7 +119,7 @@ protected:
 		ECOLOR_FORMAT format, GLint& filtering, GLenum& colorformat, GLenum& type);
 
 	//! get important numbers of the image and hw texture
-	void getImageValues(IImage* image);
+	void getImageValues(boost::shared_ptr<IImage> image);
 
 	//! copies the texture into an OpenGL texture.
 	/** \param newTexture True if method is called for a newly created texture for the first time. Otherwise call with false to improve memory handling.
@@ -136,8 +136,8 @@ protected:
 	core::dimension2d<u32> ImageSize;
 	core::dimension2d<u32> TextureSize;
 	ECOLOR_FORMAT ColorFormat;
-	IImage* Image;
-	IImage* MipImage;
+	boost::shared_ptr<IImage> Image;
+	boost::shared_ptr<IImage> MipImage;
 
 	GLuint TextureName;
 	GLint InternalFormat;

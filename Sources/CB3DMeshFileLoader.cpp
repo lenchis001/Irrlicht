@@ -1046,7 +1046,7 @@ void CB3DMeshFileLoader::loadTextures(SB3dMaterial& material) const
 				SceneManager->getVideoDriver()->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, (B3dTexture->Flags & 0x8) ? true:false);
 			{
 				boost::shared_ptr<video::ITexture> tex = 0;
-				io::IFileSystem* fs = SceneManager->getFileSystem();
+				boost::shared_ptr<io::IFileSystem> fs = SceneManager->getFileSystem();
 				io::path texnameWithUserPath( SceneManager->getParameters()->getAttributeAsString(B3D_TEXTURE_PATH) );
 				if ( texnameWithUserPath.size() )
 				{

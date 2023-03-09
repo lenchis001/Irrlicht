@@ -86,13 +86,12 @@ bool CImageLoaderPng::isALoadableFileFormat(io::IReadFile* file) const
 
 
 // load in the image data
-IImage* CImageLoaderPng::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderPng::loadImage(io::IReadFile* file) const
 {
 #ifdef _IRR_COMPILE_WITH_LIBPNG_
 	if (!file)
 		return 0;
 
-	video::IImage* image = 0;
 	//Used to point to image rows
 	u8** RowPointers = 0;
 
@@ -222,11 +221,16 @@ IImage* CImageLoaderPng::loadImage(io::IReadFile* file) const
 #endif
 	}
 
+	boost::shared_ptr<video::CImage> image = nullptr;
+
 	// Create the image structure to be filled by png data
 	if (ColorType==PNG_COLOR_TYPE_RGB_ALPHA)
-		image = new CImage(ECF_A8R8G8B8, core::dimension2d<u32>(Width, Height));
+		image = boost::make_shared<CImage>(ECF_A8R8G8B8, core::dimension2d<u32>(Width, Height));
 	else
-		image = new CImage(ECF_R8G8B8, core::dimension2d<u32>(Width, Height));
+		image = boost::make_shared<CImage>(ECF_R8G8B8, core::dimension2d<u32>(Width, Height));
+
+	image->setWeakPtr(image);
+
 	if (!image)
 	{
 		os::Printer::log("LOAD PNG: Internal PNG create image struct failure\n", file->getFileName(), ELL_ERROR);
@@ -240,8 +244,7 @@ IImage* CImageLoaderPng::loadImage(io::IReadFile* file) const
 	{
 		os::Printer::log("LOAD PNG: Internal PNG create row pointers failure\n", file->getFileName(), ELL_ERROR);
 		png_destroy_read_struct(&png_ptr, NULL, NULL);
-		delete image;
-		return 0;
+		return nullptr;
 	}
 
 	// Fill array of pointers to rows in image data
@@ -258,7 +261,6 @@ IImage* CImageLoaderPng::loadImage(io::IReadFile* file) const
 		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 		delete [] RowPointers;
 		image->unlock();
-		delete image;
 		return 0;
 	}
 
@@ -277,9 +279,9 @@ IImage* CImageLoaderPng::loadImage(io::IReadFile* file) const
 }
 
 
-IImageLoader* createImageLoaderPNG()
+boost::shared_ptr<IImageLoader> createImageLoaderPNG()
 {
-	return new CImageLoaderPng();
+	return boost::make_shared<CImageLoaderPng>();
 }
 
 

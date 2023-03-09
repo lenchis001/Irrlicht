@@ -321,7 +321,7 @@ namespace
 
 //! Constructor
 CColladaFileLoader::CColladaFileLoader(boost::shared_ptr<scene::ISceneManager> smgr,
-		io::IFileSystem* fs)
+		boost::shared_ptr<io::IFileSystem> fs)
 : SceneManagerAwareMixin(smgr), FileSystem(fs), DummyMesh(0),
 	FirstLoadedMesh(0), LoadedMeshCount(0), CreateInstances(false)
 {
@@ -2806,9 +2806,8 @@ boost::shared_ptr<video::ITexture> CColladaFileLoader::getTextureFromImage(core:
 						++ptrdest;
 						ptrsrc += 4;
 					}
-					video::IImage* img = driver->createImageFromData(video::ECF_A8R8G8B8, Images[i].Dimension, data, true, true);
+					boost::shared_ptr<video::IImage> img = driver->createImageFromData(video::ECF_A8R8G8B8, Images[i].Dimension, data, true, true);
 					boost::shared_ptr<video::ITexture> tex = driver->addTexture((CurrentlyLoadingMesh+"#"+Images[i].Id).c_str(), img);
-					img->drop();
 					return tex;
 				}
 				break;

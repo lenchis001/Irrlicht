@@ -1210,6 +1210,9 @@
     <ClInclude Include="include\SceneManagerAwareMixin.h">
       <Filter>include\scene</Filter>
     </ClInclude>
+    <ClInclude Include="include\SharedThisMixin.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CDefaultSceneNodeAnimatorFactory.cpp">

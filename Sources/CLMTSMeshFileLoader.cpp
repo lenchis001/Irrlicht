@@ -38,7 +38,7 @@ Version 1.4 - 12 March 2005
 - Used the irrlicht Logger instead of cerr to output warnings and errors.
   For this I had to change the constructor
   from:
-	CLMTSMeshFileLoader(io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver)
+	CLMTSMeshFileLoader(boost::shared_ptr<io::IFileSystem> fs, boost::shared_ptr<video::IVideoDriver> driver)
   to:
 	CLMTSMeshFileLoader(boost::shared_ptr<IrrlichtDevice> device)
 
@@ -83,7 +83,7 @@ namespace irr
 namespace scene
 {
 
-CLMTSMeshFileLoader::CLMTSMeshFileLoader(io::IFileSystem* fs,
+CLMTSMeshFileLoader::CLMTSMeshFileLoader(boost::shared_ptr<io::IFileSystem> fs,
 		boost::shared_ptr<video::IVideoDriver> driver, io::IAttributes* parameters)
 	: VideoDriverAwareMixin(driver), Textures(0), Subsets(0), Triangles(0),
 	Parameters(parameters), FileSystem(fs), FlipEndianess(false)
@@ -93,20 +93,12 @@ CLMTSMeshFileLoader::CLMTSMeshFileLoader(io::IFileSystem* fs,
 	#endif
 
 
-
-	if (FileSystem)
-		FileSystem->grab();
 }
 
 
 CLMTSMeshFileLoader::~CLMTSMeshFileLoader()
 {
 	cleanup();
-
-
-
-	if (FileSystem)
-		FileSystem->drop();
 }
 
 

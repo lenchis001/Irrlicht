@@ -33,7 +33,7 @@ bool CImageWriterTGA::isAWriteableFileExtension(const io::path& filename) const
 	return core::hasFileExtension ( filename, "tga" );
 }
 
-bool CImageWriterTGA::writeImage(io::IWriteFile *file, IImage *image,u32 param) const
+bool CImageWriterTGA::writeImage(io::IWriteFile *file, boost::shared_ptr<IImage> image,u32 param) const
 {
 	STGAHeader imageHeader;
 	imageHeader.IdLength = 0;

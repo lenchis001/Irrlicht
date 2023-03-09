@@ -18,7 +18,7 @@ namespace io
 {
 
 //! Constructor
-CArchiveLoaderTAR::CArchiveLoaderTAR(io::IFileSystem* fs)
+CArchiveLoaderTAR::CArchiveLoaderTAR(boost::shared_ptr<io::IFileSystem> fs)
 : FileSystem(fs)
 {
 	#ifdef _DEBUG

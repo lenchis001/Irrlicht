@@ -30,7 +30,7 @@ class COgreMeshFileLoader : public IMeshLoader, public video::VideoDriverAwareMi
 public:
 
 	//! Constructor
-	COgreMeshFileLoader(io::IFileSystem* fs, boost::shared_ptr<video::IVideoDriver> driver);
+	COgreMeshFileLoader(boost::shared_ptr<io::IFileSystem> fs, boost::shared_ptr<video::IVideoDriver> driver);
 
 	//! destructor
 	virtual ~COgreMeshFileLoader();
@@ -248,7 +248,7 @@ private:
 	bool loadSkeleton(io::IReadFile* meshFile, const core::stringc& name);
 	void clearMeshes();
 
-	io::IFileSystem* FileSystem;
+	boost::shared_ptr<io::IFileSystem> FileSystem;
 
 	core::stringc Version;
 	bool SwapEndian;

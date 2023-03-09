@@ -20,29 +20,29 @@ namespace irr
 	namespace gui
 	{
 		class IGUIEnvironment;
-		boost::shared_ptr<IGUIEnvironment> createGUIEnvironment(io::IFileSystem* fs,
-			boost::shared_ptr<video::IVideoDriver> Driver, IOSOperator* op);
+		boost::shared_ptr<IGUIEnvironment> createGUIEnvironment(boost::shared_ptr<io::IFileSystem> fs,
+			boost::shared_ptr<video::IVideoDriver> Driver, boost::shared_ptr<IOSOperator> op);
 	}
 
 	namespace scene
 	{
 		boost::shared_ptr<scene::ISceneManager> createSceneManager(boost::shared_ptr<video::IVideoDriver> driver,
-			io::IFileSystem* fs, boost::shared_ptr<gui::ICursorControl> cc, boost::shared_ptr<gui::IGUIEnvironment> gui);
+			boost::shared_ptr<io::IFileSystem> fs, boost::shared_ptr<gui::ICursorControl> cc, boost::shared_ptr<gui::IGUIEnvironment> gui);
 	}
 
 	namespace io
 	{
-		IFileSystem* createFileSystem();
+		boost::shared_ptr<IFileSystem> createFileSystem();
 	}
 
 	namespace video
 	{
 		boost::shared_ptr<IVideoDriver> createSoftwareDriver(const core::dimension2d<u32>& windowSize,
-				bool fullscreen, io::IFileSystem* io,
+				bool fullscreen, boost::shared_ptr<io::IFileSystem> io,
 				video::IImagePresenter* presenter);
 		boost::shared_ptr<IVideoDriver> createBurningVideoDriver(const irr::SIrrlichtCreationParameters& params,
-				io::IFileSystem* io, video::IImagePresenter* presenter);
-		boost::shared_ptr<IVideoDriver> createNullDriver(io::IFileSystem* io, const core::dimension2d<u32>& screenSize);
+				boost::shared_ptr<io::IFileSystem> io, video::IImagePresenter* presenter);
+		boost::shared_ptr<IVideoDriver> createNullDriver(boost::shared_ptr<io::IFileSystem> io, const core::dimension2d<u32>& screenSize);
 	}
 
 
@@ -62,7 +62,7 @@ namespace irr
 		virtual boost::shared_ptr<video::IVideoDriver> getVideoDriver();
 
 		//! return file system
-		virtual io::IFileSystem* getFileSystem();
+		virtual boost::shared_ptr<io::IFileSystem> getFileSystem();
 
 		//! returns the gui environment
 		virtual boost::shared_ptr<gui::IGUIEnvironment> getGUIEnvironment();
@@ -77,7 +77,7 @@ namespace irr
 		virtual boost::shared_ptr<video::IVideoModeList> getVideoModeList();
 
 		//! Returns a pointer to the ITimer object. With it the current Time can be received.
-		virtual ITimer* getTimer();
+		virtual boost::shared_ptr<ITimer> getTimer();
 
 		//! Returns the version of the engine.
 		virtual const char* getVersion() const;
@@ -108,7 +108,7 @@ namespace irr
 		virtual IRandomizer* createDefaultRandomizer() const;
 
 		//! Returns the operation system opertator object.
-		virtual IOSOperator* getOSOperator();
+		virtual boost::shared_ptr<IOSOperator> getOSOperator();
 
 		//! Checks if the window is running in fullscreen mode.
 		virtual bool isFullscreen() const;
@@ -153,13 +153,13 @@ namespace irr
 		boost::shared_ptr<video::IVideoDriver> VideoDriver;
 		boost::shared_ptr<gui::IGUIEnvironment> GUIEnvironment;
 		boost::shared_ptr<scene::ISceneManager> SceneManager;
-		ITimer* Timer;
+		boost::shared_ptr<ITimer> Timer;
 		boost::shared_ptr<gui::ICursorControl> CursorControl;
 		IEventReceiver* UserReceiver;
 		CLogger* Logger;
-		IOSOperator* Operator;
+		boost::shared_ptr<IOSOperator> Operator;
 		IRandomizer* Randomizer;
-		io::IFileSystem* FileSystem;
+		boost::shared_ptr<io::IFileSystem> FileSystem;
 		boost::shared_ptr<scene::ISceneManager> InputReceivingSceneManager;
 
 		struct SMouseMultiClicks

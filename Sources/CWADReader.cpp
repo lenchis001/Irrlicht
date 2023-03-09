@@ -17,7 +17,7 @@ namespace io
 {
 
 //! Constructor
-CArchiveLoaderWAD::CArchiveLoaderWAD( io::IFileSystem* fs)
+CArchiveLoaderWAD::CArchiveLoaderWAD( boost::shared_ptr<io::IFileSystem> fs)
 : FileSystem(fs)
 {
 	#ifdef _DEBUG

@@ -789,7 +789,6 @@ void STextureAtlas::release()
 	{
 		if ( atlas[i].image )
 		{
-			atlas[i].image->drop();
 			atlas[i].image = 0;
 		}
 	}
@@ -799,7 +798,7 @@ void STextureAtlas::release()
 
 /*!
 */
-void STextureAtlas::addSource ( const c8 * name, video::IImage * image )
+void STextureAtlas::addSource ( const c8 * name, boost::shared_ptr<video::IImage>  image )
 {
 	TextureAtlasEntry entry;
 	entry.name = name;
@@ -918,7 +917,9 @@ void STextureAtlas::create(u32 border, E_TEXTURE_CLAMP texmode)
 
 	// build image
 	core::dimension2d<u32> dim = core::dimension2d<u32>( wsum, hsum ).getOptimalSize();
-	IImage* master = new CImage(format, dim);
+	boost::shared_ptr<CImage> master = boost::make_shared<CImage>(format, dim);
+	master->setWeakPtr(master);
+
 	master->fill(0);
 
 	video::SColor col[2];
@@ -1029,7 +1030,7 @@ SHalflifeHeader* CAnimatedMeshHalfLife::loadModel(io::IReadFile* file, const io:
 				}
 			}
 
-			IImage* image = lockedSceneManager->getVideoDriver()->createImage(ECF_R8G8B8, core::dimension2d<u32>(tex[i].width, tex[i].height));
+			boost::shared_ptr<IImage> image = lockedSceneManager->getVideoDriver()->createImage(ECF_R8G8B8, core::dimension2d<u32>(tex[i].width, tex[i].height));
 
 			CColorConverter::convert8BitTo24Bit(src, (u8*)image->lock(), tex[i].width, tex[i].height, (u8*) palette, 0, false);
 			image->unlock();

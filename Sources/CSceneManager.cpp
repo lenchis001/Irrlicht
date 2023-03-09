@@ -181,8 +181,8 @@ namespace scene
 {
 
 //! constructor
-CSceneManager::CSceneManager(boost::shared_ptr<video::IVideoDriver> driver, io::IFileSystem* fs,
-		boost::shared_ptr<gui::ICursorControl> cursorControl, IMeshCache* cache,
+CSceneManager::CSceneManager(boost::shared_ptr<video::IVideoDriver> driver, boost::shared_ptr<io::IFileSystem> fs,
+		boost::shared_ptr<gui::ICursorControl> cursorControl, boost::shared_ptr<IMeshCache> cache,
 		boost::shared_ptr<gui::IGUIEnvironment> gui)
 	: ISceneManager(driver), ISceneNode(0, 0), FileSystem(fs), GUIEnvironment(gui),
 	CursorControl(cursorControl), CollisionManager(0),
@@ -207,14 +207,9 @@ void CSceneManager::setWeakThis(boost::shared_ptr<CSceneManager> value)
 	Parameters.setAttribute(DEBUG_NORMAL_LENGTH, 1.f);
 	Parameters.setAttribute(DEBUG_NORMAL_COLOR, video::SColor(255, 34, 221, 221));
 
-	if (FileSystem)
-		FileSystem->grab();
-
 	// create mesh cache if not there already
 	if (!MeshCache)
-		MeshCache = new CMeshCache();
-	else
-		MeshCache->grab();
+		MeshCache = boost::make_shared<CMeshCache>();
 
 	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
 	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
@@ -232,67 +227,67 @@ void CSceneManager::setWeakThis(boost::shared_ptr<CSceneManager> value)
 	// shallow copies from the previous manager if there is one.
 
 	#ifdef _IRR_COMPILE_WITH_STL_LOADER_
-		MeshLoaderList.push_back(new CSTLMeshFileLoader());
+		MeshLoaderList.push_back(boost::make_shared<CSTLMeshFileLoader>());
 	#endif
 	#ifdef _IRR_COMPILE_WITH_PLY_LOADER_
-		MeshLoaderList.push_back(new CPLYMeshFileLoader(lockedSceneManager));
+		MeshLoaderList.push_back(boost::make_shared<CPLYMeshFileLoader>(lockedSceneManager));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_SMF_LOADER_
-		MeshLoaderList.push_back(new CSMFMeshFileLoader(lockedDriver));
+		MeshLoaderList.push_back(boost::make_shared<CSMFMeshFileLoader>(lockedDriver));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_OCT_LOADER_
-		MeshLoaderList.push_back(new COCTLoader(lockedSceneManager, FileSystem));
+		MeshLoaderList.push_back(boost::make_shared<COCTLoader>(lockedSceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_CSM_LOADER_
-		MeshLoaderList.push_back(new CCSMLoader(lockedSceneManager, FileSystem));
+		MeshLoaderList.push_back(boost::make_shared<CCSMLoader>(lockedSceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_LMTS_LOADER_
-		MeshLoaderList.push_back(new CLMTSMeshFileLoader(FileSystem, lockedDriver, &Parameters));
+		MeshLoaderList.push_back(boost::make_shared<CLMTSMeshFileLoader>(FileSystem, lockedDriver, &Parameters));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_MY3D_LOADER_
-		MeshLoaderList.push_back(new CMY3DMeshFileLoader(lockedSceneManager, FileSystem));
+		MeshLoaderList.push_back(boost::make_shared<CMY3DMeshFileLoader>(lockedSceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_DMF_LOADER_
-		MeshLoaderList.push_back(new CDMFLoader(lockedSceneManager, FileSystem));
+		MeshLoaderList.push_back(boost::make_shared<CDMFLoader>(lockedSceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_OGRE_LOADER_
-		MeshLoaderList.push_back(new COgreMeshFileLoader(FileSystem, lockedDriver));
+		MeshLoaderList.push_back(boost::make_shared<COgreMeshFileLoader>(FileSystem, lockedDriver));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_HALFLIFE_LOADER_
-		MeshLoaderList.push_back(new CHalflifeMDLMeshFileLoader(lockedSceneManager));
+		MeshLoaderList.push_back(boost::make_shared<CHalflifeMDLMeshFileLoader>(lockedSceneManager));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_MD3_LOADER_
-		MeshLoaderList.push_back(new CMD3MeshFileLoader(lockedSceneManager));
+		MeshLoaderList.push_back(boost::make_shared<CMD3MeshFileLoader>(lockedSceneManager));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_LWO_LOADER_
-		MeshLoaderList.push_back(new CLWOMeshFileLoader(lockedSceneManager, FileSystem));
+		MeshLoaderList.push_back(boost::make_shared<CLWOMeshFileLoader>(lockedSceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_MD2_LOADER_
-		MeshLoaderList.push_back(new CMD2MeshFileLoader());
+		MeshLoaderList.push_back(boost::make_shared<CMD2MeshFileLoader>());
 	#endif
 	#ifdef _IRR_COMPILE_WITH_IRR_MESH_LOADER_
-		MeshLoaderList.push_back(new CIrrMeshFileLoader(lockedSceneManager, FileSystem));
+		MeshLoaderList.push_back(boost::make_shared<CIrrMeshFileLoader>(lockedSceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_BSP_LOADER_
-		MeshLoaderList.push_back(new CBSPMeshFileLoader(lockedSceneManager, FileSystem));
+		MeshLoaderList.push_back(boost::make_shared<CBSPMeshFileLoader>(lockedSceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_COLLADA_LOADER_
-		MeshLoaderList.push_back(new CColladaFileLoader(lockedSceneManager, FileSystem));
+		MeshLoaderList.push_back(boost::make_shared<CColladaFileLoader>(lockedSceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_3DS_LOADER_
-		MeshLoaderList.push_back(new C3DSMeshFileLoader(lockedSceneManager, FileSystem));
+		MeshLoaderList.push_back(boost::make_shared<C3DSMeshFileLoader>(lockedSceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_X_LOADER_
-		MeshLoaderList.push_back(new CXMeshFileLoader(lockedSceneManager, FileSystem));
+		MeshLoaderList.push_back(boost::make_shared<CXMeshFileLoader>(lockedSceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_MS3D_LOADER_
-		MeshLoaderList.push_back(new CMS3DMeshFileLoader(lockedDriver));
+		MeshLoaderList.push_back(boost::make_shared<CMS3DMeshFileLoader>(lockedDriver));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_OBJ_LOADER_
-		MeshLoaderList.push_back(new COBJMeshFileLoader(lockedSceneManager, FileSystem));
+		MeshLoaderList.push_back(boost::make_shared<COBJMeshFileLoader>(lockedSceneManager, FileSystem));
 	#endif
 	#ifdef _IRR_COMPILE_WITH_B3D_LOADER_
-		MeshLoaderList.push_back(new CB3DMeshFileLoader(lockedSceneManager));
+		MeshLoaderList.push_back(boost::make_shared<CB3DMeshFileLoader>(lockedSceneManager));
 	#endif
 
 		// scene loaders
@@ -325,19 +320,9 @@ CSceneManager::~CSceneManager()
 	if (lockedDriver)
 		lockedDriver->removeAllHardwareBuffers();
 
-	if (FileSystem)
-		FileSystem->drop();
-
-	u32 i;
-	for (i=0; i<MeshLoaderList.size(); ++i)
-		MeshLoaderList[i]->drop();
-
 	ActiveCamera = 0;
 
-	if (MeshCache)
-		MeshCache->drop();
-
-	for (i=0; i<SceneNodeAnimatorFactoryList.size(); ++i)
+	for (u32 i=0; i<SceneNodeAnimatorFactoryList.size(); ++i)
 		SceneNodeAnimatorFactoryList[i]->drop();
 
 	// remove all nodes and animators before dropping the driver
@@ -436,7 +421,7 @@ boost::shared_ptr<gui::IGUIEnvironment> CSceneManager::getGUIEnvironment()
 //! Get the active FileSystem
 /** \return Pointer to the FileSystem
 This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-io::IFileSystem* CSceneManager::getFileSystem()
+boost::shared_ptr<io::IFileSystem> CSceneManager::getFileSystem()
 {
 	return FileSystem;
 }
@@ -961,7 +946,7 @@ boost::shared_ptr<IAnimatedMesh> CSceneManager::addHillPlaneMesh(const io::path&
 
 //! Adds a terrain mesh to the mesh pool.
 boost::shared_ptr<IAnimatedMesh> CSceneManager::addTerrainMesh(const io::path& name,
-	video::IImage* texture, video::IImage* heightmap,
+	boost::shared_ptr<video::IImage> texture, boost::shared_ptr<video::IImage> heightmap,
 	const core::dimension2d<f32>& stretchSize,
 	f32 maxHeight,
 	const core::dimension2d<u32>& defaultVertexBlockSize)
@@ -1690,12 +1675,11 @@ boost::shared_ptr<ISceneNodeAnimator> CSceneManager::createFollowSplineAnimator(
 
 
 //! Adds an external mesh loader.
-void CSceneManager::addExternalMeshLoader(IMeshLoader* externalLoader)
+void CSceneManager::addExternalMeshLoader(boost::shared_ptr<IMeshLoader> externalLoader)
 {
 	if (!externalLoader)
 		return;
 
-	externalLoader->grab();
 	MeshLoaderList.push_back(externalLoader);
 }
 
@@ -1708,7 +1692,7 @@ u32 CSceneManager::getMeshLoaderCount() const
 
 
 //! Retrieve the given mesh loader
-IMeshLoader* CSceneManager::getMeshLoader(u32 index) const
+boost::shared_ptr<IMeshLoader> CSceneManager::getMeshLoader(u32 index) const
 {
 	if (index < MeshLoaderList.size())
 		return MeshLoaderList[index];
@@ -1981,7 +1965,7 @@ E_SCENE_NODE_RENDER_PASS CSceneManager::getSceneNodeRenderPass() const
 
 
 //! Returns an interface to the mesh cache which is shared beween all existing scene managers.
-IMeshCache* CSceneManager::getMeshCache()
+boost::shared_ptr<IMeshCache> CSceneManager::getMeshCache()
 {
 	return MeshCache;
 }
@@ -2434,7 +2418,7 @@ boost::shared_ptr<ISkinnedMesh> CSceneManager::createSkinnedMesh()
 }
 
 //! Returns a mesh writer implementation if available
-IMeshWriter* CSceneManager::createMeshWriter(EMESH_WRITER_TYPE type)
+boost::shared_ptr<IMeshWriter> CSceneManager::createMeshWriter(EMESH_WRITER_TYPE type)
 {
 	boost::shared_ptr<video::IVideoDriver> lockedDriver = getVideoDriver();
 	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
@@ -2443,44 +2427,44 @@ IMeshWriter* CSceneManager::createMeshWriter(EMESH_WRITER_TYPE type)
 	{
 	case EMWT_IRR_MESH:
 #ifdef _IRR_COMPILE_WITH_IRR_WRITER_
-		return new CIrrMeshWriter(lockedDriver, FileSystem);
+		return boost::make_shared<CIrrMeshWriter>(lockedDriver, FileSystem);
 #else
-		return 0;
+		return nullptr;
 #endif
 	case EMWT_COLLADA:
 #ifdef _IRR_COMPILE_WITH_COLLADA_WRITER_
-		return new CColladaMeshWriter(lockedSceneManager, lockedDriver, FileSystem);
+		return boost::make_shared<CColladaMeshWriter>(lockedSceneManager, lockedDriver, FileSystem);
 #else
-		return 0;
+		return nullptr;
 #endif
 	case EMWT_STL:
 #ifdef _IRR_COMPILE_WITH_STL_WRITER_
-		return new CSTLMeshWriter(lockedSceneManager);
+		return boost::make_shared<CSTLMeshWriter>(lockedSceneManager);
 #else
-		return 0;
+		return nullptr;
 #endif
 	case EMWT_OBJ:
 #ifdef _IRR_COMPILE_WITH_OBJ_WRITER_
-		return new COBJMeshWriter(lockedSceneManager, FileSystem);
+		return boost::make_shared<COBJMeshWriter>(lockedSceneManager, FileSystem);
 #else
-		return 0;
+		return nullptr;
 #endif
 
 	case EMWT_PLY:
 #ifdef _IRR_COMPILE_WITH_PLY_WRITER_
-		return new CPLYMeshWriter();
+		return boost::make_shared<CPLYMeshWriter>();
 #else
-		return 0;
+		return nullptr;
 #endif
 	}
 
-	return 0;
+	return nullptr;
 }
 
 
 // creates a scenemanager
 boost::shared_ptr<scene::ISceneManager> createSceneManager(boost::shared_ptr<video::IVideoDriver> driver,
-		io::IFileSystem* fs, boost::shared_ptr<gui::ICursorControl> cursorcontrol,
+		boost::shared_ptr<io::IFileSystem> fs, boost::shared_ptr<gui::ICursorControl> cursorcontrol,
 		boost::shared_ptr<gui::IGUIEnvironment> guiEnvironment)
 {
 	boost::shared_ptr<scene::CSceneManager> sceneManager = boost::make_shared<CSceneManager>(driver, fs, cursorcontrol, nullptr, guiEnvironment);

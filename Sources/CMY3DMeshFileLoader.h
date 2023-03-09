@@ -72,7 +72,7 @@ struct SMyMaterialHeader
 class CMY3DMeshFileLoader : public IMeshLoader, public SceneManagerAwareMixin<>
 {
 public:
-	CMY3DMeshFileLoader(boost::shared_ptr<ISceneManager> scmgr, io::IFileSystem* fs);
+	CMY3DMeshFileLoader(boost::shared_ptr<ISceneManager> scmgr, boost::shared_ptr<io::IFileSystem> fs);
 	virtual ~CMY3DMeshFileLoader();
 
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
@@ -87,7 +87,7 @@ private:
 
 	boost::shared_ptr<video::ITexture> readEmbeddedLightmap(io::IReadFile* file, char* namebuf);
 
-	io::IFileSystem* FileSystem;
+	boost::shared_ptr<io::IFileSystem> FileSystem;
 
 	struct SMyMaterialEntry
 	{
