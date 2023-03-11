@@ -41,7 +41,7 @@ void CGUIWindow::refreshSprites()
 	if ( !skin )
 		return;
 
-	IGUISpriteBank* sprites = skin->getSpriteBank();
+	boost::shared_ptr<IGUISpriteBank> sprites = skin->getSpriteBank();
 	if ( !sprites )
 		return;
 

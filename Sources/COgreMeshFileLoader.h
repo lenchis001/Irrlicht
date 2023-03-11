@@ -43,7 +43,7 @@ public:
 	//! \return Pointer to the created mesh. Returns 0 if loading failed.
 	//! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 	//! See IReferenceCounted::drop() for more information.
-	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(boost::shared_ptr<io::IReadFile> file);
 
 private:
 
@@ -219,33 +219,33 @@ private:
 		core::array<OgreAnimation> Animations;
 	};
 
-	bool readChunk(io::IReadFile* file);
-	bool readObjectChunk(io::IReadFile* file, ChunkData& parent, OgreMesh& mesh);
-	bool readGeometry(io::IReadFile* file, ChunkData& parent, OgreGeometry& geometry);
-	bool readVertexDeclaration(io::IReadFile* file, ChunkData& parent, OgreGeometry& geometry);
-	bool readVertexBuffer(io::IReadFile* file, ChunkData& parent, OgreGeometry& geometry);
-	bool readSubMesh(io::IReadFile* file, ChunkData& parent, OgreSubMesh& subMesh);
+	bool readChunk(boost::shared_ptr<io::IReadFile> file);
+	bool readObjectChunk(boost::shared_ptr<io::IReadFile> file, ChunkData& parent, OgreMesh& mesh);
+	bool readGeometry(boost::shared_ptr<io::IReadFile> file, ChunkData& parent, OgreGeometry& geometry);
+	bool readVertexDeclaration(boost::shared_ptr<io::IReadFile> file, ChunkData& parent, OgreGeometry& geometry);
+	bool readVertexBuffer(boost::shared_ptr<io::IReadFile> file, ChunkData& parent, OgreGeometry& geometry);
+	bool readSubMesh(boost::shared_ptr<io::IReadFile> file, ChunkData& parent, OgreSubMesh& subMesh);
 
-	void readChunkData(io::IReadFile* file, ChunkData& data);
-	void readString(io::IReadFile* file, ChunkData& data, core::stringc& out);
-	void readBool(io::IReadFile* file, ChunkData& data, bool& out);
-	void readInt(io::IReadFile* file, ChunkData& data, s32* out, u32 num=1);
-	void readShort(io::IReadFile* file, ChunkData& data, u16* out, u32 num=1);
-	void readFloat(io::IReadFile* file, ChunkData& data, f32* out, u32 num=1);
-	void readVector(io::IReadFile* file, ChunkData& data, core::vector3df& out);
-	void readQuaternion(io::IReadFile* file, ChunkData& data, core::quaternion& out);
+	void readChunkData(boost::shared_ptr<io::IReadFile> file, ChunkData& data);
+	void readString(boost::shared_ptr<io::IReadFile> file, ChunkData& data, core::stringc& out);
+	void readBool(boost::shared_ptr<io::IReadFile> file, ChunkData& data, bool& out);
+	void readInt(boost::shared_ptr<io::IReadFile> file, ChunkData& data, s32* out, u32 num=1);
+	void readShort(boost::shared_ptr<io::IReadFile> file, ChunkData& data, u16* out, u32 num=1);
+	void readFloat(boost::shared_ptr<io::IReadFile> file, ChunkData& data, f32* out, u32 num=1);
+	void readVector(boost::shared_ptr<io::IReadFile> file, ChunkData& data, core::vector3df& out);
+	void readQuaternion(boost::shared_ptr<io::IReadFile> file, ChunkData& data, core::quaternion& out);
 
 	void composeMeshBufferMaterial(scene::IMeshBuffer* mb, const core::stringc& materialName);
 	scene::SMeshBuffer* composeMeshBuffer(const core::array<s32>& indices, const OgreGeometry& geom);
 	scene::SMeshBufferLightMap* composeMeshBufferLightMap(const core::array<s32>& indices, const OgreGeometry& geom);
 	scene::IMeshBuffer* composeMeshBufferSkinned(scene::CSkinnedMesh& mesh, const core::array<s32>& indices, const OgreGeometry& geom);
 	void composeObject(void);
-	bool readColor(io::IReadFile* meshFile, video::SColor& col);
-	void getMaterialToken(io::IReadFile* file, core::stringc& token, bool noNewLine=false);
-	void readTechnique(io::IReadFile* meshFile, OgreMaterial& mat);
-	void readPass(io::IReadFile* file, OgreTechnique& technique);
-	void loadMaterials(io::IReadFile* file);
-	bool loadSkeleton(io::IReadFile* meshFile, const core::stringc& name);
+	bool readColor(boost::shared_ptr<io::IReadFile> meshFile, video::SColor& col);
+	void getMaterialToken(boost::shared_ptr<io::IReadFile> file, core::stringc& token, bool noNewLine=false);
+	void readTechnique(boost::shared_ptr<io::IReadFile> meshFile, OgreMaterial& mat);
+	void readPass(boost::shared_ptr<io::IReadFile> file, OgreTechnique& technique);
+	void loadMaterials(boost::shared_ptr<io::IReadFile> file);
+	bool loadSkeleton(boost::shared_ptr<io::IReadFile> meshFile, const core::stringc& name);
 	void clearMeshes();
 
 	boost::shared_ptr<io::IFileSystem> FileSystem;

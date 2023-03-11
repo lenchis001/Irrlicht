@@ -11,7 +11,7 @@ namespace io
 {
 
 
-CLimitReadFile::CLimitReadFile(IReadFile* alreadyOpenedFile, long pos,
+CLimitReadFile::CLimitReadFile(boost::shared_ptr<IReadFile> alreadyOpenedFile, long pos,
 		long areaSize, const io::path& name)
 	: Filename(name), AreaStart(0), AreaEnd(0), Pos(0),
 	File(alreadyOpenedFile)
@@ -22,7 +22,6 @@ CLimitReadFile::CLimitReadFile(IReadFile* alreadyOpenedFile, long pos,
 
 	if (File)
 	{
-		File->grab();
 		AreaStart = pos;
 		AreaEnd = AreaStart + areaSize;
 	}
@@ -31,8 +30,6 @@ CLimitReadFile::CLimitReadFile(IReadFile* alreadyOpenedFile, long pos,
 
 CLimitReadFile::~CLimitReadFile()
 {
-	if (File)
-		File->drop();
 }
 
 
@@ -116,9 +113,9 @@ const io::path& CLimitReadFile::getFileName() const
 }
 
 
-IReadFile* createLimitReadFile(const io::path& fileName, IReadFile* alreadyOpenedFile, long pos, long areaSize)
+boost::shared_ptr<IReadFile> createLimitReadFile(const io::path& fileName, boost::shared_ptr<IReadFile> alreadyOpenedFile, long pos, long areaSize)
 {
-	return new CLimitReadFile(alreadyOpenedFile, pos, areaSize, fileName);
+	return boost::make_shared<CLimitReadFile>(alreadyOpenedFile, pos, areaSize, fileName);
 }
 
 

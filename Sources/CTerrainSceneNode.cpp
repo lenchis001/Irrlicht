@@ -65,7 +65,7 @@ namespace scene
 
 
 	//! Initializes the terrain data. Loads the vertices from the heightMapFile
-	bool CTerrainSceneNode::loadHeightMap(io::IReadFile* file, video::SColor vertexColor,
+	bool CTerrainSceneNode::loadHeightMap(boost::shared_ptr<io::IReadFile> file, video::SColor vertexColor,
 			s32 smoothFactor)
 	{
 		if (!file)
@@ -224,7 +224,7 @@ namespace scene
 
 
 	//! Initializes the terrain data. Loads the vertices from the heightMapFile
-	bool CTerrainSceneNode::loadHeightMapRAW(io::IReadFile* file,
+	bool CTerrainSceneNode::loadHeightMapRAW(boost::shared_ptr<io::IReadFile> file,
 			s32 bitsPerPixel, bool signedData, bool floatVals,
 			s32 width, video::SColor vertexColor, s32 smoothFactor)
 	{
@@ -703,7 +703,7 @@ namespace scene
 
 		if (DynamicSelectorUpdate && TriangleSelector)
 		{
-			CTerrainTriangleSelector* selector = (CTerrainTriangleSelector*)TriangleSelector;
+			boost::shared_ptr<CTerrainTriangleSelector> selector =  boost::static_pointer_cast<CTerrainTriangleSelector>(TriangleSelector);
 			selector->setTriangleData(getSharedThis<ITerrainSceneNode>(), -1);
 		}
 	}
@@ -1407,11 +1407,10 @@ namespace scene
 
 		if (newHeightmap.size() != 0 && newHeightmap != HeightmapFile)
 		{
-			io::IReadFile* file = FileSystem->createAndOpenFile(newHeightmap.c_str());
+			boost::shared_ptr<io::IReadFile> file = FileSystem->createAndOpenFile(newHeightmap.c_str());
 			if (file)
 			{
 				loadHeightMap(file, video::SColor(255,255,255,255), smoothFactor);
-				file->drop();
 			}
 			else
 				os::Printer::log("could not open heightmap", newHeightmap.c_str());
@@ -1455,11 +1454,10 @@ namespace scene
 
 		// load file
 
-		io::IReadFile* file = FileSystem->createAndOpenFile(HeightmapFile.c_str());
+		boost::shared_ptr<io::IReadFile> file = FileSystem->createAndOpenFile(HeightmapFile.c_str());
 		if (file)
 		{
 			nb->loadHeightMap(file, video::SColor(255,255,255,255), 0);
-			file->drop();
 		}
 
 		// scale textures

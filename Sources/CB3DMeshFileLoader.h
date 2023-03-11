@@ -38,7 +38,7 @@ public:
 	//! \return Pointer to the created mesh. Returns 0 if loading failed.
 	//! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 	//! See IReferenceCounted::drop() for more information.
-	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(boost::shared_ptr<io::IReadFile> file);
 
 private:
 
@@ -121,7 +121,7 @@ private:
 
 	boost::shared_ptr<scene::ISceneManager>	SceneManager;
 	boost::shared_ptr<CSkinnedMesh>	AnimatedMesh;
-	io::IReadFile*	B3DFile;
+	boost::shared_ptr<io::IReadFile>	B3DFile;
 
 	//B3Ds have Vertex ID's local within the mesh I don't want this
 	// Variable needs to be class member due to recursion in calls

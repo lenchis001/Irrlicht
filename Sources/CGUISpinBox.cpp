@@ -38,7 +38,7 @@ CGUISpinBox::~CGUISpinBox()
 
 void CGUISpinBox::refreshSprites()
 {
-	IGUISpriteBank *sb = 0;
+	boost::shared_ptr<IGUISpriteBank> sb = 0;
 	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
 
 	if (lockedEnvironment && lockedEnvironment->getSkin())

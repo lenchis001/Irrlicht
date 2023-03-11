@@ -43,7 +43,7 @@ bool CBSPMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-boost::shared_ptr<IAnimatedMesh> CBSPMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CBSPMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	s32 type = core::isFileExtension ( file->getFileName(), "bsp", "shader", "cfg" );
 	boost::shared_ptr<CQ3LevelMesh> q = 0;

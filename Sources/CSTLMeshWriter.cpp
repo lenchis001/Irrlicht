@@ -42,7 +42,7 @@ EMESH_WRITER_TYPE CSTLMeshWriter::getType() const
 
 
 //! writes a mesh
-bool CSTLMeshWriter::writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
+bool CSTLMeshWriter::writeMesh(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
 {
 	if (!file)
 		return false;
@@ -56,7 +56,7 @@ bool CSTLMeshWriter::writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IM
 }
 
 
-bool CSTLMeshWriter::writeMeshBinary(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
+bool CSTLMeshWriter::writeMeshBinary(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
 {
 	// write STL MESH header
 
@@ -105,7 +105,7 @@ bool CSTLMeshWriter::writeMeshBinary(io::IWriteFile* file, boost::shared_ptr<sce
 }
 
 
-bool CSTLMeshWriter::writeMeshASCII(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
+bool CSTLMeshWriter::writeMeshASCII(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
 {
 	// write STL MESH header
 
@@ -151,7 +151,7 @@ void CSTLMeshWriter::getVectorAsStringLine(const core::vector3df& v, core::strin
 }
 
 
-void CSTLMeshWriter::writeFace(io::IWriteFile* file,
+void CSTLMeshWriter::writeFace(boost::shared_ptr<io::IWriteFile> file,
 		const core::vector3df& v1,
 		const core::vector3df& v2,
 		const core::vector3df& v3)

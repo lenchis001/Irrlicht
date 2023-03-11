@@ -16,7 +16,7 @@ namespace io
 //! Provides a list of files and folders.
 /** File lists usually contain a list of all files in a given folder,
 but can also contain a complete directory structure. */
-class IFileList : public virtual IReferenceCounted
+class IFileList : public virtual IDebugable
 {
 public:
 	//! Get the number of files in the filelist.

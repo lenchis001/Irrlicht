@@ -382,7 +382,7 @@ namespace video
 		\return Pointer to the texture, or 0 if the texture
 		could not be loaded. This pointer should not be dropped. See
 		IReferenceCounted::drop() for more information. */
-		virtual boost::shared_ptr<ITexture> getTexture(io::IReadFile* file) =0;
+		virtual boost::shared_ptr<ITexture> getTexture(boost::shared_ptr<io::IReadFile> file) =0;
 
 		//! Returns a texture by index
 		/** \param index: Index of the texture, must be smaller than
@@ -1175,7 +1175,7 @@ namespace video
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual boost::shared_ptr<IImage> createImageFromFile(io::IReadFile* file) =0;
+		virtual boost::shared_ptr<IImage> createImageFromFile(boost::shared_ptr<io::IReadFile> file) =0;
 
 		//! Writes the provided image to a file.
 		/** Requires that there is a suitable image writer registered
@@ -1196,7 +1196,7 @@ namespace video
 		\param param Control parameter for the backend (e.g. compression
 		level).
 		\return True on successful write. */
-		virtual bool writeImageToFile(boost::shared_ptr<IImage> image, io::IWriteFile* file, u32 param =0) =0;
+		virtual bool writeImageToFile(boost::shared_ptr<IImage> image, boost::shared_ptr<io::IWriteFile> file, u32 param =0) =0;
 
 		//! Creates a software image from a byte array.
 		/** No hardware texture will be created for this image. This
@@ -1286,14 +1286,14 @@ namespace video
 		an error occured. For example if you tried to add an material
 		renderer to the software renderer or the null device, which do
 		not accept material renderers. */
-		virtual s32 addMaterialRenderer(IMaterialRenderer* renderer, const c8* name =0) =0;
+		virtual s32 addMaterialRenderer(boost::shared_ptr<IMaterialRenderer> renderer, const c8* name =0) =0;
 
 		//! Get access to a material renderer by index.
 		/** \param idx Id of the material renderer. Can be a value of
 		the E_MATERIAL_TYPE enum or a value which was returned by
 		addMaterialRenderer().
 		\return Pointer to material renderer or null if not existing. */
-		virtual IMaterialRenderer* getMaterialRenderer(u32 idx) =0;
+		virtual boost::shared_ptr<IMaterialRenderer> getMaterialRenderer(u32 idx) =0;
 
 		//! Get amount of currently available material renderers.
 		/** \return Amount of currently available material renderers. */
@@ -1358,7 +1358,7 @@ namespace video
 		virtual IGPUProgrammingServices* getGPUProgrammingServices() =0;
 
 		//! Returns a pointer to the mesh manipulator.
-		virtual scene::IMeshManipulator* getMeshManipulator() =0;
+		virtual boost::shared_ptr<scene::IMeshManipulator> getMeshManipulator() =0;
 
 		//! Clears the ZBuffer.
 		/** Note that you usually need not to call this method, as it

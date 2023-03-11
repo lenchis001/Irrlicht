@@ -152,7 +152,7 @@ namespace scene
 		\param file The file to read the image from. File is not rewinded.
 		\param vertexColor Color of all vertices.
 		\param smoothFactor Number of smoothing passes. */
-		virtual bool loadHeightMap(io::IReadFile* file, 
+		virtual bool loadHeightMap(boost::shared_ptr<io::IReadFile> file, 
 			video::SColor vertexColor=video::SColor(255,255,255,255),
 			s32 smoothFactor=0) =0;
 
@@ -167,7 +167,7 @@ namespace scene
 		\param width Width (and also Height, as it must be square) of the heightmap. Use 0 for autocalculating from the filesize.
 		\param vertexColor Color of all vertices.
 		\param smoothFactor Number of smoothing passes. */
-		virtual bool loadHeightMapRAW(io::IReadFile* file, s32 bitsPerPixel=16,
+		virtual bool loadHeightMapRAW(boost::shared_ptr<io::IReadFile> file, s32 bitsPerPixel=16,
 			bool signedData=false, bool floatVals=false, s32 width=0,
 			video::SColor vertexColor=video::SColor(255,255,255,255),
 			s32 smoothFactor=0) =0;

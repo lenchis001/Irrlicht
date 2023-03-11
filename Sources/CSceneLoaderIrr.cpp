@@ -38,14 +38,14 @@ bool CSceneLoaderIrr::isALoadableFileExtension(const io::path& filename) const
 }
 
 //! Returns true if the class might be able to load this file.
-bool CSceneLoaderIrr::isALoadableFileFormat(io::IReadFile *file) const
+bool CSceneLoaderIrr::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	// todo: check inside the file
 	return true;
 }
 
 //! Loads the scene into the scene manager.
-bool CSceneLoaderIrr::loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer,
+bool CSceneLoaderIrr::loadScene(boost::shared_ptr<io::IReadFile> file, ISceneUserDataSerializer* userDataSerializer,
 	boost::shared_ptr<ISceneNode> rootNode)
 {
 	if (!file)

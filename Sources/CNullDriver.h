@@ -86,7 +86,7 @@ namespace video
 		virtual boost::shared_ptr<ITexture> getTexture(const io::path& filename);
 
 		//! loads a Texture
-		virtual boost::shared_ptr<ITexture> getTexture(io::IReadFile* file);
+		virtual boost::shared_ptr<ITexture> getTexture(boost::shared_ptr<io::IReadFile> file);
 
 		//! Returns a texture by index
 		virtual boost::shared_ptr<ITexture> getTextureByIndex(u32 index);
@@ -342,7 +342,7 @@ namespace video
 		virtual boost::shared_ptr<IImage> createImageFromFile(const io::path& filename);
 
 		//! Creates a software image from a file.
-		virtual boost::shared_ptr<IImage> createImageFromFile(io::IReadFile* file);
+		virtual boost::shared_ptr<IImage> createImageFromFile(boost::shared_ptr<io::IReadFile> file);
 
 		//! Creates a software image from a byte array.
 		/** \param useForeignMemory: If true, the image will use the data pointer
@@ -471,7 +471,7 @@ namespace video
 		virtual void OnResize(const core::dimension2d<u32>& size);
 
 		//! Adds a new material renderer to the video device.
-		virtual s32 addMaterialRenderer(IMaterialRenderer* renderer,
+		virtual s32 addMaterialRenderer(boost::shared_ptr<IMaterialRenderer> renderer,
 				const char* name = 0);
 
 		//! Returns driver and operating system specific data about the IVideoDriver.
@@ -490,15 +490,15 @@ namespace video
 		//! vertex shaders to render geometry.
 		virtual s32 addShaderMaterial(const c8* vertexShaderProgram = 0,
 			const c8* pixelShaderProgram = 0,
-			IShaderConstantSetCallBack* callback = 0,
+			boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 			E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 			s32 userData=0);
 
 		//! Like IGPUProgrammingServices::addShaderMaterial(), but tries to load the
 		//! programs from files.
-		virtual s32 addShaderMaterialFromFiles(io::IReadFile* vertexShaderProgram = 0,
-			io::IReadFile* pixelShaderProgram = 0,
-			IShaderConstantSetCallBack* callback = 0,
+		virtual s32 addShaderMaterialFromFiles(boost::shared_ptr<io::IReadFile> vertexShaderProgram = 0,
+			boost::shared_ptr<io::IReadFile> pixelShaderProgram = 0,
+			boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 			E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 			s32 userData=0);
 
@@ -506,12 +506,12 @@ namespace video
 		//! programs from files.
 		virtual s32 addShaderMaterialFromFiles(const io::path& vertexShaderProgramFileName,
 			const io::path& pixelShaderProgramFileName,
-			IShaderConstantSetCallBack* callback = 0,
+			boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 			E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 			s32 userData=0);
 
 		//! Returns pointer to material renderer or null
-		virtual IMaterialRenderer* getMaterialRenderer(u32 idx);
+		virtual boost::shared_ptr<IMaterialRenderer> getMaterialRenderer(u32 idx);
 
 		//! Returns amount of currently available material renderers.
 		virtual u32 getMaterialRendererCount() const;
@@ -534,7 +534,7 @@ namespace video
 			scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 			scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 			u32 verticesOut = 0,
-			IShaderConstantSetCallBack* callback = 0,
+			boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 			E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 			s32 userData = 0, E_GPU_SHADING_LANGUAGE shadingLang = EGSL_DEFAULT);
 
@@ -553,31 +553,31 @@ namespace video
 			scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 			scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 			u32 verticesOut = 0,
-			IShaderConstantSetCallBack* callback = 0,
+			boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 			E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 			s32 userData = 0, E_GPU_SHADING_LANGUAGE shadingLang = EGSL_DEFAULT);
 
 		//! Like IGPUProgrammingServices::addShaderMaterial() (look there for a detailed description),
 		//! but tries to load the programs from files.
 		virtual s32 addHighLevelShaderMaterialFromFiles(
-			io::IReadFile* vertexShaderProgram,
+			boost::shared_ptr<io::IReadFile> vertexShaderProgram,
 			const c8* vertexShaderEntryPointName = "main",
 			E_VERTEX_SHADER_TYPE vsCompileTarget = EVST_VS_1_1,
-			io::IReadFile* pixelShaderProgram = 0,
+			boost::shared_ptr<io::IReadFile> pixelShaderProgram = 0,
 			const c8* pixelShaderEntryPointName = "main",
 			E_PIXEL_SHADER_TYPE psCompileTarget = EPST_PS_1_1,
-			io::IReadFile* geometryShaderProgram= 0,
+			boost::shared_ptr<io::IReadFile> geometryShaderProgram= 0,
 			const c8* geometryShaderEntryPointName = "main",
 			E_GEOMETRY_SHADER_TYPE gsCompileTarget = EGST_GS_4_0,
 			scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 			scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 			u32 verticesOut = 0,
-			IShaderConstantSetCallBack* callback = 0,
+			boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 			E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 			s32 userData = 0, E_GPU_SHADING_LANGUAGE shadingLang = EGSL_DEFAULT);
 
 		//! Returns a pointer to the mesh manipulator.
-		virtual scene::IMeshManipulator* getMeshManipulator();
+		virtual boost::shared_ptr<scene::IMeshManipulator> getMeshManipulator();
 
 		//! Clears the ZBuffer.
 		virtual void clearZBuffer();
@@ -589,7 +589,7 @@ namespace video
 		virtual bool writeImageToFile(boost::shared_ptr<IImage> image, const io::path& filename, u32 param = 0);
 
 		//! Writes the provided image to a file.
-		virtual bool writeImageToFile(boost::shared_ptr<IImage> image, io::IWriteFile * file, u32 param = 0);
+		virtual bool writeImageToFile(boost::shared_ptr<IImage> image, boost::shared_ptr<io::IWriteFile>  file, u32 param = 0);
 
 		//! Sets the name of a material renderer.
 		virtual void setMaterialRendererName(s32 idx, const char* name);
@@ -667,7 +667,7 @@ namespace video
 		void deleteAllTextures();
 
 		//! opens the file and loads it into the surface
-		boost::shared_ptr<video::ITexture> loadTextureFromFile(io::IReadFile* file, const io::path& hashName = "");
+		boost::shared_ptr<video::ITexture> loadTextureFromFile(boost::shared_ptr<io::IReadFile> file, const io::path& hashName = "");
 
 		//! adds a surface, not loaded or created by the Irrlicht Engine
 		void addTexture(boost::shared_ptr<video::ITexture> surface);
@@ -683,7 +683,7 @@ namespace video
 		bool checkPrimitiveCount(u32 prmcnt) const;
 
 		// adds a material renderer and drops it afterwards. To be used for internal creation
-		s32 addAndDropMaterialRenderer(IMaterialRenderer* m);
+		s32 addAndDropMaterialRenderer(boost::shared_ptr<IMaterialRenderer> m);
 
 		//! deletes all material renderers
 		void deleteMaterialRenders();
@@ -733,7 +733,7 @@ namespace video
 		struct SMaterialRenderer
 		{
 			core::stringc Name;
-			IMaterialRenderer* Renderer;
+			boost::shared_ptr<IMaterialRenderer> Renderer;
 		};
 
 		struct SDummyTexture : public ITexture
@@ -805,7 +805,7 @@ namespace video
 		boost::shared_ptr<io::IFileSystem> FileSystem;
 
 		//! mesh manipulator
-		scene::IMeshManipulator* MeshManipulator;
+		boost::shared_ptr<scene::IMeshManipulator> MeshManipulator;
 
 		core::rect<s32> ViewPort;
 		core::dimension2d<u32> ScreenSize;

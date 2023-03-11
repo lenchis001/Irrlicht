@@ -29,19 +29,16 @@ namespace video
 
 //! Constructor
 COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(boost::shared_ptr<video::COpenGLDriver> driver,
-		s32& outMaterialTypeNr, const c8* vertexShaderProgram,
 		const c8* vertexShaderEntryPointName,
 		E_VERTEX_SHADER_TYPE vsCompileTarget,
-		const c8* pixelShaderProgram,
 		const c8* pixelShaderEntryPointName,
 		E_PIXEL_SHADER_TYPE psCompileTarget,
-		const c8* geometryShaderProgram,
 		const c8* geometryShaderEntryPointName,
 		E_GEOMETRY_SHADER_TYPE gsCompileTarget,
 		scene::E_PRIMITIVE_TYPE inType, scene::E_PRIMITIVE_TYPE outType,
 		u32 verticesOut,
-		IShaderConstantSetCallBack* callback,
-		video::IMaterialRenderer* baseMaterial,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback,
+		boost::shared_ptr<video::IMaterialRenderer> baseMaterial,
 		s32 userData)
 	: IMaterialRendererServices(driver), CallBack(callback), BaseMaterial(baseMaterial),
 		Program(0), Program2(0), UserData(userData)
@@ -54,41 +51,13 @@ COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(boost::shared_ptr<video::CO
 	//it is fine to ignore what has been asked for, as the compiler should spot anything wrong
 	//just check that GLSL is available
 
-	if (BaseMaterial)
-		BaseMaterial->grab();
-
-	if (CallBack)
-		CallBack->grab();
-
 	if (!getVideoDriver()->queryFeature(EVDF_ARB_GLSL))
 		return;
-
-	init(outMaterialTypeNr, vertexShaderProgram, pixelShaderProgram, geometryShaderProgram);
 }
-
-
-//! constructor only for use by derived classes who want to
-//! create a fall back material for example.
-COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(boost::shared_ptr<COpenGLDriver> driver,
-					IShaderConstantSetCallBack* callback,
-					IMaterialRenderer* baseMaterial, s32 userData)
-: IMaterialRendererServices(driver), CallBack(callback), BaseMaterial(baseMaterial),
-		Program(0), Program2(0), UserData(userData)
-{
-	if (BaseMaterial)
-		BaseMaterial->grab();
-
-	if (CallBack)
-		CallBack->grab();
-}
-
 
 //! Destructor
 COpenGLSLMaterialRenderer::~COpenGLSLMaterialRenderer()
 {
-	if (CallBack)
-		CallBack->drop();
-
 	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver<COpenGLDriver>();
 
 	if (Program)
@@ -118,11 +87,7 @@ COpenGLSLMaterialRenderer::~COpenGLSLMaterialRenderer()
 	}
 
 	UniformInfo.clear();
-
-	if (BaseMaterial)
-		BaseMaterial->drop();
 }
-
 
 void COpenGLSLMaterialRenderer::init(s32& outMaterialTypeNr,
 		const c8* vertexShaderProgram,
@@ -176,7 +141,7 @@ void COpenGLSLMaterialRenderer::init(s32& outMaterialTypeNr,
 		return;
 
 	// register myself as new material
-	outMaterialTypeNr = lockedDriver->addMaterialRenderer(this);
+	outMaterialTypeNr = lockedDriver->addMaterialRenderer(getSharedThis());
 }
 
 

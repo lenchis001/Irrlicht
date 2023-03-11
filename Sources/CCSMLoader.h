@@ -63,11 +63,11 @@ namespace scene
 		virtual bool isALoadableFileExtension(const io::path& filename) const;
 
 		//! creates/loads an animated mesh from the file.
-		virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
+		virtual boost::shared_ptr<IAnimatedMesh> createMesh(boost::shared_ptr<io::IReadFile> file);
 
 	private:
 
-		boost::shared_ptr<scene::IMesh> createCSMMesh(io::IReadFile* file);
+		boost::shared_ptr<scene::IMesh> createCSMMesh(boost::shared_ptr<io::IReadFile> file);
 
 		boost::shared_ptr<scene::IMesh> createIrrlichtMesh(const CSMFile* csmFile,
 			const core::stringc& textureRoot, const io::path& lmprefix);

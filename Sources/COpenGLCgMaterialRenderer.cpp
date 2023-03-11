@@ -38,7 +38,7 @@ COpenGLCgMaterialRenderer::COpenGLCgMaterialRenderer(boost::shared_ptr<COpenGLDr
 	const c8* fragmentProgram, const c8* fragmentEntry, E_PIXEL_SHADER_TYPE fragmentProfile,
 	const c8* geometryProgram, const c8* geometryEntry, E_GEOMETRY_SHADER_TYPE geometryProfile,
 	scene::E_PRIMITIVE_TYPE inType, scene::E_PRIMITIVE_TYPE outType, u32 vertices,
-	IShaderConstantSetCallBack* callback, IMaterialRenderer* baseMaterial, s32 userData) :
+	boost::shared_ptr<IShaderConstantSetCallBack> callback, boost::shared_ptr<IMaterialRenderer> baseMaterial, s32 userData) :
 	Driver(driver), CCgMaterialRenderer(callback, baseMaterial, userData)
 {
 	#ifdef _DEBUG

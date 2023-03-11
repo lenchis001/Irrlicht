@@ -49,10 +49,10 @@ namespace gui
 		virtual void setFont(boost::shared_ptr<IGUIFont> font, EGUI_DEFAULT_FONT which=EGDF_DEFAULT);
 
 		//! sets the sprite bank used for drawing icons
-		virtual void setSpriteBank(IGUISpriteBank* bank);
+		virtual void setSpriteBank(boost::shared_ptr<IGUISpriteBank> bank);
 
 		//! gets the sprite bank used for drawing icons
-		virtual IGUISpriteBank* getSpriteBank() const;
+		virtual boost::shared_ptr<IGUISpriteBank> getSpriteBank() const;
 
 		//! Returns a default icon
 		/** Returns the sprite index within the sprite bank */
@@ -231,7 +231,7 @@ namespace gui
 		s32 Sizes[EGDS_COUNT];
 		u32 Icons[EGDI_COUNT];
 		boost::shared_ptr<IGUIFont> Fonts[EGDF_COUNT];
-		IGUISpriteBank* SpriteBank;
+		boost::shared_ptr<IGUISpriteBank> SpriteBank;
 		core::stringw Texts[EGDT_COUNT];
 		bool UseGradient;
 

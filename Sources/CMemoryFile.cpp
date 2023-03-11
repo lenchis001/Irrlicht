@@ -110,9 +110,9 @@ const io::path& CMemoryFile::getFileName() const
 }
 
 
-IReadFile* createMemoryReadFile(void* memory, long size, const io::path& fileName, bool deleteMemoryWhenDropped)
+boost::shared_ptr<IReadFile> createMemoryReadFile(void* memory, long size, const io::path& fileName, bool deleteMemoryWhenDropped)
 {
-	CMemoryFile* file = new CMemoryFile(memory, size, fileName, deleteMemoryWhenDropped);
+	boost::shared_ptr<CMemoryFile> file = boost::make_shared<CMemoryFile>(memory, size, fileName, deleteMemoryWhenDropped);
 	return file;
 }
 

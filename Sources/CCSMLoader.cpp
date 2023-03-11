@@ -47,7 +47,7 @@ namespace scene
 	//
 	struct BinaryFileReader
 	{
-		BinaryFileReader(io::IReadFile* pFile) : file(pFile) { }
+		BinaryFileReader(boost::shared_ptr<io::IReadFile> pFile) : file(pFile) { }
 
 		s32 readBuffer(void* buffer, s32 len)
 		{
@@ -62,7 +62,7 @@ namespace scene
 		void readVec2f(core::vector2df* v);
 		void readColorRGB(color_rgb_t* color);
 
-		io::IReadFile *file;
+		boost::shared_ptr<io::IReadFile> file;
 	};
 
 	//
@@ -375,7 +375,7 @@ namespace scene
 
 
 	//! creates/loads an animated mesh from the file.
-	boost::shared_ptr<IAnimatedMesh> CCSMLoader::createMesh(io::IReadFile* file)
+	boost::shared_ptr<IAnimatedMesh> CCSMLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 	{
 		boost::shared_ptr<scene::IMesh> m = createCSMMesh(file);
 
@@ -390,7 +390,7 @@ namespace scene
 		return am;
 	}
 
-	boost::shared_ptr<scene::IMesh> CCSMLoader::createCSMMesh(io::IReadFile* file)
+	boost::shared_ptr<scene::IMesh> CCSMLoader::createCSMMesh(boost::shared_ptr<io::IReadFile> file)
 	{
 		if (!file)
 			return 0;

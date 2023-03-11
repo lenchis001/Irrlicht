@@ -27,19 +27,19 @@ public:
 	//! \return Pointer to the created mesh. Returns 0 if loading failed.
 	//! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 	//! See IReferenceCounted::drop() for more information.
-	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(boost::shared_ptr<io::IReadFile> file);
 
 private:
 
 	// skips to the first non-space character available
-	void goNextWord(io::IReadFile* file) const;
+	void goNextWord(boost::shared_ptr<io::IReadFile> file) const;
 	// returns the next word
-	const core::stringc& getNextToken(io::IReadFile* file, core::stringc& token) const;
+	const core::stringc& getNextToken(boost::shared_ptr<io::IReadFile> file, core::stringc& token) const;
 	// skip to next printable character after the first line break
-	void goNextLine(io::IReadFile* file) const;
+	void goNextLine(boost::shared_ptr<io::IReadFile> file) const;
 
 	//! Read 3d vector of floats
-	void getNextVector(io::IReadFile* file, core::vector3df& vec, bool binary) const;
+	void getNextVector(boost::shared_ptr<io::IReadFile> file, core::vector3df& vec, bool binary) const;
 };
 
 } // end namespace scene

@@ -31,7 +31,7 @@ bool CSMFMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 }
 
 //! Creates/loads an animated mesh from the file.
-boost::shared_ptr<IAnimatedMesh> CSMFMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CSMFMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	// create empty mesh
 	boost::shared_ptr<SMesh> mesh = boost::make_shared<SMesh>();
@@ -63,7 +63,7 @@ boost::shared_ptr<IAnimatedMesh> CSMFMeshFileLoader::createMesh(io::IReadFile* f
 	return am;
 }
 
-void CSMFMeshFileLoader::loadLimb(io::IReadFile* file, boost::shared_ptr<SMesh> mesh, const core::matrix4 &parentTransformation)
+void CSMFMeshFileLoader::loadLimb(boost::shared_ptr<io::IReadFile> file, boost::shared_ptr<SMesh> mesh, const core::matrix4 &parentTransformation)
 {
 	core::matrix4 transformation;
 
@@ -189,7 +189,7 @@ namespace io
 #endif
 
 template <class T>
-void BinaryFile::read(io::IReadFile* file, T &out, bool bigEndian)
+void BinaryFile::read(boost::shared_ptr<io::IReadFile> file, T &out, bool bigEndian)
 {
 	file->read((void*)&out, sizeof(out));
 	if (bigEndian != (_SYSTEM_BIG_ENDIAN_))
@@ -197,7 +197,7 @@ void BinaryFile::read(io::IReadFile* file, T &out, bool bigEndian)
 }
 
 //! reads a 3d vector from the file, moving the file pointer along
-void BinaryFile::read(io::IReadFile* file, core::vector3df &outVector2d, bool bigEndian)
+void BinaryFile::read(boost::shared_ptr<io::IReadFile> file, core::vector3df &outVector2d, bool bigEndian)
 {
 	BinaryFile::read(file, outVector2d.X, bigEndian);
 	BinaryFile::read(file, outVector2d.Y, bigEndian);
@@ -205,14 +205,14 @@ void BinaryFile::read(io::IReadFile* file, core::vector3df &outVector2d, bool bi
 }
 
 //! reads a 2d vector from the file, moving the file pointer along
-void BinaryFile::read(io::IReadFile* file, core::vector2df &outVector2d, bool bigEndian)
+void BinaryFile::read(boost::shared_ptr<io::IReadFile> file, core::vector2df &outVector2d, bool bigEndian)
 {
 	BinaryFile::read(file, outVector2d.X, bigEndian);
 	BinaryFile::read(file, outVector2d.Y, bigEndian);
 }
 
 //! reads a null terminated string from the file, moving the file pointer along
-void BinaryFile::read(io::IReadFile* file, core::stringc &outString, bool bigEndian)
+void BinaryFile::read(boost::shared_ptr<io::IReadFile> file, core::stringc &outString, bool bigEndian)
 {
 	c8 c;
 	file->read((void*)&c, 1);

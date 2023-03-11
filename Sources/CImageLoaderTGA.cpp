@@ -28,7 +28,7 @@ bool CImageLoaderTGA::isALoadableFileExtension(const io::path& filename) const
 
 
 //! loads a compressed tga.
-u8 *CImageLoaderTGA::loadCompressedImage(io::IReadFile *file, const STGAHeader& header) const
+u8 *CImageLoaderTGA::loadCompressedImage(boost::shared_ptr<io::IReadFile> file, const STGAHeader& header) const
 {
 	// This was written and sent in by Jon Pry, thank you very much!
 	// I only changed the formatting a little bit.
@@ -78,7 +78,7 @@ u8 *CImageLoaderTGA::loadCompressedImage(io::IReadFile *file, const STGAHeader& 
 
 
 //! returns true if the file maybe is able to be loaded by this class
-bool CImageLoaderTGA::isALoadableFileFormat(io::IReadFile* file) const
+bool CImageLoaderTGA::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	if (!file)
 		return false;
@@ -93,7 +93,7 @@ bool CImageLoaderTGA::isALoadableFileFormat(io::IReadFile* file) const
 
 
 //! creates a surface from the file
-boost::shared_ptr<IImage> CImageLoaderTGA::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderTGA::loadImage(boost::shared_ptr<io::IReadFile> file) const
 {
 	STGAHeader header;
 	u32 *palette = 0;

@@ -957,7 +957,7 @@ void CGUITabControl::setWeakThis(boost::shared_ptr<IGUIElement> value)
 
 	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
 	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
-	IGUISpriteBank* sprites = 0;
+	boost::shared_ptr<IGUISpriteBank> sprites = 0;
 
 	TabHeight = 32;
 

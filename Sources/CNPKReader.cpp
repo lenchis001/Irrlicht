@@ -58,15 +58,14 @@ bool CArchiveLoaderNPK::isALoadableFileFormat(E_FILE_ARCHIVE_TYPE fileType) cons
 //! Creates an archive from the filename
 /** \param file File handle to check.
 \return Pointer to newly created archive, or 0 upon error. */
-IFileArchive* CArchiveLoaderNPK::createArchive(const io::path& filename, bool ignoreCase, bool ignorePaths) const
+boost::shared_ptr<IFileArchive> CArchiveLoaderNPK::createArchive(const io::path& filename, bool ignoreCase, bool ignorePaths) const
 {
-	IFileArchive *archive = 0;
-	io::IReadFile* file = FileSystem->createAndOpenFile(filename);
+	boost::shared_ptr<IFileArchive> archive = 0;
+	boost::shared_ptr<io::IReadFile> file = FileSystem->createAndOpenFile(filename);
 
 	if (file)
 	{
 		archive = createArchive(file, ignoreCase, ignorePaths);
-		file->drop ();
 	}
 
 	return archive;
@@ -74,13 +73,14 @@ IFileArchive* CArchiveLoaderNPK::createArchive(const io::path& filename, bool ig
 
 //! creates/loads an archive from the file.
 //! \return Pointer to the created archive. Returns 0 if loading failed.
-IFileArchive* CArchiveLoaderNPK::createArchive(io::IReadFile* file, bool ignoreCase, bool ignorePaths) const
+boost::shared_ptr<IFileArchive> CArchiveLoaderNPK::createArchive(boost::shared_ptr<io::IReadFile> file, bool ignoreCase, bool ignorePaths) const
 {
-	IFileArchive *archive = 0;
+	boost::shared_ptr<CNPKReader> archive = 0;
 	if ( file )
 	{
 		file->seek ( 0 );
-		archive = new CNPKReader(file, ignoreCase, ignorePaths);
+		archive = boost::make_shared<CNPKReader>(file, ignoreCase, ignorePaths);
+		archive->setWeakPtr(archive);
 	}
 	return archive;
 }
@@ -90,7 +90,7 @@ IFileArchive* CArchiveLoaderNPK::createArchive(io::IReadFile* file, bool ignoreC
 /** Check might look into the file.
 \param file File handle to check.
 \return True if file seems to be loadable. */
-bool CArchiveLoaderNPK::isALoadableFileFormat(io::IReadFile* file) const
+bool CArchiveLoaderNPK::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	SNPKHeader header;
 
@@ -103,7 +103,7 @@ bool CArchiveLoaderNPK::isALoadableFileFormat(io::IReadFile* file) const
 /*!
 	NPK Reader
 */
-CNPKReader::CNPKReader(IReadFile* file, bool ignoreCase, bool ignorePaths)
+CNPKReader::CNPKReader(boost::shared_ptr<IReadFile> file, bool ignoreCase, bool ignorePaths)
 : CFileList((file ? file->getFileName() : io::path("")), ignoreCase, ignorePaths), File(file)
 {
 #ifdef _DEBUG
@@ -112,7 +112,6 @@ CNPKReader::CNPKReader(IReadFile* file, bool ignoreCase, bool ignorePaths)
 
 	if (File)
 	{
-		File->grab();
 		if (scanLocalHeader())
 			sort();
 		else
@@ -123,14 +122,12 @@ CNPKReader::CNPKReader(IReadFile* file, bool ignoreCase, bool ignorePaths)
 
 CNPKReader::~CNPKReader()
 {
-	if (File)
-		File->drop();
 }
 
 
-const IFileList* CNPKReader::getFileList() const
+const boost::shared_ptr<IFileList> CNPKReader::getFileList()
 {
-	return this;
+	return getSharedThis();
 }
 
 
@@ -229,7 +226,7 @@ bool CNPKReader::scanLocalHeader()
 
 
 //! opens a file by file name
-IReadFile* CNPKReader::createAndOpenFile(const io::path& filename)
+boost::shared_ptr<IReadFile> CNPKReader::createAndOpenFile(const io::path& filename)
 {
 	s32 index = findFile(filename, false);
 
@@ -241,7 +238,7 @@ IReadFile* CNPKReader::createAndOpenFile(const io::path& filename)
 
 
 //! opens a file by index
-IReadFile* CNPKReader::createAndOpenFile(u32 index)
+boost::shared_ptr<IReadFile> CNPKReader::createAndOpenFile(u32 index)
 {
 	if (index >= Files.size() )
 		return 0;

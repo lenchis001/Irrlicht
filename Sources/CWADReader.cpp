@@ -36,15 +36,14 @@ bool CArchiveLoaderWAD::isALoadableFileFormat(const io::path& filename) const
 //! Creates an archive from the filename
 /** \param file File handle to check.
 \return Pointer to newly created archive, or 0 upon error. */
-IFileArchive* CArchiveLoaderWAD::createArchive(const io::path& filename, bool ignoreCase, bool ignorePaths) const
+boost::shared_ptr<IFileArchive> CArchiveLoaderWAD::createArchive(const io::path& filename, bool ignoreCase, bool ignorePaths) const
 {
-	IFileArchive *archive = 0;
-	io::IReadFile* file = FileSystem->createAndOpenFile(filename);
+	boost::shared_ptr<IFileArchive> archive = 0;
+	boost::shared_ptr<io::IReadFile> file = FileSystem->createAndOpenFile(filename);
 
 	if (file)
 	{
 		archive = createArchive ( file, ignoreCase, ignorePaths );
-		file->drop ();
 	}
 	
 	return archive;
@@ -52,13 +51,14 @@ IFileArchive* CArchiveLoaderWAD::createArchive(const io::path& filename, bool ig
 
 //! creates/loads an archive from the file.
 //! \return Pointer to the created archive. Returns 0 if loading failed.
-IFileArchive* CArchiveLoaderWAD::createArchive(io::IReadFile* file, bool ignoreCase, bool ignorePaths) const
+boost::shared_ptr<IFileArchive> CArchiveLoaderWAD::createArchive(boost::shared_ptr<io::IReadFile> file, bool ignoreCase, bool ignorePaths) const
 {
-	IFileArchive *archive = 0;
+	boost::shared_ptr<CWADReader> archive = nullptr;
 	if ( file )
 	{
 		file->seek ( 0 );
-		archive = new CWADReader(file, ignoreCase, ignorePaths);
+		archive = boost::make_shared<CWADReader>(file, ignoreCase, ignorePaths);
+		archive->setWeakPtr(archive);
 	}
 	return archive;
 }
@@ -68,7 +68,7 @@ IFileArchive* CArchiveLoaderWAD::createArchive(io::IReadFile* file, bool ignoreC
 /** Check might look into the file.
 \param file File handle to check.
 \return True if file seems to be loadable. */
-bool CArchiveLoaderWAD::isALoadableFileFormat(io::IReadFile* file) const
+bool CArchiveLoaderWAD::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	SWADFileHeader header;
 	memset(&header, 0, sizeof(header));
@@ -90,7 +90,7 @@ void createDir ( const c8 *full );
 /*!
 	WAD Reader
 */
-CWADReader::CWADReader(IReadFile* file, bool ignoreCase, bool ignorePaths)
+CWADReader::CWADReader(boost::shared_ptr<IReadFile> file, bool ignoreCase, bool ignorePaths)
 : CFileList((file ? file->getFileName() : io::path("")), ignoreCase, ignorePaths), File(file)
 {
 	#ifdef _DEBUG
@@ -99,8 +99,6 @@ CWADReader::CWADReader(IReadFile* file, bool ignoreCase, bool ignorePaths)
 
 	if (File)
 	{
-		File->grab();
-
 		Base = File->getFileName();
 		Base.replace ( '\\', '/' );
 
@@ -136,8 +134,6 @@ CWADReader::CWADReader(IReadFile* file, bool ignoreCase, bool ignorePaths)
 
 CWADReader::~CWADReader()
 {
-	if (File)
-		File->drop();
 }
 
 
@@ -147,9 +143,9 @@ const io::path& CWADReader::getArchiveName () const
 	return Base;
 }
 
-const IFileList* CWADReader::getFileList() const
+const boost::shared_ptr<IFileList> CWADReader::getFileList()
 {
-	return this;
+	return getSharedThis();
 }
 
 
@@ -232,7 +228,7 @@ bool CWADReader::scanLocalHeader()
 
 
 //! opens a file by file name
-IReadFile* CWADReader::createAndOpenFile(const io::path& filename)
+boost::shared_ptr<IReadFile> CWADReader::createAndOpenFile(const io::path& filename)
 {
 	s32 index = findFile(filename, false);
 
@@ -244,7 +240,7 @@ IReadFile* CWADReader::createAndOpenFile(const io::path& filename)
 
 
 //! opens a file by index
-IReadFile* CWADReader::createAndOpenFile(u32 index)
+boost::shared_ptr<IReadFile> CWADReader::createAndOpenFile(u32 index)
 {
 	if (index >= Files.size() )
 		return 0;

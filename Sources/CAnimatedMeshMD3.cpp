@@ -307,7 +307,7 @@ void CAnimatedMeshMD3::buildTagArray(u32 frameA, u32 frameB, f32 interpolate)
 /*!
 	loads a model
 */
-bool CAnimatedMeshMD3::loadModelFile(u32 modelIndex, io::IReadFile* file,
+bool CAnimatedMeshMD3::loadModelFile(u32 modelIndex, boost::shared_ptr<io::IReadFile> file,
 			boost::shared_ptr<io::IFileSystem> fs, boost::shared_ptr<video::IVideoDriver> driver)
 {
 	if (!file)

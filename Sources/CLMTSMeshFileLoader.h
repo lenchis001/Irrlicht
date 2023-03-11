@@ -42,7 +42,7 @@ public:
 
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 
-	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(boost::shared_ptr<io::IReadFile> file);
 
 private:
 	void constructMesh(boost::shared_ptr<SMesh> mesh);

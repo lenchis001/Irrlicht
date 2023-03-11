@@ -273,26 +273,13 @@ u32 CTriangleSelector::getSelectorCount() const
 /* Get the TriangleSelector based on index based on getSelectorCount.
 Only useful for MetaTriangleSelector others return 'this' or 0
 */
-ITriangleSelector* CTriangleSelector::getSelector(u32 index)
+boost::shared_ptr<ITriangleSelector> CTriangleSelector::getSelector(u32 index)
 {
 	if (index)
 		return 0;
 	else
-		return this;
+		return getSharedThis();
 }
-
-
-/* Get the TriangleSelector based on index based on getSelectorCount.
-Only useful for MetaTriangleSelector others return 'this' or 0
-*/
-const ITriangleSelector* CTriangleSelector::getSelector(u32 index) const
-{
-	if (index)
-		return 0;
-	else
-		return this;
-}
-
 
 } // end namespace scene
 } // end namespace irr

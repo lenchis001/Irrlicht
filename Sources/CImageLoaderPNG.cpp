@@ -66,7 +66,7 @@ bool CImageLoaderPng::isALoadableFileExtension(const io::path& filename) const
 
 
 //! returns true if the file maybe is able to be loaded by this class
-bool CImageLoaderPng::isALoadableFileFormat(io::IReadFile* file) const
+bool CImageLoaderPng::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 #ifdef _IRR_COMPILE_WITH_LIBPNG_
 	if (!file)
@@ -86,7 +86,7 @@ bool CImageLoaderPng::isALoadableFileFormat(io::IReadFile* file) const
 
 
 // load in the image data
-boost::shared_ptr<IImage> CImageLoaderPng::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderPng::loadImage(boost::shared_ptr<io::IReadFile> file) const
 {
 #ifdef _IRR_COMPILE_WITH_LIBPNG_
 	if (!file)
@@ -138,7 +138,7 @@ boost::shared_ptr<IImage> CImageLoaderPng::loadImage(io::IReadFile* file) const
 	}
 
 	// changed by zola so we don't need to have public FILE pointers
-	png_set_read_fn(png_ptr, file, user_read_data_fcn);
+	png_set_read_fn(png_ptr, file.get(), user_read_data_fcn);
 
 	png_set_sig_bytes(png_ptr, 8); // Tell png that we read the signature
 

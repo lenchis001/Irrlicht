@@ -142,18 +142,18 @@ public:
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 
 	//! returns true if the file maybe is able to be loaded by this class
-	virtual bool isALoadableFileFormat(io::IReadFile* file) const;
+	virtual bool isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const;
 
 	//! creates a surface from the file
-	virtual boost::shared_ptr<IImage> loadImage(io::IReadFile* file) const;
+	virtual boost::shared_ptr<IImage> loadImage(boost::shared_ptr<io::IReadFile> file) const;
 
 private:
 
-	bool readHeader(io::IReadFile* file, rgbStruct& rgb) const;
-	void readRGBrow(u8 *buf, int y, int z, io::IReadFile* file, rgbStruct& rgb) const;
-	void processFile(io::IReadFile *file, rgbStruct& rgb) const;
-	bool checkFormat(io::IReadFile *file, rgbStruct& rgb) const;
-	bool readOffsetTables(io::IReadFile* file, rgbStruct& rgb) const;
+	bool readHeader(boost::shared_ptr<io::IReadFile> file, rgbStruct& rgb) const;
+	void readRGBrow(u8 *buf, int y, int z, boost::shared_ptr<io::IReadFile> file, rgbStruct& rgb) const;
+	void processFile(boost::shared_ptr<io::IReadFile> file, rgbStruct& rgb) const;
+	bool checkFormat(boost::shared_ptr<io::IReadFile> file, rgbStruct& rgb) const;
+	bool readOffsetTables(boost::shared_ptr<io::IReadFile> file, rgbStruct& rgb) const;
 	void converttoARGB(u32* in, const u32 size) const;
 };
 

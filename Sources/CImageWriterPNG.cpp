@@ -73,7 +73,7 @@ bool CImageWriterPNG::isAWriteableFileExtension(const io::path& filename) const
 #endif
 }
 
-bool CImageWriterPNG::writeImage(io::IWriteFile* file, boost::shared_ptr<IImage> image,u32 param) const
+bool CImageWriterPNG::writeImage(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<IImage> image,u32 param) const
 {
 #ifdef _IRR_COMPILE_WITH_LIBPNG_
 	if (!file || !image)
@@ -104,7 +104,7 @@ bool CImageWriterPNG::writeImage(io::IWriteFile* file, boost::shared_ptr<IImage>
 		return false;
 	}
 
-	png_set_write_fn(png_ptr, file, user_write_data_fcn, NULL);
+	png_set_write_fn(png_ptr, file.get(), user_write_data_fcn, NULL);
 
 	// Set info
 	switch(image->getColorFormat())

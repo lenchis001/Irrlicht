@@ -68,7 +68,7 @@ public:
 	virtual boost::shared_ptr<IGUISkin> createSkin(EGUI_SKIN_TYPE type);
 
 	//! Creates the image list from the given texture.
-	virtual IGUIImageList* createImageList( boost::shared_ptr<video::ITexture> texture,
+	virtual boost::shared_ptr<IGUIImageList> createImageList( boost::shared_ptr<video::ITexture> texture,
 					core::dimension2d<s32> imageSize, bool useAlphaChannel );
 
 	//! returns the font
@@ -84,10 +84,10 @@ public:
 	virtual boost::shared_ptr<IGUIFont> getBuiltInFont() const;
 
 	//! returns the sprite bank
-	virtual IGUISpriteBank* getSpriteBank(const io::path& filename);
+	virtual boost::shared_ptr<IGUISpriteBank> getSpriteBank(const io::path& filename);
 
 	//! returns the sprite bank
-	virtual IGUISpriteBank* addEmptySpriteBank(const io::path& name);
+	virtual boost::shared_ptr<IGUISpriteBank> addEmptySpriteBank(const io::path& name);
 
 	//! adds an button. The returned pointer must not be dropped.
 	virtual boost::shared_ptr<IGUIButton> addButton(const core::rect<s32>& rectangle, boost::shared_ptr<IGUIElement> parent=0, s32 id=-1, const wchar_t* text=0,const wchar_t* tooltiptext = 0);
@@ -204,18 +204,18 @@ public:
 	virtual void OnPostRender( u32 time );
 
 	//! Returns the default element factory which can create all built in elements
-	virtual IGUIElementFactory* getDefaultGUIElementFactory() const;
+	virtual boost::shared_ptr<IGUIElementFactory> getDefaultGUIElementFactory() const;
 
 	//! Adds an element factory to the gui environment.
 	/** Use this to extend the gui environment with new element types which it should be
 	able to create automaticly, for example when loading data from xml files. */
-	virtual void registerGUIElementFactory(IGUIElementFactory* factoryToAdd);
+	virtual void registerGUIElementFactory(boost::shared_ptr<IGUIElementFactory> factoryToAdd);
 
 	//! Returns amount of registered scene node factories.
 	virtual u32 getRegisteredGUIElementFactoryCount() const;
 
 	//! Returns a scene node factory by index
-	virtual IGUIElementFactory* getGUIElementFactory(u32 index) const;
+	virtual boost::shared_ptr<IGUIElementFactory> getGUIElementFactory(u32 index) const;
 
 	//! Adds a GUI Element by its name
 	virtual boost::shared_ptr<IGUIElement> addGUIElement(const c8* elementName, boost::shared_ptr<IGUIElement> parent=0);
@@ -230,7 +230,7 @@ public:
 	/** \param file: The file to save the GUI to.
 	\param start: The element to start saving from.
 	if not specified, the root element will be used */
-	virtual bool saveGUI(io::IWriteFile* file, boost::shared_ptr<IGUIElement> start=0);
+	virtual bool saveGUI(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<IGUIElement> start=0);
 
 	//! Loads the gui. Note that the current gui is not cleared before.
 	/** \param filename: Name of the file.
@@ -242,7 +242,7 @@ public:
 	/** \param file: IReadFile to load the GUI from
 	\param parent: The parent of all loaded GUI elements,
 	if not specified, the root element will be used */
-	virtual bool loadGUI(io::IReadFile* file, boost::shared_ptr<IGUIElement> parent=0);
+	virtual bool loadGUI(boost::shared_ptr<io::IReadFile> file, boost::shared_ptr<IGUIElement> parent=0);
 
 	//! Writes attributes of the environment
 	virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const;
@@ -279,7 +279,7 @@ private:
 	struct SSpriteBank
 	{
 		io::SNamedPath NamedPath;
-		IGUISpriteBank* Bank;
+		boost::shared_ptr<IGUISpriteBank> Bank;
 
 		bool operator < (const SSpriteBank& other) const
 		{
@@ -298,7 +298,7 @@ private:
 
 	SToolTip ToolTip;
 
-	core::array<IGUIElementFactory*> GUIElementFactoryList;
+	core::array<boost::shared_ptr<IGUIElementFactory>> GUIElementFactoryList;
 
 	core::array<SFont> Fonts;
 	core::array<SSpriteBank> Banks;

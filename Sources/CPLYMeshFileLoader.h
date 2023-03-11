@@ -42,7 +42,7 @@ public:
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 
 	//! creates/loads an animated mesh from the file.
-	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(boost::shared_ptr<io::IReadFile> file);
 
 private:
 
@@ -134,7 +134,7 @@ private:
 
 	core::array<SPLYElement*> ElementList;
 
-	io::IReadFile *File;
+	boost::shared_ptr<io::IReadFile> File;
 	c8 *Buffer;
 	bool IsBinaryFile, IsWrongEndian, EndOfFile;
 	s32 LineLength, WordLength;

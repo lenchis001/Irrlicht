@@ -153,62 +153,20 @@ const char OPENGL_NORMAL_MAP_PSH[] =
 
 //! Constructor
 COpenGLNormalMapRenderer::COpenGLNormalMapRenderer(boost::shared_ptr<video::COpenGLDriver> driver,
-	s32& outMaterialTypeNr, IMaterialRenderer* baseMaterial)
+	boost::shared_ptr<IMaterialRenderer> baseMaterial)
 	: COpenGLShaderMaterialRenderer(driver, 0, baseMaterial), CompiledShaders(true)
 {
 
 	#ifdef _DEBUG
 	setDebugName("COpenGLNormalMapRenderer");
 	#endif
-
-	// set this as callback. We could have done this in
-	// the initialization list, but some compilers don't like it.
-
-	CallBack = this;
-
-	// basically, this thing simply compiles the hardcoded shaders if the
-	// hardware is able to do them, otherwise it maps to the base material
-
-	if (!driver->queryFeature(video::EVDF_ARB_FRAGMENT_PROGRAM_1) ||
-		!driver->queryFeature(video::EVDF_ARB_VERTEX_PROGRAM_1))
-	{
-		// this hardware is not able to do shaders. Fall back to
-		// base material.
-		outMaterialTypeNr = driver->addMaterialRenderer(this);
-		return;
-	}
-
-	// check if already compiled normal map shaders are there.
-
-	video::IMaterialRenderer* renderer = driver->getMaterialRenderer(EMT_NORMAL_MAP_SOLID);
-
-	if (renderer)
-	{
-		// use the already compiled shaders
-		video::COpenGLNormalMapRenderer* nmr = reinterpret_cast<video::COpenGLNormalMapRenderer*>(renderer);
-		CompiledShaders = false;
-
-		VertexShader = nmr->VertexShader;
-		PixelShader = nmr->PixelShader;
-
-		outMaterialTypeNr = driver->addMaterialRenderer(this);
-	}
-	else
-	{
-		// compile shaders on our own
-		init(outMaterialTypeNr, OPENGL_NORMAL_MAP_VSH, OPENGL_NORMAL_MAP_PSH, EVT_TANGENTS);
-	}
-
-	// fallback if compilation has failed
-	if (-1==outMaterialTypeNr)
-		outMaterialTypeNr = driver->addMaterialRenderer(this);
 }
 
 
 //! Destructor
 COpenGLNormalMapRenderer::~COpenGLNormalMapRenderer()
 {
-	if (CallBack == this)
+	if (CallBack.get() == this)
 		CallBack = 0;
 
 	if (!CompiledShaders)
@@ -230,6 +188,56 @@ s32 COpenGLNormalMapRenderer::getRenderCapability()
 		return 0;
 
 	return 1;
+}
+
+void COpenGLNormalMapRenderer::setWeakPtr(boost::shared_ptr<COpenGLNormalMapRenderer> sharedThis)
+{
+	SharedThisMixin::setWeakPtr(sharedThis);
+
+	// set this as callback. We could have done this in
+	// the initialization list, but some compilers don't like it.
+
+	CallBack = sharedThis;
+
+	// basically, this thing simply compiles the hardcoded shaders if the
+	// hardware is able to do them, otherwise it maps to the base material
+
+	boost::shared_ptr<IVideoDriver> driver = getVideoDriver();
+	s32 outMaterialTypeNr;
+
+	if (!driver->queryFeature(video::EVDF_ARB_FRAGMENT_PROGRAM_1) ||
+		!driver->queryFeature(video::EVDF_ARB_VERTEX_PROGRAM_1))
+	{
+		// this hardware is not able to do shaders. Fall back to
+		// base material.
+		outMaterialTypeNr = driver->addMaterialRenderer(sharedThis);
+		return;
+	}
+
+	// check if already compiled normal map shaders are there.
+
+	boost::shared_ptr<video::IMaterialRenderer> renderer = driver->getMaterialRenderer(EMT_NORMAL_MAP_SOLID);
+
+	if (renderer)
+	{
+		// use the already compiled shaders
+		boost::shared_ptr<video::COpenGLNormalMapRenderer> nmr = boost::reinterpret_pointer_cast<video::COpenGLNormalMapRenderer>(renderer);
+		CompiledShaders = false;
+
+		VertexShader = nmr->VertexShader;
+		PixelShader = nmr->PixelShader;
+
+		outMaterialTypeNr = driver->addMaterialRenderer(sharedThis);
+	}
+	else
+	{
+		// compile shaders on our own
+		init(outMaterialTypeNr, OPENGL_NORMAL_MAP_VSH, OPENGL_NORMAL_MAP_PSH, EVT_TANGENTS);
+	}
+
+	// fallback if compilation has failed
+	if (-1 == outMaterialTypeNr)
+		outMaterialTypeNr = driver->addMaterialRenderer(sharedThis);
 }
 
 

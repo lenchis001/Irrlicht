@@ -98,7 +98,7 @@ namespace gui
 		virtual void setPressedImage(boost::shared_ptr<video::ITexture> image, const core::rect<s32>& pos) = 0;
 
 		//! Sets the sprite bank used by the button
-		virtual void setSpriteBank(IGUISpriteBank* bank=0) = 0;
+		virtual void setSpriteBank(boost::shared_ptr<IGUISpriteBank> bank=0) = 0;
 
 		//! Sets the animated sprite for a specific button state
 		/** \param index: Number of the sprite within the sprite bank, use -1 for no sprite

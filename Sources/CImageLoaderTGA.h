@@ -62,15 +62,15 @@ public:
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 
 	//! returns true if the file maybe is able to be loaded by this class
-	virtual bool isALoadableFileFormat(io::IReadFile* file) const;
+	virtual bool isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const;
 
 	//! creates a surface from the file
-	virtual boost::shared_ptr<IImage> loadImage(io::IReadFile* file) const;
+	virtual boost::shared_ptr<IImage> loadImage(boost::shared_ptr<io::IReadFile> file) const;
 
 private:
 
 	//! loads a compressed tga. Was written and sent in by Jon Pry, thank you very much!
-	u8* loadCompressedImage(io::IReadFile *file, const STGAHeader& header) const;
+	u8* loadCompressedImage(boost::shared_ptr<io::IReadFile> file, const STGAHeader& header) const;
 };
 
 #endif // compiled with loader

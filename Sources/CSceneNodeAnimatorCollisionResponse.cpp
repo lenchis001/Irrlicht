@@ -16,7 +16,7 @@ namespace scene
 //! constructor
 CSceneNodeAnimatorCollisionResponse::CSceneNodeAnimatorCollisionResponse(
 		boost::shared_ptr<scene::ISceneManager> scenemanager,
-		ITriangleSelector* world, boost::shared_ptr<ISceneNode> object,
+		boost::shared_ptr<ITriangleSelector> world, boost::shared_ptr<ISceneNode> object,
 		const core::vector3df& ellipsoidRadius,
 		const core::vector3df& gravityPerSecond,
 		const core::vector3df& ellipsoidTranslation,
@@ -31,9 +31,6 @@ CSceneNodeAnimatorCollisionResponse::CSceneNodeAnimatorCollisionResponse(
 	setDebugName("CSceneNodeAnimatorCollisionResponse");
 	#endif
 
-	if (World)
-		World->grab();
-
 	setNode(Object);
 }
 
@@ -41,11 +38,6 @@ CSceneNodeAnimatorCollisionResponse::CSceneNodeAnimatorCollisionResponse(
 //! destructor
 CSceneNodeAnimatorCollisionResponse::~CSceneNodeAnimatorCollisionResponse()
 {
-	if (World)
-		World->drop();
-
-	if (CollisionCallback)
-		CollisionCallback->drop();
 }
 
 
@@ -116,14 +108,8 @@ core::vector3df CSceneNodeAnimatorCollisionResponse::getEllipsoidTranslation() c
 
 //! Sets a triangle selector holding all triangles of the world with which
 //! the scene node may collide.
-void CSceneNodeAnimatorCollisionResponse::setWorld(ITriangleSelector* newWorld)
+void CSceneNodeAnimatorCollisionResponse::setWorld(boost::shared_ptr<ITriangleSelector> newWorld)
 {
-	if (newWorld)
-		newWorld->grab();
-
-	if (World)
-		World->drop();
-
 	World = newWorld;
 
 	FirstUpdate = true;
@@ -132,7 +118,7 @@ void CSceneNodeAnimatorCollisionResponse::setWorld(ITriangleSelector* newWorld)
 
 //! Returns the current triangle selector containing all triangles for
 //! collision detection.
-ITriangleSelector* CSceneNodeAnimatorCollisionResponse::getWorld() const
+boost::shared_ptr<ITriangleSelector> CSceneNodeAnimatorCollisionResponse::getWorld() const
 {
 	return World;
 }
@@ -271,18 +257,12 @@ boost::shared_ptr<ISceneNodeAnimator> CSceneNodeAnimatorCollisionResponse::creat
 	return newAnimator;
 }
 
-void CSceneNodeAnimatorCollisionResponse::setCollisionCallback(ICollisionCallback* callback)
+void CSceneNodeAnimatorCollisionResponse::setCollisionCallback(boost::shared_ptr<ICollisionCallback> callback)
 {
 	if ( CollisionCallback == callback )
 		return;
 
-	if (CollisionCallback)
-		CollisionCallback->drop();
-
 	CollisionCallback = callback;
-
-	if (CollisionCallback)
-		CollisionCallback->grab();
 }
 
 //! Should the Target react on collision ( default = true )

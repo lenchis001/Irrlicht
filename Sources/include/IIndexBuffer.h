@@ -21,7 +21,7 @@ namespace video
 namespace scene
 {
 
-	class IIndexBuffer : public virtual IReferenceCounted
+	class IIndexBuffer : public virtual IDebugable
 	{
 	public:
 

@@ -34,7 +34,7 @@ namespace scene
 
 		//! loads a level from a .bsp-File. Also tries to load all
 		//! needed textures. Returns true if successful.
-		bool loadFile(io::IReadFile* file);
+		bool loadFile(boost::shared_ptr<io::IReadFile> file);
 
 		//! returns the amount of frames in milliseconds. If the amount
 		//! is 1, it is a static (=non animated) mesh.
@@ -71,7 +71,7 @@ namespace scene
 		virtual E_ANIMATED_MESH_TYPE getMeshType() const;
 
 		//! loads the shader definition
-		virtual void getShader( io::IReadFile* file );
+		virtual void getShader( boost::shared_ptr<io::IReadFile> file );
 
 		//! loads the shader definition
 		virtual boost::shared_ptr<const quake3::IShader>  getShader( const c8 * filename, bool fileNameIsValid=true );
@@ -81,7 +81,7 @@ namespace scene
 
 
 		//! loads a configuration file
-		virtual void getConfiguration( io::IReadFile* file );
+		virtual void getConfiguration( boost::shared_ptr<io::IReadFile> file );
 		//! get's an interface to the entities
 		virtual quake3::tQ3EntityList & getEntityList();
 
@@ -307,22 +307,22 @@ namespace scene
 			u8 direction[2];   // The direction of the light: [phi,theta]
 		};
 
-		void loadTextures   (tBSPLump* l, io::IReadFile* file); // Load the textures
-		void loadLightmaps  (tBSPLump* l, io::IReadFile* file); // Load the lightmaps
-		void loadVerts      (tBSPLump* l, io::IReadFile* file); // Load the vertices
-		void loadFaces      (tBSPLump* l, io::IReadFile* file); // Load the faces
-		void loadPlanes     (tBSPLump* l, io::IReadFile* file); // Load the Planes of the BSP
-		void loadNodes      (tBSPLump* l, io::IReadFile* file); // load the Nodes of the BSP
-		void loadLeafs      (tBSPLump* l, io::IReadFile* file); // load the Leafs of the BSP
-		void loadLeafFaces  (tBSPLump* l, io::IReadFile* file); // load the Faces of the Leafs of the BSP
-		void loadVisData    (tBSPLump* l, io::IReadFile* file); // load the visibility data of the clusters
-		void loadEntities   (tBSPLump* l, io::IReadFile* file); // load the entities
-		void loadModels     (tBSPLump* l, io::IReadFile* file); // load the models
-		void loadMeshVerts  (tBSPLump* l, io::IReadFile* file); // load the mesh vertices
-		void loadBrushes    (tBSPLump* l, io::IReadFile* file); // load the brushes of the BSP
-		void loadBrushSides (tBSPLump* l, io::IReadFile* file); // load the brushsides of the BSP
-		void loadLeafBrushes(tBSPLump* l, io::IReadFile* file); // load the brushes of the leaf
-		void loadFogs    (tBSPLump* l, io::IReadFile* file); // load the shaders
+		void loadTextures   (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // Load the textures
+		void loadLightmaps  (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // Load the lightmaps
+		void loadVerts      (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // Load the vertices
+		void loadFaces      (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // Load the faces
+		void loadPlanes     (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // Load the Planes of the BSP
+		void loadNodes      (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // load the Nodes of the BSP
+		void loadLeafs      (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // load the Leafs of the BSP
+		void loadLeafFaces  (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // load the Faces of the Leafs of the BSP
+		void loadVisData    (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // load the visibility data of the clusters
+		void loadEntities   (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // load the entities
+		void loadModels     (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // load the models
+		void loadMeshVerts  (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // load the mesh vertices
+		void loadBrushes    (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // load the brushes of the BSP
+		void loadBrushSides (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // load the brushsides of the BSP
+		void loadLeafBrushes(tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // load the brushes of the leaf
+		void loadFogs    (tBSPLump* l, boost::shared_ptr<io::IReadFile> file); // load the shaders
 
 		//bi-quadratic bezier patches
 		void createCurvedSurface_bezier(SMeshBufferLightMap* meshBuffer,

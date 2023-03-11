@@ -129,7 +129,7 @@ public:
 class CCgMaterialRenderer : public IMaterialRenderer, public IMaterialRendererServices
 {
 public:
-	CCgMaterialRenderer(IShaderConstantSetCallBack* callback = 0, IMaterialRenderer* baseMaterial = 0, s32 userData = 0);
+	CCgMaterialRenderer(boost::shared_ptr<IShaderConstantSetCallBack> callback = 0, boost::shared_ptr<IMaterialRenderer> baseMaterial = 0, s32 userData = 0);
 	virtual ~CCgMaterialRenderer();
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial, bool resetAllRenderstates, IMaterialRendererServices* services) = 0;
@@ -151,8 +151,8 @@ public:
 protected:
 	void getUniformList();
 
-	IShaderConstantSetCallBack* CallBack;
-	IMaterialRenderer* BaseMaterial;
+	boost::shared_ptr<IShaderConstantSetCallBack> CallBack;
+	boost::shared_ptr<IMaterialRenderer> BaseMaterial;
 	s32 UserData;
 
 	core::array<CCgUniform*> UniformInfo;

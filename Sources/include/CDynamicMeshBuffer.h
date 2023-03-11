@@ -22,14 +22,12 @@ namespace scene
 		CDynamicMeshBuffer(video::E_VERTEX_TYPE vertexType, video::E_INDEX_TYPE indexType)
 		{
 			VertexBuffer=boost::make_shared<CVertexBuffer>(vertexType);
-			IndexBuffer=new CIndexBuffer(indexType);
+			IndexBuffer= boost::make_shared<CIndexBuffer>(indexType);
 		}
 
 		//! destructor
 		virtual ~CDynamicMeshBuffer()
 		{
-			if (IndexBuffer)
-				IndexBuffer->drop();
 		}
 
 		virtual IVertexBuffer& getVertexBuffer() const
@@ -47,13 +45,8 @@ namespace scene
 			VertexBuffer=newVertexBuffer;
 		}
 
-		virtual void setIndexBuffer(IIndexBuffer *newIndexBuffer)
+		virtual void setIndexBuffer(boost::shared_ptr<IIndexBuffer> newIndexBuffer)
 		{
-			if (newIndexBuffer)
-				newIndexBuffer->grab();
-			if (IndexBuffer)
-				IndexBuffer->drop();
-
 			IndexBuffer=newIndexBuffer;
 		}
 
@@ -98,7 +91,7 @@ namespace scene
 		core::aabbox3d<f32> BoundingBox;
 	private:
 		boost::shared_ptr<IVertexBuffer> VertexBuffer;
-		IIndexBuffer *IndexBuffer;
+		boost::shared_ptr<IIndexBuffer> IndexBuffer;
 	};
 
 

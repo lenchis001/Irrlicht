@@ -48,7 +48,7 @@ namespace scene
 		virtual boost::shared_ptr<IAnimatedMesh> getMesh(const io::path& filename);
 
 		//! gets an animateable mesh. loads it if needed. returned pointer must not be dropped.
-		virtual boost::shared_ptr<IAnimatedMesh> getMesh(io::IReadFile* file);
+		virtual boost::shared_ptr<IAnimatedMesh> getMesh(boost::shared_ptr<io::IReadFile> file);
 
 		//! Returns an interface to the mesh cache which is shared beween all existing scene managers.
 		virtual boost::shared_ptr<IMeshCache> getMeshCache();
@@ -261,7 +261,7 @@ namespace scene
 
 		//! Adds a terrain scene node to the scene graph.
 		virtual boost::shared_ptr<ITerrainSceneNode> addTerrainSceneNode(
-			io::IReadFile* heightMap,
+			boost::shared_ptr<io::IReadFile> heightMap,
 			boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const core::vector3df& position = core::vector3df(0.0f,0.0f,0.0f),
 			const core::vector3df& rotation = core::vector3df(0.0f,0.0f,0.0f),
@@ -333,7 +333,7 @@ namespace scene
 		//! Creates a special scene node animator for doing automatic collision detection
 		//! and response.
 		virtual boost::shared_ptr<ISceneNodeAnimatorCollisionResponse> createCollisionResponseAnimator(
-			ITriangleSelector* world, boost::shared_ptr<ISceneNode> sceneNode,
+			boost::shared_ptr<ITriangleSelector> world, boost::shared_ptr<ISceneNode> sceneNode,
 			const core::vector3df& ellipsoidRadius = core::vector3df(30,60,30),
 			const core::vector3df& gravityPerSecond = core::vector3df(0,-1.0f,0),
 			const core::vector3df& ellipsoidTranslation = core::vector3df(0,0,0),
@@ -346,30 +346,30 @@ namespace scene
 
 
 		//! Creates a simple ITriangleSelector, based on a mesh.
-		virtual ITriangleSelector* createTriangleSelector(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> node);
+		virtual boost::shared_ptr<ITriangleSelector> createTriangleSelector(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> node);
 
 		//! Creates a simple ITriangleSelector, based on an animated mesh scene node.
 		//! Details of the mesh associated with the node will be extracted internally.
 		//! Call ITriangleSelector::update() to have the triangle selector updated based
 		//! on the current frame of the animated mesh scene node.
 		//! \param: The animated mesh scene node from which to build the selector
-		virtual ITriangleSelector* createTriangleSelector(boost::shared_ptr<scene::IAnimatedMeshSceneNode> node);
+		virtual boost::shared_ptr<ITriangleSelector> createTriangleSelector(boost::shared_ptr<scene::IAnimatedMeshSceneNode> node);
 
 		//! Creates a simple ITriangleSelector, based on a mesh.
-		virtual ITriangleSelector* createOctreeTriangleSelector(boost::shared_ptr<IMesh> mesh,
+		virtual boost::shared_ptr<ITriangleSelector> createOctreeTriangleSelector(boost::shared_ptr<IMesh> mesh,
 			boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode);
 
 		//! Creates a simple dynamic ITriangleSelector, based on a axis aligned bounding box.
-		virtual ITriangleSelector* createTriangleSelectorFromBoundingBox(
+		virtual boost::shared_ptr<ITriangleSelector> createTriangleSelectorFromBoundingBox(
 			boost::shared_ptr<ISceneNode> node);
 
 		//! Creates a meta triangle selector.
-		virtual IMetaTriangleSelector* createMetaTriangleSelector();
+		virtual boost::shared_ptr<IMetaTriangleSelector> createMetaTriangleSelector();
 
 		//! Creates a triangle selector which can select triangles from a terrain scene node
 		//! \param: Pointer to the created terrain scene node
 		//! \param: Level of detail, 0 for highest detail.
-		virtual ITriangleSelector* createTerrainTriangleSelector(
+		virtual boost::shared_ptr<ITriangleSelector> createTerrainTriangleSelector(
 			boost::shared_ptr<ITerrainSceneNode> node, s32 LOD=0);
 
 		//! Adds an external mesh loader.
@@ -394,7 +394,7 @@ namespace scene
 		virtual boost::shared_ptr<ISceneCollisionManager> getSceneCollisionManager();
 
 		//! Returns a pointer to the mesh manipulator.
-		virtual IMeshManipulator* getMeshManipulator();
+		virtual boost::shared_ptr<IMeshManipulator> getMeshManipulator();
 
 		//! Sets the color of stencil buffers shadows drawn by the scene manager.
 		virtual void setShadowColor(video::SColor color);
@@ -481,7 +481,7 @@ namespace scene
 		virtual bool saveScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> node=0);
 
 		//! Saves the current scene into a file.
-		virtual bool saveScene(io::IWriteFile* file, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> node=0);
+		virtual bool saveScene(boost::shared_ptr<io::IWriteFile> file, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> node=0);
 
 		//! Saves the current scene into a file.
 		virtual bool saveScene(io::IXMLWriter* writer, const io::path& currentPath, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> node=0);
@@ -490,7 +490,7 @@ namespace scene
 		virtual bool loadScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> rootNode=0);
 
 		//! Loads a scene. Note that the current scene is not cleared before.
-		virtual bool loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> rootNode=0);
+		virtual bool loadScene(boost::shared_ptr<io::IReadFile> file, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> rootNode=0);
 
 		//! Writes attributes of the scene node.
 		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0);

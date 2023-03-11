@@ -216,7 +216,7 @@ namespace scene
 		}
 
 		//! writes a scene starting with the given node
-		virtual bool writeScene(io::IWriteFile* file, boost::shared_ptr<scene::ISceneNode> root) = 0;
+		virtual bool writeScene(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<scene::ISceneNode> root) = 0;
 
 
 		//! Set if texture information should be written

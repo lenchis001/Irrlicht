@@ -23,7 +23,7 @@ namespace gui
 	increase the reference counter of the environment. This is not necessary because the
 	it will grab() the factory anyway, and otherwise cyclic references will be created.
 	*/
-	class IGUIElementFactory : public virtual IReferenceCounted
+	class IGUIElementFactory : public virtual IDebugable
 	{
 	public:
 

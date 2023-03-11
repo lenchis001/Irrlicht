@@ -126,7 +126,7 @@ bool CMS3DMeshFileLoader::isALoadableFileExtension(const io::path& filename) con
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-boost::shared_ptr<IAnimatedMesh> CMS3DMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CMS3DMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	if (!file)
 		return 0;
@@ -148,7 +148,7 @@ boost::shared_ptr<IAnimatedMesh> CMS3DMeshFileLoader::createMesh(io::IReadFile* 
 
 
 //! loads a milkshape file
-bool CMS3DMeshFileLoader::load(io::IReadFile* file)
+bool CMS3DMeshFileLoader::load(boost::shared_ptr<io::IReadFile> file)
 {
 	if (!file)
 		return false;

@@ -38,7 +38,7 @@ public:
 	/** This decision will be based on a quick look at the contents of the file.
 	\param file The file to test.
 	\return True if the extension is a recognised type. */
-	virtual bool isALoadableFileFormat(io::IReadFile* file) const = 0;
+	virtual bool isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const = 0;
 
 	//! Loads the scene into the scene manager.
 	/** \param file File which contains the scene.
@@ -49,7 +49,7 @@ public:
 	\param rootNode The node to load the scene into, if none is provided then the
 	scene will be loaded into the root node.
 	\return Returns true on success, false on failure. Returns 0 if loading failed. */
-	virtual bool loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer=0,
+	virtual bool loadScene(boost::shared_ptr<io::IReadFile> file, ISceneUserDataSerializer* userDataSerializer=0,
 	                       boost::shared_ptr<ISceneNode> rootNode=0) = 0;
 
 };

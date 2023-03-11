@@ -47,7 +47,7 @@ bool CIrrMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-boost::shared_ptr<IAnimatedMesh> CIrrMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CIrrMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	io::IXMLReader* reader = FileSystem->createXMLReader(file);
 	if (!reader)

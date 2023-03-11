@@ -36,7 +36,7 @@ public:
 	//! \return Pointer to the created mesh. Returns 0 if loading failed.
 	//! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 	//! See IReferenceCounted::drop() for more information.
-	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(boost::shared_ptr<io::IReadFile> file);
 
 private:
 
@@ -118,24 +118,24 @@ private:
 		u16* faces;
 	};
 
-	bool readChunk(io::IReadFile* file, ChunkData* parent);
-	bool readMaterialChunk(io::IReadFile* file, ChunkData* parent);
-	bool readFrameChunk(io::IReadFile* file, ChunkData* parent);
-	bool readTrackChunk(io::IReadFile* file, ChunkData& data,
+	bool readChunk(boost::shared_ptr<io::IReadFile> file, ChunkData* parent);
+	bool readMaterialChunk(boost::shared_ptr<io::IReadFile> file, ChunkData* parent);
+	bool readFrameChunk(boost::shared_ptr<io::IReadFile> file, ChunkData* parent);
+	bool readTrackChunk(boost::shared_ptr<io::IReadFile> file, ChunkData& data,
 				IMeshBuffer* mb, const core::vector3df& pivot);
-	bool readObjectChunk(io::IReadFile* file, ChunkData* parent);
-	bool readPercentageChunk(io::IReadFile* file, ChunkData* chunk, f32& percentage);
-	bool readColorChunk(io::IReadFile* file, ChunkData* chunk, video::SColor& out);
+	bool readObjectChunk(boost::shared_ptr<io::IReadFile> file, ChunkData* parent);
+	bool readPercentageChunk(boost::shared_ptr<io::IReadFile> file, ChunkData* chunk, f32& percentage);
+	bool readColorChunk(boost::shared_ptr<io::IReadFile> file, ChunkData* chunk, video::SColor& out);
 
-	void readChunkData(io::IReadFile* file, ChunkData& data);
-	void readString(io::IReadFile* file, ChunkData& data, core::stringc& out);
-	void readVertices(io::IReadFile* file, ChunkData& data);
-	void readIndices(io::IReadFile* file, ChunkData& data);
-	void readMaterialGroup(io::IReadFile* file, ChunkData& data);
-	void readTextureCoords(io::IReadFile* file, ChunkData& data);
+	void readChunkData(boost::shared_ptr<io::IReadFile> file, ChunkData& data);
+	void readString(boost::shared_ptr<io::IReadFile> file, ChunkData& data, core::stringc& out);
+	void readVertices(boost::shared_ptr<io::IReadFile> file, ChunkData& data);
+	void readIndices(boost::shared_ptr<io::IReadFile> file, ChunkData& data);
+	void readMaterialGroup(boost::shared_ptr<io::IReadFile> file, ChunkData& data);
+	void readTextureCoords(boost::shared_ptr<io::IReadFile> file, ChunkData& data);
 
-	void composeObject(io::IReadFile* file, const core::stringc& name);
-	void loadMaterials(io::IReadFile* file);
+	void composeObject(boost::shared_ptr<io::IReadFile> file, const core::stringc& name);
+	void loadMaterials(boost::shared_ptr<io::IReadFile> file);
 	void cleanUp();
 
 	boost::shared_ptr<io::IFileSystem> FileSystem;

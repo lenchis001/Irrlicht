@@ -14,7 +14,7 @@ namespace io
 {
 
 	//! Interface providing write access to a file.
-	class IWriteFile : public virtual IReferenceCounted
+	class IWriteFile : public virtual IDebugable
 	{
 	public:
 		//! Writes an amount of bytes to the file.
@@ -41,7 +41,7 @@ namespace io
 	};
 
 	//! Internal function, please do not use.
-	IWriteFile* createWriteFile(const io::path& fileName, bool append);
+	boost::shared_ptr<IWriteFile> createWriteFile(const io::path& fileName, bool append);
 
 } // end namespace io
 } // end namespace irr

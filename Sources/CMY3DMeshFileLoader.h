@@ -77,7 +77,7 @@ public:
 
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 
-	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(boost::shared_ptr<io::IReadFile> file);
 
 	//! getting access to the nodes (with transparent material), creating
 	//! while loading .my3d file
@@ -85,7 +85,7 @@ public:
 
 private:
 
-	boost::shared_ptr<video::ITexture> readEmbeddedLightmap(io::IReadFile* file, char* namebuf);
+	boost::shared_ptr<video::ITexture> readEmbeddedLightmap(boost::shared_ptr<io::IReadFile> file, char* namebuf);
 
 	boost::shared_ptr<io::IFileSystem> FileSystem;
 

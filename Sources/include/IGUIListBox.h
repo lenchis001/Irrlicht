@@ -72,7 +72,7 @@ namespace gui
 		default. A sprite can be displayed in front of every list item.
 		An icon is an index within the icon sprite bank. Several
 		default icons are available in the skin through getIcon. */
-		virtual void setSpriteBank(IGUISpriteBank* bank) = 0;
+		virtual void setSpriteBank(boost::shared_ptr<IGUISpriteBank> bank) = 0;
 
 		//! clears the list, deletes all items in the listbox
 		virtual void clear() = 0;

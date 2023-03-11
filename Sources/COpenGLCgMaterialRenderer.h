@@ -64,8 +64,8 @@ public:
 		E_GEOMETRY_SHADER_TYPE geometryProfile = video::EGST_GS_4_0,
 		scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 		scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
-		u32 vertices = 0, IShaderConstantSetCallBack* callback = 0,
-		IMaterialRenderer* baseMaterial = 0, s32 userData = 0);
+		u32 vertices = 0, boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
+		boost::shared_ptr<IMaterialRenderer> baseMaterial = 0, s32 userData = 0);
 
 	virtual ~COpenGLCgMaterialRenderer();
 

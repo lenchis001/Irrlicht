@@ -313,7 +313,7 @@ namespace video
 		//! extGLGetObjectParameteriv(shaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &status)
 		//! pixel and/or vertex shaders to render geometry.
 		virtual s32 addShaderMaterial(const c8* vertexShaderProgram, const c8* pixelShaderProgram,
-			IShaderConstantSetCallBack* callback, E_MATERIAL_TYPE baseMaterial, s32 userData);
+			boost::shared_ptr<IShaderConstantSetCallBack> callback, E_MATERIAL_TYPE baseMaterial, s32 userData);
 
 		//! Adds a new material renderer to the VideoDriver, using GLSL to render geometry.
 		virtual s32 addHighLevelShaderMaterial(
@@ -329,7 +329,7 @@ namespace video
 				scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 				scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 				u32 verticesOut = 0,
-				IShaderConstantSetCallBack* callback = 0,
+				boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 				E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 				s32 userData = 0,
 				E_GPU_SHADING_LANGUAGE shadingLang = EGSL_DEFAULT);

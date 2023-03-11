@@ -14,10 +14,10 @@ namespace io
 	class IReadFile;
 
 	//! creates an IXMLReader
-	IXMLReader* createIXMLReader(IReadFile* file);
+	IXMLReader* createIXMLReader(boost::shared_ptr<IReadFile> file);
 
 	//! creates an IXMLReader
-	IXMLReaderUTF8* createIXMLReaderUTF8(IReadFile* file);
+	IXMLReaderUTF8* createIXMLReaderUTF8(boost::shared_ptr<IReadFile> file);
 
 } // end namespace irr
 } // end namespace io

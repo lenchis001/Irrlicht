@@ -39,7 +39,7 @@ bool CImageLoaderPCX::isALoadableFileExtension(const io::path& filename) const
 
 
 //! returns true if the file maybe is able to be loaded by this class
-bool CImageLoaderPCX::isALoadableFileFormat(io::IReadFile* file) const
+bool CImageLoaderPCX::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	u8 headerID;
 	file->read(&headerID, sizeof(headerID));
@@ -48,7 +48,7 @@ bool CImageLoaderPCX::isALoadableFileFormat(io::IReadFile* file) const
 
 
 //! creates a image from the file
-boost::shared_ptr<IImage> CImageLoaderPCX::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderPCX::loadImage(boost::shared_ptr<io::IReadFile> file) const
 {
 	SPCXHeader header;
 	s32* paletteData = 0;

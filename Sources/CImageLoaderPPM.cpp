@@ -37,7 +37,7 @@ bool CImageLoaderPPM::isALoadableFileExtension(const io::path& filename) const
 
 
 //! returns true if the file maybe is able to be loaded by this class
-bool CImageLoaderPPM::isALoadableFileFormat(io::IReadFile* file) const
+bool CImageLoaderPPM::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	c8 id[2]={0};
 	file->read(&id, 2);
@@ -46,7 +46,7 @@ bool CImageLoaderPPM::isALoadableFileFormat(io::IReadFile* file) const
 
 
 //! creates a surface from the file
-boost::shared_ptr<IImage> CImageLoaderPPM::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderPPM::loadImage(boost::shared_ptr<io::IReadFile> file) const
 {
 	boost::shared_ptr<CImage> image;
 
@@ -213,7 +213,7 @@ boost::shared_ptr<IImage> CImageLoaderPPM::loadImage(io::IReadFile* file) const
 
 
 //! read the next token from file
-void CImageLoaderPPM::getNextToken(io::IReadFile* file, core::stringc& token) const
+void CImageLoaderPPM::getNextToken(boost::shared_ptr<io::IReadFile> file, core::stringc& token) const
 {
 	token = "";
 	c8 c;
@@ -248,7 +248,7 @@ void CImageLoaderPPM::getNextToken(io::IReadFile* file, core::stringc& token) co
 
 
 //! skip to next token (skip whitespace)
-void CImageLoaderPPM::skipToNextToken(io::IReadFile* file) const
+void CImageLoaderPPM::skipToNextToken(boost::shared_ptr<io::IReadFile> file) const
 {
 	c8 c;
 	while(file->getPos()<file->getSize())

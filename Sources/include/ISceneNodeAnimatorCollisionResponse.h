@@ -19,7 +19,7 @@ namespace scene
 	ISceneNodeAnimatorCollisionResponse::setCollisionCallback to be able to
 	be notified if a collision has occurred.
 	**/
-	class ICollisionCallback : public virtual IReferenceCounted
+	class ICollisionCallback : public virtual IDebugable
 	{
 	public:
 
@@ -121,10 +121,10 @@ namespace scene
 		//! Sets a triangle selector holding all triangles of the world with which the scene node may collide.
 		/** \param newWorld: New triangle selector containing triangles
 		to let the scene node collide with. */
-		virtual void setWorld(ITriangleSelector* newWorld) = 0;
+		virtual void setWorld(boost::shared_ptr<ITriangleSelector> newWorld) = 0;
 
 		//! Get the current triangle selector containing all triangles for collision detection.
-		virtual ITriangleSelector* getWorld() const = 0;
+		virtual boost::shared_ptr<ITriangleSelector> getWorld() const = 0;
 
 		//! Set the single node that this animator will act on.
 		/** \param node The new target node. Setting this will force the animator to update
@@ -159,7 +159,7 @@ namespace scene
 		/** \param callback: collision callback handler that will be called when a collision
 		occurs. Set this to 0 to disable the callback.
 		*/
-		virtual void setCollisionCallback(ICollisionCallback* callback) = 0;
+		virtual void setCollisionCallback(boost::shared_ptr<ICollisionCallback> callback) = 0;
 
 	};
 

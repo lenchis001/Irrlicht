@@ -10,6 +10,7 @@
 
 #include "COpenGLShaderMaterialRenderer.h"
 #include "IShaderConstantSetCallBack.h"
+#include "SharedThisMixin.h"
 
 namespace irr
 {
@@ -17,13 +18,13 @@ namespace video
 {
 
 //! Class for rendering normal maps with OpenGL
-class COpenGLParallaxMapRenderer : public COpenGLShaderMaterialRenderer, public IShaderConstantSetCallBack
+class COpenGLParallaxMapRenderer : public COpenGLShaderMaterialRenderer, public IShaderConstantSetCallBack, public SharedThisMixin<COpenGLParallaxMapRenderer>
 {
 public:
 
 	//! Constructor
 	COpenGLParallaxMapRenderer(boost::shared_ptr<video::COpenGLDriver> driver,
-		s32& outMaterialTypeNr, IMaterialRenderer* baseMaterial);
+		boost::shared_ptr<IMaterialRenderer> baseMaterial);
 
 	//! Destructor
 	~COpenGLParallaxMapRenderer();
@@ -39,6 +40,8 @@ public:
 	virtual void OnSetMaterial(const video::SMaterial& material,
 		const video::SMaterial& lastMaterial,
 		bool resetAllRenderstates, video::IMaterialRendererServices* services);
+
+	virtual void setWeakPtr(boost::shared_ptr<COpenGLParallaxMapRenderer> sharedThis) override;
 
 protected:
 

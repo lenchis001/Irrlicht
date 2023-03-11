@@ -20,8 +20,7 @@ namespace video
 
 //! Constructor
 COpenGLShaderMaterialRenderer::COpenGLShaderMaterialRenderer(boost::shared_ptr<video::COpenGLDriver> driver,
-	s32& outMaterialTypeNr, const c8* vertexShaderProgram, const c8* pixelShaderProgram,
-	IShaderConstantSetCallBack* callback, IMaterialRenderer* baseMaterial, s32 userData)
+	boost::shared_ptr<IShaderConstantSetCallBack> callback, boost::shared_ptr<IMaterialRenderer> baseMaterial, s32 userData)
 	: VideoDriverAwareMixin(driver), CallBack(callback), BaseMaterial(baseMaterial),
 		VertexShader(0), UserData(userData)
 {
@@ -34,45 +33,11 @@ COpenGLShaderMaterialRenderer::COpenGLShaderMaterialRenderer(boost::shared_ptr<v
 	{
 		PixelShader[i]=0;
 	}
-
-	if (BaseMaterial)
-		BaseMaterial->grab();
-
-	if (CallBack)
-		CallBack->grab();
-
-	init(outMaterialTypeNr, vertexShaderProgram, pixelShaderProgram, EVT_STANDARD);
 }
-
-
-//! constructor only for use by derived classes who want to
-//! create a fall back material for example.
-COpenGLShaderMaterialRenderer::COpenGLShaderMaterialRenderer(boost::shared_ptr<COpenGLDriver> driver,
-				IShaderConstantSetCallBack* callback,
-				IMaterialRenderer* baseMaterial, s32 userData)
-: VideoDriverAwareMixin(driver), CallBack(callback), BaseMaterial(baseMaterial),
-		VertexShader(0), UserData(userData)
-{
-	PixelShader.set_used(4);
-	for (u32 i=0; i<4; ++i)
-	{
-		PixelShader[i]=0;
-	}
-
-	if (BaseMaterial)
-		BaseMaterial->grab();
-
-	if (CallBack)
-		CallBack->grab();
-}
-
 
 //! Destructor
 COpenGLShaderMaterialRenderer::~COpenGLShaderMaterialRenderer()
 {
-	if (CallBack)
-		CallBack->drop();
-
 	boost::shared_ptr<COpenGLDriver> lockedDriver = getVideoDriver();
 
 	if (VertexShader)
@@ -81,9 +46,6 @@ COpenGLShaderMaterialRenderer::~COpenGLShaderMaterialRenderer()
 	for (u32 i=0; i<PixelShader.size(); ++i)
 		if (PixelShader[i])
 			lockedDriver->extGlDeletePrograms(1, &PixelShader[i]);
-
-	if (BaseMaterial)
-		BaseMaterial->drop();
 }
 
 
@@ -103,7 +65,7 @@ void COpenGLShaderMaterialRenderer::init(s32& outMaterialTypeNr,
 		return;
 
 	// register as a new material
-	outMaterialTypeNr = getVideoDriver()->addMaterialRenderer(this);
+	outMaterialTypeNr = getVideoDriver()->addMaterialRenderer(getSharedThis());
 }
 
 

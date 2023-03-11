@@ -63,7 +63,7 @@ bool CImageLoaderLMP::isALoadableFileExtension(const io::path& filename) const
 }
 
 
-bool CImageLoaderLMP::isALoadableFileFormat(irr::io::IReadFile* file) const
+bool CImageLoaderLMP::isALoadableFileFormat(boost::shared_ptr<irr::io::IReadFile> file) const
 {
 	return false;
 }
@@ -71,7 +71,7 @@ bool CImageLoaderLMP::isALoadableFileFormat(irr::io::IReadFile* file) const
 /*!
 	Quake1, Quake2, Hallife lmp texture
 */
-boost::shared_ptr<IImage> CImageLoaderLMP::loadImage(irr::io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderLMP::loadImage(boost::shared_ptr<irr::io::IReadFile> file) const
 {
 	SLMPHeader header;
 
@@ -154,7 +154,7 @@ bool CImageLoaderWAL2::isALoadableFileExtension(const io::path& filename) const
 }
 
 
-bool CImageLoaderWAL2::isALoadableFileFormat(irr::io::IReadFile* file) const
+bool CImageLoaderWAL2::isALoadableFileFormat(boost::shared_ptr<irr::io::IReadFile> file) const
 {
 	return false;
 }
@@ -162,7 +162,7 @@ bool CImageLoaderWAL2::isALoadableFileFormat(irr::io::IReadFile* file) const
 /*
 	Halflite Texture WAD
 */
-boost::shared_ptr<IImage> CImageLoaderWAL2::loadImage(irr::io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderWAL2::loadImage(boost::shared_ptr<irr::io::IReadFile> file) const
 {
 	miptex_halflife header;
 
@@ -232,7 +232,7 @@ bool CImageLoaderWAL::isALoadableFileExtension(const io::path& filename) const
 }
 
 
-bool CImageLoaderWAL::isALoadableFileFormat(irr::io::IReadFile* file) const
+bool CImageLoaderWAL::isALoadableFileFormat(boost::shared_ptr<irr::io::IReadFile> file) const
 {
 	return false;
 }
@@ -241,7 +241,7 @@ bool CImageLoaderWAL::isALoadableFileFormat(irr::io::IReadFile* file) const
 /*!
 	quake2
 */
-boost::shared_ptr<IImage> CImageLoaderWAL::loadImage(irr::io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderWAL::loadImage(boost::shared_ptr<irr::io::IReadFile> file) const
 {
 	miptex_quake2 header;
 

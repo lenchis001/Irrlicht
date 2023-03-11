@@ -125,7 +125,7 @@ typedef core::array<core::stringc> StringList;
 //at the end of line.
 /** Loads a StringList from a file.
 This function loads a StringList from a file where each string is divided by a \\n char.*/
-void LoadFromFile(io::IReadFile* file, StringList& strlist)
+void LoadFromFile(boost::shared_ptr<io::IReadFile> file, StringList& strlist)
 {
 	const long sz = file->getSize();
 	char* buf = new char[sz+1];

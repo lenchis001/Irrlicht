@@ -150,7 +150,7 @@ void CCgUniformSampler2D::update(const void* data, const SMaterial& material) co
 {
 }
 
-CCgMaterialRenderer::CCgMaterialRenderer(IShaderConstantSetCallBack* callback, IMaterialRenderer* baseMaterial, s32 userData) :
+CCgMaterialRenderer::CCgMaterialRenderer(boost::shared_ptr<IShaderConstantSetCallBack> callback, boost::shared_ptr<IMaterialRenderer> baseMaterial, s32 userData) :
 	CallBack(callback), BaseMaterial(baseMaterial), UserData(userData),
 	VertexProgram(0), FragmentProgram(0), GeometryProgram(0), VertexProfile(CG_PROFILE_UNKNOWN), FragmentProfile(CG_PROFILE_UNKNOWN), GeometryProfile(CG_PROFILE_UNKNOWN),
 	Material(IdentityMaterial), Error(CG_NO_ERROR)

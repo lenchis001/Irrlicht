@@ -16,16 +16,14 @@ namespace io
 	public:
 
 		//! construct from FILE pointer
-		CIrrXMLFileReadCallBack(IReadFile* file)
+		CIrrXMLFileReadCallBack(boost::shared_ptr<IReadFile> file)
 			: ReadFile(file)
 		{
-			ReadFile->grab();
 		}
 
 		//! destructor
 		virtual ~CIrrXMLFileReadCallBack()
 		{
-			ReadFile->drop();
 		}
 
 		//! Reads an amount of bytes from the file.
@@ -42,14 +40,14 @@ namespace io
 
 	private:
 
-		IReadFile* ReadFile;
+		boost::shared_ptr<IReadFile> ReadFile;
 	}; // end class CMyXMLFileReadCallBack
 
 
 	// now create an implementation for IXMLReader using irrXML.
 
 	//! Creates an instance of a wide character xml parser. 
-	IXMLReader* createIXMLReader(IReadFile* file)
+	IXMLReader* createIXMLReader(boost::shared_ptr<IReadFile> file)
 	{
 		if (!file)
 			return 0;
@@ -58,7 +56,7 @@ namespace io
 	}
 
 	//! Creates an instance of an UFT-8 or ASCII character xml parser. 
-	IXMLReaderUTF8* createIXMLReaderUTF8(IReadFile* file)
+	IXMLReaderUTF8* createIXMLReaderUTF8(boost::shared_ptr<IReadFile> file)
 	{
 		if (!file)
 			return 0;

@@ -38,7 +38,7 @@ public:
 	\return Pointer to the created file interface.
 	The returned pointer should be dropped when no longer needed.
 	See IReferenceCounted::drop() for more information. */
-	virtual IReadFile* createAndOpenFile(const path& filename) =0;
+	virtual boost::shared_ptr<IReadFile> createAndOpenFile(const path& filename) =0;
 
 	//! Creates an IReadFile interface for accessing memory like a file.
 	/** This allows you to use a pointer to memory where an IReadFile is requested.
@@ -51,7 +51,7 @@ public:
 	The returned pointer should be dropped when no longer needed.
 	See IReferenceCounted::drop() for more information.
 	*/
-	virtual IReadFile* createMemoryReadFile(void* memory, s32 len, const path& fileName, bool deleteMemoryWhenDropped=false) =0;
+	virtual boost::shared_ptr<IReadFile> createMemoryReadFile(void* memory, s32 len, const path& fileName, bool deleteMemoryWhenDropped=false) =0;
 
 	//! Creates an IReadFile interface for accessing files inside files.
 	/** This is useful e.g. for archives.
@@ -63,8 +63,8 @@ public:
 	The returned pointer should be dropped when no longer needed.
 	See IReferenceCounted::drop() for more information.
 	*/
-	virtual IReadFile* createLimitReadFile(const path& fileName,
-			IReadFile* alreadyOpenedFile, long pos, long areaSize) =0;
+	virtual boost::shared_ptr<IReadFile> createLimitReadFile(const path& fileName,
+			boost::shared_ptr<IReadFile> alreadyOpenedFile, long pos, long areaSize) =0;
 
 	//! Creates an IWriteFile interface for accessing memory like a file.
 	/** This allows you to use a pointer to memory where an IWriteFile is requested.
@@ -78,7 +78,7 @@ public:
 	The returned pointer should be dropped when no longer needed.
 	See IReferenceCounted::drop() for more information.
 	*/
-	virtual IWriteFile* createMemoryWriteFile(void* memory, s32 len, const path& fileName, bool deleteMemoryWhenDropped=false) =0;
+	virtual boost::shared_ptr<IWriteFile> createMemoryWriteFile(void* memory, s32 len, const path& fileName, bool deleteMemoryWhenDropped=false) =0;
 
 
 	//! Opens a file for write access.
@@ -89,7 +89,7 @@ public:
 	file could not created or opened for writing.
 	The returned pointer should be dropped when no longer needed.
 	See IReferenceCounted::drop() for more information. */
-	virtual IWriteFile* createAndWriteFile(const path& filename, bool append=false) =0;
+	virtual boost::shared_ptr<IWriteFile> createAndWriteFile(const path& filename, bool append=false) =0;
 
 	//! Adds an archive to the file system.
 	/** After calling this, the Irrlicht Engine will also search and open
@@ -117,7 +117,7 @@ public:
 			bool ignorePaths=true,
 			E_FILE_ARCHIVE_TYPE archiveType=EFAT_UNKNOWN,
 			const core::stringc& password="",
-			IFileArchive** retArchive=0) =0;
+			boost::shared_ptr<IFileArchive>* retArchive=0) =0;
 
 	//! Adds an archive to the file system.
 	/** After calling this, the Irrlicht Engine will also search and open
@@ -145,16 +145,16 @@ public:
 	\param password An optional password, which is used in case of encrypted archives.
 	\param retArchive A pointer that will be set to the archive that is added.
 	\return True if the archive was added successfully, false if not. */
-	virtual bool addFileArchive(IReadFile* file, bool ignoreCase=true,
+	virtual bool addFileArchive(boost::shared_ptr<IReadFile> file, bool ignoreCase=true,
 			bool ignorePaths=true,
 			E_FILE_ARCHIVE_TYPE archiveType=EFAT_UNKNOWN,
 			const core::stringc& password="",
-			IFileArchive** retArchive=0) =0;
+			boost::shared_ptr<IFileArchive>* retArchive=0) =0;
 
 	//! Adds an archive to the file system.
 	/** \param archive: The archive to add to the file system.
 	\return True if the archive was added successfully, false if not. */
-	virtual bool addFileArchive(IFileArchive* archive) =0;
+	virtual bool addFileArchive(boost::shared_ptr<IFileArchive> archive) =0;
 
 	//! Get the number of archives currently attached to the file system
 	virtual u32 getFileArchiveCount() const =0;
@@ -187,7 +187,7 @@ public:
 	example textures and meshes.
 	\param archive The archive to remove.
 	\return True on success, false on failure */
-	virtual bool removeFileArchive(const IFileArchive* archive) =0;
+	virtual bool removeFileArchive(const boost::shared_ptr<IFileArchive> archive) =0;
 
 	//! Changes the search order of attached archives.
 	/**
@@ -196,12 +196,12 @@ public:
 	virtual bool moveFileArchive(u32 sourceIndex, s32 relative) =0;
 
 	//! Get the archive at a given index.
-	virtual IFileArchive* getFileArchive(u32 index) =0;
+	virtual boost::shared_ptr<IFileArchive> getFileArchive(u32 index) =0;
 
 	//! Adds an external archive loader to the engine.
 	/** Use this function to add support for new archive types to the
 	engine, for example proprietary or encrypted file storage. */
-	virtual void addArchiveLoader(IArchiveLoader* loader) =0;
+	virtual void addArchiveLoader(boost::shared_ptr<IArchiveLoader> loader) =0;
 
 	//! Gets the number of archive loaders currently added
 	virtual u32 getArchiveLoaderCount() const = 0;
@@ -210,7 +210,7 @@ public:
 	/** \param index The index of the loader to retrieve. This parameter is an 0-based
 	array index.
 	\return A pointer to the specified loader, 0 if the index is incorrect. */
-	virtual IArchiveLoader* getArchiveLoader(u32 index) const = 0;
+	virtual boost::shared_ptr<IArchiveLoader> getArchiveLoader(u32 index) const = 0;
 
 	//! Adds a zip archive to the file system.
 	/** \deprecated This function is provided for compatibility
@@ -302,13 +302,13 @@ public:
 	/** \return a Pointer to the created IFileList is returned. After the list has been used
 	it has to be deleted using its IFileList::drop() method.
 	See IReferenceCounted::drop() for more information. */
-	virtual IFileList* createFileList() =0;
+	virtual boost::shared_ptr<IFileList> createFileList() =0;
 
 	//! Creates an empty filelist
 	/** \return a Pointer to the created IFileList is returned. After the list has been used
 	it has to be deleted using its IFileList::drop() method.
 	See IReferenceCounted::drop() for more information. */
-	virtual IFileList* createEmptyFileList(const io::path& path, bool ignoreCase, bool ignorePaths) =0;
+	virtual boost::shared_ptr<IFileList> createEmptyFileList(const io::path& path, bool ignoreCase, bool ignorePaths) =0;
 
 	//! Set the active type of file system.
 	virtual EFileSystemType setFileListSystem(EFileSystemType listType) =0;
@@ -334,7 +334,7 @@ public:
 	IXMLReader is returned. After use, the reader
 	has to be deleted using its IXMLReader::drop() method.
 	See IReferenceCounted::drop() for more information. */
-	virtual IXMLReader* createXMLReader(IReadFile* file) =0;
+	virtual IXMLReader* createXMLReader(boost::shared_ptr<IReadFile> file) =0;
 
 	//! Creates a XML Reader from a file which returns all parsed strings as ASCII/UTF-8 characters (char*).
 	/** Use createXMLReader() if you prefer wchar_t* instead of char*. See IIrrXMLReader for
@@ -352,7 +352,7 @@ public:
 	IXMLReader is returned. After use, the reader
 	has to be deleted using its IXMLReaderUTF8::drop() method.
 	See IReferenceCounted::drop() for more information. */
-	virtual IXMLReaderUTF8* createXMLReaderUTF8(IReadFile* file) =0;
+	virtual IXMLReaderUTF8* createXMLReaderUTF8(boost::shared_ptr<IReadFile> file) =0;
 
 	//! Creates a XML Writer from a file.
 	/** \return 0, if file could not be opened, otherwise a pointer to the created
@@ -366,7 +366,7 @@ public:
 	IXMLWriter is returned. After use, the reader
 	has to be deleted using its IXMLWriter::drop() method.
 	See IReferenceCounted::drop() for more information. */
-	virtual IXMLWriter* createXMLWriter(IWriteFile* file) =0;
+	virtual IXMLWriter* createXMLWriter(boost::shared_ptr<IWriteFile> file) =0;
 
 	//! Creates a new empty collection of attributes, usable for serialization and more.
 	/** \param driver: Video driver to be used to load textures when specified as attribute values.

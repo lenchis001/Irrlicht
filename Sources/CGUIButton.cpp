@@ -35,8 +35,6 @@ CGUIButton::CGUIButton(boost::shared_ptr<IGUIEnvironment> environment, boost::sh
 //! destructor
 CGUIButton::~CGUIButton()
 {
-	if (SpriteBank)
-		SpriteBank->drop();
 }
 
 
@@ -62,14 +60,8 @@ void CGUIButton::setDrawBorder(bool border)
 }
 
 
-void CGUIButton::setSpriteBank(IGUISpriteBank* sprites)
+void CGUIButton::setSpriteBank(boost::shared_ptr<IGUISpriteBank> sprites)
 {
-	if (sprites)
-		sprites->grab();
-
-	if (SpriteBank)
-		SpriteBank->drop();
-
 	SpriteBank = sprites;
 }
 

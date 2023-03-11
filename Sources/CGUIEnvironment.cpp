@@ -94,17 +94,6 @@ CGUIEnvironment::~CGUIEnvironment()
 		CurrentSkin = 0;
 	}
 
-	u32 i;
-
-	// delete all sprite banks
-	for (i=0; i<Banks.size(); ++i)
-		if (Banks[i].Bank)
-			Banks[i].Bank->drop();
-
-	// remove all factories
-	for (i=0; i<GUIElementFactoryList.size(); ++i)
-		GUIElementFactoryList[i]->drop();
-
 	if (Operator)
 	{
 		Operator = 0;
@@ -114,14 +103,13 @@ CGUIEnvironment::~CGUIEnvironment()
 
 void CGUIEnvironment::loadBuiltInFont()
 {
-	io::IReadFile* file = io::createMemoryReadFile(BuiltInFontData, BuiltInFontDataSize, DefaultFontName, false);
+	boost::shared_ptr<io::IReadFile> file = io::createMemoryReadFile(BuiltInFontData, BuiltInFontDataSize, DefaultFontName, false);
 
 	boost::shared_ptr<CGUIFont> font = boost::make_shared<CGUIFont>(getSharedEnvironment(), DefaultFontName);
 
 	if (!font->load(file))
 	{
 		os::Printer::log("Error: Could not load built-in Font. Did you compile without the BMP loader?", ELL_ERROR);
-		file->drop();
 		return;
 	}
 
@@ -129,8 +117,6 @@ void CGUIEnvironment::loadBuiltInFont()
 	f.NamedPath.setPath(DefaultFontName);
 	f.Font = font;
 	Fonts.push_back(f);
-
-	file->drop();
 }
 
 
@@ -541,7 +527,7 @@ boost::shared_ptr<IGUISkin> CGUIEnvironment::createSkin(EGUI_SKIN_TYPE type)
 	if (builtinfont && builtinfont->getType() == EGFT_BITMAP)
 		bitfont = boost::static_pointer_cast<IGUIFontBitmap>(builtinfont);
 
-	IGUISpriteBank* bank = 0;
+	boost::shared_ptr<IGUISpriteBank> bank = 0;
 	skin->setFont(builtinfont);
 
 	if (bitfont)
@@ -554,7 +540,7 @@ boost::shared_ptr<IGUISkin> CGUIEnvironment::createSkin(EGUI_SKIN_TYPE type)
 
 
 //! Returns the default element factory which can create all built in elements
-IGUIElementFactory* CGUIEnvironment::getDefaultGUIElementFactory() const
+boost::shared_ptr<IGUIElementFactory> CGUIEnvironment::getDefaultGUIElementFactory() const
 {
 	return getGUIElementFactory(0);
 }
@@ -563,11 +549,10 @@ IGUIElementFactory* CGUIEnvironment::getDefaultGUIElementFactory() const
 //! Adds an element factory to the gui environment.
 /** Use this to extend the gui environment with new element types which it should be
 able to create automaticly, for example when loading data from xml files. */
-void CGUIEnvironment::registerGUIElementFactory(IGUIElementFactory* factoryToAdd)
+void CGUIEnvironment::registerGUIElementFactory(boost::shared_ptr<IGUIElementFactory> factoryToAdd)
 {
 	if (factoryToAdd)
 	{
-		factoryToAdd->grab();
 		GUIElementFactoryList.push_back(factoryToAdd);
 	}
 }
@@ -581,7 +566,7 @@ u32 CGUIEnvironment::getRegisteredGUIElementFactoryCount() const
 
 
 //! Returns a scene node factory by index
-IGUIElementFactory* CGUIEnvironment::getGUIElementFactory(u32 index) const
+boost::shared_ptr<IGUIElementFactory> CGUIEnvironment::getGUIElementFactory(u32 index) const
 {
 	if (index < GUIElementFactoryList.size())
 		return GUIElementFactoryList[index];
@@ -610,7 +595,7 @@ boost::shared_ptr<IGUIElement> CGUIEnvironment::addGUIElement(const c8* elementN
 //! \param filename: Name of the file .
 bool CGUIEnvironment::saveGUI(const io::path& filename, boost::shared_ptr<IGUIElement> start)
 {
-	io::IWriteFile* file = FileSystem->createAndWriteFile(filename);
+	boost::shared_ptr<io::IWriteFile> file = FileSystem->createAndWriteFile(filename);
 	if (!file)
 	{
 		_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
@@ -618,14 +603,13 @@ bool CGUIEnvironment::saveGUI(const io::path& filename, boost::shared_ptr<IGUIEl
 	}
 
 	bool ret = saveGUI(file, start);
-	file->drop();
 	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return ret;
 }
 
 
 //! Saves the current gui into a file.
-bool CGUIEnvironment::saveGUI(io::IWriteFile* file, boost::shared_ptr<IGUIElement> start)
+bool CGUIEnvironment::saveGUI(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<IGUIElement> start)
 {
 	if (!file)
 	{
@@ -652,7 +636,7 @@ bool CGUIEnvironment::saveGUI(io::IWriteFile* file, boost::shared_ptr<IGUIElemen
 //! \param filename: Name of the file.
 bool CGUIEnvironment::loadGUI(const io::path& filename, boost::shared_ptr<IGUIElement> parent)
 {
-	io::IReadFile* read = FileSystem->createAndOpenFile(filename);
+	boost::shared_ptr<io::IReadFile> read = FileSystem->createAndOpenFile(filename);
 	if (!read)
 	{
 		os::Printer::log("Unable to open gui file", filename, ELL_ERROR);
@@ -661,7 +645,6 @@ bool CGUIEnvironment::loadGUI(const io::path& filename, boost::shared_ptr<IGUIEl
 	}
 
 	bool ret = loadGUI(read, parent);
-	read->drop();
 
 	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return ret;
@@ -669,7 +652,7 @@ bool CGUIEnvironment::loadGUI(const io::path& filename, boost::shared_ptr<IGUIEl
 
 
 //! Loads the gui. Note that the current gui is not cleared before.
-bool CGUIEnvironment::loadGUI(io::IReadFile* file, boost::shared_ptr<IGUIElement> parent)
+bool CGUIEnvironment::loadGUI(boost::shared_ptr<io::IReadFile> file, boost::shared_ptr<IGUIElement> parent)
 {
 	if (!file)
 	{
@@ -791,9 +774,8 @@ void CGUIEnvironment::setWeakThis(boost::shared_ptr<IGUIElement> value)
 	setTabGroup(true);
 
 	// gui factory
-	IGUIElementFactory* factory = new CDefaultGUIElementFactory(getSharedEnvironment());
+	boost::shared_ptr<IGUIElementFactory> factory = boost::make_shared<CDefaultGUIElementFactory>(getSharedEnvironment());
 	registerGUIElementFactory(factory);
-	factory->drop();
 
 	loadBuiltInFont();
 
@@ -1481,7 +1463,7 @@ boost::shared_ptr<IGUIFont> CGUIEnvironment::getBuiltInFont() const
 }
 
 
-IGUISpriteBank* CGUIEnvironment::getSpriteBank(const io::path& filename)
+boost::shared_ptr<IGUISpriteBank> CGUIEnvironment::getSpriteBank(const io::path& filename)
 {
 	// search for the file name
 
@@ -1508,7 +1490,7 @@ IGUISpriteBank* CGUIEnvironment::getSpriteBank(const io::path& filename)
 }
 
 
-IGUISpriteBank* CGUIEnvironment::addEmptySpriteBank(const io::path& name)
+boost::shared_ptr<IGUISpriteBank> CGUIEnvironment::addEmptySpriteBank(const io::path& name)
 {
 	// no duplicate names allowed
 
@@ -1521,7 +1503,7 @@ IGUISpriteBank* CGUIEnvironment::addEmptySpriteBank(const io::path& name)
 
 	// create a new sprite bank
 
-	b.Bank = new CGUISpriteBank(getSharedEnvironment());
+	b.Bank = boost::make_shared<CGUISpriteBank>(getSharedEnvironment());
 	Banks.push_back(b);
 
 	return b.Bank;
@@ -1529,14 +1511,13 @@ IGUISpriteBank* CGUIEnvironment::addEmptySpriteBank(const io::path& name)
 
 
 //! Creates the image list from the given texture.
-IGUIImageList* CGUIEnvironment::createImageList(  boost::shared_ptr<video::ITexture> texture,
+boost::shared_ptr<IGUIImageList> CGUIEnvironment::createImageList(  boost::shared_ptr<video::ITexture> texture,
 					core::dimension2d<s32>	imageSize, bool useAlphaChannel )
 {
-	CGUIImageList* imageList = new CGUIImageList(getVideoDriver());
+	boost::shared_ptr<CGUIImageList> imageList = boost::make_shared<CGUIImageList>(getVideoDriver());
 	if( !imageList->createImageList( texture, imageSize, useAlphaChannel ) )
 	{
-		imageList->drop();
-		return 0;
+		return nullptr;
 	}
 
 	return imageList;

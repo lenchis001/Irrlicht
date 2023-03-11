@@ -97,7 +97,7 @@ public:
 		scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 		scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 		u32 verticesOut = 0,
-		IShaderConstantSetCallBack* callback = 0,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 		E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 		s32 userData = 0,
 		E_GPU_SHADING_LANGUAGE shadingLang = EGSL_DEFAULT) = 0;
@@ -110,7 +110,7 @@ public:
 		const c8* pixelShaderProgram=0,
 		const c8* pixelShaderEntryPointName="main",
 		E_PIXEL_SHADER_TYPE psCompileTarget=EPST_PS_1_1,
-		IShaderConstantSetCallBack* callback=0,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback=0,
 		E_MATERIAL_TYPE baseMaterial=video::EMT_SOLID,
 		s32 userData=0,
 		E_GPU_SHADING_LANGUAGE shadingLang=EGSL_DEFAULT)
@@ -131,7 +131,7 @@ public:
 	s32 addHighLevelShaderMaterial(
 		const c8* vertexShaderProgram,
 		const c8* pixelShaderProgram=0,
-		IShaderConstantSetCallBack* callback=0,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback=0,
 		E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 		s32 userData=0)
 	{
@@ -155,7 +155,7 @@ public:
 		scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 		scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 		u32 verticesOut = 0,
-		IShaderConstantSetCallBack* callback = 0,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 		E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 		s32 userData = 0 )
 	{
@@ -224,7 +224,7 @@ public:
 		scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 		scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 		u32 verticesOut = 0,
-		IShaderConstantSetCallBack* callback = 0,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 		E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 		s32 userData = 0,
 		E_GPU_SHADING_LANGUAGE shadingLang = EGSL_DEFAULT) = 0;
@@ -237,7 +237,7 @@ public:
 		const io::path& pixelShaderProgramFileName = "",
 		const c8* pixelShaderEntryPointName = "main",
 		E_PIXEL_SHADER_TYPE psCompileTarget = EPST_PS_1_1,
-		IShaderConstantSetCallBack* callback = 0,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 		E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 		s32 userData = 0,
 		E_GPU_SHADING_LANGUAGE shadingLang = EGSL_DEFAULT)
@@ -258,7 +258,7 @@ public:
 	s32 addHighLevelShaderMaterialFromFiles(
 		const io::path& vertexShaderProgramFileName,
 		const io::path& pixelShaderProgramFileName = "",
-		IShaderConstantSetCallBack* callback = 0,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 		E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 		s32 userData = 0 )
 	{
@@ -282,7 +282,7 @@ public:
 		scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 		scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 		u32 verticesOut = 0,
-		IShaderConstantSetCallBack* callback = 0,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 		E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 		s32 userData = 0 )
 	{
@@ -337,32 +337,32 @@ public:
 	compile target is not reachable. The error strings are then printed to
 	the error log and can be catched with a custom event receiver. */
 	virtual s32 addHighLevelShaderMaterialFromFiles(
-		io::IReadFile* vertexShaderProgram,
+		boost::shared_ptr<io::IReadFile> vertexShaderProgram,
 		const c8* vertexShaderEntryPointName,
 		E_VERTEX_SHADER_TYPE vsCompileTarget,
-		io::IReadFile* pixelShaderProgram,
+		boost::shared_ptr<io::IReadFile> pixelShaderProgram,
 		const c8* pixelShaderEntryPointName,
 		E_PIXEL_SHADER_TYPE psCompileTarget,
-		io::IReadFile* geometryShaderProgram,
+		boost::shared_ptr<io::IReadFile> geometryShaderProgram,
 		const c8* geometryShaderEntryPointName = "main",
 		E_GEOMETRY_SHADER_TYPE gsCompileTarget = EGST_GS_4_0,
 		scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 		scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 		u32 verticesOut = 0,
-		IShaderConstantSetCallBack* callback = 0,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 		E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 		s32 userData = 0,
 		E_GPU_SHADING_LANGUAGE shadingLang = EGSL_DEFAULT) = 0;
 
 	//! convenience function for use without geometry shaders
 	s32 addHighLevelShaderMaterialFromFiles(
-		io::IReadFile* vertexShaderProgram,
+		boost::shared_ptr<io::IReadFile> vertexShaderProgram,
 		const c8* vertexShaderEntryPointName = "main",
 		E_VERTEX_SHADER_TYPE vsCompileTarget = EVST_VS_1_1,
-		io::IReadFile* pixelShaderProgram = 0,
+		boost::shared_ptr<io::IReadFile> pixelShaderProgram = 0,
 		const c8* pixelShaderEntryPointName = "main",
 		E_PIXEL_SHADER_TYPE psCompileTarget = EPST_PS_1_1,
-		IShaderConstantSetCallBack* callback = 0,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 		E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 		s32 userData = 0,
 		E_GPU_SHADING_LANGUAGE shadingLang = EGSL_DEFAULT)
@@ -412,7 +412,7 @@ public:
 	into the error log, and can be catched with a custom event receiver. */
 	virtual s32 addShaderMaterial(const c8* vertexShaderProgram = 0,
 		const c8* pixelShaderProgram = 0,
-		IShaderConstantSetCallBack* callback = 0,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 		E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 		s32 userData = 0) = 0;
 
@@ -434,9 +434,9 @@ public:
 	error occured. -1 is returned for example if a vertex or pixel shader
 	program could not be compiled, the error strings are then printed out
 	into the error log, and can be catched with a custom event receiver. */
-	virtual s32 addShaderMaterialFromFiles(io::IReadFile* vertexShaderProgram,
-		io::IReadFile* pixelShaderProgram,
-		IShaderConstantSetCallBack* callback = 0,
+	virtual s32 addShaderMaterialFromFiles(boost::shared_ptr<io::IReadFile> vertexShaderProgram,
+		boost::shared_ptr<io::IReadFile> pixelShaderProgram,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 		E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 		s32 userData = 0) = 0;
 
@@ -461,7 +461,7 @@ public:
 	into the error log, and can be catched with a custom event receiver. */
 	virtual s32 addShaderMaterialFromFiles(const io::path& vertexShaderProgramFileName,
 		const io::path& pixelShaderProgramFileName,
-		IShaderConstantSetCallBack* callback = 0,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
 		E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 		s32 userData = 0) = 0;
 };

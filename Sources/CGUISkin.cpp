@@ -168,8 +168,6 @@ CGUISkin::CGUISkin(EGUI_SKIN_TYPE type, boost::shared_ptr<video::IVideoDriver> d
 //! destructor
 CGUISkin::~CGUISkin()
 {
-	if (SpriteBank)
-		SpriteBank->drop();
 }
 
 
@@ -233,21 +231,15 @@ void CGUISkin::setFont(boost::shared_ptr<IGUIFont> font, EGUI_DEFAULT_FONT which
 
 
 //! gets the sprite bank stored
-IGUISpriteBank* CGUISkin::getSpriteBank() const
+boost::shared_ptr<IGUISpriteBank> CGUISkin::getSpriteBank() const
 {
 	return SpriteBank;
 }
 
 
 //! set a new sprite bank or remove one by passing 0
-void CGUISkin::setSpriteBank(IGUISpriteBank* bank)
+void CGUISkin::setSpriteBank(boost::shared_ptr<IGUISpriteBank> bank)
 {
-	if (bank)
-		bank->grab();
-
-	if (SpriteBank)
-		SpriteBank->drop();
-
 	SpriteBank = bank;
 }
 

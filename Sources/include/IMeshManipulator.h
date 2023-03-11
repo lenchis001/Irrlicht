@@ -26,7 +26,7 @@ namespace scene
 	loading. It is not intended for doing mesh modifications and/or
 	animations during runtime.
 	*/
-	class IMeshManipulator : public virtual IReferenceCounted
+	class IMeshManipulator : public virtual IDebugable
 	{
 	public:
 

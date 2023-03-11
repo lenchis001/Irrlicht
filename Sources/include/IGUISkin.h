@@ -408,10 +408,10 @@ namespace gui
 		virtual void setFont(boost::shared_ptr<IGUIFont> font, EGUI_DEFAULT_FONT which=EGDF_DEFAULT) = 0;
 
 		//! returns the sprite bank
-		virtual IGUISpriteBank* getSpriteBank() const = 0;
+		virtual boost::shared_ptr<IGUISpriteBank> getSpriteBank() const = 0;
 
 		//! sets the sprite bank
-		virtual void setSpriteBank(IGUISpriteBank* bank) = 0;
+		virtual void setSpriteBank(boost::shared_ptr<IGUISpriteBank> bank) = 0;
 
 		//! Returns a default icon
 		/** Returns the sprite index within the sprite bank */

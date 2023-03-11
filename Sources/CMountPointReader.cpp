@@ -32,14 +32,13 @@ bool CArchiveLoaderMount::isALoadableFileFormat(const io::path& filename) const
 
 	if (!fname.size())
 		return true;
-	IFileList* list = FileSystem->createFileList();
+	boost::shared_ptr<IFileList> list = FileSystem->createFileList();
 	bool ret = false;
 	if (list)
 	{
 		// check if name is found as directory
 		if (list->findFile(filename, true))
 			ret=true;
-		list->drop();
 	}
 	return ret;
 }
@@ -51,15 +50,15 @@ bool CArchiveLoaderMount::isALoadableFileFormat(E_FILE_ARCHIVE_TYPE fileType) co
 }
 
 //! Check if the file might be loaded by this class
-bool CArchiveLoaderMount::isALoadableFileFormat(io::IReadFile* file) const
+bool CArchiveLoaderMount::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	return false;
 }
 
 //! Creates an archive from the filename
-IFileArchive* CArchiveLoaderMount::createArchive(const io::path& filename, bool ignoreCase, bool ignorePaths) const
+boost::shared_ptr<IFileArchive> CArchiveLoaderMount::createArchive(const io::path& filename, bool ignoreCase, bool ignorePaths) const
 {
-	IFileArchive *archive = 0;
+	boost::shared_ptr<IFileArchive> archive = 0;
 
 	EFileSystemType current = FileSystem->setFileListSystem(FILESYSTEM_NATIVE);
 
@@ -69,7 +68,7 @@ IFileArchive* CArchiveLoaderMount::createArchive(const io::path& filename, bool 
 
 	if (FileSystem->changeWorkingDirectoryTo(fullPath))
 	{
-		archive = new CMountPointReader(FileSystem, fullPath, ignoreCase, ignorePaths);
+		archive = boost::make_shared<CMountPointReader>(FileSystem, fullPath, ignoreCase, ignorePaths);
 	}
 
 	FileSystem->changeWorkingDirectoryTo(save);
@@ -80,7 +79,7 @@ IFileArchive* CArchiveLoaderMount::createArchive(const io::path& filename, bool 
 
 //! creates/loads an archive from the file.
 //! \return Pointer to the created archive. Returns 0 if loading failed.
-IFileArchive* CArchiveLoaderMount::createArchive(io::IReadFile* file, bool ignoreCase, bool ignorePaths) const
+boost::shared_ptr<IFileArchive> CArchiveLoaderMount::createArchive(boost::shared_ptr<io::IReadFile> file, bool ignoreCase, bool ignorePaths) const
 {
 	return 0;
 }
@@ -104,14 +103,14 @@ CMountPointReader::CMountPointReader(boost::shared_ptr<IFileSystem>  parent, con
 
 
 //! returns the list of files
-const IFileList* CMountPointReader::getFileList() const
+const boost::shared_ptr<IFileList> CMountPointReader::getFileList()
 {
-	return this;
+	return getSharedThis();
 }
 
 void CMountPointReader::buildDirectory()
 {
-	IFileList * list = Parent->createFileList();
+	boost::shared_ptr<IFileList>  list = Parent->createFileList();
 	if (!list)
 		return;
 
@@ -145,12 +144,10 @@ void CMountPointReader::buildDirectory()
 			}
 		}
 	}
-
-	list->drop();
 }
 
 //! opens a file by index
-IReadFile* CMountPointReader::createAndOpenFile(u32 index)
+boost::shared_ptr<IReadFile> CMountPointReader::createAndOpenFile(u32 index)
 {
 	if (index >= Files.size())
 		return 0;
@@ -159,7 +156,7 @@ IReadFile* CMountPointReader::createAndOpenFile(u32 index)
 }
 
 //! opens a file by file name
-IReadFile* CMountPointReader::createAndOpenFile(const io::path& filename)
+boost::shared_ptr<IReadFile> CMountPointReader::createAndOpenFile(const io::path& filename)
 {
 	s32 index = findFile(filename, false);
 	if (index != -1)

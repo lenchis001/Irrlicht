@@ -57,9 +57,6 @@ CGUIFileOpenDialog::~CGUIFileOpenDialog()
 		if (RestoreDirectory.size())
 			FileSystem->changeWorkingDirectoryTo(RestoreDirectory);
 	}
-
-	if (FileList)
-		FileList->drop();
 }
 
 
@@ -298,7 +295,7 @@ void CGUIFileOpenDialog::setWeakThis(boost::shared_ptr<IGUIElement> value)
 	else
 		return;
 
-	IGUISpriteBank* sprites = 0;
+	boost::shared_ptr<IGUISpriteBank> sprites = 0;
 	video::SColor color(255, 255, 255, 255);
 	boost::shared_ptr<IGUISkin> skin = lockedEnvironment->getSkin();
 	if (skin)
@@ -357,9 +354,6 @@ void CGUIFileOpenDialog::fillListBox()
 
 	if (!FileSystem || !FileBox || !skin)
 		return;
-
-	if (FileList)
-		FileList->drop();
 
 	FileBox->clear();
 

@@ -39,7 +39,7 @@ namespace scene
 		the scene node associated with the triangle that was hit.
 		\return True if a collision was detected and false if not. */
 		virtual bool getCollisionPoint(const core::line3d<f32>& ray,
-				ITriangleSelector* selector, core::vector3df& outCollisionPoint,
+				boost::shared_ptr<ITriangleSelector> selector, core::vector3df& outCollisionPoint,
 				core::triangle3df& outTriangle, boost::shared_ptr<ISceneNode>& outNode) =0;
 
 		//! Collides a moving ellipsoid with a 3d world with gravity and returns the resulting new position of the ellipsoid.
@@ -66,7 +66,7 @@ namespace scene
 		\param gravityDirectionAndSpeed: Direction and force of gravity.
 		\return New position of the ellipsoid. */
 		virtual core::vector3df getCollisionResultPosition(
-			ITriangleSelector* selector,
+			boost::shared_ptr<ITriangleSelector> selector,
 			const core::vector3df &ellipsoidPosition,
 			const core::vector3df& ellipsoidRadius,
 			const core::vector3df& ellipsoidDirectionAndSpeed,

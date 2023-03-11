@@ -27,7 +27,7 @@ namespace scene
 
 		//! constructor
 		CSceneNodeAnimatorCollisionResponse(boost::shared_ptr<scene::ISceneManager> scenemanager,
-			ITriangleSelector* world, boost::shared_ptr<ISceneNode> object,
+			boost::shared_ptr<ITriangleSelector> world, boost::shared_ptr<ISceneNode> object,
 			const core::vector3df& ellipsoidRadius = core::vector3df(30,60,30),
 			const core::vector3df& gravityPerSecond = core::vector3df(0,-100.0f,0),
 			const core::vector3df& ellipsoidTranslation = core::vector3df(0,0,0),
@@ -70,11 +70,11 @@ namespace scene
 
 		//! Sets a triangle selector holding all triangles of the world with which
 		//! the scene node may collide.
-		virtual void setWorld(ITriangleSelector* newWorld);
+		virtual void setWorld(boost::shared_ptr<ITriangleSelector> newWorld);
 
 		//! Returns the current triangle selector containing all triangles for
 		//! collision detection.
-		virtual ITriangleSelector* getWorld() const;
+		virtual boost::shared_ptr<ITriangleSelector> getWorld() const;
 
 		//! animates a scene node
 		virtual void animateNode(boost::shared_ptr<ISceneNode> node, u32 timeMs);
@@ -118,7 +118,7 @@ namespace scene
 		/** \param callback: collision callback handler that will be called when a collision
 		occurs. Set this to 0 to disable the callback.
 		*/
-		virtual void setCollisionCallback(ICollisionCallback* callback);
+		virtual void setCollisionCallback(boost::shared_ptr<ICollisionCallback> callback);
 
 	private:
 
@@ -132,7 +132,7 @@ namespace scene
 		core::vector3df LastPosition;
 		core::triangle3df RefTriangle;
 
-		ITriangleSelector* World;
+		boost::shared_ptr<ITriangleSelector> World;
 		boost::shared_ptr<ISceneNode> Object;
 		u32 LastTime;
 		f32 SlidingSpeed;
@@ -141,7 +141,7 @@ namespace scene
 		core::triangle3df CollisionTriangle;
 		core::vector3df CollisionResultPosition;
 		boost::shared_ptr<ISceneNode>  CollisionNode;
-		ICollisionCallback* CollisionCallback;
+		boost::shared_ptr<ICollisionCallback> CollisionCallback;
 
 		bool Falling;
 		bool IsCamera;

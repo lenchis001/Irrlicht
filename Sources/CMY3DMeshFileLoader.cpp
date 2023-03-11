@@ -71,7 +71,7 @@ bool CMY3DMeshFileLoader::isALoadableFileExtension(const io::path& filename) con
 }
 
 
-boost::shared_ptr<IAnimatedMesh> CMY3DMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CMY3DMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	MaterialEntry.clear();
 	MeshBufferEntry.clear();
@@ -658,7 +658,7 @@ boost::shared_ptr<IAnimatedMesh> CMY3DMeshFileLoader::createMesh(io::IReadFile* 
 }
 
 
-boost::shared_ptr<video::ITexture> CMY3DMeshFileLoader::readEmbeddedLightmap(io::IReadFile* file, char* namebuf)
+boost::shared_ptr<video::ITexture> CMY3DMeshFileLoader::readEmbeddedLightmap(boost::shared_ptr<io::IReadFile> file, char* namebuf)
 {
 	static int LightMapIndex=0;
 	u16 id;

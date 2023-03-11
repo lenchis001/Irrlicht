@@ -94,7 +94,7 @@ bool COgreMeshFileLoader::isALoadableFileExtension(const io::path& filename) con
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-boost::shared_ptr<IAnimatedMesh> COgreMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> COgreMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	s16 id;
 
@@ -151,7 +151,7 @@ boost::shared_ptr<IAnimatedMesh> COgreMeshFileLoader::createMesh(io::IReadFile* 
 }
 
 
-bool COgreMeshFileLoader::readChunk(io::IReadFile* file)
+bool COgreMeshFileLoader::readChunk(boost::shared_ptr<io::IReadFile> file)
 {
 	while(file->getPos() < file->getSize())
 	{
@@ -183,7 +183,7 @@ bool COgreMeshFileLoader::readChunk(io::IReadFile* file)
 }
 
 
-bool COgreMeshFileLoader::readObjectChunk(io::IReadFile* file, ChunkData& parent, OgreMesh& mesh)
+bool COgreMeshFileLoader::readObjectChunk(boost::shared_ptr<io::IReadFile> file, ChunkData& parent, OgreMesh& mesh)
 {
 #ifdef IRR_OGRE_LOADER_DEBUG
 	os::Printer::log("Read Object Chunk", ELL_DEBUG);
@@ -257,7 +257,7 @@ bool COgreMeshFileLoader::readObjectChunk(io::IReadFile* file, ChunkData& parent
 }
 
 
-bool COgreMeshFileLoader::readGeometry(io::IReadFile* file, ChunkData& parent, OgreGeometry& geometry)
+bool COgreMeshFileLoader::readGeometry(boost::shared_ptr<io::IReadFile> file, ChunkData& parent, OgreGeometry& geometry)
 {
 #ifdef IRR_OGRE_LOADER_DEBUG
 	os::Printer::log("Read Geometry", ELL_DEBUG);
@@ -292,7 +292,7 @@ bool COgreMeshFileLoader::readGeometry(io::IReadFile* file, ChunkData& parent, O
 }
 
 
-bool COgreMeshFileLoader::readVertexDeclaration(io::IReadFile* file, ChunkData& parent, OgreGeometry& geometry)
+bool COgreMeshFileLoader::readVertexDeclaration(boost::shared_ptr<io::IReadFile> file, ChunkData& parent, OgreGeometry& geometry)
 {
 #ifdef IRR_OGRE_LOADER_DEBUG
 	os::Printer::log("Read Vertex Declaration", ELL_DEBUG);
@@ -334,7 +334,7 @@ bool COgreMeshFileLoader::readVertexDeclaration(io::IReadFile* file, ChunkData& 
 }
 
 
-bool COgreMeshFileLoader::readVertexBuffer(io::IReadFile* file, ChunkData& parent, OgreGeometry& geometry)
+bool COgreMeshFileLoader::readVertexBuffer(boost::shared_ptr<io::IReadFile> file, ChunkData& parent, OgreGeometry& geometry)
 {
 #ifdef IRR_OGRE_LOADER_DEBUG
 	os::Printer::log("Read Vertex Buffer", ELL_DEBUG);
@@ -360,7 +360,7 @@ bool COgreMeshFileLoader::readVertexBuffer(io::IReadFile* file, ChunkData& paren
 }
 
 
-bool COgreMeshFileLoader::readSubMesh(io::IReadFile* file, ChunkData& parent, OgreSubMesh& subMesh)
+bool COgreMeshFileLoader::readSubMesh(boost::shared_ptr<io::IReadFile> file, ChunkData& parent, OgreSubMesh& subMesh)
 {
 #ifdef IRR_OGRE_LOADER_DEBUG
 	os::Printer::log("Read Submesh", ELL_DEBUG);
@@ -828,7 +828,7 @@ void COgreMeshFileLoader::composeObject(void)
 }
 
 
-void COgreMeshFileLoader::getMaterialToken(io::IReadFile* file, core::stringc& token, bool noNewLine)
+void COgreMeshFileLoader::getMaterialToken(boost::shared_ptr<io::IReadFile> file, core::stringc& token, bool noNewLine)
 {
 	bool parseString=false;
 	c8 c=0;
@@ -902,7 +902,7 @@ void COgreMeshFileLoader::getMaterialToken(io::IReadFile* file, core::stringc& t
 }
 
 
-bool COgreMeshFileLoader::readColor(io::IReadFile* file, video::SColor& col)
+bool COgreMeshFileLoader::readColor(boost::shared_ptr<io::IReadFile> file, video::SColor& col)
 {
 	core::stringc token;
 
@@ -930,7 +930,7 @@ bool COgreMeshFileLoader::readColor(io::IReadFile* file, video::SColor& col)
 }
 
 
-void COgreMeshFileLoader::readPass(io::IReadFile* file, OgreTechnique& technique)
+void COgreMeshFileLoader::readPass(boost::shared_ptr<io::IReadFile> file, OgreTechnique& technique)
 {
 #ifdef IRR_OGRE_LOADER_DEBUG
 	os::Printer::log("Read Pass");
@@ -1204,7 +1204,7 @@ void COgreMeshFileLoader::readPass(io::IReadFile* file, OgreTechnique& technique
 }
 
 
-void COgreMeshFileLoader::readTechnique(io::IReadFile* file, OgreMaterial& mat)
+void COgreMeshFileLoader::readTechnique(boost::shared_ptr<io::IReadFile> file, OgreMaterial& mat)
 {
 #ifdef IRR_OGRE_LOADER_DEBUG
 	os::Printer::log("Read Technique");
@@ -1233,13 +1233,13 @@ void COgreMeshFileLoader::readTechnique(io::IReadFile* file, OgreMaterial& mat)
 }
 
 
-void COgreMeshFileLoader::loadMaterials(io::IReadFile* meshFile)
+void COgreMeshFileLoader::loadMaterials(boost::shared_ptr<io::IReadFile> meshFile)
 {
 #ifdef IRR_OGRE_LOADER_DEBUG
 	os::Printer::log("Load Materials", ELL_DEBUG);
 #endif
 	core::stringc token;
-	io::IReadFile* file = 0;
+	boost::shared_ptr<io::IReadFile> file = 0;
 	io::path filename = FileSystem->getFileBasename(meshFile->getFileName(), false) + ".material";
 	if (FileSystem->existFile(filename))
 		file = FileSystem->createAndOpenFile(filename);
@@ -1317,19 +1317,18 @@ void COgreMeshFileLoader::loadMaterials(io::IReadFile* meshFile)
 		getMaterialToken(file, token);
 	}
 
-	file->drop();
 #ifdef IRR_OGRE_LOADER_DEBUG
 	os::Printer::log("Finished loading Materials", ELL_DEBUG);
 #endif
 }
 
 
-bool COgreMeshFileLoader::loadSkeleton(io::IReadFile* meshFile, const core::stringc& name)
+bool COgreMeshFileLoader::loadSkeleton(boost::shared_ptr<io::IReadFile> meshFile, const core::stringc& name)
 {
 #ifdef IRR_OGRE_LOADER_DEBUG
 	os::Printer::log("Load Skeleton", name, ELL_DEBUG);
 #endif
-	io::IReadFile* file = 0;
+	boost::shared_ptr<io::IReadFile> file = 0;
 	io::path filename;
 	if (FileSystem->existFile(name))
 		file = FileSystem->createAndOpenFile(name);
@@ -1351,7 +1350,6 @@ bool COgreMeshFileLoader::loadSkeleton(io::IReadFile* meshFile, const core::stri
 		id = os::Byteswap::byteswap(id);
 	if (id != COGRE_HEADER)
 	{
-		file->drop();
 		return false;
 	}
 
@@ -1360,7 +1358,6 @@ bool COgreMeshFileLoader::loadSkeleton(io::IReadFile* meshFile, const core::stri
 	readString(file, head, skeletonVersion);
 	if (skeletonVersion != "[Serializer_v1.10]")
 	{
-		file->drop();
 		return false;
 	}
 
@@ -1456,12 +1453,11 @@ bool COgreMeshFileLoader::loadSkeleton(io::IReadFile* meshFile, const core::stri
 			break;
 		}
 	}
-	file->drop();
 	return true;
 }
 
 
-void COgreMeshFileLoader::readChunkData(io::IReadFile* file, ChunkData& data)
+void COgreMeshFileLoader::readChunkData(boost::shared_ptr<io::IReadFile> file, ChunkData& data)
 {
 	file->read(&data.header, sizeof(ChunkHeader));
 	if (SwapEndian)
@@ -1473,7 +1469,7 @@ void COgreMeshFileLoader::readChunkData(io::IReadFile* file, ChunkData& data)
 }
 
 
-void COgreMeshFileLoader::readString(io::IReadFile* file, ChunkData& data, core::stringc& out)
+void COgreMeshFileLoader::readString(boost::shared_ptr<io::IReadFile> file, ChunkData& data, core::stringc& out)
 {
 	c8 c = 0;
 	out = "";
@@ -1489,7 +1485,7 @@ void COgreMeshFileLoader::readString(io::IReadFile* file, ChunkData& data, core:
 }
 
 
-void COgreMeshFileLoader::readBool(io::IReadFile* file, ChunkData& data, bool& out)
+void COgreMeshFileLoader::readBool(boost::shared_ptr<io::IReadFile> file, ChunkData& data, bool& out)
 {
 	// normal C type because we read a bit string
 	char c = 0;
@@ -1499,7 +1495,7 @@ void COgreMeshFileLoader::readBool(io::IReadFile* file, ChunkData& data, bool& o
 }
 
 
-void COgreMeshFileLoader::readInt(io::IReadFile* file, ChunkData& data, s32* out, u32 num)
+void COgreMeshFileLoader::readInt(boost::shared_ptr<io::IReadFile> file, ChunkData& data, s32* out, u32 num)
 {
 	// normal C type because we read a bit string
 	file->read(out, sizeof(int)*num);
@@ -1512,7 +1508,7 @@ void COgreMeshFileLoader::readInt(io::IReadFile* file, ChunkData& data, s32* out
 }
 
 
-void COgreMeshFileLoader::readShort(io::IReadFile* file, ChunkData& data, u16* out, u32 num)
+void COgreMeshFileLoader::readShort(boost::shared_ptr<io::IReadFile> file, ChunkData& data, u16* out, u32 num)
 {
 	// normal C type because we read a bit string
 	file->read(out, sizeof(short)*num);
@@ -1525,7 +1521,7 @@ void COgreMeshFileLoader::readShort(io::IReadFile* file, ChunkData& data, u16* o
 }
 
 
-void COgreMeshFileLoader::readFloat(io::IReadFile* file, ChunkData& data, f32* out, u32 num)
+void COgreMeshFileLoader::readFloat(boost::shared_ptr<io::IReadFile> file, ChunkData& data, f32* out, u32 num)
 {
 	// normal C type because we read a bit string
 	file->read(out, sizeof(float)*num);
@@ -1538,7 +1534,7 @@ void COgreMeshFileLoader::readFloat(io::IReadFile* file, ChunkData& data, f32* o
 }
 
 
-void COgreMeshFileLoader::readVector(io::IReadFile* file, ChunkData& data, core::vector3df& out)
+void COgreMeshFileLoader::readVector(boost::shared_ptr<io::IReadFile> file, ChunkData& data, core::vector3df& out)
 {
 	readFloat(file, data, &out.X);
 	readFloat(file, data, &out.Y);
@@ -1547,7 +1543,7 @@ void COgreMeshFileLoader::readVector(io::IReadFile* file, ChunkData& data, core:
 }
 
 
-void COgreMeshFileLoader::readQuaternion(io::IReadFile* file, ChunkData& data, core::quaternion& out)
+void COgreMeshFileLoader::readQuaternion(boost::shared_ptr<io::IReadFile> file, ChunkData& data, core::quaternion& out)
 {
 	readVector(file, data, *((core::vector3df*)&out.X));
 	readFloat(file, data, &out.W);

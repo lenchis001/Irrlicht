@@ -407,7 +407,7 @@ namespace scene
 		\return NULL if failed and pointer to the mesh if successful.
 		This pointer should not be dropped. See
 		IReferenceCounted::drop() for more information. */
-		virtual boost::shared_ptr<IAnimatedMesh> getMesh(io::IReadFile* file) = 0;
+		virtual boost::shared_ptr<IAnimatedMesh> getMesh(boost::shared_ptr<io::IReadFile> file) = 0;
 
 		//! Get interface to the mesh cache which is shared beween all existing scene managers.
 		/** With this interface, it is possible to manually add new loaded
@@ -908,7 +908,7 @@ namespace scene
 		not be dropped. See IReferenceCounted::drop() for more
 		information. */
 		virtual boost::shared_ptr<ITerrainSceneNode> addTerrainSceneNode(
-			io::IReadFile* heightMapFile,
+			boost::shared_ptr<io::IReadFile> heightMapFile,
 			boost::shared_ptr<ISceneNode> parent=0, s32 id=-1,
 			const core::vector3df& position = core::vector3df(0.0f,0.0f,0.0f),
 			const core::vector3df& rotation = core::vector3df(0.0f,0.0f,0.0f),
@@ -1255,7 +1255,7 @@ namespace scene
 		If you no longer need the animator, you should call ISceneNodeAnimator::drop().
 		See IReferenceCounted::drop() for more information. */
 		virtual boost::shared_ptr<ISceneNodeAnimatorCollisionResponse> createCollisionResponseAnimator(
-			ITriangleSelector* world, boost::shared_ptr<ISceneNode> sceneNode,
+			boost::shared_ptr<ITriangleSelector> world, boost::shared_ptr<ISceneNode> sceneNode,
 			const core::vector3df& ellipsoidRadius = core::vector3df(30,60,30),
 			const core::vector3df& gravityPerSecond = core::vector3df(0,-10.0f,0),
 			const core::vector3df& ellipsoidTranslation = core::vector3df(0,0,0),
@@ -1283,7 +1283,7 @@ namespace scene
 		to the scene node. You will have to call ISceneNode::setTriangleSelector()
 		for this. To create and attach a triangle selector is done like this:
 		\code
-		ITriangleSelector* s = sceneManager->createTriangleSelector(yourMesh,
+		boost::shared_ptr<ITriangleSelector> s = sceneManager->createTriangleSelector(yourMesh,
 				yourSceneNode);
 		yourSceneNode->setTriangleSelector(s);
 		s->drop();
@@ -1293,7 +1293,7 @@ namespace scene
 		\return The selector, or null if not successful.
 		If you no longer need the selector, you should call ITriangleSelector::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual ITriangleSelector* createTriangleSelector(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> node) = 0;
+		virtual boost::shared_ptr<ITriangleSelector> createTriangleSelector(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> node) = 0;
 
 		//! Creates a simple ITriangleSelector, based on an animated mesh scene node.
 		/** Details of the mesh associated with the node will be extracted internally.
@@ -1301,7 +1301,7 @@ namespace scene
 		on the current frame of the animated mesh scene node.
 		\param node The animated mesh scene node from which to build the selector
 		*/
-		virtual ITriangleSelector* createTriangleSelector(boost::shared_ptr<scene::IAnimatedMeshSceneNode> node) = 0;
+		virtual boost::shared_ptr<ITriangleSelector> createTriangleSelector(boost::shared_ptr<scene::IAnimatedMeshSceneNode> node) = 0;
 
 
 		//! Creates a simple dynamic ITriangleSelector, based on a axis aligned bounding box.
@@ -1313,7 +1313,7 @@ namespace scene
 		\return The selector, or null if not successful.
 		If you no longer need the selector, you should call ITriangleSelector::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual ITriangleSelector* createTriangleSelectorFromBoundingBox(boost::shared_ptr<ISceneNode> node) = 0;
+		virtual boost::shared_ptr<ITriangleSelector> createTriangleSelectorFromBoundingBox(boost::shared_ptr<ISceneNode> node) = 0;
 
 		//! Creates a Triangle Selector, optimized by an octree.
 		/** Triangle selectors
@@ -1323,7 +1323,7 @@ namespace scene
 		to the scene node. You will have to call ISceneNode::setTriangleSelector()
 		for this. To create and attach a triangle selector is done like this:
 		\code
-		ITriangleSelector* s = sceneManager->createOctreeTriangleSelector(yourMesh,
+		boost::shared_ptr<ITriangleSelector> s = sceneManager->createOctreeTriangleSelector(yourMesh,
 				yourSceneNode);
 		yourSceneNode->setTriangleSelector(s);
 		s->drop();
@@ -1338,12 +1338,12 @@ namespace scene
 		\return The selector, or null if not successful.
 		If you no longer need the selector, you should call ITriangleSelector::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual ITriangleSelector* createOctreeTriangleSelector(boost::shared_ptr<IMesh> mesh,
+		virtual boost::shared_ptr<ITriangleSelector> createOctreeTriangleSelector(boost::shared_ptr<IMesh> mesh,
 			boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode=32) = 0;
 
 		//! //! Creates a Triangle Selector, optimized by an octree.
 		/** \deprecated Use createOctreeTriangleSelector instead. This method may be removed by Irrlicht 1.9. */
-		_IRR_DEPRECATED_ ITriangleSelector* createOctTreeTriangleSelector(boost::shared_ptr<IMesh> mesh,
+		_IRR_DEPRECATED_ boost::shared_ptr<ITriangleSelector> createOctTreeTriangleSelector(boost::shared_ptr<IMesh> mesh,
 			boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode=32)
 		{
 			return createOctreeTriangleSelector(mesh, node, minimalPolysPerNode);
@@ -1357,7 +1357,7 @@ namespace scene
 		\return The selector, or null if not successful.
 		If you no longer need the selector, you should call ITriangleSelector::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual IMetaTriangleSelector* createMetaTriangleSelector() = 0;
+		virtual boost::shared_ptr<IMetaTriangleSelector> createMetaTriangleSelector() = 0;
 
 		//! Creates a triangle selector which can select triangles from a terrain scene node.
 		/** \param node: Pointer to the created terrain scene node
@@ -1365,7 +1365,7 @@ namespace scene
 		\return The selector, or null if not successful.
 		If you no longer need the selector, you should call ITriangleSelector::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual ITriangleSelector* createTerrainTriangleSelector(
+		virtual boost::shared_ptr<ITriangleSelector> createTerrainTriangleSelector(
 			boost::shared_ptr<ITerrainSceneNode> node, s32 LOD=0) = 0;
 
 		//! Adds an external mesh loader for extending the engine with new file formats.
@@ -1412,7 +1412,7 @@ namespace scene
 		//! Get pointer to the mesh manipulator.
 		/** \return Pointer to the mesh manipulator
 		This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-		virtual IMeshManipulator* getMeshManipulator() = 0;
+		virtual boost::shared_ptr<IMeshManipulator> getMeshManipulator() = 0;
 
 		//! Adds a scene node to the deletion queue.
 		/** The scene node is immediatly
@@ -1560,7 +1560,7 @@ namespace scene
 		file. Pass 0 or the scene manager to save the full scene (which
 		is also the default).
 		\return True if successful. */
-		virtual bool saveScene(io::IWriteFile* file, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> node=0) = 0;
+		virtual bool saveScene(boost::shared_ptr<io::IWriteFile> file, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> node=0) = 0;
 
 		//! Saves the current scene into a file.
 		/** Scene nodes with the option isDebugObject set to true are
@@ -1618,7 +1618,7 @@ namespace scene
 		scene. Pass 0 to add the scene directly to the scene manager
 		(which is also the default).
 		\return True if successful. */
-		virtual bool loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> rootNode=0) = 0;
+		virtual bool loadScene(boost::shared_ptr<io::IReadFile> file, ISceneUserDataSerializer* userDataSerializer=0, boost::shared_ptr<ISceneNode> rootNode=0) = 0;
 
 		//! Get a mesh writer implementation if available
 		/** Note: You need to drop() the pointer after use again, see IReferenceCounted::drop()

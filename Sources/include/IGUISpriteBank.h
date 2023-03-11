@@ -42,7 +42,7 @@ struct SGUISprite
 /** See http://irrlicht.sourceforge.net/phpBB2/viewtopic.php?t=25742&highlight=spritebank
 * for more information how to use the spritebank.
 */
-class IGUISpriteBank : public virtual IReferenceCounted
+class IGUISpriteBank : public virtual IDebugable
 {
 public:
 

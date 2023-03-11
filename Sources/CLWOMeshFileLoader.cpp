@@ -141,7 +141,7 @@ bool CLWOMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 
 
 //! creates/loads an animated mesh from the file.
-boost::shared_ptr<IAnimatedMesh> CLWOMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CLWOMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	File = file;
 

@@ -72,7 +72,7 @@ CQ3LevelMesh::~CQ3LevelMesh()
 
 
 //! loads a level from a .bsp-File. Also tries to load all needed textures. Returns true if successful.
-bool CQ3LevelMesh::loadFile(io::IReadFile* file)
+bool CQ3LevelMesh::loadFile(boost::shared_ptr<io::IReadFile> file)
 {
 	if (!file)
 		return false;
@@ -184,7 +184,7 @@ boost::shared_ptr<IMesh> CQ3LevelMesh::getMesh(s32 frameInMs, s32 detailLevel, s
 }
 
 
-void CQ3LevelMesh::loadTextures(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadTextures(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	NumTextures = l->length / sizeof(tBSPTexture);
 	if ( !NumTextures )
@@ -206,7 +206,7 @@ void CQ3LevelMesh::loadTextures(tBSPLump* l, io::IReadFile* file)
 }
 
 
-void CQ3LevelMesh::loadLightmaps(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadLightmaps(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	NumLightMaps = l->length / sizeof(tBSPLightmap);
 	if ( !NumLightMaps )
@@ -219,7 +219,7 @@ void CQ3LevelMesh::loadLightmaps(tBSPLump* l, io::IReadFile* file)
 
 /*!
 */
-void CQ3LevelMesh::loadVerts(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadVerts(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	NumVertices = l->length / sizeof(tBSPVertex);
 	if ( !NumVertices )
@@ -248,7 +248,7 @@ void CQ3LevelMesh::loadVerts(tBSPLump* l, io::IReadFile* file)
 
 /*!
 */
-void CQ3LevelMesh::loadFaces(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadFaces(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	NumFaces = l->length / sizeof(tBSPFace);
 	if (!NumFaces)
@@ -295,7 +295,7 @@ void CQ3LevelMesh::loadFaces(tBSPLump* l, io::IReadFile* file)
 
 /*!
 */
-void CQ3LevelMesh::loadPlanes(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadPlanes(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	// ignore
 }
@@ -303,7 +303,7 @@ void CQ3LevelMesh::loadPlanes(tBSPLump* l, io::IReadFile* file)
 
 /*!
 */
-void CQ3LevelMesh::loadNodes(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadNodes(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	// ignore
 }
@@ -311,7 +311,7 @@ void CQ3LevelMesh::loadNodes(tBSPLump* l, io::IReadFile* file)
 
 /*!
 */
-void CQ3LevelMesh::loadLeafs(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadLeafs(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	// ignore
 }
@@ -319,7 +319,7 @@ void CQ3LevelMesh::loadLeafs(tBSPLump* l, io::IReadFile* file)
 
 /*!
 */
-void CQ3LevelMesh::loadLeafFaces(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadLeafFaces(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	// ignore
 }
@@ -327,7 +327,7 @@ void CQ3LevelMesh::loadLeafFaces(tBSPLump* l, io::IReadFile* file)
 
 /*!
 */
-void CQ3LevelMesh::loadVisData(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadVisData(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	// ignore
 }
@@ -335,7 +335,7 @@ void CQ3LevelMesh::loadVisData(tBSPLump* l, io::IReadFile* file)
 
 /*!
 */
-void CQ3LevelMesh::loadEntities(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadEntities(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	core::array<u8> entity;
 	entity.set_used( l->length + 2 );
@@ -351,7 +351,7 @@ void CQ3LevelMesh::loadEntities(tBSPLump* l, io::IReadFile* file)
 /*!
 	load fog brushes
 */
-void CQ3LevelMesh::loadFogs(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadFogs(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	u32 files = l->length / sizeof(tBSPFog);
 
@@ -375,7 +375,7 @@ void CQ3LevelMesh::loadFogs(tBSPLump* l, io::IReadFile* file)
 /*!
 	load models named in bsp
 */
-void CQ3LevelMesh::loadModels(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadModels(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	NumModels = l->length / sizeof(tBSPModel);
 	Models = new tBSPModel[NumModels];
@@ -406,7 +406,7 @@ void CQ3LevelMesh::loadModels(tBSPLump* l, io::IReadFile* file)
 
 /*!
 */
-void CQ3LevelMesh::loadMeshVerts(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadMeshVerts(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	NumMeshVerts = l->length / sizeof(s32);
 	if (!NumMeshVerts)
@@ -425,21 +425,21 @@ void CQ3LevelMesh::loadMeshVerts(tBSPLump* l, io::IReadFile* file)
 
 /*!
 */
-void CQ3LevelMesh::loadBrushes(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadBrushes(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	// ignore
 }
 
 /*!
 */
-void CQ3LevelMesh::loadBrushSides(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadBrushSides(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	// ignore
 }
 
 /*!
 */
-void CQ3LevelMesh::loadLeafBrushes(tBSPLump* l, io::IReadFile* file)
+void CQ3LevelMesh::loadLeafBrushes(tBSPLump* l, boost::shared_ptr<io::IReadFile> file)
 {
 	// ignore
 }
@@ -1406,7 +1406,7 @@ void CQ3LevelMesh::createCurvedSurface_bezier(SMeshBufferLightMap* meshBuffer,
 /*!
 	Loads entities from file
 */
-void CQ3LevelMesh::getConfiguration( io::IReadFile* file )
+void CQ3LevelMesh::getConfiguration( boost::shared_ptr<io::IReadFile> file )
 {
 	tBSPLump l;
 	l.offset = file->getPos();
@@ -1552,11 +1552,10 @@ boost::shared_ptr<const IShader>  CQ3LevelMesh::getShader( const c8 * filename, 
 	}
 
 
-	io::IReadFile *file = FileSystem->createAndOpenFile( loadFile.c_str() );
+	boost::shared_ptr<io::IReadFile> file = FileSystem->createAndOpenFile( loadFile.c_str() );
 	if ( file )
 	{
 		getShader ( file );
-		file->drop ();
 	}
 
 
@@ -1568,7 +1567,7 @@ boost::shared_ptr<const IShader>  CQ3LevelMesh::getShader( const c8 * filename, 
 /*!
 	loads the shader definition
 */
-void CQ3LevelMesh::getShader( io::IReadFile* file )
+void CQ3LevelMesh::getShader( boost::shared_ptr<io::IReadFile> file )
 {
 	if ( 0 == file )
 		return;
@@ -1619,7 +1618,7 @@ void CQ3LevelMesh::InitShader()
 		FileSystem->changeWorkingDirectoryTo ( newDir.c_str() );
 
 		core::stringc s;
-		io::IFileList *fileList = FileSystem->createFileList ();
+		boost::shared_ptr<io::IFileList> fileList = FileSystem->createFileList ();
 		for (u32 i=0; i< fileList->getFileCount(); ++i)
 		{
 			s = fileList->getFullFileName(i);
@@ -1634,7 +1633,6 @@ void CQ3LevelMesh::InitShader()
 				}
 			}
 		}
-		fileList->drop ();
 
 		FileSystem->changeWorkingDirectoryTo ( save );
 		FileSystem->setFileListSystem ( current );

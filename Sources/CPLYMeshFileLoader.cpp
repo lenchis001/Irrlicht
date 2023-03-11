@@ -54,18 +54,16 @@ bool CPLYMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 
 
 //! creates/loads an animated mesh from the file.
-boost::shared_ptr<IAnimatedMesh> CPLYMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CPLYMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	if (!file)
 		return 0;
 
 	File = file;
-	File->grab();
 
 	// attempt to allocate the buffer and fill with data
 	if (!allocateBuffer())
 	{
-		File->drop();
 		File = 0;
 		return 0;
 	}
@@ -276,7 +274,6 @@ boost::shared_ptr<IAnimatedMesh> CPLYMeshFileLoader::createMesh(io::IReadFile* f
 	// free the buffer
 	delete [] Buffer;
 	Buffer = 0;
-	File->drop();
 	File = 0;
 
 	// if we managed to create a mesh, return it

@@ -340,7 +340,7 @@ boost::shared_ptr<IAnimatedMesh> CSceneManager::getMesh(const io::path& filename
 	if (msh)
 		return msh;
 
-	io::IReadFile* file = FileSystem->createAndOpenFile(filename);
+	boost::shared_ptr<io::IReadFile> file = FileSystem->createAndOpenFile(filename);
 	if (!file)
 	{
 		os::Printer::log("Could not load mesh, because file could not be opened: ", filename, ELL_ERROR);
@@ -364,8 +364,6 @@ boost::shared_ptr<IAnimatedMesh> CSceneManager::getMesh(const io::path& filename
 		}
 	}
 
-	file->drop();
-
 	if (!msh)
 		os::Printer::log("Could not load mesh, file format seems to be unsupported", filename, ELL_ERROR);
 	else
@@ -376,7 +374,7 @@ boost::shared_ptr<IAnimatedMesh> CSceneManager::getMesh(const io::path& filename
 
 
 //! gets an animateable mesh. loads it if needed. returned pointer must not be dropped.
-boost::shared_ptr<IAnimatedMesh> CSceneManager::getMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CSceneManager::getMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	if (!file)
 		return 0;
@@ -823,7 +821,7 @@ boost::shared_ptr<ITerrainSceneNode> CSceneManager::addTerrainSceneNode(
 	s32 maxLOD, E_TERRAIN_PATCH_SIZE patchSize, s32 smoothFactor,
 	bool addAlsoIfHeightmapEmpty)
 {
-	io::IReadFile* file = FileSystem->createAndOpenFile(heightMapFileName);
+	boost::shared_ptr<io::IReadFile> file = FileSystem->createAndOpenFile(heightMapFileName);
 
 	if (!file && !addAlsoIfHeightmapEmpty)
 	{
@@ -836,15 +834,12 @@ boost::shared_ptr<ITerrainSceneNode> CSceneManager::addTerrainSceneNode(
 		position, rotation, scale, vertexColor, maxLOD, patchSize,
 		smoothFactor, addAlsoIfHeightmapEmpty);
 
-	if (file)
-		file->drop();
-
 	return terrain;
 }
 
 //! Adds a terrain scene node to the scene graph.
 boost::shared_ptr<ITerrainSceneNode> CSceneManager::addTerrainSceneNode(
-	io::IReadFile* heightMapFile,
+	boost::shared_ptr<io::IReadFile> heightMapFile,
 	boost::shared_ptr<ISceneNode> parent, s32 id,
 	const core::vector3df& position,
 	const core::vector3df& rotation,
@@ -1241,7 +1236,7 @@ u32 CSceneManager::registerNodeForRendering(boost::shared_ptr<ISceneNode> node, 
 			taken = 0;
 			for (u32 i=0; i<count; ++i)
 			{
-				video::IMaterialRenderer* rnd =
+				boost::shared_ptr<video::IMaterialRenderer> rnd =
 					getVideoDriver()->getMaterialRenderer(node->getMaterial(i).MaterialType);
 				if (rnd && rnd->isTransparent())
 				{
@@ -1650,7 +1645,7 @@ boost::shared_ptr<ISceneNodeAnimator> CSceneManager::createDeleteAnimator(u32 wh
 //! Creates a special scene node animator for doing automatic collision detection
 //! and response.
 boost::shared_ptr<ISceneNodeAnimatorCollisionResponse> CSceneManager::createCollisionResponseAnimator(
-	ITriangleSelector* world, boost::shared_ptr<ISceneNode> sceneNode, const core::vector3df& ellipsoidRadius,
+	boost::shared_ptr<ITriangleSelector> world, boost::shared_ptr<ISceneNode> sceneNode, const core::vector3df& ellipsoidRadius,
 	const core::vector3df& gravityPerSecond,
 	const core::vector3df& ellipsoidTranslation, f32 slidingValue)
 {
@@ -1736,66 +1731,75 @@ boost::shared_ptr<ISceneCollisionManager> CSceneManager::getSceneCollisionManage
 
 
 //! Returns a pointer to the mesh manipulator.
-IMeshManipulator* CSceneManager::getMeshManipulator()
+boost::shared_ptr<IMeshManipulator> CSceneManager::getMeshManipulator()
 {
 	return getVideoDriver()->getMeshManipulator();
 }
 
 
 //! Creates a simple ITriangleSelector, based on a mesh.
-ITriangleSelector* CSceneManager::createTriangleSelector(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> node)
+boost::shared_ptr<ITriangleSelector> CSceneManager::createTriangleSelector(boost::shared_ptr<IMesh> mesh, boost::shared_ptr<ISceneNode> node)
 {
 	if (!mesh)
 		return 0;
 
-	return new CTriangleSelector(mesh, node);
+	boost::shared_ptr<CTriangleSelector> selector = boost::make_shared<CTriangleSelector>(mesh, node);
+	selector->setWeakPtr(selector);
+
+	return selector;
 }
 
 
 //! Creates a simple and updatable ITriangleSelector, based on a the mesh owned by an
 //! animated scene node
-ITriangleSelector* CSceneManager::createTriangleSelector(boost::shared_ptr<scene::IAnimatedMeshSceneNode> node)
+boost::shared_ptr<ITriangleSelector> CSceneManager::createTriangleSelector(boost::shared_ptr<scene::IAnimatedMeshSceneNode> node)
 {
 	if (!node || !node->getMesh())
-		return 0;
+		return nullptr;
 
-	return new CTriangleSelector(node);
+	boost::shared_ptr<CTriangleSelector> selector = boost::make_shared<CTriangleSelector>(node);
+	selector->setWeakPtr(selector);
+
+	return selector;
 }
 
 
 //! Creates a simple dynamic ITriangleSelector, based on a axis aligned bounding box.
-ITriangleSelector* CSceneManager::createTriangleSelectorFromBoundingBox(boost::shared_ptr<ISceneNode> node)
+boost::shared_ptr<ITriangleSelector> CSceneManager::createTriangleSelectorFromBoundingBox(boost::shared_ptr<ISceneNode> node)
 {
 	if (!node)
 		return 0;
 
-	return new CTriangleBBSelector(node);
+	return boost::make_shared<CTriangleBBSelector>(node);
 }
 
 
 //! Creates a simple ITriangleSelector, based on a mesh.
-ITriangleSelector* CSceneManager::createOctreeTriangleSelector(boost::shared_ptr<IMesh> mesh,
+boost::shared_ptr<ITriangleSelector> CSceneManager::createOctreeTriangleSelector(boost::shared_ptr<IMesh> mesh,
 							boost::shared_ptr<ISceneNode> node, s32 minimalPolysPerNode)
 {
 	if (!mesh)
 		return 0;
 
-	return new COctreeTriangleSelector(mesh, node, minimalPolysPerNode);
+	return boost::make_shared<COctreeTriangleSelector>(mesh, node, minimalPolysPerNode);
 }
 
 
 //! Creates a meta triangle selector.
-IMetaTriangleSelector* CSceneManager::createMetaTriangleSelector()
+boost::shared_ptr<IMetaTriangleSelector> CSceneManager::createMetaTriangleSelector()
 {
-	return new CMetaTriangleSelector();
+	return boost::make_shared<CMetaTriangleSelector>();
 }
 
 
 //! Creates a triangle selector which can select triangles from a terrain scene node
-ITriangleSelector* CSceneManager::createTerrainTriangleSelector(
+boost::shared_ptr<ITriangleSelector> CSceneManager::createTerrainTriangleSelector(
 	boost::shared_ptr<ITerrainSceneNode> node, s32 LOD)
 {
-	return new CTerrainTriangleSelector(node, LOD);
+	boost::shared_ptr<CTerrainTriangleSelector> selector = boost::make_shared<CTerrainTriangleSelector>(node, LOD);\
+	selector->setWeakPtr(selector);
+
+	return selector;
 }
 
 
@@ -2057,11 +2061,10 @@ ISceneNodeAnimatorFactory* CSceneManager::getSceneNodeAnimatorFactory(u32 index)
 bool CSceneManager::saveScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer, boost::shared_ptr<ISceneNode> node)
 {
 	bool ret = false;
-	io::IWriteFile* file = FileSystem->createAndWriteFile(filename);
+	boost::shared_ptr<io::IWriteFile> file = FileSystem->createAndWriteFile(filename);
 	if (file)
 	{
 		ret = saveScene(file, userDataSerializer, node);
-		file->drop();
 	}
 	else
 		os::Printer::log("Unable to open file", filename, ELL_ERROR);
@@ -2072,7 +2075,7 @@ bool CSceneManager::saveScene(const io::path& filename, ISceneUserDataSerializer
 
 
 //! Saves the current scene into a file.
-bool CSceneManager::saveScene(io::IWriteFile* file, ISceneUserDataSerializer* userDataSerializer, boost::shared_ptr<ISceneNode> node)
+bool CSceneManager::saveScene(boost::shared_ptr<io::IWriteFile> file, ISceneUserDataSerializer* userDataSerializer, boost::shared_ptr<ISceneNode> node)
 {
 	if (!file)
 	{
@@ -2113,7 +2116,7 @@ bool CSceneManager::saveScene(io::IXMLWriter* writer, const io::path& currentPat
 //! Loads a scene.
 bool CSceneManager::loadScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer, boost::shared_ptr<ISceneNode> rootNode)
 {
-	io::IReadFile* file = FileSystem->createAndOpenFile(filename);
+	boost::shared_ptr<io::IReadFile> file = FileSystem->createAndOpenFile(filename);
 	if (!file)
 	{
 		os::Printer::log("Unable to open scene file", filename.c_str(), ELL_ERROR);
@@ -2121,14 +2124,13 @@ bool CSceneManager::loadScene(const io::path& filename, ISceneUserDataSerializer
 	}
 
 	const bool ret = loadScene(file, userDataSerializer, rootNode);
-	file->drop();
 
 	return ret;
 }
 
 
 //! Loads a scene. Note that the current scene is not cleared before.
-bool CSceneManager::loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer, boost::shared_ptr<ISceneNode> rootNode)
+bool CSceneManager::loadScene(boost::shared_ptr<io::IReadFile> file, ISceneUserDataSerializer* userDataSerializer, boost::shared_ptr<ISceneNode> rootNode)
 {
 	if (!file)
 	{

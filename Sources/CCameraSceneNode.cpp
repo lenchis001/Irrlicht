@@ -27,7 +27,7 @@ CCameraSceneNode::CCameraSceneNode(boost::shared_ptr<ISceneNode> parent, boost::
 	// set default projection
 	Fovy = core::PI / 2.5f;	// Field of view, in radians.
 
-	const boost::shared_ptr<video::IVideoDriver> const d = mgr?mgr->getVideoDriver():0;
+	boost::shared_ptr<const video::IVideoDriver> const d = mgr?mgr->getVideoDriver():0;
 	if (d)
 		Aspect = (f32)d->getCurrentRenderTargetSize().Width /
 			(f32)d->getCurrentRenderTargetSize().Height;

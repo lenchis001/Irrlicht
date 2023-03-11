@@ -40,7 +40,7 @@ COCTLoader::~COCTLoader() {}
 
 
 // Doesn't really belong here, but it's jammed in for now.
-void COCTLoader::OCTLoadLights(io::IReadFile* file, boost::shared_ptr<scene::ISceneNode>  parent, f32 radius, f32 intensityScale, bool rewind)
+void COCTLoader::OCTLoadLights(boost::shared_ptr<io::IReadFile> file, boost::shared_ptr<scene::ISceneNode>  parent, f32 radius, f32 intensityScale, bool rewind)
 {
 	if (rewind)
 		file->seek(0);
@@ -73,7 +73,7 @@ void COCTLoader::OCTLoadLights(io::IReadFile* file, boost::shared_ptr<scene::ISc
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-boost::shared_ptr<IAnimatedMesh> COCTLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> COCTLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	if (!file)
 		return 0;

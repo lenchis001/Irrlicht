@@ -485,7 +485,7 @@ namespace scene
 		virtual ~CAnimatedMeshHalfLife();
 
 		//! loads a Halflife mdl file
-		virtual bool loadModelFile( io::IReadFile* file, boost::shared_ptr<ISceneManager>  smgr );
+		virtual bool loadModelFile( boost::shared_ptr<io::IReadFile> file, boost::shared_ptr<ISceneManager>  smgr );
 
 		//IAnimatedMesh
 		virtual u32 getFrameCount() const;
@@ -552,7 +552,7 @@ namespace scene
 		SHalflifeHeader *AnimationHeader[32];	// sequences named model01.mdl, model02.mdl
 
 		void initData ();
-		SHalflifeHeader * loadModel( io::IReadFile* file, const io::path &filename );
+		SHalflifeHeader * loadModel( boost::shared_ptr<io::IReadFile> file, const io::path &filename );
 		bool postLoadModel( const io::path &filename );
 
 		u32 SequenceIndex;	// sequence index
@@ -614,7 +614,7 @@ namespace scene
 		If you no longer need the mesh, you should call IAnimatedMesh::drop().
 		See IReferenceCounted::drop() for more information.
 		*/
-		virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
+		virtual boost::shared_ptr<IAnimatedMesh> createMesh(boost::shared_ptr<io::IReadFile> file);
 	};
 
 

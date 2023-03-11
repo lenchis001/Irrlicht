@@ -45,14 +45,14 @@ namespace scene
 
 		//! Finds the collision point of a line and lots of triangles, if there is one.
 		virtual bool getCollisionPoint(const core::line3d<f32>& ray,
-			ITriangleSelector* selector, core::vector3df& outCollisionPoint,
+			boost::shared_ptr<ITriangleSelector> selector, core::vector3df& outCollisionPoint,
 			core::triangle3df& outTriangle,
 			boost::shared_ptr<ISceneNode> & outNode);
 
 		//! Collides a moving ellipsoid with a 3d world with gravity and returns
 		//! the resulting new position of the ellipsoid.
 		virtual core::vector3df getCollisionResultPosition(
-			ITriangleSelector* selector,
+			boost::shared_ptr<ITriangleSelector> selector,
 			const core::vector3df &ellipsoidPosition,
 			const core::vector3df& ellipsoidRadius,
 			const core::vector3df& ellipsoidDirectionAndSpeed,
@@ -121,7 +121,7 @@ namespace scene
 
 			f32 slidingSpeed;
 
-			ITriangleSelector* selector;
+			boost::shared_ptr<ITriangleSelector> selector;
 		};
 
 		//! Tests the current collision data against an individual triangle.
@@ -133,7 +133,7 @@ namespace scene
 			const core::triangle3df& triangle);
 
 		//! recursive method for doing collision response
-		core::vector3df collideEllipsoidWithWorld(ITriangleSelector* selector,
+		core::vector3df collideEllipsoidWithWorld(boost::shared_ptr<ITriangleSelector> selector,
 			const core::vector3df &position,
 			const core::vector3df& radius,  const core::vector3df& velocity,
 			f32 slidingSpeed,

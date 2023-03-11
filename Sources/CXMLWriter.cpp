@@ -14,15 +14,12 @@ namespace io
 
 
 //! Constructor
-CXMLWriter::CXMLWriter(IWriteFile* file)
+CXMLWriter::CXMLWriter(boost::shared_ptr<IWriteFile> file)
 : File(file), Tabs(0), TextWrittenLast(false)
 {
 	#ifdef _DEBUG
 	setDebugName("CXMLWriter");
 	#endif
-	
-	if (File)
-		File->grab();
 }
 
 
@@ -30,8 +27,6 @@ CXMLWriter::CXMLWriter(IWriteFile* file)
 //! Destructor
 CXMLWriter::~CXMLWriter()
 {
-	if (File)
-		File->drop();
 }
 
 

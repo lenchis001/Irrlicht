@@ -77,7 +77,7 @@ namespace gui
 		//! the built-in-font by default. A sprite can be displayed in front of every list item.
 		//! An icon is an index within the icon sprite bank. Several default icons are available in the
 		//! skin through getIcon
-		virtual void setSpriteBank(IGUISpriteBank* bank);
+		virtual void setSpriteBank(boost::shared_ptr<IGUISpriteBank> bank);
 
 		//! set whether the listbox should scroll to newly selected items
 		virtual void setAutoScrollEnabled(bool scroll);
@@ -170,7 +170,7 @@ namespace gui
 		s32 TotalItemHeight;
 		s32 ItemsIconWidth;
 		boost::shared_ptr<gui::IGUIFont> Font;
-		gui::IGUISpriteBank* IconBank;
+		boost::shared_ptr<gui::IGUISpriteBank> IconBank;
 		boost::shared_ptr<gui::IGUIScrollBar> ScrollBar;
 		u32 selectTime;
 		u32 LastKeyTime;

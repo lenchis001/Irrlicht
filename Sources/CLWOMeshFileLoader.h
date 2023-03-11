@@ -42,7 +42,7 @@ public:
 	//! \return Pointer to the created mesh. Returns 0 if loading failed.
 	//! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 	//! See IUnknown::drop() for more information.
-	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(boost::shared_ptr<io::IReadFile> file);
 
 private:
 
@@ -63,7 +63,7 @@ private:
 	boost::shared_ptr<video::ITexture> loadTexture(const core::stringc& file);
 
 	boost::shared_ptr<io::IFileSystem> FileSystem;
-	io::IReadFile* File;
+	boost::shared_ptr<io::IReadFile> File;
 	boost::shared_ptr<SMesh> Mesh;
 
 	core::array<core::vector3df> Points;

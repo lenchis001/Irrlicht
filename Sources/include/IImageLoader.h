@@ -37,12 +37,12 @@ public:
 	/** Check might look into the file.
 	\param file File handle to check.
 	\return True if file seems to be loadable. */
-	virtual bool isALoadableFileFormat(io::IReadFile* file) const = 0;
+	virtual bool isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const = 0;
 
 	//! Creates a surface from the file
 	/** \param file File handle to check.
 	\return Pointer to newly created image, or 0 upon error. */
-	virtual boost::shared_ptr<IImage> loadImage(io::IReadFile* file) const = 0;
+	virtual boost::shared_ptr<IImage> loadImage(boost::shared_ptr<io::IReadFile> file) const = 0;
 };
 
 

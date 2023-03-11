@@ -22,7 +22,7 @@ namespace scene
 		virtual IIndexBuffer &getIndexBuffer() const =0;
 
 		virtual void setVertexBuffer(boost::shared_ptr<IVertexBuffer> vertexBuffer) =0;
-		virtual void setIndexBuffer(IIndexBuffer *indexBuffer) =0;
+		virtual void setIndexBuffer(boost::shared_ptr<IIndexBuffer> indexBuffer) =0;
 
 		//! Get the material of this meshbuffer
 		/** \return Material of this buffer. */

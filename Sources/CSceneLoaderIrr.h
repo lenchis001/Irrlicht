@@ -38,10 +38,10 @@ public:
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 
 	//! Returns true if the class might be able to load this file.
-	virtual bool isALoadableFileFormat(io::IReadFile *file) const;
+	virtual bool isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const;
 
 	//! Loads the scene into the scene manager.
-	virtual bool loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer=0,
+	virtual bool loadScene(boost::shared_ptr<io::IReadFile> file, ISceneUserDataSerializer* userDataSerializer=0,
 	                       boost::shared_ptr<ISceneNode> rootNode=0);
 
 private:

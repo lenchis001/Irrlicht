@@ -114,7 +114,7 @@ CNullDriver::CNullDriver(boost::shared_ptr<io::IFileSystem> io, const core::dime
 	ViewPort = core::rect<s32>(core::position2d<s32>(0,0), core::dimension2di(screenSize));
 
 	// create manipulator
-	MeshManipulator = new scene::CMeshManipulator();
+	MeshManipulator = boost::make_shared<scene::CMeshManipulator>();
 
 	// create surface loader
 
@@ -203,8 +203,6 @@ CNullDriver::~CNullDriver()
 	if (DriverAttributes)
 		DriverAttributes->drop();
 
-	if (MeshManipulator)
-		MeshManipulator->drop();
 	deleteAllTextures();
 
 	// delete material renderers
@@ -412,7 +410,7 @@ boost::shared_ptr<ITexture> CNullDriver::getTexture(const io::path& filename)
 		return texture;
 
 	// Now try to open the file using the complete path.
-	io::IReadFile* file = FileSystem->createAndOpenFile(absolutePath);
+	boost::shared_ptr<io::IReadFile> file = FileSystem->createAndOpenFile(absolutePath);
 
 	if (!file)
 	{
@@ -426,12 +424,10 @@ boost::shared_ptr<ITexture> CNullDriver::getTexture(const io::path& filename)
 		texture = findTexture(file->getFileName());
 		if (texture)
 		{
-			file->drop();
 			return texture;
 		}
 
 		texture = loadTextureFromFile(file);
-		file->drop();
 
 		if (texture)
 		{
@@ -450,7 +446,7 @@ boost::shared_ptr<ITexture> CNullDriver::getTexture(const io::path& filename)
 
 
 //! loads a Texture
-boost::shared_ptr<ITexture> CNullDriver::getTexture(io::IReadFile* file)
+boost::shared_ptr<ITexture> CNullDriver::getTexture(boost::shared_ptr<io::IReadFile> file)
 {
 	boost::shared_ptr<ITexture> texture = 0;
 
@@ -477,7 +473,7 @@ boost::shared_ptr<ITexture> CNullDriver::getTexture(io::IReadFile* file)
 
 
 //! opens the file and loads it into the surface
-boost::shared_ptr<video::ITexture> CNullDriver::loadTextureFromFile(io::IReadFile* file, const io::path& hashName )
+boost::shared_ptr<video::ITexture> CNullDriver::loadTextureFromFile(boost::shared_ptr<io::IReadFile> file, const io::path& hashName )
 {
 	boost::shared_ptr<ITexture> texture = 0;
 	boost::shared_ptr<IImage> image = createImageFromFile(file);
@@ -1270,12 +1266,11 @@ boost::shared_ptr<IImage> CNullDriver::createImageFromFile(const io::path& filen
 		return 0;
 
 	boost::shared_ptr<IImage> image = 0;
-	io::IReadFile* file = FileSystem->createAndOpenFile(filename);
+	boost::shared_ptr<io::IReadFile> file = FileSystem->createAndOpenFile(filename);
 
 	if (file)
 	{
 		image = createImageFromFile(file);
-		file->drop();
 	}
 	else
 		os::Printer::log("Could not open file of image", filename, ELL_WARNING);
@@ -1285,7 +1280,7 @@ boost::shared_ptr<IImage> CNullDriver::createImageFromFile(const io::path& filen
 
 
 //! Creates a software image from a file.
-boost::shared_ptr<IImage> CNullDriver::createImageFromFile(io::IReadFile* file)
+boost::shared_ptr<IImage> CNullDriver::createImageFromFile(boost::shared_ptr<io::IReadFile> file)
 {
 	if (!file)
 		return 0;
@@ -1328,18 +1323,17 @@ boost::shared_ptr<IImage> CNullDriver::createImageFromFile(io::IReadFile* file)
 //! Writes the provided image to disk file
 bool CNullDriver::writeImageToFile(boost::shared_ptr<IImage> image, const io::path& filename,u32 param)
 {
-	io::IWriteFile* file = FileSystem->createAndWriteFile(filename);
+	boost::shared_ptr<io::IWriteFile> file = FileSystem->createAndWriteFile(filename);
 	if(!file)
 		return false;
 
 	bool result = writeImageToFile(image, file, param);
-	file->drop();
 
 	return result;
 }
 
 //! Writes the provided image to a file.
-bool CNullDriver::writeImageToFile(boost::shared_ptr<IImage> image, io::IWriteFile * file, u32 param)
+bool CNullDriver::writeImageToFile(boost::shared_ptr<IImage> image, boost::shared_ptr<io::IWriteFile>  file, u32 param)
 {
 	if(!file)
 		return false;
@@ -1743,19 +1737,16 @@ void CNullDriver::OnResize(const core::dimension2d<u32>& size)
 
 
 // adds a material renderer and drops it afterwards. To be used for internal creation
-s32 CNullDriver::addAndDropMaterialRenderer(IMaterialRenderer* m)
+s32 CNullDriver::addAndDropMaterialRenderer(boost::shared_ptr<IMaterialRenderer> m)
 {
 	s32 i = addMaterialRenderer(m);
-
-	if (m)
-		m->drop();
 
 	return i;
 }
 
 
 //! Adds a new material renderer to the video device.
-s32 CNullDriver::addMaterialRenderer(IMaterialRenderer* renderer, const char* name)
+s32 CNullDriver::addMaterialRenderer(boost::shared_ptr<IMaterialRenderer> renderer, const char* name)
 {
 	if (!renderer)
 		return -1;
@@ -1772,7 +1763,6 @@ s32 CNullDriver::addMaterialRenderer(IMaterialRenderer* renderer, const char* na
 	}
 
 	MaterialRenderers.push_back(r);
-	renderer->grab();
 
 	return MaterialRenderers.size()-1;
 }
@@ -1975,17 +1965,12 @@ E_DRIVER_TYPE CNullDriver::getDriverType() const
 //! deletes all material renderers
 void CNullDriver::deleteMaterialRenders()
 {
-	// delete material renderers
-	for (u32 i=0; i<MaterialRenderers.size(); ++i)
-		if (MaterialRenderers[i].Renderer)
-			MaterialRenderers[i].Renderer->drop();
-
 	MaterialRenderers.clear();
 }
 
 
 //! Returns pointer to material renderer or null
-IMaterialRenderer* CNullDriver::getMaterialRenderer(u32 idx)
+boost::shared_ptr<IMaterialRenderer> CNullDriver::getMaterialRenderer(u32 idx)
 {
 	if ( idx < MaterialRenderers.size() )
 		return MaterialRenderers[idx].Renderer;
@@ -2031,7 +2016,7 @@ s32 CNullDriver::addHighLevelShaderMaterial(
 	E_GEOMETRY_SHADER_TYPE gsCompileTarget,
 	scene::E_PRIMITIVE_TYPE inType, scene::E_PRIMITIVE_TYPE outType,
 	u32 verticesOut,
-	IShaderConstantSetCallBack* callback,
+	boost::shared_ptr<IShaderConstantSetCallBack> callback,
 	E_MATERIAL_TYPE baseMaterial,
 	s32 userData, E_GPU_SHADING_LANGUAGE shadingLang)
 {
@@ -2054,13 +2039,13 @@ s32 CNullDriver::addHighLevelShaderMaterialFromFiles(
 		E_GEOMETRY_SHADER_TYPE gsCompileTarget,
 		scene::E_PRIMITIVE_TYPE inType, scene::E_PRIMITIVE_TYPE outType,
 		u32 verticesOut,
-		IShaderConstantSetCallBack* callback,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback,
 		E_MATERIAL_TYPE baseMaterial,
 		s32 userData, E_GPU_SHADING_LANGUAGE shadingLang)
 {
-	io::IReadFile* vsfile = 0;
-	io::IReadFile* psfile = 0;
-	io::IReadFile* gsfile = 0;
+	boost::shared_ptr<io::IReadFile> vsfile = 0;
+	boost::shared_ptr<io::IReadFile> psfile = 0;
+	boost::shared_ptr<io::IReadFile> gsfile = 0;
 
 	if (vertexShaderProgramFileName.size() )
 	{
@@ -2099,15 +2084,6 @@ s32 CNullDriver::addHighLevelShaderMaterialFromFiles(
 		inType, outType, verticesOut,
 		callback, baseMaterial, userData, shadingLang);
 
-	if (psfile)
-		psfile->drop();
-
-	if (vsfile)
-		vsfile->drop();
-
-	if (gsfile)
-		gsfile->drop();
-
 	return result;
 }
 
@@ -2115,18 +2091,18 @@ s32 CNullDriver::addHighLevelShaderMaterialFromFiles(
 //! Like IGPUProgrammingServices::addShaderMaterial() (look there for a detailed description),
 //! but tries to load the programs from files.
 s32 CNullDriver::addHighLevelShaderMaterialFromFiles(
-		io::IReadFile* vertexShaderProgram,
+		boost::shared_ptr<io::IReadFile> vertexShaderProgram,
 		const c8* vertexShaderEntryPointName,
 		E_VERTEX_SHADER_TYPE vsCompileTarget,
-		io::IReadFile* pixelShaderProgram,
+		boost::shared_ptr<io::IReadFile> pixelShaderProgram,
 		const c8* pixelShaderEntryPointName,
 		E_PIXEL_SHADER_TYPE psCompileTarget,
-		io::IReadFile* geometryShaderProgram,
+		boost::shared_ptr<io::IReadFile> geometryShaderProgram,
 		const c8* geometryShaderEntryPointName,
 		E_GEOMETRY_SHADER_TYPE gsCompileTarget,
 		scene::E_PRIMITIVE_TYPE inType, scene::E_PRIMITIVE_TYPE outType,
 		u32 verticesOut,
-		IShaderConstantSetCallBack* callback,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback,
 		E_MATERIAL_TYPE baseMaterial,
 		s32 userData, E_GPU_SHADING_LANGUAGE shadingLang)
 {
@@ -2193,7 +2169,7 @@ s32 CNullDriver::addHighLevelShaderMaterialFromFiles(
 //! vertex shaders to render geometry.
 s32 CNullDriver::addShaderMaterial(const c8* vertexShaderProgram,
 	const c8* pixelShaderProgram,
-	IShaderConstantSetCallBack* callback,
+	boost::shared_ptr<IShaderConstantSetCallBack> callback,
 	E_MATERIAL_TYPE baseMaterial,
 	s32 userData)
 {
@@ -2204,9 +2180,9 @@ s32 CNullDriver::addShaderMaterial(const c8* vertexShaderProgram,
 
 //! Like IGPUProgrammingServices::addShaderMaterial(), but tries to load the
 //! programs from files.
-s32 CNullDriver::addShaderMaterialFromFiles(io::IReadFile* vertexShaderProgram,
-	io::IReadFile* pixelShaderProgram,
-	IShaderConstantSetCallBack* callback,
+s32 CNullDriver::addShaderMaterialFromFiles(boost::shared_ptr<io::IReadFile> vertexShaderProgram,
+	boost::shared_ptr<io::IReadFile> pixelShaderProgram,
+	boost::shared_ptr<IShaderConstantSetCallBack> callback,
 	E_MATERIAL_TYPE baseMaterial,
 	s32 userData)
 {
@@ -2248,12 +2224,12 @@ s32 CNullDriver::addShaderMaterialFromFiles(io::IReadFile* vertexShaderProgram,
 //! programs from files.
 s32 CNullDriver::addShaderMaterialFromFiles(const io::path& vertexShaderProgramFileName,
 	const io::path& pixelShaderProgramFileName,
-	IShaderConstantSetCallBack* callback,
+	boost::shared_ptr<IShaderConstantSetCallBack> callback,
 	E_MATERIAL_TYPE baseMaterial,
 	s32 userData)
 {
-	io::IReadFile* vsfile = 0;
-	io::IReadFile* psfile = 0;
+	boost::shared_ptr<io::IReadFile> vsfile = 0;
+	boost::shared_ptr<io::IReadFile> psfile = 0;
 
 	if (vertexShaderProgramFileName.size())
 	{
@@ -2273,20 +2249,12 @@ s32 CNullDriver::addShaderMaterialFromFiles(const io::path& vertexShaderProgramF
 		{
 			os::Printer::log("Could not open pixel shader program file",
 				pixelShaderProgramFileName, ELL_WARNING);
-			if (vsfile)
-				vsfile->drop();
 			return -1;
 		}
 	}
 
 	s32 result = addShaderMaterialFromFiles(vsfile, psfile, callback,
 		baseMaterial, userData);
-
-	if (psfile)
-		psfile->drop();
-
-	if (vsfile)
-		vsfile->drop();
 
 	return result;
 }
@@ -2307,7 +2275,7 @@ void CNullDriver::clearZBuffer()
 
 
 //! Returns a pointer to the mesh manipulator.
-scene::IMeshManipulator* CNullDriver::getMeshManipulator()
+boost::shared_ptr<scene::IMeshManipulator> CNullDriver::getMeshManipulator()
 {
 	return MeshManipulator;
 }
@@ -2337,9 +2305,8 @@ boost::shared_ptr<IVideoDriver> createNullDriver(boost::shared_ptr<io::IFileSyst
 	// create empty material renderers
 	for(u32 i=0; sBuiltInMaterialTypeNames[i]; ++i)
 	{
-		IMaterialRenderer* imr = new IMaterialRenderer();
+		boost::shared_ptr<IMaterialRenderer> imr = boost::make_shared<IMaterialRenderer>();
 		nullDriver->addMaterialRenderer(imr);
-		imr->drop();
 	}
 
 	return nullDriver;

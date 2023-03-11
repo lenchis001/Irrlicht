@@ -71,9 +71,6 @@ namespace scene
 		{
 			// delete all children
 			removeAll();
-
-			if (TriangleSelector)
-				TriangleSelector->drop();
 		}
 
 
@@ -605,7 +602,7 @@ namespace scene
 		selector is created using the bounding box of the scene node.
 		\return A pointer to the TriangleSelector or 0, if there
 		is none. */
-		virtual ITriangleSelector* getTriangleSelector() const
+		virtual boost::shared_ptr<ITriangleSelector> getTriangleSelector() const
 		{
 			return TriangleSelector;
 		}
@@ -620,16 +617,11 @@ namespace scene
 		check if there is already a selector in this node by calling
 		ISceneNode::getTriangleSelector().
 		\param selector New triangle selector for this scene node. */
-		virtual void setTriangleSelector(ITriangleSelector* selector)
+		virtual void setTriangleSelector(boost::shared_ptr<ITriangleSelector> selector)
 		{
 			if (TriangleSelector != selector)
 			{
-				if (TriangleSelector)
-					TriangleSelector->drop();
-
 				TriangleSelector = selector;
-				if (TriangleSelector)
-					TriangleSelector->grab();
 			}
 		}
 
@@ -828,7 +820,7 @@ namespace scene
 		core::list<boost::shared_ptr<ISceneNodeAnimator>> Animators;
 
 		//! Pointer to the triangle selector
-		ITriangleSelector* TriangleSelector;
+		boost::shared_ptr<ITriangleSelector> TriangleSelector;
 
 		//! ID of the node.
 		s32 ID;

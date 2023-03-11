@@ -31,10 +31,10 @@ public:
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 
 	//! Creates/loads an animated mesh from the file.
-	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(boost::shared_ptr<io::IReadFile> file);
 private:
 
-	void loadLimb(io::IReadFile* file, boost::shared_ptr<scene::SMesh> mesh, const core::matrix4 &parentTransformation);
+	void loadLimb(boost::shared_ptr<io::IReadFile> file, boost::shared_ptr<scene::SMesh> mesh, const core::matrix4 &parentTransformation);
 };
 
 } // end namespace scene
@@ -46,16 +46,16 @@ namespace io
 	public:
 		//! reads most types from the given file, moving the file pointer along
 		template <class T>
-		static void read(io::IReadFile* file, T &out, bool bigEndian=false);
+		static void read(boost::shared_ptr<io::IReadFile> file, T &out, bool bigEndian=false);
 
 		//! reads a 3d vector from the file, moving the file pointer along
-		static void read(io::IReadFile* file, core::vector3df &outVector2d, bool bigEndian=false);
+		static void read(boost::shared_ptr<io::IReadFile> file, core::vector3df &outVector2d, bool bigEndian=false);
 
 		//! reads a 2d vector from the file, moving the file pointer along
-		static void read(io::IReadFile* file, core::vector2df &outVector2d, bool bigEndian=false);
+		static void read(boost::shared_ptr<io::IReadFile> file, core::vector2df &outVector2d, bool bigEndian=false);
 
 		//! reads a null terminated string from the file, moving the file pointer along
-		static void read(io::IReadFile* file, core::stringc &outString, bool bigEndian=false);
+		static void read(boost::shared_ptr<io::IReadFile> file, core::stringc &outString, bool bigEndian=false);
 
 	};
 }

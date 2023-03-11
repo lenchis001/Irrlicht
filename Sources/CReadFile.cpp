@@ -98,14 +98,13 @@ const io::path& CReadFile::getFileName() const
 
 
 
-IReadFile* createReadFile(const io::path& fileName)
+boost::shared_ptr<IReadFile> createReadFile(const io::path& fileName)
 {
-	CReadFile* file = new CReadFile(fileName);
+	boost::shared_ptr<CReadFile> file = boost::make_shared<CReadFile>(fileName);
 	if (file->isOpen())
 		return file;
 
-	file->drop();
-	return 0;
+	return nullptr;
 }
 
 

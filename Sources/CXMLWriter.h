@@ -20,7 +20,7 @@ namespace io
 	public:
 
 		//! Constructor
-		CXMLWriter(IWriteFile* file);
+		CXMLWriter(boost::shared_ptr<IWriteFile> file);
 
 		//! Destructor
 		virtual ~CXMLWriter();
@@ -63,7 +63,7 @@ namespace io
 
 		void writeAttribute(const wchar_t* att, const wchar_t* name);
 
-		IWriteFile* File;
+		boost::shared_ptr<IWriteFile> File;
 		s32 Tabs;
 
 		bool TextWrittenLast;

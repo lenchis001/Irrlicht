@@ -65,7 +65,7 @@ void CMeshSceneNode::OnRegisterSceneNode()
 			for (u32 i=0; i<Mesh->getMeshBufferCount(); ++i)
 			{
 				scene::IMeshBuffer* mb = Mesh->getMeshBuffer(i);
-				video::IMaterialRenderer* rnd = mb ? lockedDriver->getMaterialRenderer(mb->getMaterial().MaterialType) : 0;
+				boost::shared_ptr<video::IMaterialRenderer> rnd = mb ? lockedDriver->getMaterialRenderer(mb->getMaterial().MaterialType) : 0;
 
 				if (rnd && rnd->isTransparent())
 					++transparentCount;
@@ -82,7 +82,7 @@ void CMeshSceneNode::OnRegisterSceneNode()
 
 			for (u32 i=0; i<Materials.size(); ++i)
 			{
-				video::IMaterialRenderer* rnd =
+				boost::shared_ptr<video::IMaterialRenderer> rnd =
 					lockedDriver->getMaterialRenderer(Materials[i].MaterialType);
 
 				if (rnd && rnd->isTransparent())
@@ -158,7 +158,7 @@ void CMeshSceneNode::render()
 			{
 				const video::SMaterial& material = ReadOnlyMaterials ? mb->getMaterial() : Materials[i];
 
-				video::IMaterialRenderer* rnd = driver->getMaterialRenderer(material.MaterialType);
+				boost::shared_ptr<video::IMaterialRenderer> rnd = driver->getMaterialRenderer(material.MaterialType);
 				bool transparent = (rnd && rnd->isTransparent());
 
 				// only render transparent buffer if this is the transparent render pass

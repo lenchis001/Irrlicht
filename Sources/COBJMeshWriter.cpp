@@ -44,7 +44,7 @@ EMESH_WRITER_TYPE COBJMeshWriter::getType() const
 
 
 //! writes a mesh
-bool COBJMeshWriter::writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
+bool COBJMeshWriter::writeMesh(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
 {
 	if (!file)
 		return false;
@@ -186,7 +186,6 @@ bool COBJMeshWriter::writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IM
 			}
 			file->write("\n",1);
 		}
-		file->drop();
 	}
 	return true;
 }

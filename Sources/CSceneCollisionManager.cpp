@@ -279,7 +279,7 @@ void CSceneCollisionManager::getPickedNodeFromBBAndSelector(
 	for (; it != children.end(); ++it)
 	{
 		boost::shared_ptr<ISceneNode> current = *it;
-		ITriangleSelector * selector = current->getTriangleSelector();
+		boost::shared_ptr<ITriangleSelector>  selector = current->getTriangleSelector();
 
 		if (selector && current->isVisible() &&
 			(noDebugObjects ? !current->isDebugObject() : true) &&
@@ -345,7 +345,7 @@ boost::shared_ptr<ISceneNode> CSceneCollisionManager::getSceneNodeFromCameraBB(
 
 //! Finds the collision point of a line and lots of triangles, if there is one.
 bool CSceneCollisionManager::getCollisionPoint(const core::line3d<f32>& ray,
-		ITriangleSelector* selector, core::vector3df& outIntersection,
+		boost::shared_ptr<ITriangleSelector> selector, core::vector3df& outIntersection,
 		core::triangle3df& outTriangle,
 		boost::shared_ptr<ISceneNode>& outNode)
 {
@@ -418,7 +418,7 @@ bool CSceneCollisionManager::getCollisionPoint(const core::line3d<f32>& ray,
 //! Collides a moving ellipsoid with a 3d world with gravity and returns
 //! the resulting new position of the ellipsoid.
 core::vector3df CSceneCollisionManager::getCollisionResultPosition(
-		ITriangleSelector* selector,
+		boost::shared_ptr<ITriangleSelector> selector,
 		const core::vector3df &position, const core::vector3df& radius,
 		const core::vector3df& direction,
 		core::triangle3df& triout,
@@ -685,7 +685,7 @@ bool CSceneCollisionManager::testTriangleIntersection(SCollisionData* colData,
 //! Collides a moving ellipsoid with a 3d world with gravity and returns
 //! the resulting new position of the ellipsoid.
 core::vector3df CSceneCollisionManager::collideEllipsoidWithWorld(
-		ITriangleSelector* selector, const core::vector3df &position,
+		boost::shared_ptr<ITriangleSelector> selector, const core::vector3df &position,
 		const core::vector3df& radius,  const core::vector3df& velocity,
 		f32 slidingSpeed,
 		const core::vector3df& gravity,

@@ -36,6 +36,7 @@
 #include "irrArray.h"
 #include "irrString.h"
 #include "VideoDriverAwareMixin.h"
+#include "SharedThisMixin.h"
 
 namespace irr
 {
@@ -47,28 +48,24 @@ class IShaderConstantSetCallBack;
 
 //! Class for using GLSL shaders with OpenGL
 //! Please note: This renderer implements its own IMaterialRendererServices
-class COpenGLSLMaterialRenderer : public IMaterialRenderer, public IMaterialRendererServices
+class COpenGLSLMaterialRenderer : public IMaterialRenderer, public IMaterialRendererServices, public SharedThisMixin<COpenGLSLMaterialRenderer>
 {
 public:
 
 	//! Constructor
 	COpenGLSLMaterialRenderer(
 		boost::shared_ptr<COpenGLDriver> driver, 
-		s32& outMaterialTypeNr, 
-		const c8* vertexShaderProgram = 0,
 		const c8* vertexShaderEntryPointName = 0,
 		E_VERTEX_SHADER_TYPE vsCompileTarget = video::EVST_VS_1_1,
-		const c8* pixelShaderProgram = 0,
 		const c8* pixelShaderEntryPointName = 0,
 		E_PIXEL_SHADER_TYPE psCompileTarget = video::EPST_PS_1_1,
-		const c8* geometryShaderProgram = 0,
 		const c8* geometryShaderEntryPointName = "main",
 		E_GEOMETRY_SHADER_TYPE gsCompileTarget = EGST_GS_4_0,
 		scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 		scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 		u32 verticesOut = 0,
-		IShaderConstantSetCallBack* callback = 0,
-		IMaterialRenderer* baseMaterial = 0,
+		boost::shared_ptr<IShaderConstantSetCallBack> callback = 0,
+		boost::shared_ptr<IMaterialRenderer> baseMaterial = 0,
 		s32 userData = 0);
 
 	//! Destructor
@@ -95,29 +92,22 @@ public:
 	virtual bool setPixelShaderConstant(const c8* name, const s32* ints, int count);
 	virtual void setPixelShaderConstant(const f32* data, s32 startRegister, s32 constantAmount=1);
 
-protected:
-
-	//! constructor only for use by derived classes who want to
-	//! create a fall back material for example.
-	COpenGLSLMaterialRenderer(boost::shared_ptr<COpenGLDriver> driver,
-					IShaderConstantSetCallBack* callback,
-					IMaterialRenderer* baseMaterial,
-					s32 userData=0);
-
-	void init(s32& outMaterialTypeNr, 
-		const c8* vertexShaderProgram, 
+	void init(s32& outMaterialTypeNr,
+		const c8* vertexShaderProgram,
 		const c8* pixelShaderProgram,
 		const c8* geometryShaderProgram,
-		scene::E_PRIMITIVE_TYPE inType=scene::EPT_TRIANGLES,
-		scene::E_PRIMITIVE_TYPE outType=scene::EPT_TRIANGLE_STRIP,
-		u32 verticesOut=0);
+		scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
+		scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
+		u32 verticesOut = 0);
+
+protected:
 
 	bool createProgram();
 	bool createShader(GLenum shaderType, const char* shader);
 	bool linkProgram();
 	
-	IShaderConstantSetCallBack* CallBack;
-	IMaterialRenderer* BaseMaterial;
+	boost::shared_ptr<IShaderConstantSetCallBack> CallBack;
+	boost::shared_ptr<IMaterialRenderer> BaseMaterial;
 
 	struct SUniformInfo
 	{

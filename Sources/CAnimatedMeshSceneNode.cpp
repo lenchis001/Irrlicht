@@ -151,7 +151,7 @@ void CAnimatedMeshSceneNode::OnRegisterSceneNode()
 		// count transparent and solid materials in this scene node
 		for (u32 i=0; i<Materials.size(); ++i)
 		{
-			video::IMaterialRenderer* rnd =
+			boost::shared_ptr<video::IMaterialRenderer> rnd =
 				driver->getMaterialRenderer(Materials[i].MaterialType);
 
 			if (rnd && rnd->isTransparent())
@@ -316,7 +316,7 @@ void CAnimatedMeshSceneNode::render()
 	{
 		for (u32 i=0; i<m->getMeshBufferCount(); ++i)
 		{
-			video::IMaterialRenderer* rnd = driver->getMaterialRenderer(Materials[i].MaterialType);
+			boost::shared_ptr<video::IMaterialRenderer> rnd = driver->getMaterialRenderer(Materials[i].MaterialType);
 			bool transparent = (rnd && rnd->isTransparent());
 
 			// only render transparent buffer if this is the transparent render pass

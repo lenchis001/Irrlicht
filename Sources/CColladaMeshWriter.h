@@ -88,10 +88,10 @@ public:
 	virtual EMESH_WRITER_TYPE getType() const;
 
 	//! writes a scene starting with the given node
-	virtual bool writeScene(io::IWriteFile* file, boost::shared_ptr<scene::ISceneNode> root);
+	virtual bool writeScene(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<scene::ISceneNode> root);
 
 	//! writes a mesh
-	virtual bool writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags=EMWF_NONE);
+	virtual bool writeMesh(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<scene::IMesh> mesh, s32 flags=EMWF_NONE);
 
 	// Restrict the characters of oldString a set of allowed characters in xs::NCName and add the prefix.
 	virtual irr::core::stringw toNCName(const irr::core::stringw& oldString, const irr::core::stringw& prefix=irr::core::stringw(L"_NC_")) const;

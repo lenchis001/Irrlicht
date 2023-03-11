@@ -33,7 +33,7 @@ bool CImageWriterPCX::isAWriteableFileExtension(const io::path& filename) const
 	return core::hasFileExtension ( filename, "pcx" );
 }
 
-bool CImageWriterPCX::writeImage(io::IWriteFile *file, boost::shared_ptr<IImage> image,u32 param) const
+bool CImageWriterPCX::writeImage(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<IImage> image,u32 param) const
 {
 	if (!file || !image)
 		return false;

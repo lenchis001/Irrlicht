@@ -77,9 +77,9 @@ namespace scene
 		//! \return Pointer to the created mesh. Returns 0 if loading failed.
 		//! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 		//! See IReferenceCounted::drop() for more information.
-		virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
+		virtual boost::shared_ptr<IAnimatedMesh> createMesh(boost::shared_ptr<io::IReadFile> file);
 
-		void OCTLoadLights(io::IReadFile* file,
+		void OCTLoadLights(boost::shared_ptr<io::IReadFile> file,
 				boost::shared_ptr<ISceneNode>  parent = 0, f32 radius = 500.0f,
 				f32 intensityScale = 0.0000001f*2.5,
 				bool rewind = true);

@@ -107,14 +107,13 @@ const io::path& CWriteFile::getFileName() const
 
 
 
-IWriteFile* createWriteFile(const io::path& fileName, bool append)
+boost::shared_ptr<IWriteFile> createWriteFile(const io::path& fileName, bool append)
 {
-	CWriteFile* file = new CWriteFile(fileName, append);
+	boost::shared_ptr<CWriteFile> file = boost::make_shared<CWriteFile>(fileName, append);
 	if (file->isOpen())
 		return file;
 
-	file->drop();
-	return 0;
+	return nullptr;
 }
 
 

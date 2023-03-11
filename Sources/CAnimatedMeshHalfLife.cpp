@@ -183,7 +183,7 @@ bool CHalflifeMDLMeshFileLoader::isALoadableFileExtension(const io::path& filena
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-boost::shared_ptr<IAnimatedMesh> CHalflifeMDLMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CHalflifeMDLMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	boost::shared_ptr<CAnimatedMeshHalfLife> msh = boost::make_shared<CAnimatedMeshHalfLife>();
 	if (msh)
@@ -214,7 +214,7 @@ CAnimatedMeshHalfLife::CAnimatedMeshHalfLife()
 /*!
 	loads a complete model
 */
-bool CAnimatedMeshHalfLife::loadModelFile(io::IReadFile* file,
+bool CAnimatedMeshHalfLife::loadModelFile(boost::shared_ptr<io::IReadFile> file,
 		boost::shared_ptr<scene::ISceneManager> smgr)
 {
 	if (!file)
@@ -968,7 +968,7 @@ void STextureAtlas::create(u32 border, E_TEXTURE_CLAMP texmode)
 
 /*!
 */
-SHalflifeHeader* CAnimatedMeshHalfLife::loadModel(io::IReadFile* file, const io::path& filename)
+SHalflifeHeader* CAnimatedMeshHalfLife::loadModel(boost::shared_ptr<io::IReadFile> file, const io::path& filename)
 {
 	bool closefile = false;
 	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();
@@ -997,11 +997,10 @@ SHalflifeHeader* CAnimatedMeshHalfLife::loadModel(io::IReadFile* file, const io:
 		os::Printer::log("MDL Halflife Loader: Wrong file header", file->getFileName(), ELL_WARNING);
 		if ( closefile )
 		{
-			file->drop();
-			file = 0;
+			file = nullptr;
 		}
 		delete [] pin;
-		return 0;
+		return nullptr;
 	}
 
 	// don't know the real header.. idsg might be different
@@ -1057,8 +1056,7 @@ SHalflifeHeader* CAnimatedMeshHalfLife::loadModel(io::IReadFile* file, const io:
 
 	if ( closefile )
 	{
-		file->drop();
-		file = 0;
+		file = nullptr;
 	}
 
 	return header;

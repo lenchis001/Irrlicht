@@ -75,7 +75,7 @@ void CDMFLoader::findFile(bool use_mat_dirs, const core::stringc& path, const co
  \return Pointer to the created mesh. Returns 0 if loading failed.
  If you no longer need the mesh, you should call IAnimatedMesh::drop().
  See IReferenceCounted::drop() for more information.*/
-boost::shared_ptr<IAnimatedMesh> CDMFLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CDMFLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	if (!file)
 		return 0;

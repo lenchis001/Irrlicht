@@ -187,62 +187,20 @@ const char OPENGL_PARALLAX_MAP_PSH[] =
 
 //! Constructor
 COpenGLParallaxMapRenderer::COpenGLParallaxMapRenderer(boost::shared_ptr<video::COpenGLDriver> driver,
-	s32& outMaterialTypeNr, IMaterialRenderer* baseMaterial)
+	boost::shared_ptr<IMaterialRenderer> baseMaterial)
 	: COpenGLShaderMaterialRenderer(driver, 0, baseMaterial), CompiledShaders(true)
 {
 
 	#ifdef _DEBUG
 	setDebugName("COpenGLParallaxMapRenderer");
 	#endif
-
-	// set this as callback. We could have done this in
-	// the initialization list, but some compilers don't like it.
-
-	CallBack = this;
-
-	// basically, this simply compiles the hard coded shaders if the
-	// hardware is able to do them, otherwise it maps to the base material
-
-	if (!driver->queryFeature(video::EVDF_ARB_FRAGMENT_PROGRAM_1) ||
-		!driver->queryFeature(video::EVDF_ARB_VERTEX_PROGRAM_1))
-	{
-		// this hardware is not able to do shaders. Fall back to
-		// base material.
-		outMaterialTypeNr = driver->addMaterialRenderer(this);
-		return;
-	}
-
-	// check if already compiled normal map shaders are there.
-
-	video::IMaterialRenderer* renderer = driver->getMaterialRenderer(EMT_PARALLAX_MAP_SOLID);
-
-	if (renderer)
-	{
-		// use the already compiled shaders
-		video::COpenGLParallaxMapRenderer* nmr = reinterpret_cast<video::COpenGLParallaxMapRenderer*>(renderer);
-		CompiledShaders = false;
-
-		VertexShader = nmr->VertexShader;
-		PixelShader = nmr->PixelShader;
-
-		outMaterialTypeNr = driver->addMaterialRenderer(this);
-	}
-	else
-	{
-		// compile shaders on our own
-		init(outMaterialTypeNr, OPENGL_PARALLAX_MAP_VSH, OPENGL_PARALLAX_MAP_PSH, EVT_TANGENTS);
-	}
-
-	// fallback if compilation has failed
-	if (-1==outMaterialTypeNr)
-		outMaterialTypeNr = driver->addMaterialRenderer(this);
 }
 
 
 //! Destructor
 COpenGLParallaxMapRenderer::~COpenGLParallaxMapRenderer()
 {
-	if (CallBack == this)
+	if (CallBack.get() == this)
 		CallBack = 0;
 
 	if (!CompiledShaders)
@@ -262,6 +220,56 @@ void COpenGLParallaxMapRenderer::OnSetMaterial(const video::SMaterial& material,
 			resetAllRenderstates, services);
 
 	CurrentScale = material.MaterialTypeParam;
+}
+
+void COpenGLParallaxMapRenderer::setWeakPtr(boost::shared_ptr<COpenGLParallaxMapRenderer> sharedThis)
+{
+	SharedThisMixin::setWeakPtr(sharedThis);
+
+	// set this as callback. We could have done this in
+	// the initialization list, but some compilers don't like it.
+
+	CallBack = sharedThis;
+
+	// basically, this simply compiles the hard coded shaders if the
+	// hardware is able to do them, otherwise it maps to the base material
+
+	boost::shared_ptr<IVideoDriver> driver = getVideoDriver();
+	s32 outMaterialTypeNr;
+
+	if (!driver->queryFeature(video::EVDF_ARB_FRAGMENT_PROGRAM_1) ||
+		!driver->queryFeature(video::EVDF_ARB_VERTEX_PROGRAM_1))
+	{
+		// this hardware is not able to do shaders. Fall back to
+		// base material.
+		outMaterialTypeNr = driver->addMaterialRenderer(sharedThis);
+		return;
+	}
+
+	// check if already compiled normal map shaders are there.
+
+	boost::shared_ptr<video::IMaterialRenderer> renderer = driver->getMaterialRenderer(EMT_PARALLAX_MAP_SOLID);
+
+	if (renderer)
+	{
+		// use the already compiled shaders
+		boost::shared_ptr<video::COpenGLParallaxMapRenderer> nmr = boost::reinterpret_pointer_cast<video::COpenGLParallaxMapRenderer>(renderer);
+		CompiledShaders = false;
+
+		VertexShader = nmr->VertexShader;
+		PixelShader = nmr->PixelShader;
+
+		outMaterialTypeNr = driver->addMaterialRenderer(sharedThis);
+	}
+	else
+	{
+		// compile shaders on our own
+		init(outMaterialTypeNr, OPENGL_PARALLAX_MAP_VSH, OPENGL_PARALLAX_MAP_PSH, EVT_TANGENTS);
+	}
+
+	// fallback if compilation has failed
+	if (-1 == outMaterialTypeNr)
+		outMaterialTypeNr = driver->addMaterialRenderer(sharedThis);
 }
 
 

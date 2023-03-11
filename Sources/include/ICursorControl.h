@@ -68,12 +68,12 @@ namespace gui
 		{
 		}
 
-		SCursorSprite( gui::IGUISpriteBank * spriteBank, s32 spriteId, const core::position2d<s32> &hotspot=(core::position2d<s32>(0,0)) )
+		SCursorSprite( boost::shared_ptr<gui::IGUISpriteBank>  spriteBank, s32 spriteId, const core::position2d<s32> &hotspot=(core::position2d<s32>(0,0)) )
 		: SpriteBank(spriteBank), SpriteId(spriteId), HotSpot(hotspot)
 		{
 		}
 
-		IGUISpriteBank * SpriteBank;
+		boost::shared_ptr<IGUISpriteBank>  SpriteBank;
 		s32 SpriteId;
 		core::position2d<s32> HotSpot;
 	};

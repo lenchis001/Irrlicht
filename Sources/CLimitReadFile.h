@@ -25,7 +25,7 @@ namespace io
 	{
 	public:
 
-		CLimitReadFile(IReadFile* alreadyOpenedFile, long pos, long areaSize, const io::path& name);
+		CLimitReadFile(boost::shared_ptr<IReadFile> alreadyOpenedFile, long pos, long areaSize, const io::path& name);
 
 		virtual ~CLimitReadFile();
 
@@ -52,7 +52,7 @@ namespace io
 		long AreaStart;
 		long AreaEnd;
 		long Pos;
-		IReadFile* File;
+		boost::shared_ptr<IReadFile> File;
 	};
 
 } // end namespace io

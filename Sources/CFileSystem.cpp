@@ -63,24 +63,13 @@ CFileSystem::CFileSystem()
 //! destructor
 CFileSystem::~CFileSystem()
 {
-	u32 i;
-
-	for ( i=0; i < FileArchives.size(); ++i)
-	{
-		FileArchives[i]->drop();
-	}
-
-	for ( i=0; i < ArchiveLoader.size(); ++i)
-	{
-		ArchiveLoader[i]->drop();
-	}
 }
 
 
 //! opens a file for read access
-IReadFile* CFileSystem::createAndOpenFile(const io::path& filename)
+boost::shared_ptr<IReadFile> CFileSystem::createAndOpenFile(const io::path& filename)
 {
-	IReadFile* file = 0;
+	boost::shared_ptr<IReadFile> file = 0;
 	u32 i;
 
 	for (i=0; i< FileArchives.size(); ++i)
@@ -97,52 +86,51 @@ IReadFile* CFileSystem::createAndOpenFile(const io::path& filename)
 
 
 //! Creates an IReadFile interface for treating memory like a file.
-IReadFile* CFileSystem::createMemoryReadFile(void* memory, s32 len,
+boost::shared_ptr<IReadFile> CFileSystem::createMemoryReadFile(void* memory, s32 len,
 		const io::path& fileName, bool deleteMemoryWhenDropped)
 {
 	if (!memory)
 		return 0;
 	else
-		return new CMemoryFile(memory, len, fileName, deleteMemoryWhenDropped);
+		return boost::make_shared<CMemoryFile>(memory, len, fileName, deleteMemoryWhenDropped);
 			}
 
 
 //! Creates an IReadFile interface for reading files inside files
-IReadFile* CFileSystem::createLimitReadFile(const io::path& fileName,
-		IReadFile* alreadyOpenedFile, long pos, long areaSize)
+boost::shared_ptr<IReadFile> CFileSystem::createLimitReadFile(const io::path& fileName,
+		boost::shared_ptr<IReadFile> alreadyOpenedFile, long pos, long areaSize)
 {
 	if (!alreadyOpenedFile)
 		return 0;
 	else
-		return new CLimitReadFile(alreadyOpenedFile, pos, areaSize, fileName);
+		return boost::make_shared<CLimitReadFile>(alreadyOpenedFile, pos, areaSize, fileName);
 }
 
 
 //! Creates an IReadFile interface for treating memory like a file.
-IWriteFile* CFileSystem::createMemoryWriteFile(void* memory, s32 len,
+boost::shared_ptr<IWriteFile> CFileSystem::createMemoryWriteFile(void* memory, s32 len,
 		const io::path& fileName, bool deleteMemoryWhenDropped)
 {
 	if (!memory)
 		return 0;
 	else
-		return new CMemoryFile(memory, len, fileName, deleteMemoryWhenDropped);
+		return boost::make_shared<CMemoryFile>(memory, len, fileName, deleteMemoryWhenDropped);
 }
 
 
 //! Opens a file for write access.
-IWriteFile* CFileSystem::createAndWriteFile(const io::path& filename, bool append)
+boost::shared_ptr<IWriteFile> CFileSystem::createAndWriteFile(const io::path& filename, bool append)
 {
 	return createWriteFile(filename, append);
 }
 
 
 //! Adds an external archive loader to the engine.
-void CFileSystem::addArchiveLoader(IArchiveLoader* loader)
+void CFileSystem::addArchiveLoader(boost::shared_ptr<IArchiveLoader> loader)
 {
 	if (!loader)
 		return;
 
-	loader->grab();
 	ArchiveLoader.push_back(loader);
 }
 
@@ -153,7 +141,7 @@ u32 CFileSystem::getArchiveLoaderCount() const
 }
 
 //! Gets the archive loader by index.
-IArchiveLoader* CFileSystem::getArchiveLoader(u32 index) const
+boost::shared_ptr<IArchiveLoader> CFileSystem::getArchiveLoader(u32 index) const
 {
 	if (index < ArchiveLoader.size())
 		return ArchiveLoader[index];
@@ -168,7 +156,7 @@ bool CFileSystem::moveFileArchive(u32 sourceIndex, s32 relative)
 	const s32 dest = (s32) sourceIndex + relative;
 	const s32 dir = relative < 0 ? -1 : 1;
 	const s32 sourceEnd = ((s32) FileArchives.size() ) - 1;
-	IFileArchive *t;
+	boost::shared_ptr<IFileArchive> t;
 
 	for (s32 s = (s32) sourceIndex;s != dest; s += dir)
 	{
@@ -188,9 +176,9 @@ bool CFileSystem::moveFileArchive(u32 sourceIndex, s32 relative)
 bool CFileSystem::addFileArchive(const io::path& filename, bool ignoreCase,
 			  bool ignorePaths, E_FILE_ARCHIVE_TYPE archiveType,
 			  const core::stringc& password,
-			  IFileArchive** retArchive)
+			  boost::shared_ptr<IFileArchive>* retArchive)
 {
-	IFileArchive* archive = 0;
+	boost::shared_ptr<IFileArchive> archive = 0;
 	bool ret = false;
 
 	// see if archive is already added
@@ -216,7 +204,7 @@ bool CFileSystem::addFileArchive(const io::path& filename, bool ignoreCase,
 		// try to load archive based on content
 		if (!archive)
 		{
-			io::IReadFile* file = createAndOpenFile(filename);
+			boost::shared_ptr<io::IReadFile> file = createAndOpenFile(filename);
 			if (file)
 			{
 				for (i = ArchiveLoader.size()-1; i >= 0; --i)
@@ -230,7 +218,6 @@ bool CFileSystem::addFileArchive(const io::path& filename, bool ignoreCase,
 							break;
 					}
 				}
-				file->drop();
 			}
 		}
 	}
@@ -238,7 +225,7 @@ bool CFileSystem::addFileArchive(const io::path& filename, bool ignoreCase,
 	{
 		// try to open archive based on archive loader type
 
-		io::IReadFile* file = 0;
+		boost::shared_ptr<io::IReadFile> file = 0;
 
 		for (i = ArchiveLoader.size()-1; i >= 0; --i)
 		{
@@ -268,10 +255,6 @@ bool CFileSystem::addFileArchive(const io::path& filename, bool ignoreCase,
 				}
 			}
 		}
-
-		// if open, close the file
-		if (file)
-			file->drop();
 	}
 
 	if (archive)
@@ -295,7 +278,7 @@ bool CFileSystem::addFileArchive(const io::path& filename, bool ignoreCase,
 // don't expose!
 bool CFileSystem::changeArchivePassword(const path& filename,
 		const core::stringc& password,
-		IFileArchive** archive)
+		boost::shared_ptr<IFileArchive>* archive)
 {
 	for (s32 idx = 0; idx < (s32)FileArchives.size(); ++idx)
 	{
@@ -316,9 +299,9 @@ bool CFileSystem::changeArchivePassword(const path& filename,
 	return false;
 }
 
-bool CFileSystem::addFileArchive(IReadFile* file, bool ignoreCase,
+bool CFileSystem::addFileArchive(boost::shared_ptr<IReadFile> file, bool ignoreCase,
 		bool ignorePaths, E_FILE_ARCHIVE_TYPE archiveType,
-		const core::stringc& password, IFileArchive** retArchive)
+		const core::stringc& password, boost::shared_ptr<IFileArchive>* retArchive)
 {
 	if (!file || archiveType == EFAT_FOLDER)
 		return false;
@@ -328,7 +311,7 @@ bool CFileSystem::addFileArchive(IReadFile* file, bool ignoreCase,
 		if (changeArchivePassword(file->getFileName(), password, retArchive))
 			return true;
 
-		IFileArchive* archive = 0;
+		boost::shared_ptr<IFileArchive> archive = 0;
 		s32 i;
 
 		if (archiveType == EFAT_UNKNOWN)
@@ -400,7 +383,7 @@ bool CFileSystem::addFileArchive(IReadFile* file, bool ignoreCase,
 
 
 //! Adds an archive to the file system.
-bool CFileSystem::addFileArchive(IFileArchive* archive)
+bool CFileSystem::addFileArchive(boost::shared_ptr<IFileArchive> archive)
 {
 	for (u32 i=0; i < FileArchives.size(); ++i)
 	{
@@ -421,7 +404,6 @@ bool CFileSystem::removeFileArchive(u32 index)
 	bool ret = false;
 	if (index < FileArchives.size())
 	{
-		FileArchives[index]->drop();
 		FileArchives.erase(index);
 		ret = true;
 	}
@@ -445,7 +427,7 @@ bool CFileSystem::removeFileArchive(const io::path& filename)
 
 
 //! Removes an archive from the file system.
-bool CFileSystem::removeFileArchive(const IFileArchive* archive)
+bool CFileSystem::removeFileArchive(const boost::shared_ptr<IFileArchive> archive)
 {
 	for (u32 i=0; i < FileArchives.size(); ++i)
 	{
@@ -467,7 +449,7 @@ u32 CFileSystem::getFileArchiveCount() const
 }
 
 
-IFileArchive* CFileSystem::getFileArchive(u32 index)
+boost::shared_ptr<IFileArchive> CFileSystem::getFileArchive(u32 index)
 {
 	return index < getFileArchiveCount() ? FileArchives[index] : 0;
 }
@@ -789,9 +771,9 @@ EFileSystemType CFileSystem::setFileListSystem(EFileSystemType listType)
 
 
 //! Creates a list of files and directories in the current working directory
-IFileList* CFileSystem::createFileList()
+boost::shared_ptr<IFileList> CFileSystem::createFileList()
 {
-	CFileList* r = 0;
+	boost::shared_ptr<CFileList> r = 0;
 	io::path Path = getWorkingDirectory();
 	Path.replace('\\', '/');
 	if (Path.lastChar() != '/')
@@ -805,7 +787,7 @@ IFileList* CFileSystem::createFileList()
 		#ifdef _IRR_WINDOWS_API_
 		#if !defined ( _WIN32_WCE )
 
-		r = new CFileList(Path, true, false);
+		r = boost::make_shared<CFileList>(Path, true, false);
 
 		// TODO: Should be unified once mingw adapts the proper types
 #if defined(__GNUC__)
@@ -838,7 +820,7 @@ IFileList* CFileSystem::createFileList()
 		#if (defined(_IRR_POSIX_API_) || defined(_IRR_OSX_PLATFORM_))
 
 
-		r = new CFileList(Path, false, false);
+		r = boost::make_shared<CFileList>(Path, false, false);
 
 		r->addItem(Path + _IRR_TEXT(".."), 0, 0, true, 0);
 
@@ -880,7 +862,7 @@ IFileList* CFileSystem::createFileList()
 	else
 	{
 		//! create file list for the virtual filesystem
-		r = new CFileList(Path, false, false);
+		r = boost::make_shared<CFileList>(Path, false, false);
 
 		//! add relative navigation
 		SFileListEntry e2;
@@ -895,7 +877,7 @@ IFileList* CFileSystem::createFileList()
 		//! merge archives
 		for (u32 i=0; i < FileArchives.size(); ++i)
 		{
-			const IFileList *merge = FileArchives[i]->getFileList();
+			const boost::shared_ptr<IFileList> merge = FileArchives[i]->getFileList();
 
 			for (u32 j=0; j < merge->getFileCount(); ++j)
 			{
@@ -913,9 +895,9 @@ IFileList* CFileSystem::createFileList()
 }
 
 //! Creates an empty filelist
-IFileList* CFileSystem::createEmptyFileList(const io::path& path, bool ignoreCase, bool ignorePaths)
+boost::shared_ptr<IFileList> CFileSystem::createEmptyFileList(const io::path& path, bool ignoreCase, bool ignorePaths)
 {
-	return new CFileList(path, ignoreCase, ignorePaths);
+	return boost::make_shared<CFileList>(path, ignoreCase, ignorePaths);
 }
 
 
@@ -948,18 +930,17 @@ bool CFileSystem::existFile(const io::path& filename) const
 //! Creates a XML Reader from a file.
 IXMLReader* CFileSystem::createXMLReader(const io::path& filename)
 {
-	IReadFile* file = createAndOpenFile(filename);
+	boost::shared_ptr<IReadFile> file = createAndOpenFile(filename);
 	if (!file)
 		return 0;
 
 	IXMLReader* reader = createXMLReader(file);
-	file->drop();
 	return reader;
 }
 
 
 //! Creates a XML Reader from a file.
-IXMLReader* CFileSystem::createXMLReader(IReadFile* file)
+IXMLReader* CFileSystem::createXMLReader(boost::shared_ptr<IReadFile> file)
 {
 	if (!file)
 		return 0;
@@ -971,18 +952,17 @@ IXMLReader* CFileSystem::createXMLReader(IReadFile* file)
 //! Creates a XML Reader from a file.
 IXMLReaderUTF8* CFileSystem::createXMLReaderUTF8(const io::path& filename)
 {
-	IReadFile* file = createAndOpenFile(filename);
+	boost::shared_ptr<IReadFile> file = createAndOpenFile(filename);
 	if (!file)
 		return 0;
 
 	IXMLReaderUTF8* reader = createIXMLReaderUTF8(file);
-	file->drop();
 	return reader;
 }
 
 
 //! Creates a XML Reader from a file.
-IXMLReaderUTF8* CFileSystem::createXMLReaderUTF8(IReadFile* file)
+IXMLReaderUTF8* CFileSystem::createXMLReaderUTF8(boost::shared_ptr<IReadFile> file)
 {
 	if (!file)
 		return 0;
@@ -994,19 +974,18 @@ IXMLReaderUTF8* CFileSystem::createXMLReaderUTF8(IReadFile* file)
 //! Creates a XML Writer from a file.
 IXMLWriter* CFileSystem::createXMLWriter(const io::path& filename)
 {
-	IWriteFile* file = createAndWriteFile(filename);
+	boost::shared_ptr<IWriteFile> file = createAndWriteFile(filename);
 	IXMLWriter* writer = 0;
 	if (file)
 	{
 		writer = createXMLWriter(file);
-		file->drop();
 	}
 	return writer;
 }
 
 
 //! Creates a XML Writer from a file.
-IXMLWriter* CFileSystem::createXMLWriter(IWriteFile* file)
+IXMLWriter* CFileSystem::createXMLWriter(boost::shared_ptr<IWriteFile> file)
 {
 	return new CXMLWriter(file);
 }
@@ -1038,27 +1017,27 @@ void CFileSystem::setWeakPtr(boost::shared_ptr<IFileSystem> thisShared)
 	getWorkingDirectory();
 
 #ifdef __IRR_COMPILE_WITH_PAK_ARCHIVE_LOADER_
-	ArchiveLoader.push_back(new CArchiveLoaderPAK(getSharedThis()));
+	ArchiveLoader.push_back(boost::make_shared<CArchiveLoaderPAK>(getSharedThis()));
 #endif
 
 #ifdef __IRR_COMPILE_WITH_NPK_ARCHIVE_LOADER_
-	ArchiveLoader.push_back(new CArchiveLoaderNPK(getSharedThis()));
+	ArchiveLoader.push_back(boost::make_shared<CArchiveLoaderNPK>(getSharedThis()));
 #endif
 
 #ifdef __IRR_COMPILE_WITH_TAR_ARCHIVE_LOADER_
-	ArchiveLoader.push_back(new CArchiveLoaderTAR(getSharedThis()));
+	ArchiveLoader.push_back(boost::make_shared<CArchiveLoaderTAR>(getSharedThis()));
 #endif
 
 #ifdef __IRR_COMPILE_WITH_WAD_ARCHIVE_LOADER_
-	ArchiveLoader.push_back(new CArchiveLoaderWAD(getSharedThis()));
+	ArchiveLoader.push_back(boost::make_shared<CArchiveLoaderWAD>(getSharedThis()));
 #endif
 
 #ifdef __IRR_COMPILE_WITH_MOUNT_ARCHIVE_LOADER_
-	ArchiveLoader.push_back(new CArchiveLoaderMount(getSharedThis()));
+	ArchiveLoader.push_back(boost::make_shared<CArchiveLoaderMount>(getSharedThis()));
 #endif
 
 #ifdef __IRR_COMPILE_WITH_ZIP_ARCHIVE_LOADER_
-	ArchiveLoader.push_back(new CArchiveLoaderZIP(getSharedThis()));
+	ArchiveLoader.push_back(boost::make_shared<CArchiveLoaderZIP>(getSharedThis()));
 #endif
 }
 

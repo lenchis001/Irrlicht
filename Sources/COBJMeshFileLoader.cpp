@@ -56,7 +56,7 @@ bool COBJMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-boost::shared_ptr<IAnimatedMesh> COBJMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> COBJMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	const long filesize = file->getSize();
 	if (!filesize)
@@ -476,7 +476,7 @@ const c8* COBJMeshFileLoader::readTextures(const c8* bufPtr, const c8* const buf
 void COBJMeshFileLoader::readMTL(const c8* fileName, const io::path& relPath)
 {
 	const io::path realFile(fileName);
-	io::IReadFile * mtlReader;
+	boost::shared_ptr<io::IReadFile>  mtlReader;
 
 	if (FileSystem->existFile(realFile))
 		mtlReader = FileSystem->createAndOpenFile(realFile);
@@ -496,7 +496,6 @@ void COBJMeshFileLoader::readMTL(const c8* fileName, const io::path& relPath)
 	if (!filesize)
 	{
 		os::Printer::log("Skipping empty material file", realFile, ELL_WARNING);
-		mtlReader->drop();
 		return;
 	}
 
@@ -649,7 +648,6 @@ void COBJMeshFileLoader::readMTL(const c8* fileName, const io::path& relPath)
 		Materials.push_back( currMaterial );
 
 	delete [] buf;
-	mtlReader->drop();
 }
 
 

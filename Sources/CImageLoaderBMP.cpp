@@ -37,7 +37,7 @@ bool CImageLoaderBMP::isALoadableFileExtension(const io::path& filename) const
 
 
 //! returns true if the file maybe is able to be loaded by this class
-bool CImageLoaderBMP::isALoadableFileFormat(io::IReadFile* file) const
+bool CImageLoaderBMP::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	u16 headerID;
 	file->read(&headerID, sizeof(u16));
@@ -216,7 +216,7 @@ void CImageLoaderBMP::decompress4BitRLE(u8*& bmpData, s32 size, s32 width, s32 h
 
 
 //! creates a surface from the file
-boost::shared_ptr<IImage> CImageLoaderBMP::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderBMP::loadImage(boost::shared_ptr<io::IReadFile> file) const
 {
 	SBMPHeader header;
 

@@ -14,7 +14,7 @@ namespace gui
 {
 
 //! Font interface.
-class IGUIImageList : public virtual IReferenceCounted
+class IGUIImageList : public virtual IDebugable
 {
 public:
 

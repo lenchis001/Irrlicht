@@ -262,7 +262,7 @@ EMESH_WRITER_TYPE CColladaMeshWriter::getType() const
 }
 
 //! writes a scene starting with the given node
-bool CColladaMeshWriter::writeScene(io::IWriteFile* file, boost::shared_ptr<scene::ISceneNode> root)
+bool CColladaMeshWriter::writeScene(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<scene::ISceneNode> root)
 {
 	if (!file || !root)
 		return false;
@@ -785,7 +785,7 @@ void CColladaMeshWriter::writeSceneNode(boost::shared_ptr<irr::scene::ISceneNode
 }
 
 //! writes a mesh
-bool CColladaMeshWriter::writeMesh(io::IWriteFile* file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
+bool CColladaMeshWriter::writeMesh(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<scene::IMesh> mesh, s32 flags)
 {
 	if (!file)
 		return false;

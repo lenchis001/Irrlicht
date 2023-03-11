@@ -167,7 +167,7 @@ public:
 	\return Pointer to the font. Returns 0 if the font could not be loaded.
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
-	virtual IGUIImageList* createImageList( boost::shared_ptr<video::ITexture> texture,
+	virtual boost::shared_ptr<IGUIImageList> createImageList( boost::shared_ptr<video::ITexture> texture,
 					core::dimension2d<s32> imageSize,
 					bool useAlphaChannel ) = 0;
 
@@ -201,13 +201,13 @@ public:
 	\param filename Filename of the sprite bank's origin.
 	\return Pointer to the sprite bank. Returns 0 if it could not be loaded.
 	This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-	virtual IGUISpriteBank* getSpriteBank(const io::path& filename) = 0;
+	virtual boost::shared_ptr<IGUISpriteBank> getSpriteBank(const io::path& filename) = 0;
 
 	//! Adds an empty sprite bank to the manager
 	/** \param name Name of the new sprite bank.
 	\return Pointer to the sprite bank.
 	This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-	virtual IGUISpriteBank* addEmptySpriteBank(const io::path& name) = 0;
+	virtual boost::shared_ptr<IGUISpriteBank> addEmptySpriteBank(const io::path& name) = 0;
 
 	//! Returns the root gui element.
 	/** This is the first gui element, the (direct or indirect) parent of all
@@ -548,14 +548,14 @@ public:
 	/** \return Pointer to the factory.
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
-	virtual IGUIElementFactory* getDefaultGUIElementFactory() const = 0;
+	virtual boost::shared_ptr<IGUIElementFactory> getDefaultGUIElementFactory() const = 0;
 
 	//! Adds an element factory to the gui environment.
 	/** Use this to extend the gui environment with new element types which
 	it should be able to create automatically, for example when loading
 	data from xml files.
 	\param factoryToAdd Pointer to new factory. */
-	virtual void registerGUIElementFactory(IGUIElementFactory* factoryToAdd) = 0;
+	virtual void registerGUIElementFactory(boost::shared_ptr<IGUIElementFactory> factoryToAdd) = 0;
 
 	//! Get amount of registered gui element factories.
 	/** \return Amount of registered gui element factories. */
@@ -564,7 +564,7 @@ public:
 	//! Get a gui element factory by index
 	/** \param index Index of the factory.
 	\return Factory at given index, or 0 if no such factory exists. */
-	virtual IGUIElementFactory* getGUIElementFactory(u32 index) const = 0;
+	virtual boost::shared_ptr<IGUIElementFactory> getGUIElementFactory(u32 index) const = 0;
 
 	//! Adds a GUI element by its name
 	/** Each factory is checked if it can create an element of the given
@@ -584,7 +584,7 @@ public:
 	/** \param file The file to write to.
 	\param start The GUIElement to start with. Root if 0.
 	\return True if saving succeeded, else false. */
-	virtual bool saveGUI(io::IWriteFile* file, boost::shared_ptr<IGUIElement> start=0) = 0;
+	virtual bool saveGUI(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<IGUIElement> start=0) = 0;
 
 	//! Loads the gui. Note that the current gui is not cleared before.
 	/** When a parent is set the elements will be added below the parent, the parent itself does not deserialize.
@@ -602,7 +602,7 @@ public:
 	\param file The file to load from.
 	\param parent Parent for the loaded GUI, root if 0.
 	\return True if loading succeeded, else false. */
-	virtual bool loadGUI(io::IReadFile* file, boost::shared_ptr<IGUIElement> parent=0) = 0;
+	virtual bool loadGUI(boost::shared_ptr<io::IReadFile> file, boost::shared_ptr<IGUIElement> parent=0) = 0;
 
 	//! Writes attributes of the gui environment
 	virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const =0;

@@ -10,6 +10,7 @@
 
 #include "COpenGLShaderMaterialRenderer.h"
 #include "IShaderConstantSetCallBack.h"
+#include "SharedThisMixin.h"
 
 namespace irr
 {
@@ -17,13 +18,13 @@ namespace video
 {
 
 //! Class for rendering normal maps with OpenGL
-class COpenGLNormalMapRenderer : public COpenGLShaderMaterialRenderer, public IShaderConstantSetCallBack
+class COpenGLNormalMapRenderer : public COpenGLShaderMaterialRenderer, public IShaderConstantSetCallBack, public SharedThisMixin<COpenGLNormalMapRenderer>
 {
 public:
 
 	//! Constructor
 	COpenGLNormalMapRenderer(boost::shared_ptr<video::COpenGLDriver> driver,
-		s32& outMaterialTypeNr, IMaterialRenderer* baseMaterial);
+		boost::shared_ptr<IMaterialRenderer> baseMaterial);
 
 	//! Destructor
 	~COpenGLNormalMapRenderer();
@@ -35,6 +36,7 @@ public:
 	//! Returns the render capability of the material.
 	virtual s32 getRenderCapability();
 
+	virtual void setWeakPtr(boost::shared_ptr<COpenGLNormalMapRenderer> sharedThis) override;
 protected:
 
 	bool CompiledShaders;

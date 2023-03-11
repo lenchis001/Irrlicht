@@ -51,15 +51,15 @@ public:
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
 
 	//! returns true if the file maybe is able to be loaded by this class
-	virtual bool isALoadableFileFormat(io::IReadFile* file) const;
+	virtual bool isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const;
 
 	//! creates a surface from the file
-	virtual boost::shared_ptr<IImage> loadImage(io::IReadFile* file) const;
+	virtual boost::shared_ptr<IImage> loadImage(boost::shared_ptr<io::IReadFile> file) const;
 
 private:
 
-	bool readRawImageData(io::IReadFile* file, const PsdHeader& header, u32* imageData) const;
-	bool readRLEImageData(io::IReadFile* file, const PsdHeader& header, u32* imageData) const;
+	bool readRawImageData(boost::shared_ptr<io::IReadFile> file, const PsdHeader& header, u32* imageData) const;
+	bool readRLEImageData(boost::shared_ptr<io::IReadFile> file, const PsdHeader& header, u32* imageData) const;
 	s16 getShiftFromChannel(c8 channelNr, const PsdHeader& header) const;
 };
 

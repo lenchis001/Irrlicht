@@ -47,7 +47,7 @@ bool CB3DMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-boost::shared_ptr<IAnimatedMesh> CB3DMeshFileLoader::createMesh(io::IReadFile* f)
+boost::shared_ptr<IAnimatedMesh> CB3DMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> f)
 {
 	if (!f)
 		return 0;

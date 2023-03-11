@@ -119,7 +119,7 @@ void CImageLoaderJPG::output_message(j_common_ptr cinfo)
 #endif // _IRR_COMPILE_WITH_LIBJPEG_
 
 //! returns true if the file maybe is able to be loaded by this class
-bool CImageLoaderJPG::isALoadableFileFormat(io::IReadFile* file) const
+bool CImageLoaderJPG::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	#ifndef _IRR_COMPILE_WITH_LIBJPEG_
 	return false;
@@ -137,7 +137,7 @@ bool CImageLoaderJPG::isALoadableFileFormat(io::IReadFile* file) const
 }
 
 //! creates a surface from the file
-boost::shared_ptr<IImage> CImageLoaderJPG::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderJPG::loadImage(boost::shared_ptr<io::IReadFile> file) const
 {
 	#ifndef _IRR_COMPILE_WITH_LIBJPEG_
 	os::Printer::log("Can't load as not compiled with _IRR_COMPILE_WITH_LIBJPEG_:", file->getFileName(), ELL_DEBUG);

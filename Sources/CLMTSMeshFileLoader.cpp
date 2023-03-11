@@ -119,7 +119,7 @@ bool CLMTSMeshFileLoader::isALoadableFileExtension(const io::path& filename) con
 }
 
 
-boost::shared_ptr<IAnimatedMesh> CLMTSMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CLMTSMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	u32 i;
 	u32 id;

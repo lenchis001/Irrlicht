@@ -449,7 +449,7 @@ void CGUIScrollBar::refreshControls()
 
 	boost::shared_ptr<IGUIEnvironment> lockedEnvironment = getSharedEnvironment();
 	boost::shared_ptr<IGUISkin> skin = getSharedEnvironment()->getSkin();
-	IGUISpriteBank* sprites = 0;
+	boost::shared_ptr<IGUISpriteBank> sprites = 0;
 	boost::shared_ptr<IGUIElement> lockedThis = getSharedThis();
 
 	if (skin)

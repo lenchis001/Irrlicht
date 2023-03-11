@@ -35,7 +35,7 @@ bool CMD3MeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 }
 
 
-boost::shared_ptr<IAnimatedMesh> CMD3MeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CMD3MeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	boost::shared_ptr<CAnimatedMeshMD3> mesh = boost::make_shared<CAnimatedMeshMD3>();
 	boost::shared_ptr<ISceneManager> lockedSceneManager = getSceneManager();

@@ -34,7 +34,7 @@ bool CSTLMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-boost::shared_ptr<IAnimatedMesh> CSTLMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CSTLMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	const long filesize = file->getSize();
 	if (filesize < 6) // we need a header
@@ -157,7 +157,7 @@ boost::shared_ptr<IAnimatedMesh> CSTLMeshFileLoader::createMesh(io::IReadFile* f
 
 
 //! Read 3d vector of floats
-void CSTLMeshFileLoader::getNextVector(io::IReadFile* file, core::vector3df& vec, bool binary) const
+void CSTLMeshFileLoader::getNextVector(boost::shared_ptr<io::IReadFile> file, core::vector3df& vec, bool binary) const
 {
 	if (binary)
 	{
@@ -187,7 +187,7 @@ void CSTLMeshFileLoader::getNextVector(io::IReadFile* file, core::vector3df& vec
 
 
 //! Read next word
-const core::stringc& CSTLMeshFileLoader::getNextToken(io::IReadFile* file, core::stringc& token) const
+const core::stringc& CSTLMeshFileLoader::getNextToken(boost::shared_ptr<io::IReadFile> file, core::stringc& token) const
 {
 	goNextWord(file);
 	u8 c;
@@ -205,7 +205,7 @@ const core::stringc& CSTLMeshFileLoader::getNextToken(io::IReadFile* file, core:
 
 
 //! skip to next word
-void CSTLMeshFileLoader::goNextWord(io::IReadFile* file) const
+void CSTLMeshFileLoader::goNextWord(boost::shared_ptr<io::IReadFile> file) const
 {
 	u8 c;
 	while(file->getPos() != file->getSize())
@@ -222,7 +222,7 @@ void CSTLMeshFileLoader::goNextWord(io::IReadFile* file) const
 
 
 //! Read until line break is reached and stop at the next non-space character
-void CSTLMeshFileLoader::goNextLine(io::IReadFile* file) const
+void CSTLMeshFileLoader::goNextLine(boost::shared_ptr<io::IReadFile> file) const
 {
 	u8 c;
 	// look for newline characters

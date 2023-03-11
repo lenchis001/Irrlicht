@@ -155,7 +155,7 @@ bool C3DSMeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-boost::shared_ptr<IAnimatedMesh> C3DSMeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> C3DSMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	ChunkData data;
 
@@ -216,7 +216,7 @@ boost::shared_ptr<IAnimatedMesh> C3DSMeshFileLoader::createMesh(io::IReadFile* f
 }
 
 
-bool C3DSMeshFileLoader::readPercentageChunk(io::IReadFile* file,
+bool C3DSMeshFileLoader::readPercentageChunk(boost::shared_ptr<io::IReadFile> file,
 					ChunkData* chunk, f32& percentage)
 {
 #ifdef _IRR_DEBUG_3DS_LOADER_
@@ -268,7 +268,7 @@ bool C3DSMeshFileLoader::readPercentageChunk(io::IReadFile* file,
 	return true;
 }
 
-bool C3DSMeshFileLoader::readColorChunk(io::IReadFile* file, ChunkData* chunk,
+bool C3DSMeshFileLoader::readColorChunk(boost::shared_ptr<io::IReadFile> file, ChunkData* chunk,
 					video::SColor& out)
 {
 #ifdef _IRR_DEBUG_3DS_LOADER_
@@ -320,7 +320,7 @@ bool C3DSMeshFileLoader::readColorChunk(io::IReadFile* file, ChunkData* chunk,
 }
 
 
-bool C3DSMeshFileLoader::readMaterialChunk(io::IReadFile* file, ChunkData* parent)
+bool C3DSMeshFileLoader::readMaterialChunk(boost::shared_ptr<io::IReadFile> file, ChunkData* parent)
 {
 #ifdef _IRR_DEBUG_3DS_LOADER_
 	os::Printer::log("Load material chunk.", ELL_DEBUG);
@@ -530,7 +530,7 @@ bool C3DSMeshFileLoader::readMaterialChunk(io::IReadFile* file, ChunkData* paren
 
 
 
-bool C3DSMeshFileLoader::readTrackChunk(io::IReadFile* file, ChunkData& data,
+bool C3DSMeshFileLoader::readTrackChunk(boost::shared_ptr<io::IReadFile> file, ChunkData& data,
 					IMeshBuffer* mb, const core::vector3df& pivot)
 {
 #ifdef _IRR_DEBUG_3DS_LOADER_
@@ -614,7 +614,7 @@ bool C3DSMeshFileLoader::readTrackChunk(io::IReadFile* file, ChunkData& data,
 }
 
 
-bool C3DSMeshFileLoader::readFrameChunk(io::IReadFile* file, ChunkData* parent)
+bool C3DSMeshFileLoader::readFrameChunk(boost::shared_ptr<io::IReadFile> file, ChunkData* parent)
 {
 #ifdef _IRR_DEBUG_3DS_LOADER_
 	os::Printer::log("Load frame chunk.", ELL_DEBUG);
@@ -820,7 +820,7 @@ bool C3DSMeshFileLoader::readFrameChunk(io::IReadFile* file, ChunkData* parent)
 }
 
 
-bool C3DSMeshFileLoader::readChunk(io::IReadFile* file, ChunkData* parent)
+bool C3DSMeshFileLoader::readChunk(boost::shared_ptr<io::IReadFile> file, ChunkData* parent)
 {
 	while(parent->read < parent->header.length)
 	{
@@ -883,7 +883,7 @@ bool C3DSMeshFileLoader::readChunk(io::IReadFile* file, ChunkData* parent)
 }
 
 
-bool C3DSMeshFileLoader::readObjectChunk(io::IReadFile* file, ChunkData* parent)
+bool C3DSMeshFileLoader::readObjectChunk(boost::shared_ptr<io::IReadFile> file, ChunkData* parent)
 {
 #ifdef _IRR_DEBUG_3DS_LOADER_
 	os::Printer::log("Load object chunk.", ELL_DEBUG);
@@ -985,7 +985,7 @@ bool C3DSMeshFileLoader::readObjectChunk(io::IReadFile* file, ChunkData* parent)
 }
 
 
-void C3DSMeshFileLoader::composeObject(io::IReadFile* file, const core::stringc& name)
+void C3DSMeshFileLoader::composeObject(boost::shared_ptr<io::IReadFile> file, const core::stringc& name)
 {
 #ifdef _IRR_DEBUG_3DS_LOADER_
 	os::Printer::log("Compose object.", ELL_DEBUG);
@@ -1109,7 +1109,7 @@ void C3DSMeshFileLoader::composeObject(io::IReadFile* file, const core::stringc&
 }
 
 
-void C3DSMeshFileLoader::loadMaterials(io::IReadFile* file)
+void C3DSMeshFileLoader::loadMaterials(boost::shared_ptr<io::IReadFile> file)
 {
 	// create a mesh buffer for every material
 	core::stringc modelFilename = file->getFileName();
@@ -1239,7 +1239,7 @@ void C3DSMeshFileLoader::cleanUp()
 }
 
 
-void C3DSMeshFileLoader::readTextureCoords(io::IReadFile* file, ChunkData& data)
+void C3DSMeshFileLoader::readTextureCoords(boost::shared_ptr<io::IReadFile> file, ChunkData& data)
 {
 #ifdef _IRR_DEBUG_3DS_LOADER_
 	os::Printer::log("Load texture coords.", ELL_DEBUG);
@@ -1267,7 +1267,7 @@ void C3DSMeshFileLoader::readTextureCoords(io::IReadFile* file, ChunkData& data)
 }
 
 
-void C3DSMeshFileLoader::readMaterialGroup(io::IReadFile* file, ChunkData& data)
+void C3DSMeshFileLoader::readMaterialGroup(boost::shared_ptr<io::IReadFile> file, ChunkData& data)
 {
 #ifdef _IRR_DEBUG_3DS_LOADER_
 	os::Printer::log("Load material group.", ELL_DEBUG);
@@ -1295,7 +1295,7 @@ void C3DSMeshFileLoader::readMaterialGroup(io::IReadFile* file, ChunkData& data)
 }
 
 
-void C3DSMeshFileLoader::readIndices(io::IReadFile* file, ChunkData& data)
+void C3DSMeshFileLoader::readIndices(boost::shared_ptr<io::IReadFile> file, ChunkData& data)
 {
 #ifdef _IRR_DEBUG_3DS_LOADER_
 	os::Printer::log("Load indices.", ELL_DEBUG);
@@ -1320,7 +1320,7 @@ void C3DSMeshFileLoader::readIndices(io::IReadFile* file, ChunkData& data)
 }
 
 
-void C3DSMeshFileLoader::readVertices(io::IReadFile* file, ChunkData& data)
+void C3DSMeshFileLoader::readVertices(boost::shared_ptr<io::IReadFile> file, ChunkData& data)
 {
 #ifdef _IRR_DEBUG_3DS_LOADER_
 	os::Printer::log("Load vertices.", ELL_DEBUG);
@@ -1349,7 +1349,7 @@ void C3DSMeshFileLoader::readVertices(io::IReadFile* file, ChunkData& data)
 }
 
 
-void C3DSMeshFileLoader::readChunkData(io::IReadFile* file, ChunkData& data)
+void C3DSMeshFileLoader::readChunkData(boost::shared_ptr<io::IReadFile> file, ChunkData& data)
 {
 	file->read(&data.header, sizeof(ChunkHeader));
 #ifdef __BIG_ENDIAN__
@@ -1360,7 +1360,7 @@ void C3DSMeshFileLoader::readChunkData(io::IReadFile* file, ChunkData& data)
 }
 
 
-void C3DSMeshFileLoader::readString(io::IReadFile* file, ChunkData& data, core::stringc& out)
+void C3DSMeshFileLoader::readString(boost::shared_ptr<io::IReadFile> file, ChunkData& data, core::stringc& out)
 {
 	c8 c = 1;
 	out = "";

@@ -77,15 +77,14 @@ bool CArchiveLoaderZIP::isALoadableFileFormat(E_FILE_ARCHIVE_TYPE fileType) cons
 //! Creates an archive from the filename
 /** \param file File handle to check.
 \return Pointer to newly created archive, or 0 upon error. */
-IFileArchive* CArchiveLoaderZIP::createArchive(const io::path& filename, bool ignoreCase, bool ignorePaths) const
+boost::shared_ptr<IFileArchive> CArchiveLoaderZIP::createArchive(const io::path& filename, bool ignoreCase, bool ignorePaths) const
 {
-	IFileArchive *archive = 0;
-	io::IReadFile* file = FileSystem->createAndOpenFile(filename);
+	boost::shared_ptr<IFileArchive> archive = 0;
+	boost::shared_ptr<io::IReadFile> file = FileSystem->createAndOpenFile(filename);
 
 	if (file)
 	{
 		archive = createArchive(file, ignoreCase, ignorePaths);
-		file->drop();
 	}
 
 	return archive;
@@ -93,9 +92,9 @@ IFileArchive* CArchiveLoaderZIP::createArchive(const io::path& filename, bool ig
 
 //! creates/loads an archive from the file.
 //! \return Pointer to the created archive. Returns 0 if loading failed.
-IFileArchive* CArchiveLoaderZIP::createArchive(io::IReadFile* file, bool ignoreCase, bool ignorePaths) const
+boost::shared_ptr<IFileArchive> CArchiveLoaderZIP::createArchive(boost::shared_ptr<io::IReadFile> file, bool ignoreCase, bool ignorePaths) const
 {
-	IFileArchive *archive = 0;
+	boost::shared_ptr<CZipReader> archive = 0;
 	if (file)
 	{
 		file->seek(0);
@@ -111,7 +110,8 @@ IFileArchive* CArchiveLoaderZIP::createArchive(io::IReadFile* file, bool ignoreC
 
 		bool isGZip = (sig == 0x8b1f);
 
-		archive = new CZipReader(file, ignoreCase, ignorePaths, isGZip);
+		archive = boost::make_shared<CZipReader>(file, ignoreCase, ignorePaths, isGZip);
+		archive->setWeakPtr(archive);
 	}
 	return archive;
 }
@@ -120,7 +120,7 @@ IFileArchive* CArchiveLoaderZIP::createArchive(io::IReadFile* file, bool ignoreC
 /** Check might look into the file.
 \param file File handle to check.
 \return True if file seems to be loadable. */
-bool CArchiveLoaderZIP::isALoadableFileFormat(io::IReadFile* file) const
+bool CArchiveLoaderZIP::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	SZIPFileHeader header;
 
@@ -137,7 +137,7 @@ bool CArchiveLoaderZIP::isALoadableFileFormat(io::IReadFile* file) const
 // zip archive
 // -----------------------------------------------------------------------------
 
-CZipReader::CZipReader(IReadFile* file, bool ignoreCase, bool ignorePaths, bool isGZip)
+CZipReader::CZipReader(boost::shared_ptr<IReadFile> file, bool ignoreCase, bool ignorePaths, bool isGZip)
  : CFileList((file ? file->getFileName() : io::path("")), ignoreCase, ignorePaths), File(file), IsGZip(isGZip)
 {
 	#ifdef _DEBUG
@@ -146,8 +146,6 @@ CZipReader::CZipReader(IReadFile* file, bool ignoreCase, bool ignorePaths, bool 
 
 	if (File)
 	{
-		File->grab();
-
 		// load file entries
 		if (IsGZip)
 			while (scanGZipHeader()) { }
@@ -160,8 +158,6 @@ CZipReader::CZipReader(IReadFile* file, bool ignoreCase, bool ignorePaths, bool 
 
 CZipReader::~CZipReader()
 {
-	if (File)
-		File->drop();
 }
 
 
@@ -171,9 +167,9 @@ E_FILE_ARCHIVE_TYPE CZipReader::getType() const
 	return IsGZip ? EFAT_GZIP : EFAT_ZIP;
 }
 
-const IFileList* CZipReader::getFileList() const
+const boost::shared_ptr<IFileList> CZipReader::getFileList()
 {
-	return this;
+	return getSharedThis();
 }
 
 
@@ -478,7 +474,7 @@ bool CZipReader::scanCentralDirectoryHeader()
 
 
 //! opens a file by file name
-IReadFile* CZipReader::createAndOpenFile(const io::path& filename)
+boost::shared_ptr<IReadFile> CZipReader::createAndOpenFile(const io::path& filename)
 {
 	s32 index = findFile(filename, false);
 
@@ -499,7 +495,7 @@ namespace
 #endif
 
 //! opens a file by index
-IReadFile* CZipReader::createAndOpenFile(u32 index)
+boost::shared_ptr<IReadFile> CZipReader::createAndOpenFile(u32 index)
 {
 	// Irrlicht supports 0, 8, 12, 14, 99
 	//0 - The file is stored (no compression)
@@ -523,7 +519,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 	const SZipFileEntry &e = FileInfo[Files[index].ID];
 	wchar_t buf[64];
 	s16 actualCompressionMethod=e.header.CompressionMethod;
-	IReadFile* decrypted=0;
+	boost::shared_ptr<IReadFile> decrypted=0;
 	u8* decryptedBuf=0;
 	u32 decryptedSize=e.header.DataDescriptor.CompressedSize;
 #ifdef _IRR_COMPILE_WITH_ZIP_ENCRYPTION_
@@ -622,9 +618,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 			{
 				swprintf ( buf, 64, L"Not enough memory for decompressing %s", Files[index].FullName.c_str() );
 				os::Printer::log( buf, ELL_ERROR);
-				if (decrypted)
-					decrypted->drop();
-				return 0;
+				return nullptr;
 			}
 
 			u8 *pcData = decryptedBuf;
@@ -667,9 +661,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 				inflateEnd(&stream);
 			}
 
-			if (decrypted)
-				decrypted->drop();
-			else
+			if (!decrypted)
 				delete[] pcData;
 
 			if (err != Z_OK)
@@ -696,9 +688,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 			{
 				swprintf ( buf, 64, L"Not enough memory for decompressing %s", Files[index].FullName.c_str() );
 				os::Printer::log( buf, ELL_ERROR);
-				if (decrypted)
-					decrypted->drop();
-				return 0;
+				return nullptr;
 			}
 
 			u8 *pcData = decryptedBuf;
@@ -738,9 +728,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 			err = BZ2_bzDecompress(&bz_ctx);
 			err = BZ2_bzDecompressEnd(&bz_ctx);
 
-			if (decrypted)
-				decrypted->drop();
-			else
+			if (!decrypted)
 				delete[] pcData;
 
 			if (err != BZ_OK)
@@ -768,9 +756,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 			{
 				swprintf ( buf, 64, L"Not enough memory for decompressing %s", Files[index].FullName.c_str() );
 				os::Printer::log( buf, ELL_ERROR);
-				if (decrypted)
-					decrypted->drop();
-				return 0;
+				return nullptr;
 			}
 
 			u8 *pcData = decryptedBuf;
@@ -802,9 +788,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 					&lzmaAlloc);
 			uncompressedSize = tmpDstSize; // may be different to expected value
 
-			if (decrypted)
-				decrypted->drop();
-			else
+			if (!decrypted)
 				delete[] pcData;
 
 			if (err != SZ_OK)

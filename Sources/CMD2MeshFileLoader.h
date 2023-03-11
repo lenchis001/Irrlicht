@@ -30,11 +30,11 @@ public:
 	//! \return Pointer to the created mesh. Returns 0 if loading failed.
 	//! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 	//! See IReferenceCounted::drop() for more information.
-	virtual boost::shared_ptr<IAnimatedMesh> createMesh(io::IReadFile* file);
+	virtual boost::shared_ptr<IAnimatedMesh> createMesh(boost::shared_ptr<io::IReadFile> file);
 
 private:
 	//! Loads the file data into the mesh
-	bool loadFile(io::IReadFile* file, boost::shared_ptr<CAnimatedMeshMD2> mesh);
+	bool loadFile(boost::shared_ptr<io::IReadFile> file, boost::shared_ptr<CAnimatedMeshMD2> mesh);
 
 };
 

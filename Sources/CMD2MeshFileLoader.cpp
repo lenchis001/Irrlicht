@@ -101,7 +101,7 @@ bool CMD2MeshFileLoader::isALoadableFileExtension(const io::path& filename) cons
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-boost::shared_ptr<IAnimatedMesh> CMD2MeshFileLoader::createMesh(io::IReadFile* file)
+boost::shared_ptr<IAnimatedMesh> CMD2MeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> file)
 {
 	boost::shared_ptr<CAnimatedMeshMD2> msh = boost::make_shared<CAnimatedMeshMD2>();
 	msh->setWeakThis(msh);
@@ -116,7 +116,7 @@ boost::shared_ptr<IAnimatedMesh> CMD2MeshFileLoader::createMesh(io::IReadFile* f
 }
 
 //! loads an md2 file
-bool CMD2MeshFileLoader::loadFile(io::IReadFile* file, boost::shared_ptr<CAnimatedMeshMD2> mesh)
+bool CMD2MeshFileLoader::loadFile(boost::shared_ptr<io::IReadFile> file, boost::shared_ptr<CAnimatedMeshMD2> mesh)
 {
 	if (!file)
 		return false;

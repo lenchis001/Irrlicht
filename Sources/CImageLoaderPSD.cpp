@@ -37,7 +37,7 @@ bool CImageLoaderPSD::isALoadableFileExtension(const io::path& filename) const
 
 
 //! returns true if the file maybe is able to be loaded by this class
-bool CImageLoaderPSD::isALoadableFileFormat(io::IReadFile* file) const
+bool CImageLoaderPSD::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	if (!file)
 		return false;
@@ -50,7 +50,7 @@ bool CImageLoaderPSD::isALoadableFileFormat(io::IReadFile* file) const
 
 
 //! creates a surface from the file
-boost::shared_ptr<IImage> CImageLoaderPSD::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderPSD::loadImage(boost::shared_ptr<io::IReadFile> file) const
 {
 	u32* imageData = 0;
 
@@ -164,7 +164,7 @@ boost::shared_ptr<IImage> CImageLoaderPSD::loadImage(io::IReadFile* file) const
 }
 
 
-bool CImageLoaderPSD::readRawImageData(io::IReadFile* file, const PsdHeader& header, u32* imageData) const
+bool CImageLoaderPSD::readRawImageData(boost::shared_ptr<io::IReadFile> file, const PsdHeader& header, u32* imageData) const
 {
 	u8* tmpData = new u8[header.width * header.height];
 
@@ -199,7 +199,7 @@ bool CImageLoaderPSD::readRawImageData(io::IReadFile* file, const PsdHeader& hea
 }
 
 
-bool CImageLoaderPSD::readRLEImageData(io::IReadFile* file, const PsdHeader& header, u32* imageData) const
+bool CImageLoaderPSD::readRLEImageData(boost::shared_ptr<io::IReadFile> file, const PsdHeader& header, u32* imageData) const
 {
 	/*	If the compression code is 1, the image data
 		starts with the byte counts for all the scan lines in the channel

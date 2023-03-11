@@ -50,7 +50,7 @@ bool CXMeshFileLoader::isALoadableFileExtension(const io::path& filename) const
 //! \return Pointer to the created mesh. Returns 0 if loading failed.
 //! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 //! See IReferenceCounted::drop() for more information.
-boost::shared_ptr<IAnimatedMesh> CXMeshFileLoader::createMesh(io::IReadFile* f)
+boost::shared_ptr<IAnimatedMesh> CXMeshFileLoader::createMesh(boost::shared_ptr<io::IReadFile> f)
 {
 	if (!f)
 		return 0;
@@ -102,7 +102,7 @@ boost::shared_ptr<IAnimatedMesh> CXMeshFileLoader::createMesh(io::IReadFile* f)
 }
 
 
-bool CXMeshFileLoader::load(io::IReadFile* file)
+bool CXMeshFileLoader::load(boost::shared_ptr<io::IReadFile> file)
 {
 	if (!readFileIntoMemory(file))
 		return false;
@@ -393,7 +393,7 @@ bool CXMeshFileLoader::load(io::IReadFile* file)
 
 
 //! Reads file into memory
-bool CXMeshFileLoader::readFileIntoMemory(io::IReadFile* file)
+bool CXMeshFileLoader::readFileIntoMemory(boost::shared_ptr<io::IReadFile> file)
 {
 	const long size = file->getSize();
 	if (size < 12)

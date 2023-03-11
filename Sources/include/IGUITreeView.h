@@ -254,10 +254,10 @@ namespace gui
 
 		//! Sets the image list which should be used for the image and selected image of every node.
 		/** The default is 0 (no images). */
-		virtual void setImageList( IGUIImageList* imageList ) = 0;
+		virtual void setImageList( boost::shared_ptr<IGUIImageList> imageList ) = 0;
 
 		//! Returns the image list which is used for the nodes.
-		virtual IGUIImageList* getImageList() const = 0;
+		virtual boost::shared_ptr<IGUIImageList> getImageList() const = 0;
 
 		//! Sets if the image is left of the icon. Default is true.
 		virtual void setImageLeftOfIcon( bool bLeftOf ) = 0;

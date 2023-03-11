@@ -779,11 +779,11 @@ void COpenGLDriver::createMaterialRenderers()
 
 	// create OpenGL material renderers
 
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_SOLID(lockedDriver));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_SOLID_2_LAYER(lockedDriver));
+	addAndDropMaterialRenderer(boost::make_shared<COpenGLMaterialRenderer_SOLID>(lockedDriver));
+	addAndDropMaterialRenderer(boost::make_shared<COpenGLMaterialRenderer_SOLID_2_LAYER>(lockedDriver));
 
 	// add the same renderer for all lightmap types
-	COpenGLMaterialRenderer_LIGHTMAP* lmr = new COpenGLMaterialRenderer_LIGHTMAP(lockedDriver);
+	boost::shared_ptr<COpenGLMaterialRenderer_LIGHTMAP> lmr = boost::make_shared<COpenGLMaterialRenderer_LIGHTMAP>(lockedDriver);
 	addMaterialRenderer(lmr); // for EMT_LIGHTMAP:
 	addMaterialRenderer(lmr); // for EMT_LIGHTMAP_ADD:
 	addMaterialRenderer(lmr); // for EMT_LIGHTMAP_M2:
@@ -791,38 +791,37 @@ void COpenGLDriver::createMaterialRenderers()
 	addMaterialRenderer(lmr); // for EMT_LIGHTMAP_LIGHTING:
 	addMaterialRenderer(lmr); // for EMT_LIGHTMAP_LIGHTING_M2:
 	addMaterialRenderer(lmr); // for EMT_LIGHTMAP_LIGHTING_M4:
-	lmr->drop();
 
 	// add remaining material renderer
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_DETAIL_MAP(lockedDriver));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_SPHERE_MAP(lockedDriver));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_REFLECTION_2_LAYER(lockedDriver));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_ADD_COLOR(lockedDriver));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL(lockedDriver));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL_REF(lockedDriver));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_VERTEX_ALPHA(lockedDriver));
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_TRANSPARENT_REFLECTION_2_LAYER(lockedDriver));
+	addAndDropMaterialRenderer(boost::make_shared<COpenGLMaterialRenderer_DETAIL_MAP>(lockedDriver));
+	addAndDropMaterialRenderer(boost::make_shared<COpenGLMaterialRenderer_SPHERE_MAP>(lockedDriver));
+	addAndDropMaterialRenderer(boost::make_shared<COpenGLMaterialRenderer_REFLECTION_2_LAYER>(lockedDriver));
+	addAndDropMaterialRenderer(boost::make_shared<COpenGLMaterialRenderer_TRANSPARENT_ADD_COLOR>(lockedDriver));
+	addAndDropMaterialRenderer(boost::make_shared<COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL>(lockedDriver));
+	addAndDropMaterialRenderer(boost::make_shared<COpenGLMaterialRenderer_TRANSPARENT_ALPHA_CHANNEL_REF>(lockedDriver));
+	addAndDropMaterialRenderer(boost::make_shared<COpenGLMaterialRenderer_TRANSPARENT_VERTEX_ALPHA>(lockedDriver));
+	addAndDropMaterialRenderer(boost::make_shared<COpenGLMaterialRenderer_TRANSPARENT_REFLECTION_2_LAYER>(lockedDriver));
 
 	// add normal map renderers
-	s32 tmp = 0;
-	video::IMaterialRenderer* renderer = 0;
-	renderer = new COpenGLNormalMapRenderer(lockedDriver, tmp, MaterialRenderers[EMT_SOLID].Renderer);
-	renderer->drop();
-	renderer = new COpenGLNormalMapRenderer(lockedDriver, tmp, MaterialRenderers[EMT_TRANSPARENT_ADD_COLOR].Renderer);
-	renderer->drop();
-	renderer = new COpenGLNormalMapRenderer(lockedDriver, tmp, MaterialRenderers[EMT_TRANSPARENT_VERTEX_ALPHA].Renderer);
-	renderer->drop();
+	boost::shared_ptr<video::COpenGLNormalMapRenderer> normalMapRenderer;
+	normalMapRenderer = boost::make_shared<COpenGLNormalMapRenderer>(lockedDriver, MaterialRenderers[EMT_SOLID].Renderer);
+	normalMapRenderer->setWeakPtr(normalMapRenderer);
+	normalMapRenderer = boost::make_shared<COpenGLNormalMapRenderer>(lockedDriver, MaterialRenderers[EMT_TRANSPARENT_ADD_COLOR].Renderer);
+	normalMapRenderer->setWeakPtr(normalMapRenderer);
+	normalMapRenderer = boost::make_shared<COpenGLNormalMapRenderer>(lockedDriver, MaterialRenderers[EMT_TRANSPARENT_VERTEX_ALPHA].Renderer);
+	normalMapRenderer->setWeakPtr(normalMapRenderer);
 
 	// add parallax map renderers
-	renderer = new COpenGLParallaxMapRenderer(lockedDriver, tmp, MaterialRenderers[EMT_SOLID].Renderer);
-	renderer->drop();
-	renderer = new COpenGLParallaxMapRenderer(lockedDriver, tmp, MaterialRenderers[EMT_TRANSPARENT_ADD_COLOR].Renderer);
-	renderer->drop();
-	renderer = new COpenGLParallaxMapRenderer(lockedDriver, tmp, MaterialRenderers[EMT_TRANSPARENT_VERTEX_ALPHA].Renderer);
-	renderer->drop();
+	boost::shared_ptr<COpenGLParallaxMapRenderer> parallaxMapRenderer;
+	parallaxMapRenderer = boost::make_shared<COpenGLParallaxMapRenderer>(lockedDriver, MaterialRenderers[EMT_SOLID].Renderer);
+	parallaxMapRenderer->setWeakPtr(parallaxMapRenderer);
+	parallaxMapRenderer = boost::make_shared<COpenGLParallaxMapRenderer>(lockedDriver, MaterialRenderers[EMT_TRANSPARENT_ADD_COLOR].Renderer);
+	parallaxMapRenderer->setWeakPtr(parallaxMapRenderer);
+	parallaxMapRenderer = boost::make_shared<COpenGLParallaxMapRenderer>(lockedDriver, MaterialRenderers[EMT_TRANSPARENT_VERTEX_ALPHA].Renderer);
+	parallaxMapRenderer->setWeakPtr(parallaxMapRenderer);
 
 	// add basic 1 texture blending
-	addAndDropMaterialRenderer(new COpenGLMaterialRenderer_ONETEXTURE_BLEND(lockedDriver));
+	addAndDropMaterialRenderer(boost::make_shared<COpenGLMaterialRenderer_ONETEXTURE_BLEND>(lockedDriver));
 }
 
 
@@ -3926,15 +3925,16 @@ bool COpenGLDriver::setPixelShaderConstant(const c8* name, const s32* ints, int 
 //! vertex shaders to render geometry.
 s32 COpenGLDriver::addShaderMaterial(const c8* vertexShaderProgram,
 	const c8* pixelShaderProgram,
-	IShaderConstantSetCallBack* callback,
+	boost::shared_ptr<IShaderConstantSetCallBack> callback,
 	E_MATERIAL_TYPE baseMaterial, s32 userData)
 {
 	s32 nr = -1;
-	COpenGLShaderMaterialRenderer* r = new COpenGLShaderMaterialRenderer(
-		getSharedThis<COpenGLDriver>(), nr, vertexShaderProgram, pixelShaderProgram,
+	boost::shared_ptr<COpenGLShaderMaterialRenderer> r = boost::make_shared<COpenGLShaderMaterialRenderer>(
+		getSharedThis<COpenGLDriver>(),
 		callback, getMaterialRenderer(baseMaterial), userData);
+	r->setWeakPtr(r);
+	r->init(nr, vertexShaderProgram, pixelShaderProgram, EVT_STANDARD);
 
-	r->drop();
 	return nr;
 }
 
@@ -3953,7 +3953,7 @@ s32 COpenGLDriver::addHighLevelShaderMaterial(
 	scene::E_PRIMITIVE_TYPE inType,
 	scene::E_PRIMITIVE_TYPE outType,
 	u32 verticesOut,
-	IShaderConstantSetCallBack* callback,
+	boost::shared_ptr<IShaderConstantSetCallBack> callback,
 	E_MATERIAL_TYPE baseMaterial,
 	s32 userData, E_GPU_SHADING_LANGUAGE shadingLang)
 {
@@ -3964,28 +3964,25 @@ s32 COpenGLDriver::addHighLevelShaderMaterial(
 	#ifdef _IRR_COMPILE_WITH_CG_
 	if (shadingLang == EGSL_CG)
 	{
-		COpenGLCgMaterialRenderer* r = new COpenGLCgMaterialRenderer(
+		boost::shared_ptr<COpenGLCgMaterialRenderer> r = boost::make_shared<COpenGLCgMaterialRenderer>(
 			lockedDriver, nr,
 			vertexShaderProgram, vertexShaderEntryPointName, vsCompileTarget,
 			pixelShaderProgram, pixelShaderEntryPointName, psCompileTarget,
 			geometryShaderProgram, geometryShaderEntryPointName, gsCompileTarget,
 			inType, outType, verticesOut,
 			callback,getMaterialRenderer(baseMaterial), userData);
-
-		r->drop();
 	}
 	else
 	#endif
 	{
-		COpenGLSLMaterialRenderer* r = new COpenGLSLMaterialRenderer(
-			lockedDriver, nr,
-			vertexShaderProgram, vertexShaderEntryPointName, vsCompileTarget,
-			pixelShaderProgram, pixelShaderEntryPointName, psCompileTarget,
-			geometryShaderProgram, geometryShaderEntryPointName, gsCompileTarget,
+		boost::shared_ptr<COpenGLSLMaterialRenderer> r = boost::make_shared<COpenGLSLMaterialRenderer>(
+			lockedDriver, vertexShaderEntryPointName, vsCompileTarget,
+			pixelShaderEntryPointName, psCompileTarget,
+			geometryShaderEntryPointName, gsCompileTarget,
 			inType, outType, verticesOut,
 			callback,getMaterialRenderer(baseMaterial), userData);
-
-		r->drop();
+		r->setWeakPtr(r);
+		r->init(nr, vertexShaderProgram, pixelShaderProgram, geometryShaderProgram);
 	}
 
 	return nr;

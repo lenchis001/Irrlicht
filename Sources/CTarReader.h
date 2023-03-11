@@ -15,6 +15,7 @@
 #include "irrString.h"
 #include "IFileSystem.h"
 #include "CFileList.h"
+#include "SharedThisMixin.h"
 
 namespace irr
 {
@@ -76,7 +77,7 @@ namespace io
 		/** Check might look into the file.
 		\param file File handle to check.
 		\return True if file seems to be loadable. */
-		virtual bool isALoadableFileFormat(io::IReadFile* file) const;
+		virtual bool isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const;
 
 		//! Check to see if the loader can create archives of this type.
 		/** Check based on the archive type.
@@ -87,11 +88,11 @@ namespace io
 		//! Creates an archive from the filename
 		/** \param file File handle to check.
 		\return Pointer to newly created archive, or 0 upon error. */
-		virtual IFileArchive* createArchive(const io::path& filename, bool ignoreCase, bool ignorePaths) const;
+		virtual boost::shared_ptr<IFileArchive> createArchive(const io::path& filename, bool ignoreCase, bool ignorePaths) const;
 
 		//! creates/loads an archive from the file.
 		//! \return Pointer to the created archive. Returns 0 if loading failed.
-		virtual io::IFileArchive* createArchive(io::IReadFile* file, bool ignoreCase, bool ignorePaths) const;
+		virtual boost::shared_ptr<io::IFileArchive> createArchive(boost::shared_ptr<io::IReadFile> file, bool ignoreCase, bool ignorePaths) const;
 
 	private:
 		boost::shared_ptr<io::IFileSystem> FileSystem;
@@ -99,22 +100,22 @@ namespace io
 
 
 
-	class CTarReader : public virtual IFileArchive, virtual CFileList
+	class CTarReader : public virtual IFileArchive, public virtual CFileList, public SharedThisMixin<CTarReader>
 	{
 	public:
 
-		CTarReader(IReadFile* file, bool ignoreCase, bool ignorePaths);
+		CTarReader(boost::shared_ptr<IReadFile> file, bool ignoreCase, bool ignorePaths);
 
 		virtual ~CTarReader();
 
 		//! opens a file by file name
-		virtual IReadFile* createAndOpenFile(const io::path& filename);
+		virtual boost::shared_ptr<IReadFile> createAndOpenFile(const io::path& filename);
 
 		//! opens a file by index
-		virtual IReadFile* createAndOpenFile(u32 index);
+		virtual boost::shared_ptr<IReadFile> createAndOpenFile(u32 index);
 
 		//! returns the list of files
-		virtual const IFileList* getFileList() const;
+		virtual const boost::shared_ptr<IFileList> getFileList();
 
 		//! get the class Type
 		virtual E_FILE_ARCHIVE_TYPE getType() const { return EFAT_TAR; }
@@ -123,7 +124,7 @@ namespace io
 
 		u32 populateFileList();
 
-		IReadFile* File;
+		boost::shared_ptr<IReadFile> File;
 	};
 
 } // end namespace io

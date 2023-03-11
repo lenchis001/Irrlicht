@@ -43,10 +43,10 @@ public:
 
 	//! Adds a triangle selector to the collection of triangle selectors
 	//! in this metaTriangleSelector.
-	virtual void addTriangleSelector(ITriangleSelector* toAdd);
+	virtual void addTriangleSelector(boost::shared_ptr<ITriangleSelector> toAdd);
 
 	//! Removes a specific triangle selector which was added before	from the collection.
-	virtual bool removeTriangleSelector(ITriangleSelector* toRemove);
+	virtual bool removeTriangleSelector(boost::shared_ptr<ITriangleSelector> toRemove);
 
 	//! Removes all triangle selectors from the collection.
 	virtual void removeAllTriangleSelectors();
@@ -58,14 +58,11 @@ public:
 	virtual u32 getSelectorCount() const;
 
 	// Get the TriangleSelector based on index based on getSelectorCount
-	virtual ITriangleSelector* getSelector(u32 index);
-
-	// Get the TriangleSelector based on index based on getSelectorCount
-	virtual const ITriangleSelector* getSelector(u32 index) const;
+	virtual boost::shared_ptr<ITriangleSelector> getSelector(u32 index);
 
 private:
 
-	core::array<ITriangleSelector*> TriangleSelectors;
+	core::array<boost::shared_ptr<ITriangleSelector>> TriangleSelectors;
 };
 
 } // end namespace scene

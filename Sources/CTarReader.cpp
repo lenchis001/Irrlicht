@@ -42,15 +42,14 @@ bool CArchiveLoaderTAR::isALoadableFileFormat(E_FILE_ARCHIVE_TYPE fileType) cons
 //! Creates an archive from the filename
 /** \param file File handle to check.
 \return Pointer to newly created archive, or 0 upon error. */
-IFileArchive* CArchiveLoaderTAR::createArchive(const io::path& filename, bool ignoreCase, bool ignorePaths) const
+boost::shared_ptr<IFileArchive> CArchiveLoaderTAR::createArchive(const io::path& filename, bool ignoreCase, bool ignorePaths) const
 {
-	IFileArchive *archive = 0;
-	io::IReadFile* file = FileSystem->createAndOpenFile(filename);
+	boost::shared_ptr<IFileArchive> archive = 0;
+	boost::shared_ptr<io::IReadFile> file = FileSystem->createAndOpenFile(filename);
 
 	if (file)
 	{
 		archive = createArchive(file, ignoreCase, ignorePaths);
-		file->drop();
 	}
 
 	return archive;
@@ -59,13 +58,14 @@ IFileArchive* CArchiveLoaderTAR::createArchive(const io::path& filename, bool ig
 
 //! creates/loads an archive from the file.
 //! \return Pointer to the created archive. Returns 0 if loading failed.
-IFileArchive* CArchiveLoaderTAR::createArchive(io::IReadFile* file, bool ignoreCase, bool ignorePaths) const
+boost::shared_ptr<IFileArchive> CArchiveLoaderTAR::createArchive(boost::shared_ptr<io::IReadFile> file, bool ignoreCase, bool ignorePaths) const
 {
-	IFileArchive *archive = 0;
+	boost::shared_ptr<CTarReader> archive = 0;
 	if (file)
 	{
 		file->seek(0);
-		archive = new CTarReader(file, ignoreCase, ignorePaths);
+		archive = boost::make_shared<CTarReader>(file, ignoreCase, ignorePaths);
+		archive->setWeakPtr(archive);
 	}
 	return archive;
 }
@@ -74,7 +74,7 @@ IFileArchive* CArchiveLoaderTAR::createArchive(io::IReadFile* file, bool ignoreC
 /** Check might look into the file.
 \param file File handle to check.
 \return True if file seems to be loadable. */
-bool CArchiveLoaderTAR::isALoadableFileFormat(io::IReadFile* file) const
+bool CArchiveLoaderTAR::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	// TAR files consist of blocks of 512 bytes
 	// if it isn't a multiple of 512 then it's not a TAR file.
@@ -122,7 +122,7 @@ bool CArchiveLoaderTAR::isALoadableFileFormat(io::IReadFile* file) const
 /*
 	TAR Archive
 */
-CTarReader::CTarReader(IReadFile* file, bool ignoreCase, bool ignorePaths)
+CTarReader::CTarReader(boost::shared_ptr<IReadFile> file, bool ignoreCase, bool ignorePaths)
  : CFileList((file ? file->getFileName() : io::path("")), ignoreCase, ignorePaths), File(file)
 {
 	#ifdef _DEBUG
@@ -131,8 +131,6 @@ CTarReader::CTarReader(IReadFile* file, bool ignoreCase, bool ignorePaths)
 
 	if (File)
 	{
-		File->grab();
-
 		// fill the file list
 		populateFileList();
 
@@ -143,13 +141,11 @@ CTarReader::CTarReader(IReadFile* file, bool ignoreCase, bool ignorePaths)
 
 CTarReader::~CTarReader()
 {
-	if (File)
-		File->drop();
 }
 
-const IFileList* CTarReader::getFileList() const
+const boost::shared_ptr<IFileList> CTarReader::getFileList()
 {
-	return this;
+	return getSharedThis();
 }
 
 
@@ -228,7 +224,7 @@ u32 CTarReader::populateFileList()
 }
 
 //! opens a file by file name
-IReadFile* CTarReader::createAndOpenFile(const io::path& filename)
+boost::shared_ptr<IReadFile> CTarReader::createAndOpenFile(const io::path& filename)
 {
 	const s32 index = findFile(filename, false);
 
@@ -239,7 +235,7 @@ IReadFile* CTarReader::createAndOpenFile(const io::path& filename)
 }
 
 //! opens a file by index
-IReadFile* CTarReader::createAndOpenFile(u32 index)
+boost::shared_ptr<IReadFile> CTarReader::createAndOpenFile(u32 index)
 {
 	if (index >= Files.size() )
 		return 0;

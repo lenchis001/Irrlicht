@@ -504,7 +504,7 @@ void CGUIContextMenu::draw()
 		recalculateSize();
 	}
 
-	IGUISpriteBank* sprites = skin->getSpriteBank();
+	boost::shared_ptr<IGUISpriteBank> sprites = skin->getSpriteBank();
 
 	core::rect<s32> rect = AbsoluteRect;
 	core::rect<s32>* clip = 0;

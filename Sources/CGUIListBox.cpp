@@ -40,8 +40,6 @@ CGUIListBox::CGUIListBox(boost::shared_ptr<IGUIEnvironment> environment, boost::
 //! destructor
 CGUIListBox::~CGUIListBox()
 {
-	if (IconBank)
-		IconBank->drop();
 }
 
 
@@ -579,16 +577,12 @@ u32 CGUIListBox::addItem(const wchar_t* text, s32 icon)
 }
 
 
-void CGUIListBox::setSpriteBank(IGUISpriteBank* bank)
+void CGUIListBox::setSpriteBank(boost::shared_ptr<IGUISpriteBank> bank)
 {
 	if ( bank == IconBank )
 		return;
-	if (IconBank)
-		IconBank->drop();
 
 	IconBank = bank;
-	if (IconBank)
-		IconBank->grab();
 }
 
 

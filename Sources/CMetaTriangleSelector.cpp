@@ -97,24 +97,22 @@ void CMetaTriangleSelector::getTriangles(core::triangle3df* triangles, s32 array
 
 //! Adds a triangle selector to the collection of triangle selectors
 //! in this metaTriangleSelector.
-void CMetaTriangleSelector::addTriangleSelector(ITriangleSelector* toAdd)
+void CMetaTriangleSelector::addTriangleSelector(boost::shared_ptr<ITriangleSelector> toAdd)
 {
 	if (!toAdd)
 		return;
 
 	TriangleSelectors.push_back(toAdd);
-	toAdd->grab();
 }
 
 
 //! Removes a specific triangle selector which was added before	from the collection.
-bool CMetaTriangleSelector::removeTriangleSelector(ITriangleSelector* toRemove)
+bool CMetaTriangleSelector::removeTriangleSelector(boost::shared_ptr<ITriangleSelector> toRemove)
 {
 	for (u32 i=0; i<TriangleSelectors.size(); ++i)
 	{
 		if (toRemove == TriangleSelectors[i])
 		{
-			TriangleSelectors[i]->drop();
 			TriangleSelectors.erase(i);
 			return true;
 		}
@@ -127,9 +125,6 @@ bool CMetaTriangleSelector::removeTriangleSelector(ITriangleSelector* toRemove)
 //! Removes all triangle selectors from the collection.
 void CMetaTriangleSelector::removeAllTriangleSelectors()
 {
-	for (u32 i=0; i<TriangleSelectors.size(); ++i)
-		TriangleSelectors[i]->drop();
-
 	TriangleSelectors.clear();
 }
 
@@ -164,24 +159,12 @@ u32 CMetaTriangleSelector::getSelectorCount() const
 /* Returns the TriangleSelector based on index based on getSelectorCount
 Only useful for MetaTriangleSelector others return 'this'
 */
-ITriangleSelector* CMetaTriangleSelector::getSelector(u32 index)
+boost::shared_ptr<ITriangleSelector> CMetaTriangleSelector::getSelector(u32 index)
 {
 	if (index >= TriangleSelectors.size())
 		return 0;
 	return TriangleSelectors[index];
 }
-
-
-/* Returns the TriangleSelector based on index based on getSelectorCount
-Only useful for MetaTriangleSelector others return 'this'
-*/
-const ITriangleSelector* CMetaTriangleSelector::getSelector(u32 index) const
-{
-	if (index >= TriangleSelectors.size())
-		return 0;
-	return TriangleSelectors[index];
-}
-
 
 } // end namespace scene
 } // end namespace irr

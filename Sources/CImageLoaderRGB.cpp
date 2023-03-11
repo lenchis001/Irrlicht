@@ -157,7 +157,7 @@ bool CImageLoaderRGB::isALoadableFileExtension(const io::path& filename) const
 
 
 //! returns true if the file maybe is able to be loaded by this class
-bool CImageLoaderRGB::isALoadableFileFormat(io::IReadFile* file) const
+bool CImageLoaderRGB::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	rgbStruct rgb;
 	return checkFormat(file, rgb);
@@ -167,7 +167,7 @@ bool CImageLoaderRGB::isALoadableFileFormat(io::IReadFile* file) const
 /** The main entry point, read and format the image file.
 \return Pointer to the image data on success
 				null pointer on fail */
-boost::shared_ptr<IImage> CImageLoaderRGB::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderRGB::loadImage(boost::shared_ptr<io::IReadFile> file) const
 {
 	boost::shared_ptr<CImage> image = 0;
 	s32* paletteData = 0;
@@ -276,7 +276,7 @@ boost::shared_ptr<IImage> CImageLoaderRGB::loadImage(io::IReadFile* file) const
 }
 
 // returns true on success
-bool CImageLoaderRGB::readHeader(io::IReadFile* file, rgbStruct& rgb) const
+bool CImageLoaderRGB::readHeader(boost::shared_ptr<io::IReadFile> file, rgbStruct& rgb) const
 {
 	if ( file->read(&rgb.Header, sizeof(rgb.Header)) < s32(sizeof(rgb.Header)) )
 		return false;
@@ -303,7 +303,7 @@ bool CImageLoaderRGB::readHeader(io::IReadFile* file, rgbStruct& rgb) const
 }
 
 
-bool CImageLoaderRGB::checkFormat(io::IReadFile* file, rgbStruct& rgb) const
+bool CImageLoaderRGB::checkFormat(boost::shared_ptr<io::IReadFile> file, rgbStruct& rgb) const
 {
 	if (!readHeader(file, rgb))
 		return false;
@@ -353,7 +353,7 @@ point to the same data!!
   RETURNS:	on success true, else returns false
 */
 
-bool CImageLoaderRGB::readOffsetTables(io::IReadFile* file, rgbStruct& rgb) const
+bool CImageLoaderRGB::readOffsetTables(boost::shared_ptr<io::IReadFile> file, rgbStruct& rgb) const
 {
 	rgb.TableLen = rgb.Header.Ysize * rgb.Header.Zsize ; // calc size of tables
 
@@ -388,7 +388,7 @@ bool CImageLoaderRGB::readOffsetTables(io::IReadFile* file, rgbStruct& rgb) cons
 	The Tables have been read if necessary
 	Now process the actual data
 */
-void CImageLoaderRGB::processFile(io::IReadFile* file, rgbStruct& rgb) const
+void CImageLoaderRGB::processFile(boost::shared_ptr<io::IReadFile> file, rgbStruct& rgb) const
 {
 	u16 *tempShort;
 
@@ -500,7 +500,7 @@ void CImageLoaderRGB::processFile(io::IReadFile* file, rgbStruct& rgb) const
 
 	Return a row of data, expanding RLE compression if necessary
 */
-void CImageLoaderRGB::readRGBrow(u8 *buf, int y, int z, io::IReadFile* file, rgbStruct& rgb) const
+void CImageLoaderRGB::readRGBrow(u8 *buf, int y, int z, boost::shared_ptr<io::IReadFile> file, rgbStruct& rgb) const
 {
 	if (rgb.Header.Storage != 1)
 	{

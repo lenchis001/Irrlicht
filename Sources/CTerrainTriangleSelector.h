@@ -11,6 +11,7 @@
 
 #include "ITriangleSelector.h"
 #include "irrArray.h"
+#include "SharedThisMixin.h"
 
 namespace irr
 {
@@ -25,7 +26,7 @@ developed by Spintz. He made it available for Irrlicht and allowed it to be
 distributed under this licence. I only modified some parts. A lot of thanks go
 to him.
 */
-class CTerrainTriangleSelector : public ITriangleSelector
+class CTerrainTriangleSelector : public ITriangleSelector, public SharedThisMixin<CTerrainTriangleSelector>
 {
 public:
 
@@ -61,10 +62,7 @@ public:
 	virtual u32 getSelectorCount() const;
 
 	// Get the TriangleSelector based on index based on getSelectorCount
-	virtual ITriangleSelector* getSelector(u32 index);
-
-	// Get the TriangleSelector based on index based on getSelectorCount
-	virtual const ITriangleSelector* getSelector(u32 index) const;
+	virtual boost::shared_ptr<ITriangleSelector> getSelector(u32 index);
 
 private:
 

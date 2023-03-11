@@ -36,7 +36,7 @@ typedef struct
 {
 	struct jpeg_destination_mgr pub;/* public fields */
 
-	io::IWriteFile* file;		/* target file */
+	boost::shared_ptr<io::IWriteFile> file;		/* target file */
 	JOCTET buffer[OUTPUT_BUF_SIZE];	/* image buffer */
 } mem_destination_mgr;
 
@@ -80,7 +80,7 @@ static void jpeg_term_destination(j_compress_ptr cinfo)
 
 
 // set up buffer data
-static void jpeg_file_dest(j_compress_ptr cinfo, io::IWriteFile* file)
+static void jpeg_file_dest(j_compress_ptr cinfo, boost::shared_ptr<io::IWriteFile> file)
 {
 	if (cinfo->dest == NULL)
 	{ /* first time for this JPEG object? */
@@ -104,7 +104,7 @@ static void jpeg_file_dest(j_compress_ptr cinfo, io::IWriteFile* file)
 
 /* write_JPEG_memory: store JPEG compressed image into memory.
 */
-static bool writeJPEGFile(io::IWriteFile* file, boost::shared_ptr<IImage> image, u32 quality)
+static bool writeJPEGFile(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<IImage> image, u32 quality)
 {
 	void (*format)(const void*, s32, void*) = 0;
 	switch( image->getColorFormat () )
@@ -213,7 +213,7 @@ bool CImageWriterJPG::isAWriteableFileExtension(const io::path& filename) const
 }
 
 
-bool CImageWriterJPG::writeImage(io::IWriteFile *file, boost::shared_ptr<IImage> image, u32 quality) const
+bool CImageWriterJPG::writeImage(boost::shared_ptr<io::IWriteFile> file, boost::shared_ptr<IImage> image, u32 quality) const
 {
 #ifndef _IRR_COMPILE_WITH_LIBJPEG_
 	return false;

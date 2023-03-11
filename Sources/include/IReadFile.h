@@ -14,7 +14,7 @@ namespace io
 {
 
 	//! Interface providing read acess to a file.
-	class IReadFile : public virtual IReferenceCounted
+	class IReadFile : public virtual IDebugable
 	{
 	public:
 		//! Reads an amount of bytes from the file.
@@ -45,11 +45,11 @@ namespace io
 	};
 
 	//! Internal function, please do not use.
-	IReadFile* createReadFile(const io::path& fileName);
+	boost::shared_ptr<IReadFile> createReadFile(const io::path& fileName);
 	//! Internal function, please do not use.
-	IReadFile* createLimitReadFile(const io::path& fileName, IReadFile* alreadyOpenedFile, long pos, long areaSize);
+	boost::shared_ptr<IReadFile> createLimitReadFile(const io::path& fileName, boost::shared_ptr<IReadFile> alreadyOpenedFile, long pos, long areaSize);
 	//! Internal function, please do not use.
-	IReadFile* createMemoryReadFile(void* memory, long size, const io::path& fileName, bool deleteMemoryWhenDropped);
+	boost::shared_ptr<IReadFile> createMemoryReadFile(void* memory, long size, const io::path& fileName, bool deleteMemoryWhenDropped);
 
 } // end namespace io
 } // end namespace irr

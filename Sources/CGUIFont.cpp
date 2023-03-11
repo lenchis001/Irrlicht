@@ -35,11 +35,7 @@ CGUIFont::CGUIFont(boost::shared_ptr<IGUIEnvironment> env, const io::path& filen
 		SpriteBank = lockedEnvironment->getSpriteBank(filename);
 		if (!SpriteBank)	// could be default-font which has no file
 			SpriteBank = lockedEnvironment->addEmptySpriteBank(filename);
-		if (SpriteBank)
-			SpriteBank->grab();
 	}
-
-
 
 	setInvisibleCharacters ( L" " );
 }
@@ -48,16 +44,10 @@ CGUIFont::CGUIFont(boost::shared_ptr<IGUIEnvironment> env, const io::path& filen
 //! destructor
 CGUIFont::~CGUIFont()
 {
-
-
-	if (SpriteBank)
-	{
-		SpriteBank->drop();
 		// TODO: spritebank still exists in gui-environment and should be removed here when it's
 		// reference-count is 1. Just can't do that from here at the moment.
 		// But spritebank would not be able to drop textures anyway because those are in texture-cache
 		// where they can't be removed unless materials start reference-couting 'em.
-	}
 }
 
 
@@ -225,7 +215,7 @@ inline boost::shared_ptr<IGUIEnvironment> CGUIFont::getSharedEnvironment()
 
 
 //! loads a font file, native file needed, for texture parsing
-bool CGUIFont::load(io::IReadFile* file)
+bool CGUIFont::load(boost::shared_ptr<io::IReadFile> file)
 {
 	if (!Driver)
 		return false;
@@ -577,7 +567,7 @@ s32 CGUIFont::getCharacterFromPos(const wchar_t* text, s32 pixel_x) const
 }
 
 
-IGUISpriteBank* CGUIFont::getSpriteBank() const
+boost::shared_ptr<IGUISpriteBank> CGUIFont::getSpriteBank() const
 {
 	return SpriteBank;
 }

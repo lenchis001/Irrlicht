@@ -478,10 +478,6 @@ CGUITreeView::CGUITreeView(boost::shared_ptr<IGUIEnvironment> environment, boost
 //! destructor
 CGUITreeView::~CGUITreeView()
 {
-	if( ImageList )
-	{
-		ImageList->drop();
-	}
 }
 
 void CGUITreeView::setWeakThis(boost::shared_ptr<IGUIElement> value)
@@ -1072,15 +1068,8 @@ void CGUITreeView::setIconFont( boost::shared_ptr<IGUIFont> font )
 
 //! Sets the image list which should be used for the image and selected image of every node.
 //! The default is 0 (no images).
-void CGUITreeView::setImageList( IGUIImageList* imageList )
+void CGUITreeView::setImageList( boost::shared_ptr<IGUIImageList> imageList )
 {
-	if (imageList )
-		imageList->grab();
-	if( ImageList )
-	{
-		ImageList->drop();
-	}
-
 	ImageList = imageList;
 	if( ImageList )
 	{

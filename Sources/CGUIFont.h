@@ -43,7 +43,7 @@ public:
 	bool load(const io::path& filename);
 
 	//! loads a font from a texture file
-	bool load(io::IReadFile* file);
+	bool load(boost::shared_ptr<io::IReadFile> file);
 
 	//! loads a font from an XML file
 	bool load(io::IXMLReader* xml);
@@ -71,7 +71,7 @@ public:
 	virtual s32 getKerningHeight() const;
 
 	//! gets the sprite bank
-	virtual IGUISpriteBank* getSpriteBank() const;
+	virtual boost::shared_ptr<IGUISpriteBank> getSpriteBank() const;
 
 	//! returns the sprite number from a given character
 	virtual u32 getSpriteNoFromChar(const wchar_t *c) const;
@@ -102,7 +102,7 @@ private:
 	core::array<SFontArea>		Areas;
 	core::map<wchar_t, s32>		CharacterMap;
 	boost::shared_ptr<video::IVideoDriver>		Driver;
-	IGUISpriteBank*			SpriteBank;
+	boost::shared_ptr<IGUISpriteBank>			SpriteBank;
 	boost::weak_ptr<IGUIEnvironment>		Environment;
 	u32				WrongCharacter;
 	s32				MaxHeight;

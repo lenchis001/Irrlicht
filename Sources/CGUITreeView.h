@@ -284,10 +284,10 @@ namespace gui
 
 		//! Sets the image list which should be used for the image and selected image of every node.
 		//! The default is 0 (no images).
-		virtual void setImageList( IGUIImageList* imageList );
+		virtual void setImageList( boost::shared_ptr<IGUIImageList> imageList );
 
 		//! Returns the image list which is used for the nodes.
-		virtual IGUIImageList* getImageList() const
+		virtual boost::shared_ptr<IGUIImageList> getImageList() const
 		{ return ImageList; }
 
 		//! Sets if the image is left of the icon. Default is true.
@@ -321,7 +321,7 @@ namespace gui
 		boost::shared_ptr<IGUIFont>		IconFont;
 		boost::shared_ptr<IGUIScrollBar>		ScrollBarH;
 		boost::shared_ptr<IGUIScrollBar>		ScrollBarV;
-		IGUIImageList*		ImageList;
+		boost::shared_ptr<IGUIImageList>		ImageList;
 		boost::shared_ptr<IGUITreeViewNode>	LastEventNode;
 		bool			LinesVisible;
 		bool			Selecting;

@@ -652,7 +652,7 @@ bool CImageLoaderDDS::isALoadableFileExtension(const io::path& filename) const
 
 
 //! returns true if the file maybe is able to be loaded by this class
-bool CImageLoaderDDS::isALoadableFileFormat(io::IReadFile* file) const
+bool CImageLoaderDDS::isALoadableFileFormat(boost::shared_ptr<io::IReadFile> file) const
 {
 	if (!file)
 		return false;
@@ -668,7 +668,7 @@ bool CImageLoaderDDS::isALoadableFileFormat(io::IReadFile* file) const
 
 
 //! creates a surface from the file
-boost::shared_ptr<IImage> CImageLoaderDDS::loadImage(io::IReadFile* file) const
+boost::shared_ptr<IImage> CImageLoaderDDS::loadImage(boost::shared_ptr<io::IReadFile> file) const
 {
 	u8 *memFile = new u8 [ file->getSize() ];
 	file->read ( memFile, file->getSize() );

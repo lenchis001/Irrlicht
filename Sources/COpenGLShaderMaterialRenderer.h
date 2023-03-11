@@ -29,6 +29,7 @@
 
 #include "IMaterialRenderer.h"
 #include "VideoDriverAwareMixin.h"
+#include "SharedThisMixin.h"
 
 namespace irr
 {
@@ -40,14 +41,13 @@ class IShaderConstantSetCallBack;
 class IMaterialRenderer;
 
 //! Class for using vertex and pixel shaders with OpenGL
-class COpenGLShaderMaterialRenderer : public IMaterialRenderer, public VideoDriverAwareMixin<COpenGLDriver>
+class COpenGLShaderMaterialRenderer : public IMaterialRenderer, public VideoDriverAwareMixin<COpenGLDriver>, public SharedThisMixin<COpenGLShaderMaterialRenderer>
 {
 public:
 
 	//! Constructor
 	COpenGLShaderMaterialRenderer(boost::shared_ptr<COpenGLDriver> driver,
-		s32& outMaterialTypeNr, const c8* vertexShaderProgram, const c8* pixelShaderProgram,
-		IShaderConstantSetCallBack* callback, IMaterialRenderer* baseMaterial, s32 userData);
+		boost::shared_ptr<IShaderConstantSetCallBack> callback, boost::shared_ptr<IMaterialRenderer> baseMaterial, s32 userData=0);
 
 	//! Destructor
 	virtual ~COpenGLShaderMaterialRenderer();
@@ -62,24 +62,17 @@ public:
 	//! Returns if the material is transparent.
 	virtual bool isTransparent() const;
 
-protected:
-
-	//! constructor only for use by derived classes who want to
-	//! create a fall back material for example.
-	COpenGLShaderMaterialRenderer(boost::shared_ptr<COpenGLDriver> driver,
-					IShaderConstantSetCallBack* callback,
-					IMaterialRenderer* baseMaterial, s32 userData=0);
-
 	// must not be called more than once!
 	void init(s32& outMaterialTypeNr, const c8* vertexShaderProgram,
 		const c8* pixelShaderProgram, E_VERTEX_TYPE type);
 
+protected:
 	bool createPixelShader(const c8* pxsh);
 	bool createVertexShader(const c8* vtxsh);
 	bool checkError(const irr::c8* type);
 
-	IShaderConstantSetCallBack* CallBack;
-	IMaterialRenderer* BaseMaterial;
+	boost::shared_ptr<IShaderConstantSetCallBack> CallBack;
+	boost::shared_ptr<IMaterialRenderer> BaseMaterial;
 
 	GLuint VertexShader;
 	// We have 4 values here, [0] is the non-fog version, the other three are
