@@ -12,6 +12,8 @@ RUN ./bootstrap.sh && ./b2 link=static variant=release
 ENV BOOST_ROOT=/Libs/boost_1_78_0
 # Preparing libs finished
 
+RUN apt install libalut-dev libopenal-dev libvorbis-dev -y
+
 RUN mkdir /Project
 WORKDIR /Project
 COPY . .

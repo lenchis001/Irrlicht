@@ -1,7 +1,7 @@
-﻿include_directories("include" $ENV{BOOST_ROOT} "sources/zlib")
+﻿include_directories($ENV{BOOST_ROOT})
 
 file(GLOB tam_sources_files
-     "sources/**/*.cpp"
+     "Sources/**/*.cpp"
 )
 
 # Add source to this project's executable.

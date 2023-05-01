@@ -1,5 +1,7 @@
 #include "TNCUtils.h"
 
+#include <algorithm>
+
 namespace TUtils {
 Uri TUtils::Uri::Parse(const std::wstring& uri)
 {

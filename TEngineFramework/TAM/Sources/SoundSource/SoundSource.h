@@ -11,7 +11,7 @@
 
 #include "map"
 
-#include "al/al.h"
+#include "AL/al.h"
 #include "vorbis/vorbisfile.h"
 #include <fstream>
 

@@ -4,7 +4,7 @@
 #include "memory"
 #include "string"
 
-#include "al/alc.h"
+#include "AL/alc.h"
 
 #include "Utils/Utils.h"
 

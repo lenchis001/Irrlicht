@@ -16,7 +16,7 @@ std::wstring readText(const std::wstring& pathToFile)
     if (boost::filesystem::exists(pathToFile)) {
         boost::filesystem::wifstream reader(pathToFile);
 
-        reader.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::consume_header>()));
+        reader.imbue(std::locale(std::locale(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::consume_header>()));
 
         auto fileSize = boost::filesystem::file_size(pathToFile);
 
@@ -30,7 +30,7 @@ std::wstring readText(const std::wstring& pathToFile)
         reader.close();
         return fileData;
     } else {
-        throw std::exception("File isn't exist.");
+        throw "File isn't exist.";
     }
 }
 
@@ -51,7 +51,7 @@ std::string readBytes(const std::wstring& pathToFile)
         reader.close();
         return result;
     } else {
-        throw std::exception("File isn't exist.");
+        throw "File isn't exist.";
     }
 }
 
@@ -61,7 +61,7 @@ bool write(const std::wstring& pathToFile, const std::wstring& fileData)
 
     boost::filesystem::wofstream writer(pathToFile);
 
-    writer.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::consume_header>()));
+    writer.imbue(std::locale(std::locale(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::consume_header>()));
 
     if (writer) {
         writer.write(fileData.c_str(), fileData.length());
