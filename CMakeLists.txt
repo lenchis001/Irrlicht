@@ -14,3 +14,5 @@ add_subdirectory ("TEngineFramework/TUtils")
 add_subdirectory ("TEngineFramework/TAM")
 add_subdirectory ("TEngineFramework/TCore")
 add_subdirectory ("TEngineFramework/TNC")
+
+add_subdirectory ("TLauncher")

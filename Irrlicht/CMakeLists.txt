@@ -22,4 +22,9 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Irrlicht PROPERTY CXX_STANDARD 17)
 endif()
 
-# TODO: Add tests and install targets if needed.
+set(Irrlicht_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/Irrlicht/include
+                                 ${Irrlicht_INCLUDE_DIR}
+    CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
+
+set(Irrlicht_DEFINITIONS ${Irrlicht_DEFINITIONS}
+    CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
