@@ -1,12 +1,12 @@
 ﻿#include "irrlicht.h"
 
-#include "IGame.h"
+#include "TEngineGameLogicApi/IGame.h"
 
 #include "boost/dll.hpp"
 
 #include "TCoreFacade.h"
 #include "TNCFacade.h"
-#include "TamFacade.h"
+#include "TAMFacade.h"
 
 #include "Utils/Filesystem.h"
 

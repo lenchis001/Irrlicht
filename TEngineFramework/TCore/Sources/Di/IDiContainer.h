@@ -6,7 +6,7 @@
 
 #include "boost/any.hpp"
 #include "boost/smart_ptr.hpp"
-
+#include <boost/exception/info.hpp>
 
 class IDiContainer {
 public:
@@ -17,9 +17,7 @@ public:
 			);
 		}
 		else {
-			throw std::exception(
-				(std::string("Connot find registration for ") + std::string(typeid(boost::shared_ptr<T>).name())).c_str()
-			);
+			throw std::string("Cannot find registration for ") + std::string(typeid(boost::shared_ptr<T>).name());
 		}
 	}
 
