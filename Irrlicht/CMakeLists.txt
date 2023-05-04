@@ -15,12 +15,13 @@ file(GLOB irrlicht_sources_files
      "sources/zlib/*.c"
 )
 
-# Add source to this project's executable.
 add_library(Irrlicht STATIC ${irrlicht_sources_files})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Irrlicht PROPERTY CXX_STANDARD 17)
 endif()
+
+target_link_libraries(Irrlicht PUBLIC glut GL GLU X11 Xxf86vm)
 
 set(Irrlicht_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/Irrlicht/include
                                  ${Irrlicht_INCLUDE_DIR}

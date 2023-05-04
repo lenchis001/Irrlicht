@@ -7,7 +7,15 @@ file(GLOB tlauncher_sources_files
 
 add_executable(TLauncher ${tlauncher_sources_files})
 
-target_link_libraries(TLauncher PUBLIC TAM)
+file(GLOB boost_lib_files
+  if(MSVC) 
+    $ENV{BOOST_ROOT}/stage/lib/*.lib
+  else()
+    $ENV{BOOST_ROOT}/stage/lib/*.a
+  endif()
+)
+
+target_link_libraries(TLauncher PUBLIC TAM TCore TNC TUtils Irrlicht ${boost_lib_files})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET TLauncher PROPERTY CXX_STANDARD 17)

@@ -1,8 +1,11 @@
-﻿#include "irrlicht.h"
+﻿#include "iostream"
+
+#include "irrlicht.h"
 
 #include "TEngineGameLogicApi/IGame.h"
 
 #include "boost/dll.hpp"
+#include "boost/filesystem.hpp"
 
 #include "TCoreFacade.h"
 #include "TNCFacade.h"
@@ -28,12 +31,18 @@ void registerIrrlichtDependencies(boost::shared_ptr<irr::IrrlichtDevice> device,
 }
 
 boost::shared_ptr<IGame> loadGame() {
+    #if defined (_IRR_WINDOWS_)
+        std::wstring gameLibraryPath = L"./GameLogic.dll";
+    #else
+        std::wstring gameLibraryPath = L"./GameLogic.so";
+    #endif
+
+    if (!boost::filesystem::exists(gameLibraryPath)) {
+        return nullptr;
+    }
+
     return boost::dll::import_symbol<IGame>(
-#if defined (_IRR_WINDOWS_)
-        "./GameLogic.dll",
-#else
-        "./GameLogic.so",
-#endif
+        gameLibraryPath,
         "game"
         );
 }
@@ -54,6 +63,11 @@ int main(int argc, char* argv[])
             registerIrrlichtDependencies(device, container);
 
             auto game = loadGame();
+            if(!game) {
+                std::cout<< "Game library file was not found." << std::endl;
+                return 3;
+            }
+
             game->startGame(device);
 
             auto functionsProcessingManager = container->resolve<IFunctionsProcessingManager>();

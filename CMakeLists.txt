@@ -11,8 +11,8 @@ set(CMAKE_COLOR_MAKEFILE   ON)
 # Include sub-projects.
 add_subdirectory ("Irrlicht")
 add_subdirectory ("TEngineFramework/TUtils")
-add_subdirectory ("TEngineFramework/TAM")
 add_subdirectory ("TEngineFramework/TCore")
+add_subdirectory ("TEngineFramework/TAM")
 add_subdirectory ("TEngineFramework/TNC")
 
 add_subdirectory ("TLauncher")

@@ -1,6 +1,7 @@
 ﻿include_directories($ENV{BOOST_ROOT} ${TUtils_INCLUDE_DIR})
 
 file(GLOB tcore_sources_files
+     "Sources/*.cpp"
      "Sources/**/*.cpp"
 )
 

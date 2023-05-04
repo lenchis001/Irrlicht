@@ -1,6 +1,7 @@
 ﻿include_directories($ENV{BOOST_ROOT} ${TUtils_INCLUDE_DIR} "Sources/")
 
 file(GLOB tnc_sources_files
+     "Sources/*.cpp"
      "Sources/**/*.cpp"
 )
 
