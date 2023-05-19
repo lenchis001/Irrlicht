@@ -1,6 +1,6 @@
 FROM ubuntu
 
-RUN apt update && apt install g++ cmake make p7zip-full wget freeglut3-dev libxxf86vm-dev -y
+RUN apt update && apt install g++ cmake make p7zip-full wget freeglut3-dev libxxf86vm-dev libalut-dev libopenal-dev libvorbis-dev -y
 
 # Preparing libs
 RUN mkdir /Libs
@@ -11,8 +11,6 @@ WORKDIR /Libs/boost_1_78_0
 RUN ./bootstrap.sh && ./b2 link=static variant=release
 ENV BOOST_ROOT=/Libs/boost_1_78_0
 # Preparing libs finished
-
-RUN apt install libalut-dev libopenal-dev libvorbis-dev -y
 
 RUN mkdir /Project
 WORKDIR /Project
