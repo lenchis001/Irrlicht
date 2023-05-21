@@ -225,6 +225,7 @@ void COpenGLParallaxMapRenderer::OnSetMaterial(const video::SMaterial& material,
 void COpenGLParallaxMapRenderer::setWeakPtr(boost::shared_ptr<COpenGLParallaxMapRenderer> sharedThis)
 {
 	SharedThisMixin<COpenGLParallaxMapRenderer>::setWeakPtr(sharedThis);
+	COpenGLShaderMaterialRenderer::setWeakPtr(sharedThis);
 
 	// set this as callback. We could have done this in
 	// the initialization list, but some compilers don't like it.

@@ -193,6 +193,7 @@ s32 COpenGLNormalMapRenderer::getRenderCapability()
 void COpenGLNormalMapRenderer::setWeakPtr(boost::shared_ptr<COpenGLNormalMapRenderer> sharedThis)
 {
 	SharedThisMixin<COpenGLNormalMapRenderer>::setWeakPtr(sharedThis);
+	COpenGLShaderMaterialRenderer::setWeakPtr(sharedThis);
 
 	// set this as callback. We could have done this in
 	// the initialization list, but some compilers don't like it.
