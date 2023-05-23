@@ -40,6 +40,18 @@
                 ],
                 "limitSymbolsToIncludedHeaders": true
             }
+        },
+        {
+            "name": "linux64",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/leon/Libs/boost_1_78_0/"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
         }
     ],
     "version": 4
