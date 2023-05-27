@@ -8,7 +8,7 @@
 #include "boost/property_tree/ptree.hpp"
 #include "boost/smart_ptr.hpp"
 
-#include "TamFacade.h"
+#include "TAMFacade.h"
 #include "ServicesFacade.h"
 
 #include "Common/LanguageDependents.h"

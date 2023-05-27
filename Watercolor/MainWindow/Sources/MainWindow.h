@@ -10,7 +10,7 @@
 #include "Items/MainWindowStatusBar.h"
 #include "Items/ToolMenu.h"
 #include "Items/UIThreadFunctionsRunner/UIThreadFunctionsRunner.h"
-#include "ProjectDataManager\IProjectDataManager.h"
+#include "ProjectDataManager/IProjectDataManager.h"
 
 namespace Watercolor {
 class MainWindow : public wxFrame {

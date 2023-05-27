@@ -1,6 +1,6 @@
 #pragma once
 
-#include "wx\notebook.h"
+#include "wx/notebook.h"
 #include <wx/wx.h>
 
 #include "boost/smart_ptr.hpp"

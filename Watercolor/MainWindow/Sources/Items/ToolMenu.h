@@ -8,7 +8,7 @@
 #include "TCoreFacade.h"
 
 #include "Items/Graphic/GizmoGraphicContext.h"
-#include "ProjectDataManager\IProjectDataManager.h"
+#include "ProjectDataManager/IProjectDataManager.h"
 
 namespace Watercolor {
 class ToolMenu : public wxToolBar {

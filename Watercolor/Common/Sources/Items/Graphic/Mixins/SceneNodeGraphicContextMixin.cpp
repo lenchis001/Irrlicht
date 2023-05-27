@@ -284,7 +284,7 @@ void SceneNodeGraphicContextMixin::removeNode(const std::wstring& itemName)
     auto existingNode = _getNodeByName(itemName);
 
     if (!existingNode) {
-        throw std::exception(TUtils::toString(L"Item with name \"" + itemName + L"\" isn\\'t exist!").c_str());
+        throw L"Item with name \"" + itemName + L"\" isn\\'t exist!";
     }
 
     onBeforeNodeRemove.callHandlers(existingNode);

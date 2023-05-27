@@ -95,7 +95,13 @@ void WelcomeWindow::_onPluginRequested(wxCommandEvent& e)
     _projectDataManager->clear();
 
     int pluginId = e.GetId();
-    auto newProjectPath = _pluginHandlers[pluginId]->onWelcomeWindowButtonClicked(this->GetHWND());
+    auto newProjectPath = _pluginHandlers[pluginId]->onWelcomeWindowButtonClicked(
+        #if (_WINDOWS_)
+        this->GetHWND()
+        #else
+        0    
+        #endif
+    );
 
     if (!newProjectPath.empty()) {
         _projectDataManager->openProject(newProjectPath);
@@ -121,7 +127,13 @@ void WelcomeWindow::_runPlugin(boost::shared_ptr<IPlugin> plugin)
 {
     _projectDataManager->clear();
 
-    auto newProjectPath = plugin->onWelcomeWindowButtonClicked(this->GetHWND());
+    auto newProjectPath = plugin->onWelcomeWindowButtonClicked(
+#if (_WINDOWS_)
+        this->GetHWND()
+#else
+        0    
+#endif
+    );
 
     if (!newProjectPath.empty()) {
         _projectDataManager->openProject(newProjectPath);

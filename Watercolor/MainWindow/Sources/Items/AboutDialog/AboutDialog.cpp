@@ -1,6 +1,6 @@
 #include "AboutDialog.h"
 
-#include "wx\font.h"
+#include "wx/font.h"
 
 #include "boost/filesystem.hpp"
 #include "boost/make_shared.hpp"

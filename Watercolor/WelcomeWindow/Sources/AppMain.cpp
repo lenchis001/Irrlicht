@@ -1,7 +1,7 @@
 #include "AppMain.h"
 #include "WelcomeWindow.h"
 
-#include "TamFacade.h"
+#include "TAMFacade.h"
 #include "CommonDependencyRegistrator.h"
 
 #include "Common/CommonData.h"

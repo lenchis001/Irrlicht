@@ -96,7 +96,11 @@ void MainMenu::_saveLevelChangesExit(bool askConfirmation)
 void MainMenu::_onPluginRequested(wxCommandEvent& e)
 {
     int pluginId = e.GetId();
+    #if (_WINDOWS_)
     HWND handle = this->MSWGetParent();
+    #else
+    int handle = 0;
+    #endif
     _pluginHandlers[pluginId]->onTopMenuItemClicked(_projectDataManager->getProjectDirectory(), handle);
 }
 

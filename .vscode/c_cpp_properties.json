@@ -45,7 +45,9 @@
             "name": "linux64",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/home/leon/Libs/boost_1_78_0/"
+                "~/Libs/boost_1_78_0/",
+                "${WX_WIDGETS}/include",
+                "${WX_WIDGETS}/gtk-build/lib/wx/include/gtk3-unicode-static-3.2"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

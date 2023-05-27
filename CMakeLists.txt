@@ -8,6 +8,10 @@ project ("TEngine")
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 
+set(GCC_COVERAGE_COMPILE_FLAGS "-pthread")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
+SET(CMAKE_CXX_FLAGS -pthread)
+
 if(MSVC)
     find_program(NUGET_EXE NAMES ${PROJECT_SOURCE_DIR}/tools/nuget)
     exec_program(${NUGET_EXE} ARGS install "boost" -Version 1.78.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
@@ -15,6 +19,20 @@ if(MSVC)
     exec_program(${NUGET_EXE} ARGS install "boost_thread-vc143" -Version 1.78.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
     exec_program(${NUGET_EXE} ARGS install "boost_chrono-vc143" -Version 1.78.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
     exec_program(${NUGET_EXE} ARGS install "boost_locale-vc143" -Version 1.78.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+    
+    set(WX_INCLUDE_DIR $ENV{HOME}/include
+    CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
+else()
+    set(WX_INCLUDE_DIR  /usr/include/wx-3.0
+                        /usr/lib/x86_64-linux-gnu/wx/include/gtk3-unicode-3.0
+    CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
+    set(WX_DEFINITIONS WXUSINGDLL __WXGTK__ _FILE_OFFSET_BITS=64 PIC wxUSE_PROPGRID wxUSE_ODCOMBOBOX CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
+    
+    file(GLOB external_lib_files
+        $ENV{BOOST_ROOT}/stage/lib/*.a
+    )
+
+    set(WX_LIBS wx_gtk3u_aui-3.0 wx_gtk3u_propgrid-3.0 wx_gtk3u_xrc-3.0 wx_gtk3u_webview-3.0 wx_gtk3u_html-3.0 wx_gtk3u_qa-3.0 wx_gtk3u_adv-3.0 wx_gtk3u_core-3.0 wx_baseu_xml-3.0 wx_baseu_net-3.0 wx_baseu-3.0 CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
 endif()
 
 # Include sub-projects.
@@ -25,6 +43,11 @@ add_subdirectory ("TEngineFramework/TAM")
 add_subdirectory ("TEngineFramework/TNC")
 
 add_subdirectory ("TLauncher")
+
+add_subdirectory ("Watercolor/Common")
+add_subdirectory ("Watercolor/Services")
+add_subdirectory ("Watercolor/MainWindow")
+add_subdirectory ("Watercolor/WelcomeWindow")
 
 if(MSVC)
     #configure_file(${CMAKE_BINARY_DIR}/packages/OpenAL.Soft/runtimes/win-x86/native/OpenAL32.dll ${CMAKE_BINARY_DIR}/TLauncher COPYONLY)

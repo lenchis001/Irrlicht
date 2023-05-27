@@ -2,7 +2,7 @@
 
 #include "memory"
 
-#include "wx\notebook.h"
+#include "wx/notebook.h"
 #include <wx/wx.h>
 
 #include "Items/LevelItemsEditor/LevelItemsEditor.h"

@@ -7,7 +7,7 @@
 #include "boost/smart_ptr.hpp"
 
 #include "TCoreFacade.h"
-#include "TamFacade.h"
+#include "TAMFacade.h"
 #include "ServicesFacade.h"
 
 #include "Items/UIThreadFunctionsRunner/UIThreadFunctionsRunner.h"

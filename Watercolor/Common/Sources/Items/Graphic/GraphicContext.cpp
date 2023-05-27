@@ -1,7 +1,7 @@
 #include "GraphicContext.h"
 #include "TCoreFacade.h"
 
-#include "gl/gl.h"
+#include "GL/gl.h"
 
 #include "boost/make_shared.hpp"
 
@@ -18,7 +18,11 @@ void GraphicContext::_prepareContext()
     param.Bits = 32;
     param.Stencilbuffer = true;
     param.Vsync = true;
+#if defined (_WINDOWS_)
     param.WindowId = reinterpret_cast<void*>(this->GetHWND());
+#else
+    param.WindowId = reinterpret_cast<void*>(this->GetHandle());
+#endif
 
     _device = irr::createDeviceEx(param);
     _driver = _device->getVideoDriver();

@@ -2,11 +2,12 @@
 
 #include "locale"
 #include <codecvt>
+#include "iostream"
+#include "filesystem"
 
 #include "boost/filesystem.hpp"
 #include "boost/property_tree/json_parser.hpp"
-#include "boost/shared_ptr.hpp"
-#include <boost/iostreams/device/mapped_file.hpp>
+// #include <boost/iostreams/device/mapped_file.hpp>
 
 #include "Utils.h"
 
@@ -14,9 +15,9 @@ namespace TUtils::Filesystem {
 std::wstring readText(const std::wstring& pathToFile)
 {
     if (boost::filesystem::exists(pathToFile)) {
-        boost::filesystem::wifstream reader(pathToFile);
+        std::wifstream reader = std::filesystem::path(pathToFile);
 
-        reader.imbue(std::locale(std::locale(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::consume_header>()));
+        reader.imbue(std::locale("en_US.UTF-8"));
 
         auto fileSize = boost::filesystem::file_size(pathToFile);
 
@@ -37,7 +38,7 @@ std::wstring readText(const std::wstring& pathToFile)
 std::string readBytes(const std::wstring& pathToFile)
 {
     if (boost::filesystem::exists(pathToFile)) {
-        boost::filesystem::ifstream reader(pathToFile, std::ios::binary);
+        std::ifstream reader(std::filesystem::path(pathToFile), std::ios::binary);
 
         auto fileSize = boost::filesystem::file_size(pathToFile);
 
@@ -59,9 +60,9 @@ bool write(const std::wstring& pathToFile, const std::wstring& fileData)
 {
     bool result = false;
 
-    boost::filesystem::wofstream writer(pathToFile);
+    std::wofstream writer = std::filesystem::path(pathToFile);
 
-    writer.imbue(std::locale(std::locale(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::consume_header>()));
+    writer.imbue(std::locale("en_US.UTF-8"));
 
     if (writer) {
         writer.write(fileData.c_str(), fileData.length());
