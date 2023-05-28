@@ -1,6 +1,6 @@
 FROM ubuntu
 
-RUN apt update && apt install g++ cmake make p7zip-full wget freeglut3-dev libxxf86vm-dev libalut-dev libopenal-dev libvorbis-dev -y
+RUN apt update && apt install g++ cmake make p7zip-full wget freeglut3-dev libxxf86vm-dev libalut-dev libopenal-dev libvorbis-dev libwxgtk3.0-gtk3-0v5 libwxgtk3.0-gtk3-dev libwxgtk-media3.0-gtk3-dev  libwxgtk-webview3.0-gtk3-dev libwxsmithlib-dev -y
 
 # Preparing libs
 RUN mkdir /Libs

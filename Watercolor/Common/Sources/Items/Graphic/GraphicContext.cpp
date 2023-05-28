@@ -7,6 +7,12 @@
 
 #include "Utils/Utils.h"
 
+#ifdef _IRR_COMPILE_WITH_X11_DEVICE_
+#include "gdk/gdk.h"
+#include "gtk/gtk.h"
+#include <gdk/gdkx.h>
+#endif
+
 #define NODE_PROPERTY_CHANGE_PROXY_HANDLER_NAME L"GraphicContext on node property change"
 
 namespace Watercolor::Common {
@@ -18,12 +24,20 @@ void GraphicContext::_prepareContext()
     param.Bits = 32;
     param.Stencilbuffer = true;
     param.Vsync = true;
-#if defined (_WINDOWS_)
+#ifdef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
     param.WindowId = reinterpret_cast<void*>(this->GetHWND());
-#else
-    param.WindowId = reinterpret_cast<void*>(this->GetHandle());
-#endif
+#elif defined(_IRR_COMPILE_WITH_X11_DEVICE_)
+    GtkWidget* widget = this->GetHandle();
+    gtk_widget_realize( widget );
+    GdkWindow* window = gtk_widget_get_window(widget);
+    auto x11Window = GDK_WINDOW_XID(window);
 
+    gtk_widget_set_double_buffered(widget, false);
+    
+    param.WindowId = reinterpret_cast<void*>(x11Window);
+#else
+    #error "This type of compilation is not setup yet..."
+#endif
     _device = irr::createDeviceEx(param);
     _driver = _device->getVideoDriver();
     _sceneManager = _device->getSceneManager();

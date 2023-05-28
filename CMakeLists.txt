@@ -25,6 +25,14 @@ if(MSVC)
 else()
     set(WX_INCLUDE_DIR  /usr/include/wx-3.0
                         /usr/lib/x86_64-linux-gnu/wx/include/gtk3-unicode-3.0
+                        /usr/include/gtk-3.0
+                        /usr/include/glib-2.0
+                        /usr/lib/x86_64-linux-gnu/glib-2.0/include
+                        /usr/include/pango-1.0
+                        /usr/include/harfbuzz
+                        /usr/include/cairo
+                        /usr/include/gdk-pixbuf-2.0
+                        /usr/include/atk-1.0
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
     set(WX_DEFINITIONS WXUSINGDLL __WXGTK__ _FILE_OFFSET_BITS=64 PIC wxUSE_PROPGRID wxUSE_ODCOMBOBOX CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
     
@@ -32,7 +40,31 @@ else()
         $ENV{BOOST_ROOT}/stage/lib/*.a
     )
 
-    set(WX_LIBS wx_gtk3u_aui-3.0 wx_gtk3u_propgrid-3.0 wx_gtk3u_xrc-3.0 wx_gtk3u_webview-3.0 wx_gtk3u_html-3.0 wx_gtk3u_qa-3.0 wx_gtk3u_adv-3.0 wx_gtk3u_core-3.0 wx_baseu_xml-3.0 wx_baseu_net-3.0 wx_baseu-3.0 CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
+    set(WX_LIBS 
+        wx_gtk3u_aui-3.0
+        wx_gtk3u_propgrid-3.0
+        wx_gtk3u_xrc-3.0
+        wx_gtk3u_webview-3.0
+        wx_gtk3u_html-3.0
+        wx_gtk3u_qa-3.0
+        wx_gtk3u_adv-3.0
+        wx_gtk3u_core-3.0
+        wx_baseu_xml-3.0
+        wx_baseu_net-3.0
+        wx_baseu-3.0
+        gtk-3
+        gdk-3
+        pangocairo-1.0
+        pango-1.0
+        harfbuzz
+        atk-1.0
+        cairo-gobject
+        cairo
+        gdk_pixbuf-2.0
+        gio-2.0
+        gobject-2.0
+        glib-2.0
+        CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
 endif()
 
 # Include sub-projects.
