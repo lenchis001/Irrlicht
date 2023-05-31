@@ -36,7 +36,7 @@ private:
 
     irr::EKEY_CODE _wxKeyCodeToIrrKeyCore(wxKeyCode code) const;
 
-    void _prepareContext();
+    void _prepareContext(void* windowId);
     inline void _reDraw();
 
     void _onKeyDown(wxKeyEvent& eventData);

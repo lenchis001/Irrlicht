@@ -22,7 +22,6 @@ public:
         boost::shared_ptr<Common::IProjectDataManager> projectDataManager,
         boost::shared_ptr<Services::Plugins::IPluginService> pluginService,
         boost::shared_ptr<Services::Controls::IControlIdService> controlsIdService);
-    ~MainWindow();
 
 private:
     boost::shared_ptr<Common::UIThreadFunctionsRunner> _commandsRunner;
@@ -35,8 +34,5 @@ private:
     boost::shared_ptr<IFunctionsProcessingManager> _functionsProcessingManager;
 
     bool _areControlsLoaded;
-    Common::GraphicContext* _graphicContext;
-
-    void _onLevelLoaded();
 };
 }

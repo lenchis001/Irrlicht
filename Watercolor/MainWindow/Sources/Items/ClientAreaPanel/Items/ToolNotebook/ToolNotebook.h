@@ -9,7 +9,7 @@
 
 namespace Watercolor {
 class ToolNotebook : public wxNotebook {
-    std::unique_ptr<LevelItemsEditor> _levelItemsEditor;
+    std::unique_ptr<CurrentLevelNodesTab> _levelItemsEditor;
 
 public:
     ToolNotebook(wxWindow* parent, boost::shared_ptr<IFunctionsProcessingManager> functionsProcessingManager);

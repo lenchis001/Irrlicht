@@ -10,7 +10,7 @@ ToolNotebook::ToolNotebook(wxWindow* parent, boost::shared_ptr<IFunctionsProcess
 {
     SetMinSize({ 400, 400 });
 
-    _levelItemsEditor = boost::make_unique<LevelItemsEditor>(this, functionsProcessingManager);
+    _levelItemsEditor = boost::make_unique<CurrentLevelNodesTab>(this, functionsProcessingManager);
     this->AddPage(_levelItemsEditor.get(), TOOLS_BAR_LEVELS_ITEMS_EDITOR);
 }
 }

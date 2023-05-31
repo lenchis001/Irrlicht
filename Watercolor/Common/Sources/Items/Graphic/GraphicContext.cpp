@@ -16,7 +16,7 @@
 #define NODE_PROPERTY_CHANGE_PROXY_HANDLER_NAME L"GraphicContext on node property change"
 
 namespace Watercolor::Common {
-void GraphicContext::_prepareContext()
+void GraphicContext::_prepareContext(void* windowId)
 {
     irr::SIrrlichtCreationParameters param;
     param.DriverType = irr::video::E_DRIVER_TYPE::EDT_OPENGL;
@@ -24,20 +24,8 @@ void GraphicContext::_prepareContext()
     param.Bits = 32;
     param.Stencilbuffer = true;
     param.Vsync = true;
-#ifdef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
-    param.WindowId = reinterpret_cast<void*>(this->GetHWND());
-#elif defined(_IRR_COMPILE_WITH_X11_DEVICE_)
-    GtkWidget* widget = this->GetHandle();
-    gtk_widget_realize( widget );
-    GdkWindow* window = gtk_widget_get_window(widget);
-    auto x11Window = GDK_WINDOW_XID(window);
+    param.WindowId = windowId;
 
-    gtk_widget_set_double_buffered(widget, false);
-    
-    param.WindowId = reinterpret_cast<void*>(x11Window);
-#else
-    #error "This type of compilation is not setup yet..."
-#endif
     _device = irr::createDeviceEx(param);
     _driver = _device->getVideoDriver();
     _sceneManager = _device->getSceneManager();
@@ -121,8 +109,23 @@ GraphicContext::GraphicContext(wxWindow* parent, ThreadType threadType,
 {
     _renderingMutex = boost::make_shared<boost::mutex>();
 
-    _drawThread = boost::make_shared<boost::thread>([&]() {
-        _prepareContext();
+#ifdef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
+    void* window = reinterpret_cast<void*>(this->GetHWND());
+#elif defined(_IRR_COMPILE_WITH_X11_DEVICE_)
+    GtkWidget* widget = this->GetHandle();
+    gtk_widget_realize( widget );
+    GdkWindow* gtkWindow = gtk_widget_get_window(widget);
+    auto x11Window = GDK_WINDOW_XID(gtkWindow);
+
+    gtk_widget_set_double_buffered(widget, false);
+    
+    void* window = reinterpret_cast<void*>(x11Window);
+#else
+    #error "This type of compilation is not setup yet..."
+#endif
+
+    _drawThread = boost::make_shared<boost::thread>([&, window]() {
+        _prepareContext(window);
 
         while (!boost::this_thread::interruption_requested()) {
             // TODO: Mutex is too slow here

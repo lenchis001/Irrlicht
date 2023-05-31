@@ -78,34 +78,6 @@ else()
     target_link_libraries(WelcomeWindow PUBLIC 
       ${external_lib_files}
       ${WX_LIBS}
-      gtk-3
-      gdk-3
-      pangocairo-1.0
-      pango-1.0
-      harfbuzz
-      atk-1.0
-      cairo-gobject
-      cairo
-      gdk_pixbuf-2.0
-      gio-2.0
-      gobject-2.0
-      gthread-2.0
-      glib-2.0
-      X11
-      Xxf86vm
-      SM
-      Xtst
-      pangoft2-1.0
-      fontconfig
-      freetype
-      png
-      z
-      jpeg
-      tiff
-      jbig
-      expat
-      pcre2-32
-      m
     )
 endif()
 

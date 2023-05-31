@@ -23,8 +23,8 @@ if(MSVC)
     set(WX_INCLUDE_DIR $ENV{HOME}/include
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
 else()
-    set(WX_INCLUDE_DIR  /usr/include/wx-3.0
-                        /usr/lib/x86_64-linux-gnu/wx/include/gtk3-unicode-3.0
+    set(WX_INCLUDE_DIR  $ENV{WX_WIDGETS}/include
+                        $ENV{WX_WIDGETS}/gtk-build/lib/wx/include/gtk3-unicode-3.2
                         /usr/include/gtk-3.0
                         /usr/include/glib-2.0
                         /usr/lib/x86_64-linux-gnu/glib-2.0/include
@@ -38,32 +38,22 @@ else()
     
     file(GLOB external_lib_files
         $ENV{BOOST_ROOT}/stage/lib/*.a
+        $ENV{WX_WIDGETS}/gtk-build/lib/*.so
     )
 
     set(WX_LIBS 
-        wx_gtk3u_aui-3.0
-        wx_gtk3u_propgrid-3.0
-        wx_gtk3u_xrc-3.0
-        wx_gtk3u_webview-3.0
-        wx_gtk3u_html-3.0
-        wx_gtk3u_qa-3.0
-        wx_gtk3u_adv-3.0
-        wx_gtk3u_core-3.0
-        wx_baseu_xml-3.0
-        wx_baseu_net-3.0
-        wx_baseu-3.0
         gtk-3
         gdk-3
+        gobject-2.0
         pangocairo-1.0
-        pango-1.0
-        harfbuzz
-        atk-1.0
-        cairo-gobject
         cairo
         gdk_pixbuf-2.0
         gio-2.0
-        gobject-2.0
+        pangoft2-1.0
+        pango-1.0
         glib-2.0
+        fontconfig
+        gtk-3
         CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
 endif()
 

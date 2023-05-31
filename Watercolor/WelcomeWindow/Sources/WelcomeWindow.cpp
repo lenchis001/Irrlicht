@@ -150,7 +150,7 @@ void WelcomeWindow::_runEditor()
     this->HideWithEffect(wxShowEffect::wxSHOW_EFFECT_SLIDE_TO_TOP);
 
     _mainWindow = new MainWindow(this, _functionsProcessingManager, _soundService, _projectDataManager, _pluginService, _controlsIdService);
-    _mainWindow->ShowWithEffect(wxShowEffect::wxSHOW_EFFECT_SLIDE_TO_BOTTOM);
+    _mainWindow->Show();
     _mainWindow->Bind(wxEVT_CLOSE_WINDOW, [&](auto _) {
         _mainWindow->Destroy();
 

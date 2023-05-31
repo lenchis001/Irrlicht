@@ -17,9 +17,9 @@ void RecentlyOpenedProjectsService::readRecentlyOpenedProjects()
 {
     _recentlyOpened.clear();
 
-    if (boost::filesystem::exists(RECENTLY_OPENED_LIST_FILE)) {
-        _recentlyOpened = TUtils::Filesystem::readVector(RECENTLY_OPENED_LIST_FILE);
-    }
+    // if (boost::filesystem::exists(RECENTLY_OPENED_LIST_FILE)) {
+    //     _recentlyOpened = TUtils::Filesystem::readVector(RECENTLY_OPENED_LIST_FILE);
+    // }
 }
 
 void RecentlyOpenedProjectsService::saveAsRecentlyOpened(const std::wstring& projectPath)
