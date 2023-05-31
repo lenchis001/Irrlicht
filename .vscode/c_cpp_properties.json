@@ -46,8 +46,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "~/Libs/boost_1_78_0/",
-                "/usr/include/wx-3.0",
-                "/usr/lib/x86_64-linux-gnu/wx/include/gtk3-unicode-3.0",
+                "${WX_WIDGETS}/include",
+                "${WX_WIDGETS}/gtk-build/lib/wx/include/gtk3-unicode-3.2",
                 "/usr/include/gtk-3.0",
                 "/usr/include/glib-2.0",
                 "/usr/lib/x86_64-linux-gnu/glib-2.0/include",
