@@ -15,7 +15,7 @@ namespace TUtils::Filesystem {
 std::wstring readText(const std::wstring& pathToFile)
 {
     if (boost::filesystem::exists(pathToFile)) {
-        std::wifstream reader = std::filesystem::path(pathToFile);
+        std::wifstream reader = std::wifstream(std::filesystem::path(pathToFile));
 
         reader.imbue(std::locale("en_US.UTF-8"));
 
@@ -60,7 +60,7 @@ bool write(const std::wstring& pathToFile, const std::wstring& fileData)
 {
     bool result = false;
 
-    std::wofstream writer = std::filesystem::path(pathToFile);
+    std::wofstream writer = std::wofstream(std::filesystem::path(pathToFile));
 
     writer.imbue(std::locale("en_US.UTF-8"));
 

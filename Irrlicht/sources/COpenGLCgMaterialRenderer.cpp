@@ -134,7 +134,7 @@ void COpenGLCgMaterialRenderer::OnUnsetMaterial()
 	if (BaseMaterial)
 		BaseMaterial->OnUnsetMaterial();
 
-	Material = IdentityMaterial;;
+	Material = IdentityMaterial;
 }
 
 void COpenGLCgMaterialRenderer::setBasicRenderStates(const SMaterial& material, const SMaterial& lastMaterial, bool resetAllRenderstates)

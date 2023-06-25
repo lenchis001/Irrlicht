@@ -3,10 +3,7 @@
 #include "TCoreFacade.h"
 #include "TUtils.h"
 
-#include "boost/function.hpp"
-
 #include "Common/CommonData.h"
-#include "Items/Graphic/GraphicContext.h"
 #include "ThreadTypes/ThreadTypes.h"
 
 #define ON_LEVEL_LOADED_HANDLER L"on level loaded tree handler"

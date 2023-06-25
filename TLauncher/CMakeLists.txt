@@ -10,10 +10,10 @@ add_executable(TLauncher ${tlauncher_sources_files})
 if(MSVC)
     include_directories(${CMAKE_BINARY_DIR}/packages/boost/lib/native/include)
     target_link_directories(TLauncher PUBLIC 
-        ${CMAKE_BINARY_DIR}/packages/boost_filesystem-vc143/lib/native
-        ${CMAKE_BINARY_DIR}/packages/boost_thread-vc143/lib/native
-        ${CMAKE_BINARY_DIR}/packages/boost_chrono-vc143/lib/native
-        ${CMAKE_BINARY_DIR}/packages/boost_locale-vc143/lib/native
+        ${CMAKE_BINARY_DIR}/packages/boost_filesystem-vc142/lib/native
+        ${CMAKE_BINARY_DIR}/packages/boost_thread-vc142/lib/native
+        ${CMAKE_BINARY_DIR}/packages/boost_chrono-vc142/lib/native
+        ${CMAKE_BINARY_DIR}/packages/boost_locale-vc142/lib/native
     )
 else()
     include_directories($ENV{BOOST_ROOT})

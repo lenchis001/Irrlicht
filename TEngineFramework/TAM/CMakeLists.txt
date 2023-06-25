@@ -13,10 +13,12 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
 endif()
 
 if(MSVC)
-    find_program(NUGET_EXE NAMES ${PROJECT_SOURCE_DIR}/tools/nuget)
-    exec_program(${NUGET_EXE} ARGS install "ogg-msvc-x86" -Version 1.3.2.8787 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-    exec_program(${NUGET_EXE} ARGS install "vorbis-msvc-x86" -Version 1.3.5.8787 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-    exec_program(${NUGET_EXE} ARGS install "OpenAL.Soft" -Version 1.19.1 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+    if(NOT EXISTS ${CMAKE_BINARY_DIR}/packages/ogg-msvc-x86)
+        find_program(NUGET_EXE NAMES ${PROJECT_SOURCE_DIR}/tools/nuget)
+        exec_program(${NUGET_EXE} ARGS install "ogg-msvc-x86" -Version 1.3.2.8787 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+        exec_program(${NUGET_EXE} ARGS install "vorbis-msvc-x86" -Version 1.3.5.8787 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+        exec_program(${NUGET_EXE} ARGS install "OpenAL.Soft" -Version 1.19.1 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+    endif()
 
     include_directories(
         ${CMAKE_BINARY_DIR}/packages/boost/lib/native/include

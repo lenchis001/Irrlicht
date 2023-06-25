@@ -2,9 +2,6 @@
 
 #include "MainMenu.h"
 
-#include "boost/filesystem.hpp"
-#include "boost/make_shared.hpp"
-
 #include "Utils/Utils.h"
 
 #include "AboutDialog/AboutDialog.h"
@@ -96,7 +93,7 @@ void MainMenu::_saveLevelChangesExit(bool askConfirmation)
 void MainMenu::_onPluginRequested(wxCommandEvent& e)
 {
     int pluginId = e.GetId();
-    #if (_WINDOWS_)
+    #ifdef _WINDOWS_
     HWND handle = this->MSWGetParent();
     #else
     int handle = 0;

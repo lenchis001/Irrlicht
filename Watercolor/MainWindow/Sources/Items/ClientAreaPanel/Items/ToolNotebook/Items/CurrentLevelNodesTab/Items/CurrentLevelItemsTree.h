@@ -5,6 +5,8 @@
 #include "wx/treectrl.h"
 #include "wx/wx.h"
 
+#include "boost/function.hpp"
+
 #include "Items/Graphic/GizmoGraphicContext.h"
 
 namespace Watercolor {

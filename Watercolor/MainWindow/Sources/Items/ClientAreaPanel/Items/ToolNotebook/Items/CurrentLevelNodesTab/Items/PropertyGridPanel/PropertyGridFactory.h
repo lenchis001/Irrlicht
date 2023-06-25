@@ -3,9 +3,9 @@
 #include "wx/propgrid/propgrid.h"
 #include "wx/wx.h"
 
-#include "irrlicht.h"
+#include "boost/smart_ptr.hpp"
 
-#include "boost/shared_ptr.hpp"
+#include "irrlicht.h"
 
 #include "SceneNodePropertyGrid.h"
 

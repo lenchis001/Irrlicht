@@ -96,7 +96,7 @@ void WelcomeWindow::_onPluginRequested(wxCommandEvent& e)
 
     int pluginId = e.GetId();
     auto newProjectPath = _pluginHandlers[pluginId]->onWelcomeWindowButtonClicked(
-        #if (_WINDOWS_)
+        #ifdef _WINDOWS_
         this->GetHWND()
         #else
         0    
@@ -128,7 +128,7 @@ void WelcomeWindow::_runPlugin(boost::shared_ptr<IPlugin> plugin)
     _projectDataManager->clear();
 
     auto newProjectPath = plugin->onWelcomeWindowButtonClicked(
-#if (_WINDOWS_)
+#ifdef _WINDOWS_
         this->GetHWND()
 #else
         0    

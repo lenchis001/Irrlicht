@@ -16,7 +16,7 @@ public:
 	virtual PluginType getType() = 0;
 
 	virtual void onTopMenuItemClicked(const std::wstring& openedProjectPath, 
-	#if (_WINDOWS_)
+	#ifdef _WINDOWS_
 	HWND
 	#else
 	int
@@ -24,7 +24,7 @@ public:
 	parent) = 0;
 
 	virtual std::wstring onWelcomeWindowButtonClicked(
-	#if (_WINDOWS_)
+	#ifdef _WINDOWS_
 	HWND
 	#else
 	int

@@ -2,6 +2,7 @@
 
 #include "IPluginService.h"
 
+#include "string"
 #include "map"
 
 namespace Watercolor::Services::Plugins {

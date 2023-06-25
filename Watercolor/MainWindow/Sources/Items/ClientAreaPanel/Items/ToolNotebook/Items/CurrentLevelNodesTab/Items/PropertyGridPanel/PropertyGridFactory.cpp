@@ -1,9 +1,5 @@
 #include "PropertyGridFactory.h"
 
-#include "irrlicht.h"
-
-#include "boost/shared_ptr.hpp"
-
 #include "TUtils.h"
 
 #include "CameraSceneNodePropertyGrid.h"

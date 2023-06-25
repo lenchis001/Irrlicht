@@ -2,9 +2,9 @@
 
 #include <wx/wx.h>
 
-#include "irrlicht.h"
-
 #include "boost/smart_ptr.hpp"
+
+#include "irrlicht.h"
 
 #include "TCoreFacade.h"
 #include "TAMFacade.h"

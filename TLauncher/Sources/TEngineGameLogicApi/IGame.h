@@ -1,10 +1,10 @@
 #ifndef TGAME
 #define TGAME
 
-#include "irrlicht.h"
-
 #include "boost/smart_ptr.hpp"
 #include "boost/config.hpp"
+
+#include "irrlicht.h"
 
 class BOOST_SYMBOL_VISIBLE IGame {
 public:

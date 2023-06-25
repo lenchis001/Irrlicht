@@ -8,19 +8,35 @@ project ("TEngine")
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 
+if(UNIX)
 set(GCC_COVERAGE_COMPILE_FLAGS "-pthread")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
 SET(CMAKE_CXX_FLAGS -pthread)
+else()
+SET(CMAKE_CXX_FLAGS           "${CMAKE_CXX_FLAGS} /D \"SAFESEH:NO\"")
+SET(CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
+SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")
+SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /SAFESEH:NO")
+endif()
+
+set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 if(MSVC)
-    find_program(NUGET_EXE NAMES ${PROJECT_SOURCE_DIR}/tools/nuget)
-    exec_program(${NUGET_EXE} ARGS install "boost" -Version 1.78.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-    exec_program(${NUGET_EXE} ARGS install "boost_filesystem-vc143" -Version 1.78.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-    exec_program(${NUGET_EXE} ARGS install "boost_thread-vc143" -Version 1.78.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-    exec_program(${NUGET_EXE} ARGS install "boost_chrono-vc143" -Version 1.78.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-    exec_program(${NUGET_EXE} ARGS install "boost_locale-vc143" -Version 1.78.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+    if(NOT EXISTS ${CMAKE_BINARY_DIR}/packages/boost)
+        find_program(NUGET_EXE NAMES ${PROJECT_SOURCE_DIR}/tools/nuget)
+        exec_program(${NUGET_EXE} ARGS install "boost" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+        exec_program(${NUGET_EXE} ARGS install "boost_filesystem-vc142" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+        exec_program(${NUGET_EXE} ARGS install "boost_thread-vc142" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+        exec_program(${NUGET_EXE} ARGS install "boost_chrono-vc142" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+        exec_program(${NUGET_EXE} ARGS install "boost_locale-vc142" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+    endif()
     
-    set(WX_INCLUDE_DIR $ENV{HOME}/include
+    set(WX_INCLUDE_DIR $ENV{WX_WIDGETS}/include
+                    if(${IS_DEBUG_BUILD})
+                       $ENV{WX_WIDGETS}/lib/vc_lib/mswud
+                    else()
+                        $ENV{WX_WIDGETS}/lib/vc_lib/mswu
+                    endif()
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
 else()
     set(WX_INCLUDE_DIR  $ENV{WX_WIDGETS}/include
