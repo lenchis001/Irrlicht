@@ -1,4 +1,4 @@
-﻿include_directories(${TUtils_INCLUDE_DIR})
+﻿include_directories(${TUtils_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/TGameApi)
 
 file(GLOB tcore_sources_files
      "Sources/*.cpp"
@@ -20,4 +20,5 @@ endif()
 
 set(TCore_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/TEngineFramework/TCore/Sources
                                  ${TCore_INCLUDE_DIR}
+                                 ${PROJECT_SOURCE_DIR}/TGameApi
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)

@@ -8,7 +8,7 @@ RUN mkdir /Libs
 WORKDIR /Libs
 RUN wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.7z && 7z x ./boost_1_82_0.7z && rm ./boost_1_82_0.7z
 WORKDIR /Libs/boost_1_82_0
-RUN ./bootstrap.sh && ./b2 link=static variant=release
+RUN ./bootstrap.sh && ./b2 link=static variant=release cxxflags=-fPIC cflags=-fPIC
 ENV BOOST_ROOT=/Libs/boost_1_82_0
 
 WORKDIR /Libs

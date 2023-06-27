@@ -881,6 +881,8 @@ void CGUIListBox::setWeakThis(boost::shared_ptr<IGUIElement> value)
 	ScrollBar = boost::make_shared<CGUIScrollBar>(false, lockedEnvironment, getSharedThis(), -1,
 		core::rect<s32>(RelativeRect.getWidth() - s, 0, RelativeRect.getWidth(), RelativeRect.getHeight()),
 		!_clip);
+	ScrollBar->setWeakThis(ScrollBar);
+
 	ScrollBar->setSubElement(true);
 	ScrollBar->setTabStop(false);
 	ScrollBar->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);

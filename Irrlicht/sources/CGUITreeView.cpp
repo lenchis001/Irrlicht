@@ -496,6 +496,7 @@ void CGUITreeView::setWeakThis(boost::shared_ptr<IGUIElement> value)
 				RelativeRect.getHeight() - (_scrollBarHorizontal ? s : 0)
 				),
 			!_clip);
+		ScrollBarV->setWeakThis(ScrollBarV);
 
 		ScrollBarV->setSubElement(true);
 		ScrollBarV->setPos(0);
@@ -506,6 +507,7 @@ void CGUITreeView::setWeakThis(boost::shared_ptr<IGUIElement> value)
 		ScrollBarH = boost::make_shared<CGUIScrollBar>(true, getSharedEnvironment(), getSharedThis(), 1,
 			core::rect<s32>(0, RelativeRect.getHeight() - s, RelativeRect.getWidth() - s, RelativeRect.getHeight()),
 			!_clip);
+		ScrollBarH->setWeakThis(ScrollBarH);
 
 		ScrollBarH->setSubElement(true);
 		ScrollBarH->setPos(0);

@@ -1,5 +1,9 @@
 ﻿#include "iostream"
 
+#include "irrlicht.h"
+
+#include "IGame.h"
+
 #include "boost/dll.hpp"
 #include "boost/filesystem.hpp"
 
@@ -11,108 +15,79 @@
 
 #include "StartupHandler.h"
 
-#include "TEngineGameLogicApi/IGame.h"
-
-#include "irrlicht.h"
-
-#if defined(_IRR_WINDOWS_)
+#if defined (_IRR_WINDOWS_)
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #endif
 
 using namespace TLauncher;
 
-class Test : public irr::scene::ISceneNode
-{
-public:
-    Test() : irr::scene::ISceneNode(nullptr, nullptr) {}
-
-    virtual void render(){
-
-    };
-
-    virtual const irr::core::aabbox3d<irr::f32> &getBoundingBox() const
-    {
-        throw " ";
-    }
-};
-
-void registerBaseDependencies(boost::shared_ptr<IDiContainer> container)
-{
+void registerBaseDependencies(boost::shared_ptr<IDiContainer> container) {
     registerTCoreDependencies(container);
     registerTamDependencies(container);
 }
 
-void registerIrrlichtDependencies(boost::shared_ptr<irr::IrrlichtDevice> device, boost::shared_ptr<IDiContainer> container)
-{
+void registerIrrlichtDependencies(boost::shared_ptr<irr::IrrlichtDevice> device, boost::shared_ptr<IDiContainer> container) {
     container->registerSingleton(device->getSceneManager());
 }
 
-boost::shared_ptr<IGame> loadGame()
-{
-#ifdef _WINDOWS_
-    std::wstring gameLibraryPath = L"./GameLogic.dll";
-#else
-    std::wstring gameLibraryPath = L"./GameLogic.so";
-#endif
+boost::shared_ptr<IGame> loadGame() {
+    #if defined (_IRR_WINDOWS_)
+        std::wstring gameLibraryPath = L"./Game.dll";
+    #else
+        std::wstring gameLibraryPath = L"./libGame.so";
+    #endif
 
-    if (!boost::filesystem::exists(gameLibraryPath))
-    {
+    if (!boost::filesystem::exists(gameLibraryPath)) {
         return nullptr;
     }
 
     return boost::dll::import_symbol<IGame>(
         gameLibraryPath,
-        "game");
+        "game"
+        );
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    Test t;
     int returnCode = 0;
 
     auto container = IDiContainer::createContainer();
     registerBaseDependencies(container);
 
     auto startupHandler = StartupHandler();
-    if (startupHandler.parseCommandLine(argc, argv))
-    {
+    if (startupHandler.parseCommandLine(argc, argv)) {
         boost::shared_ptr<irr::IrrlichtDevice> device = irr::createDevice(irr::video::EDT_OPENGL, irr::core::dimension2du(1270, 600), 32, startupHandler.isFullscreen(), true, true);
         device->setResizable(true);
 
-        if (device)
-        {
+        if (device) {
             registerIrrlichtDependencies(device, container);
 
             auto game = loadGame();
-            if (!game)
-            {
-                std::cout << "Game library file was not found." << std::endl;
+            if(!game) {
+                std::cout<< "Game library file was not found." << std::endl;
                 return 3;
             }
 
-            game->startGame(device);
-
             auto functionsProcessingManager = container->resolve<IFunctionsProcessingManager>();
+
+            game->startGame(device, functionsProcessingManager);
 
             boost::shared_ptr<irr::video::IVideoDriver> videoDriver = device->getVideoDriver();
             boost::shared_ptr<irr::scene::ISceneManager> sceneManager = device->getSceneManager();
-            boost::shared_ptr<irr::gui::IGUIEnvironment> guiEnvironment = device->getGUIEnvironment();
-            while (device->run() && videoDriver)
-            {
+            boost::shared_ptr<irr::gui::IGUIEnvironment> guiEnvironment= device->getGUIEnvironment();
+            while (device->run() && videoDriver) {
                 functionsProcessingManager->processFunctions(ThreadTypes::RENDER_THREAD);
-                if (device->isWindowActive())
-                {
+                if (device->isWindowActive()) {
                     videoDriver->beginScene();
 
                     sceneManager->drawAll();
                     guiEnvironment->drawAll();
+
 #ifdef _DEBUG
                     device->setWindowCaption(std::to_wstring(videoDriver->getFPS()).c_str());
 #endif // _DEBUG
                     videoDriver->endScene();
-                }
-                else
-                {
+                } else {
                     device->yield();
                 }
             }
@@ -127,14 +102,10 @@ int main(int argc, char *argv[])
 
             device->setEventReceiver(nullptr);
             device->closeDevice();
-        }
-        else
-        {
+        } else {
             returnCode = 2;
         }
-    }
-    else
-    {
+    } else {
         returnCode = 1;
     }
 
