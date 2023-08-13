@@ -42,7 +42,7 @@ void CurrentLevelNodesTab::onNodeLoadedHandler(boost::any)
             _functionsProcessingManager->addFuctionToQueue(
                 ThreadTypes::UI_THREAD, [=]() {
                     this->_selectedObjectPropertyGrid = nullptr;
-                    this->_sizer->RecalcSizes();
+                    this->_sizer->Layout();
                 });
         }
     }

@@ -6,8 +6,10 @@
 
 #include "InternalDerictoriesTypes/InternalDerictoriesTypes.h"
 
-namespace Watercolor::Common {
-    class IProjectDataManager {
+namespace Watercolor::Common
+{
+    class IProjectDataManager
+    {
     public:
         virtual bool isProjectOpened() = 0;
         virtual bool isLevelOpened() = 0;
@@ -24,7 +26,7 @@ namespace Watercolor::Common {
 
         virtual bool createLevel(std::wstring levelName) = 0;
         virtual bool createProject(std::wstring pathToProjectDirectory,
-            std::wstring projectName) = 0;
+                                   std::wstring projectName) = 0;
 
         virtual std::vector<std::wstring> getLevelsNames() const = 0;
 

@@ -87,6 +87,8 @@ add_subdirectory ("Watercolor/Services")
 add_subdirectory ("Watercolor/MainWindow")
 add_subdirectory ("Watercolor/WelcomeWindow")
 
+add_subdirectory ("Watercolor/Plugins/GuiEditor")
+
 if(MSVC)
     #configure_file(${CMAKE_BINARY_DIR}/packages/OpenAL.Soft/runtimes/win-x86/native/OpenAL32.dll ${CMAKE_BINARY_DIR}/TLauncher COPYONLY)
 endif()

@@ -36,7 +36,7 @@ private:
     float _version;
     std::wstring _projectDirectory;
     std::wstring _currentLevelName;
-    std::vector<std::wstring> _levelsNames;
+    std::map<std::wstring, std::wstring> _levels;
     std::map<InternalDerictoriesTypes, std::wstring> _internalDiectories;
 
     bool _isCorrectProjectDirStructure(std::wstring pathToProjectDir) const;
