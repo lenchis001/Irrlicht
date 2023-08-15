@@ -2,19 +2,14 @@
 # project specific logic here.
 #
 
-set(Irrlicht_DEFINITIONS _IRR_WCHAR_FILESYSTEM NO_IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_ IRRLICHT_EXPORTS UNICODE _CRT_SECURE_NO_WARNINGS _IRR_DONT_DO_MEMORY_DEBUGGING_HERE
+set(Irrlicht_DEFINITIONS _IRR_WCHAR_FILESYSTEM NO_IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_ UNICODE _CRT_SECURE_NO_WARNINGS _IRR_DONT_DO_MEMORY_DEBUGGING_HERE
     CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
-add_compile_definitions(${Irrlicht_DEFINITIONS})
+add_compile_definitions(${Irrlicht_DEFINITIONS} IRRLICHT_EXPORTS)
 include_directories("include" "sources/zlib")
 
-file(GLOB irrlicht_sources_files
+file(GLOB_RECURSE irrlicht_sources_files
      "sources/*.cpp"
-     "sources/aesGladman/*.cpp"
-     "sources/bzip2/*.c"
-     "sources/jpeglib/*.c"
-     "sources/libpng/*.c"
-     "sources/lzma/*.c"
-     "sources/zlib/*.c"
+     "sources/*.c"
 )
 add_library(Irrlicht SHARED ${irrlicht_sources_files})
 

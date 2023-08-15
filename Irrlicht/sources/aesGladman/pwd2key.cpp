@@ -158,29 +158,29 @@ struct
     }
 };
 
-int main()
-{   unsigned int    i, j, key_len = 256;
-    unsigned char   key[256];
-
-    printf("\nTest of RFC2898 Password Based Key Derivation");
-    for(i = 0; i < 5; ++i)
-    {
-        derive_key(tests[i].pwd, tests[i].pwd_len, tests[i].salt,
-                    tests[i].salt_len, tests[i].it_count, key, key_len);
-
-        printf("\ntest %i: ", i + 1);
-        printf("key %s", memcmp(tests[i].key, key, 16) ? "is bad" : "is good");
-        for(j = 0; j < key_len && j < 64; j += 4)
-        {
-            if(j % 16 == 0)
-                printf("\n");
-            printf("0x%02x%02x%02x%02x ", key[j], key[j + 1], key[j + 2], key[j + 3]);
-        }
-        printf(j < key_len ? " ... \n" : "\n");
-    }
-    printf("\n");
-    return 0;
-}
+//int main()
+//{   unsigned int    i, j, key_len = 256;
+//    unsigned char   key[256];
+//
+//    printf("\nTest of RFC2898 Password Based Key Derivation");
+//    for(i = 0; i < 5; ++i)
+//    {
+//        derive_key(tests[i].pwd, tests[i].pwd_len, tests[i].salt,
+//                    tests[i].salt_len, tests[i].it_count, key, key_len);
+//
+//        printf("\ntest %i: ", i + 1);
+//        printf("key %s", memcmp(tests[i].key, key, 16) ? "is bad" : "is good");
+//        for(j = 0; j < key_len && j < 64; j += 4)
+//        {
+//            if(j % 16 == 0)
+//                printf("\n");
+//            printf("0x%02x%02x%02x%02x ", key[j], key[j + 1], key[j + 2], key[j + 3]);
+//        }
+//        printf(j < key_len ? " ... \n" : "\n");
+//    }
+//    printf("\n");
+//    return 0;
+//}
 
 #endif
 

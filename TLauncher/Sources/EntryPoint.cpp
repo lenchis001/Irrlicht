@@ -1,19 +1,20 @@
 ﻿#include "iostream"
 
-#include "irrlicht.h"
-
-#include "IGame.h"
-
 #include "boost/dll.hpp"
 #include "boost/filesystem.hpp"
+
 
 #include "TCoreFacade.h"
 #include "TNCFacade.h"
 #include "TAMFacade.h"
 
+#include "IGame.h"
+
 #include "Utils/Filesystem.h"
 
 #include "StartupHandler.h"
+
+#include "irrlicht.h"
 
 #if defined (_IRR_WINDOWS_)
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")

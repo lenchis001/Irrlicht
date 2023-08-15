@@ -25,18 +25,21 @@ if(MSVC)
     if(NOT EXISTS ${CMAKE_BINARY_DIR}/packages/boost)
         find_program(NUGET_EXE NAMES ${PROJECT_SOURCE_DIR}/tools/nuget)
         exec_program(${NUGET_EXE} ARGS install "boost" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-        exec_program(${NUGET_EXE} ARGS install "boost_filesystem-vc142" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-        exec_program(${NUGET_EXE} ARGS install "boost_thread-vc142" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-        exec_program(${NUGET_EXE} ARGS install "boost_chrono-vc142" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-        exec_program(${NUGET_EXE} ARGS install "boost_locale-vc142" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+        exec_program(${NUGET_EXE} ARGS install "boost_filesystem-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+        exec_program(${NUGET_EXE} ARGS install "boost_thread-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+        exec_program(${NUGET_EXE} ARGS install "boost_chrono-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+        exec_program(${NUGET_EXE} ARGS install "boost_locale-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
     endif()
-    
+
+    set(WX_DEFINITIONS __WXMSW__ CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
+
+    if(${IS_DEBUG_BUILD})
+        set(WX_BUILD_TYPE_INCLUDE $ENV{WX_WIDGETS}/lib/vc_lib/mswud)
+    else()
+        set(WX_BUILD_TYPE_INCLUDE $ENV{WX_WIDGETS}/lib/vc_lib/mswu)
+    endif()
     set(WX_INCLUDE_DIR $ENV{WX_WIDGETS}/include
-                    if(${IS_DEBUG_BUILD})
-                       $ENV{WX_WIDGETS}/lib/vc_lib/mswud
-                    else()
-                        $ENV{WX_WIDGETS}/lib/vc_lib/mswu
-                    endif()
+                       ${WX_BUILD_TYPE_INCLUDE}
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
 else()
     set(WX_INCLUDE_DIR  $ENV{WX_WIDGETS}/include

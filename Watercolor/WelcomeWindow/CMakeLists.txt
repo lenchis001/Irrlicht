@@ -15,16 +15,16 @@ add_compile_definitions(${Irrlicht_DEFINITIONS} ${WX_DEFINITIONS} _UNICODE)
 file(GLOB_RECURSE welcome_window_sources_files "*.cpp")
 
 # Add source to this project's executable.
-add_executable(WelcomeWindow ${welcome_window_sources_files})
+add_executable(WelcomeWindow WIN32 ${welcome_window_sources_files})
 
 if(MSVC)
     include_directories(${CMAKE_BINARY_DIR}/packages/boost/lib/native/include $ENV{WX_WIDGETS}/lib/vc_lib/mswu)
     target_link_directories(WelcomeWindow PUBLIC 
-        ${CMAKE_BINARY_DIR}/packages/boost_filesystem-vc142/lib/native
-        ${CMAKE_BINARY_DIR}/packages/boost_thread-vc142/lib/native
-        ${CMAKE_BINARY_DIR}/packages/boost_chrono-vc142/lib/native
-        ${CMAKE_BINARY_DIR}/packages/boost_locale-vc142/lib/native
-        ${CMAKE_BINARY_DIR}/packages/boost_iostreams-vc142/lib/native
+        ${CMAKE_BINARY_DIR}/packages/boost_filesystem-vc143/lib/native
+        ${CMAKE_BINARY_DIR}/packages/boost_thread-vc143/lib/native
+        ${CMAKE_BINARY_DIR}/packages/boost_chrono-vc143/lib/native
+        ${CMAKE_BINARY_DIR}/packages/boost_locale-vc143/lib/native
+        ${CMAKE_BINARY_DIR}/packages/boost_iostreams-vc143/lib/native
     )
 
     target_link_libraries(WelcomeWindow PUBLIC 
@@ -50,7 +50,7 @@ if(MSVC)
 
     # Indication to the code that this is a debug build
     if (${IS_DEBUG_BUILD})
-    file(GLOB_RECURSE welcome_window_libs "$ENV{WX_WIDGETS}/lib/vc_lib/*d.lib" "$ENV{WX_WIDGETS}/lib/vc_lib/*ud*.lib")
+    file(GLOB_RECURSE welcome_window_libs "$ENV{WX_WIDGETS}/lib/vc_lib/*[!i]d.lib" "$ENV{WX_WIDGETS}/lib/vc_lib/*ud*.lib")
     else()
     file(GLOB_RECURSE welcome_window_libs "$ENV{WX_WIDGETS}/lib/vc_lib/*u_*.lib" "$ENV{WX_WIDGETS}/lib/vc_lib/*u.lib" "$ENV{WX_WIDGETS}/lib/vc_lib/*[gb].lib")
     endif ()
