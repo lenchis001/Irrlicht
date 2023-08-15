@@ -15,6 +15,12 @@ if(MSVC)
         ${CMAKE_BINARY_DIR}/packages/boost_chrono-vc143/lib/native
         ${CMAKE_BINARY_DIR}/packages/boost_locale-vc143/lib/native
     )
+
+    if(${IS_DEBUG_BUILD})
+        add_custom_command(TARGET TLauncher POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_BINARY_DIR}/Irrlicht/Irrlicht.dll ${CMAKE_BINARY_DIR}/TLauncher)
+    endif()
 else()
     include_directories($ENV{BOOST_ROOT})
 

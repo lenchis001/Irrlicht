@@ -92,6 +92,10 @@ add_subdirectory ("Watercolor/WelcomeWindow")
 
 add_subdirectory ("Watercolor/Plugins/GuiEditor")
 
-if(MSVC)
-    #configure_file(${CMAKE_BINARY_DIR}/packages/OpenAL.Soft/runtimes/win-x86/native/OpenAL32.dll ${CMAKE_BINARY_DIR}/TLauncher COPYONLY)
+if(MSVC AND ${IS_DEBUG_BUILD})
+    configure_file(${CMAKE_BINARY_DIR}/packages/OpenAL.Soft/runtimes/win-x86/native/OpenAL32.dll ${CMAKE_BINARY_DIR}/TLauncher COPYONLY)
+    configure_file(${CMAKE_BINARY_DIR}/packages/OpenAL.Soft/runtimes/win-x86/native/soft_oal.dll ${CMAKE_BINARY_DIR}/TLauncher COPYONLY)
+    
+    configure_file(${CMAKE_BINARY_DIR}/packages/OpenAL.Soft/runtimes/win-x86/native/OpenAL32.dll ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow COPYONLY)
+    configure_file(${CMAKE_BINARY_DIR}/packages/OpenAL.Soft/runtimes/win-x86/native/soft_oal.dll ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow COPYONLY)
 endif()

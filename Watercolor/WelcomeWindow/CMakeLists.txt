@@ -51,6 +51,18 @@ if(MSVC)
     # Indication to the code that this is a debug build
     if (${IS_DEBUG_BUILD})
     file(GLOB_RECURSE welcome_window_libs "$ENV{WX_WIDGETS}/lib/vc_lib/*[!i]d.lib" "$ENV{WX_WIDGETS}/lib/vc_lib/*ud*.lib")
+
+    add_custom_command(TARGET WelcomeWindow POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_BINARY_DIR}/Irrlicht/Irrlicht.dll ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow)
+
+    add_custom_command(TARGET WelcomeWindow POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow/Resources)
+
+    add_custom_command(TARGET WelcomeWindow POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/Watercolor/MainWindow/Resources ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow/Resources)
+
     else()
     file(GLOB_RECURSE welcome_window_libs "$ENV{WX_WIDGETS}/lib/vc_lib/*u_*.lib" "$ENV{WX_WIDGETS}/lib/vc_lib/*u.lib" "$ENV{WX_WIDGETS}/lib/vc_lib/*[gb].lib")
     endif ()
