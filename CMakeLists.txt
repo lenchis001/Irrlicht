@@ -22,6 +22,7 @@ endif()
 set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 if(MSVC)
+    #Get external dependencies
     if(NOT EXISTS ${CMAKE_BINARY_DIR}/packages/boost)
         find_program(NUGET_EXE NAMES ${PROJECT_SOURCE_DIR}/tools/nuget)
         exec_program(${NUGET_EXE} ARGS install "boost" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
@@ -31,16 +32,50 @@ if(MSVC)
         exec_program(${NUGET_EXE} ARGS install "boost_locale-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
     endif()
 
+    #Setup external libraries defenitions
     set(WX_DEFINITIONS __WXMSW__ CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
 
+    #Setup external libraries includes
     if(${IS_DEBUG_BUILD})
         set(WX_BUILD_TYPE_INCLUDE $ENV{WX_WIDGETS}/lib/vc_lib/mswud)
     else()
         set(WX_BUILD_TYPE_INCLUDE $ENV{WX_WIDGETS}/lib/vc_lib/mswu)
     endif()
-    set(WX_INCLUDE_DIR $ENV{WX_WIDGETS}/include
-                       ${WX_BUILD_TYPE_INCLUDE}
+
+    #Setup external libraries references
+    set(external_includes $ENV{WX_WIDGETS}/include
+                          ${WX_BUILD_TYPE_INCLUDE}
+                          ${CMAKE_BINARY_DIR}/packages/boost/lib/native/include
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
+
+
+    if (${IS_DEBUG_BUILD})
+    file(GLOB_RECURSE WX_LIBS "$ENV{WX_WIDGETS}/lib/vc_lib/*[!i]d.lib" "$ENV{WX_WIDGETS}/lib/vc_lib/*ud*.lib")
+    else()
+    file(GLOB_RECURSE WX_LIBS "$ENV{WX_WIDGETS}/lib/vc_lib/*u_*.lib" "$ENV{WX_WIDGETS}/lib/vc_lib/*u.lib" "$ENV{WX_WIDGETS}/lib/vc_lib/*[gb].lib")
+    endif ()
+
+    set(external_libs 
+      kernel32.lib
+      user32.lib
+      gdi32.lib
+      comdlg32.lib
+      winspool.lib
+      winmm.lib
+      shell32.lib
+      shlwapi.lib
+      comctl32.lib
+      ole32.lib
+      oleaut32.lib
+      uuid.lib
+      rpcrt4.lib
+      advapi32.lib
+      version.lib
+      wsock32.lib
+      wininet.lib
+      opengl32.lib
+      ${WX_LIBS}
+    )
 else()
     set(WX_INCLUDE_DIR  $ENV{WX_WIDGETS}/include
                         $ENV{WX_WIDGETS}/gtk-build/lib/wx/include/gtk3-unicode-3.2
@@ -59,8 +94,7 @@ else()
         $ENV{BOOST_ROOT}/stage/lib/*.a
         $ENV{WX_WIDGETS}/gtk-build/lib/*.so
     )
-
-    set(WX_LIBS 
+    set(external_libs 
         gtk-3
         gdk-3
         gobject-2.0
@@ -73,8 +107,11 @@ else()
         glib-2.0
         fontconfig
         gtk-3
-        CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
+        ${external_lib_files}
+    )
 endif()
+
+set(WATERCOLOR_PLUGIN_API ${PROJECT_SOURCE_DIR}/Watercolor/Services/Sources/Plugins/Api)
 
 # Include sub-projects.
 add_subdirectory ("Irrlicht")
@@ -88,9 +125,10 @@ add_subdirectory ("TLauncher")
 add_subdirectory ("Watercolor/Common")
 add_subdirectory ("Watercolor/Services")
 add_subdirectory ("Watercolor/MainWindow")
-add_subdirectory ("Watercolor/WelcomeWindow")
 
 add_subdirectory ("Watercolor/Plugins/GuiEditor")
+
+add_subdirectory ("Watercolor/WelcomeWindow")
 
 if(MSVC AND ${IS_DEBUG_BUILD})
     configure_file(${CMAKE_BINARY_DIR}/packages/OpenAL.Soft/runtimes/win-x86/native/OpenAL32.dll ${CMAKE_BINARY_DIR}/TLauncher COPYONLY)

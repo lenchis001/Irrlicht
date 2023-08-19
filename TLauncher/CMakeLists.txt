@@ -1,5 +1,5 @@
 ﻿add_compile_definitions(${Irrlicht_DEFINITIONS})
-include_directories(${Irrlicht_INCLUDE_DIR} ${TCore_INCLUDE_DIR} ${TNC_INCLUDE_DIR} ${TAM_INCLUDE_DIR} ${TUtils_INCLUDE_DIR})
+include_directories(${Irrlicht_INCLUDE_DIR} ${TCore_INCLUDE_DIR} ${TNC_INCLUDE_DIR} ${TAM_INCLUDE_DIR} ${TUtils_INCLUDE_DIR} ${external_includes})
 
 file(GLOB tlauncher_sources_files
      "Sources/*.cpp"
@@ -8,7 +8,6 @@ file(GLOB tlauncher_sources_files
 add_executable(TLauncher ${tlauncher_sources_files})
 
 if(MSVC)
-    include_directories(${CMAKE_BINARY_DIR}/packages/boost/lib/native/include)
     target_link_directories(TLauncher PUBLIC 
         ${CMAKE_BINARY_DIR}/packages/boost_filesystem-vc143/lib/native
         ${CMAKE_BINARY_DIR}/packages/boost_thread-vc143/lib/native
@@ -22,8 +21,6 @@ if(MSVC)
         ${CMAKE_BINARY_DIR}/Irrlicht/Irrlicht.dll ${CMAKE_BINARY_DIR}/TLauncher)
     endif()
 else()
-    include_directories($ENV{BOOST_ROOT})
-
     file(GLOB boost_lib_files
         $ENV{BOOST_ROOT}/stage/lib/*.a
     )

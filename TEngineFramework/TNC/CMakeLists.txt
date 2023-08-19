@@ -8,11 +8,7 @@ file(GLOB tnc_sources_files
 # Add source to this project's executable.
 add_library(TNC STATIC ${tnc_sources_files})
 
-if(MSVC)
-    include_directories(${CMAKE_BINARY_DIR}/packages/boost/lib/native/include)
-else()
-    include_directories($ENV{BOOST_ROOT})
-endif()
+include_directories(${external_includes})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET TNC PROPERTY CXX_STANDARD 17)

@@ -21,7 +21,6 @@ if(MSVC)
     endif()
 
     include_directories(
-        ${CMAKE_BINARY_DIR}/packages/boost/lib/native/include
         ${CMAKE_BINARY_DIR}/packages/ogg-msvc-x86/build/native/include
         ${CMAKE_BINARY_DIR}/packages/vorbis-msvc-x86/build/native/include
         ${CMAKE_BINARY_DIR}/packages/OpenAL.Soft/sources
@@ -36,10 +35,10 @@ if(MSVC)
         ${vorbis_libs}
     )
 else()
-    include_directories($ENV{BOOST_ROOT})
-
     target_link_libraries(TAM PUBLIC openal vorbisfile)
 endif()
+
+include_directories(${external_includes})
 
 set(TAM_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/TEngineFramework/TAM/Sources ${TAM_INCLUDE_DIR}
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)

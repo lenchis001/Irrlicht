@@ -5,7 +5,7 @@
 set(Irrlicht_DEFINITIONS _IRR_WCHAR_FILESYSTEM NO_IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_ UNICODE _CRT_SECURE_NO_WARNINGS _IRR_DONT_DO_MEMORY_DEBUGGING_HERE
     CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
 add_compile_definitions(${Irrlicht_DEFINITIONS} IRRLICHT_EXPORTS)
-include_directories("include" "sources/zlib")
+include_directories("include" "sources/zlib" ${external_includes})
 
 file(GLOB_RECURSE irrlicht_sources_files
      "sources/*.cpp"
@@ -17,10 +17,7 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Irrlicht PROPERTY CXX_STANDARD 17)
 endif()
 
-if(MSVC)
-  include_directories(${CMAKE_BINARY_DIR}/packages/boost/lib/native/include)
-else()
-  include_directories($ENV{BOOST_ROOT})
+if(UNIX)
   target_link_libraries(Irrlicht PUBLIC glut GL GLU X11 Xxf86vm)
 endif()
 

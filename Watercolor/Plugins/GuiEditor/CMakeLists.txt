@@ -1,9 +1,8 @@
 ﻿include_directories(
   ${Irrlicht_INCLUDE_DIR} 
-  ${WX_INCLUDE_DIR}
-  # CMAKE_CURRENT_SOURCE_DIR
-  "/home/leon/Projects/Irrlicht/Watercolor/Plugins/GuiEditor/Sources"
-  "/home/leon/Projects/Irrlicht/Watercolor/Services/Sources/Plugins/Api"
+  "Sources"
+  ${WATERCOLOR_PLUGIN_API}
+  ${external_includes}
 )
 
 add_compile_definitions(${Irrlicht_DEFINITIONS} ${WX_DEFINITIONS} _UNICODE)
@@ -14,15 +13,22 @@ file(GLOB_RECURSE gui_editor_sources_files "*.cpp")
 add_library(GuiEditor SHARED ${gui_editor_sources_files})
 
 if(MSVC)
-    include_directories(${CMAKE_BINARY_DIR}/packages/boost/lib/native/include $ENV{WX_WIDGETS}/lib/vc_lib/mswu)
-else()
-    include_directories($ENV{BOOST_ROOT})
-
-    target_link_libraries(GuiEditor PUBLIC ${external_lib_files} ${WX_LIBS})
+    target_link_directories(GuiEditor PUBLIC 
+        ${CMAKE_BINARY_DIR}/packages/boost_filesystem-vc143/lib/native
+        ${CMAKE_BINARY_DIR}/packages/boost_thread-vc143/lib/native
+        ${CMAKE_BINARY_DIR}/packages/boost_chrono-vc143/lib/native
+        ${CMAKE_BINARY_DIR}/packages/boost_locale-vc143/lib/native
+    )
 endif()
 
-target_link_libraries(GuiEditor PUBLIC Common Irrlicht)
+target_link_libraries(GuiEditor PUBLIC Common Irrlicht ${external_libs})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET GuiEditor PROPERTY CXX_STANDARD 17)
+endif()
+
+if(MSVC)
+    add_custom_command(TARGET GuiEditor POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_BINARY_DIR}/Watercolor/Plugins/GuiEditor/GuiEditor.dll ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow/Plugins/V1/GuiEditor.dll)
 endif()

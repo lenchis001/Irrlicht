@@ -32,7 +32,7 @@ void Plugin::onTopMenuItemClicked(const std::wstring& openedProjectPath,
     wxImage::AddHandler(new wxJPEGHandler);
     wxWindow parentWindow;
 
-    #if _WINDOWS_
+    #ifdef _WINDOWS_
     auto handle = GetModuleHandle(CURRENR_MODULE_NAME);
 
     assert(handle != nullptr);
@@ -51,10 +51,8 @@ void Plugin::onTopMenuItemClicked(const std::wstring& openedProjectPath,
     dialog->ShowModal();
 
     wxTopLevelWindows.DeleteObject(&parentWindow);
-    #if _WINDOWS_
+    #ifdef _WINDOWS_
     parentWindow.SetHWND((WXHWND)NULL);
-    #else
-
     #endif
 
     wxEntryCleanup();
