@@ -8,15 +8,18 @@ project ("TEngine")
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 
-if(UNIX)
+if(LINUX)
 set(GCC_COVERAGE_COMPILE_FLAGS "-pthread")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
 SET(CMAKE_CXX_FLAGS -pthread)
-else()
+elseif(MSVC)
 SET(CMAKE_CXX_FLAGS           "${CMAKE_CXX_FLAGS} /D \"SAFESEH:NO\"")
 SET(CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
 SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")
 SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /SAFESEH:NO")
+elseif(APPLE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=gnu++17")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -std=gnu11")
 endif()
 
 set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -76,7 +79,7 @@ if(MSVC)
       opengl32.lib
       ${WX_LIBS}
     )
-else()
+elseif(LINUX)
     set(WX_INCLUDE_DIR  $ENV{WX_WIDGETS}/include
                         $ENV{WX_WIDGETS}/gtk-build/lib/wx/include/gtk3-unicode-3.2
                         /usr/include/gtk-3.0
@@ -109,6 +112,12 @@ else()
         gtk-3
         ${external_lib_files}
     )
+elseif(APPLE)
+    #Setup external libraries references
+    set(external_includes $ENV{WX_WIDGETS}/include
+                          ${WX_BUILD_TYPE_INCLUDE}
+                          $ENV{BOOST_ROOT}
+    CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
 endif()
 
 set(WATERCOLOR_PLUGIN_API ${PROJECT_SOURCE_DIR}/Watercolor/Services/Sources/Plugins/Api)

@@ -10,15 +10,24 @@ include_directories("include" "sources/zlib" ${external_includes})
 file(GLOB_RECURSE irrlicht_sources_files
      "sources/*.cpp"
      "sources/*.c"
+    if(APPLE)
+    "sources/MacOSX/*.m"
+    "sources/MacOSX/*.mm"
+    endif()
 )
 add_library(Irrlicht SHARED ${irrlicht_sources_files})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Irrlicht PROPERTY CXX_STANDARD 17)
+  set_property(TARGET Irrlicht PROPERTY C_STANDARD 17)
 endif()
 
-if(UNIX)
+if(LINUX)
   target_link_libraries(Irrlicht PUBLIC glut GL GLU X11 Xxf86vm)
+endif()
+
+if(APPLE)
+  target_link_libraries(Irrlicht stdc++ "-framework Foundation -framework OpenGL -framework AppKit")
 endif()
 
 set(Irrlicht_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/Irrlicht/include

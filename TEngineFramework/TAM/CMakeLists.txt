@@ -34,8 +34,11 @@ if(MSVC)
         ${CMAKE_BINARY_DIR}/packages/ogg-msvc-x86/build/native/lib_release/ogg.lib
         ${vorbis_libs}
     )
-else()
+elseif(LINUX)
     target_link_libraries(TAM PUBLIC openal vorbisfile)
+elseif(APPLE)
+    include_directories("/usr/local/opt/openal-soft/include" "/usr/local/opt/libvorbis/include" "/usr/local/opt/libogg/include/")
+    target_link_libraries(TAM PUBLIC /usr/local/opt/openal-soft/lib/libopenal.dylib /usr/local/opt/libvorbis/lib/libvorbisfile.dylib)
 endif()
 
 include_directories(${external_includes})

@@ -26,6 +26,7 @@
 #endif
 
 #ifdef _IRR_COMPILE_WITH_OSX_DEVICE_
+#include <sys/sysctl.h>
 #include "MacOSX/OSXClipboard.h"
 #endif
 
@@ -127,7 +128,6 @@ const c8* COSOperator::getTextFromClipboard() const
 	return 0;
 #endif
 }
-
 
 bool COSOperator::getProcessorSpeedMHz(u32* MHz) const
 {

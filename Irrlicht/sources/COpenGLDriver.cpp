@@ -474,7 +474,7 @@ bool COpenGLDriver::initDriver(CIrrDeviceWin32* device)
 //! Windows constructor and init code
 COpenGLDriver::COpenGLDriver(const SIrrlichtCreationParameters& params,
 		boost::shared_ptr<io::IFileSystem> io, CIrrDeviceMacOSX *device)
-: CNullDriver(io, params.WindowSize), COpenGLExtensionHandler(),
+: CNullDriver(io, params.WindowSize), IMaterialRendererServices(nullptr), COpenGLExtensionHandler(),
 	CurrentRenderMode(ERM_NONE), ResetRenderStates(true), Transformation3DChanged(true),
 	AntiAlias(params.AntiAlias), RenderTargetTexture(0),
 	CurrentRendertargetSize(0,0), ColorFormat(ECF_R8G8B8),

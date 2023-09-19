@@ -1092,7 +1092,7 @@ irr::core::stringw CColladaMeshWriter::nameForMaterial(const video::SMaterial & 
 irr::core::stringw CColladaMeshWriter::nameForMaterialSymbol(const boost::shared_ptr<scene::IMesh> mesh, int materialId) const
 {
 	wchar_t buf[100];
-	swprintf(buf, 100, L"mat_symb_%p_%d", mesh, materialId);
+	swprintf(buf, 100, L"mat_symb_%p_%d", mesh.get(), materialId);
 	return irr::core::stringw(buf);
 }
 
