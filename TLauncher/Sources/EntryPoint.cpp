@@ -34,6 +34,8 @@ void registerIrrlichtDependencies(boost::shared_ptr<irr::IrrlichtDevice> device,
 boost::shared_ptr<IGame> loadGame() {
     #if defined (_IRR_WINDOWS_)
         std::wstring gameLibraryPath = L"./Game.dll";
+    #elif defined(_IRR_OSX_PLATFORM_)
+        std::wstring gameLibraryPath = L"./libGame.dylib";
     #else
         std::wstring gameLibraryPath = L"./libGame.so";
     #endif
@@ -57,17 +59,22 @@ int main(int argc, char* argv[])
 
     auto startupHandler = StartupHandler();
     if (startupHandler.parseCommandLine(argc, argv)) {
+        auto game = loadGame();
+        if(!game) {
+            std::cout<< "Game library file was not found." << std::endl;
+            return 3;
+        }
+
+        auto currentDir = boost::filesystem::current_path().wstring();
         boost::shared_ptr<irr::IrrlichtDevice> device = irr::createDevice(irr::video::EDT_OPENGL, irr::core::dimension2du(1270, 600), 32, startupHandler.isFullscreen(), true, true);
+        currentDir = boost::filesystem::current_path().wstring();
         device->setResizable(true);
+        currentDir = boost::filesystem::current_path().wstring();
 
         if (device) {
             registerIrrlichtDependencies(device, container);
 
-            auto game = loadGame();
-            if(!game) {
-                std::cout<< "Game library file was not found." << std::endl;
-                return 3;
-            }
+            currentDir = boost::filesystem::current_path().wstring();
 
             auto functionsProcessingManager = container->resolve<IFunctionsProcessingManager>();
 
@@ -84,9 +91,9 @@ int main(int argc, char* argv[])
                     sceneManager->drawAll();
                     guiEnvironment->drawAll();
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
                     device->setWindowCaption(std::to_wstring(videoDriver->getFPS()).c_str());
-#endif // _DEBUG
+//#endif // _DEBUG
                     videoDriver->endScene();
                 } else {
                     device->yield();

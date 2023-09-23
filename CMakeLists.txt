@@ -118,6 +118,13 @@ elseif(APPLE)
                           ${WX_BUILD_TYPE_INCLUDE}
                           $ENV{BOOST_ROOT}
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
+
+    file(GLOB external_lib_files
+        $ENV{BOOST_ROOT}/stage/lib/*.a
+    )
+    set(external_libs 
+        ${external_lib_files}
+    )
 endif()
 
 set(WATERCOLOR_PLUGIN_API ${PROJECT_SOURCE_DIR}/Watercolor/Services/Sources/Plugins/Api)
