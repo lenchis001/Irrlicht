@@ -115,7 +115,10 @@ namespace irr
 
   bool CIrrDeviceMacOSX::present(boost::shared_ptr<video::IImage> surface, void *windowId, core::rect<s32> *src) {}
 
-  void CIrrDeviceMacOSX::closeDevice() {}
+  void CIrrDeviceMacOSX::closeDevice() {
+    glfwDestroyWindow(window);
+    glfwTerminate();
+  }
 
   void CIrrDeviceMacOSX::setResizable(bool resize) {}
 
