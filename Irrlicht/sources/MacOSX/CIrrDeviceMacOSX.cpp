@@ -1,6 +1,8 @@
 #include "CIrrDeviceMacOSX.h"
 #include "iostream"
 
+#ifdef _IRR_COMPILE_WITH_OSX_DEVICE_
+
 #define THAT(win) static_cast<irr::CIrrDeviceMacOSX *>(glfwGetWindowUserPointer(win))
 
 namespace irr
@@ -178,3 +180,5 @@ namespace irr
     postEventFromUser(event);
   }
 }
+
+#endif
