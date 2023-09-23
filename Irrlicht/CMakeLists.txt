@@ -27,7 +27,8 @@ if(LINUX)
 endif()
 
 if(APPLE)
-  target_link_libraries(Irrlicht stdc++ "-framework Foundation -framework OpenGL -framework AppKit")
+  include_directories("/usr/local/opt/freeglut/include" "/usr/local/opt/glfw/include")
+  target_link_libraries(Irrlicht stdc++ "-framework Foundation -framework OpenGL -framework AppKit /usr/local/opt/glfw/lib/libglfw.dylib")
 endif()
 
 set(Irrlicht_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/Irrlicht/include

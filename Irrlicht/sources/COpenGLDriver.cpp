@@ -489,7 +489,10 @@ COpenGLDriver::COpenGLDriver(const SIrrlichtCreationParameters& params,
 	CgContext = 0;
 	#endif
 
-	genericDriverInit();
+}
+
+bool COpenGLDriver::initDriver(CIrrDeviceMacOSX* device) {
+	return genericDriverInit();
 }
 
 #endif
@@ -660,7 +663,9 @@ COpenGLDriver::~COpenGLDriver()
 bool COpenGLDriver::genericDriverInit()
 {
 	Name=L"OpenGL ";
-	Name.append(glGetString(GL_VERSION));
+
+	auto v= glGetString(GL_VERSION);
+	Name.append(v);
 	s32 pos=Name.findNext(L' ', 7);
 	if (pos != -1)
 		Name=Name.subString(0, pos);
@@ -4799,6 +4804,11 @@ boost::shared_ptr<IVideoDriver> createOpenGLDriver(const SIrrlichtCreationParame
 	boost::shared_ptr<COpenGLDriver> driver = boost::make_shared<COpenGLDriver>(params, io, device);
 	driver->setWeakThis(driver);
 	driver->setVideoDriver(driver);
+
+	if (!driver->initDriver(device))
+	{
+		driver = nullptr;
+	}
 
 	return driver;
 #else

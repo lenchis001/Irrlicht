@@ -417,7 +417,7 @@ void CGUIMessageBox::deserializeAttributes(io::IAttributes* in, io::SAttributeRe
 
 void CGUIMessageBox::setWeakThis(boost::shared_ptr<IGUIElement> value)
 {
-	IGUIElement::setWeakThis(value);
+	CGUIWindow::setWeakThis(value);
 
 	// set element type
 	Type = EGUIET_MESSAGE_BOX;

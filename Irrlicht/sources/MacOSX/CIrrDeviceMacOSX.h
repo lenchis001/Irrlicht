@@ -16,6 +16,7 @@
 #include "IGUIEnvironment.h"
 #include "ICursorControl.h"
 
+#include <GLFW/glfw3.h>
 #include <OpenGL/OpenGL.h>
 #include <map>
 
@@ -93,9 +94,8 @@ namespace irr
 		void setCursorVisible(bool visible);
 
 	private:
-
-		//! create the driver
 		void createDriver();
+		void postMouseEvent(irr::EMOUSE_INPUT_EVENT eventType);
 
 		//! Implementation of the macos x cursor control
 		class CCursorControl : public gui::ICursorControl
@@ -214,26 +214,9 @@ namespace irr
 			bool UseReferenceRect;
 		};
 
-		bool createWindow();
-		void initKeycodes();
-		void storeMouseLocation();
-		void postMouseEvent(void *event, irr::SEvent &ievent);
-		void postKeyEvent(void *event, irr::SEvent &ievent, bool pressed);
-		void pollJoysticks();
+  		GLFWwindow *window;
 
-		CGLContextObj CGLContext;
-		std::map<int,int> KeyCodes;
-		int DeviceWidth;
-		int DeviceHeight;
-		int ScreenWidth;
-		int ScreenHeight;
-		u32 MouseButtonStates;
-        u32 SoftwareRendererType;
-        bool IsFullscreen;
-		bool IsActive;
-		bool IsShiftDown;
-		bool IsControlDown;
-		bool IsResizable;
+		int _xCursorPosition, _yCursorPosition;
 	};
 
 

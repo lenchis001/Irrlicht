@@ -59,6 +59,7 @@ namespace video
 		#endif
 
 		#ifdef _IRR_COMPILE_WITH_OSX_DEVICE_
+		bool initDriver(CIrrDeviceMacOSX* device);
 		COpenGLDriver(const SIrrlichtCreationParameters& params, boost::shared_ptr<io::IFileSystem> io, CIrrDeviceMacOSX *device);
 		#endif
 
