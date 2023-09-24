@@ -123,14 +123,18 @@ namespace irr
     event.MouseInput.X = _xCursorPosition;
     event.MouseInput.Y = _yCursorPosition;
 
-    irr::E_MOUSE_BUTTON_STATE_MASK mouseEventType = irr::E_MOUSE_BUTTON_STATE_MASK::EMBSM_FORCE_32_BIT;
-    if (event.MouseInput.Event == irr::EMOUSE_INPUT_EVENT::EMIE_LMOUSE_PRESSED_DOWN)
+    int mouseEventType = 0;
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {
-      mouseEventType = irr::E_MOUSE_BUTTON_STATE_MASK::EMBSM_LEFT;
+      mouseEventType |= irr::E_MOUSE_BUTTON_STATE_MASK::EMBSM_LEFT;
     }
-    else if (event.MouseInput.Event == irr::EMOUSE_INPUT_EVENT::EMIE_RMOUSE_PRESSED_DOWN)
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
     {
-      mouseEventType = irr::E_MOUSE_BUTTON_STATE_MASK::EMBSM_RIGHT;
+      mouseEventType |= irr::E_MOUSE_BUTTON_STATE_MASK::EMBSM_RIGHT;
+    }
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
+    {
+      mouseEventType |= irr::E_MOUSE_BUTTON_STATE_MASK::EMBSM_MIDDLE;
     }
     event.MouseInput.ButtonStates = mouseEventType;
 
