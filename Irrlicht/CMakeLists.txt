@@ -27,8 +27,15 @@ if(LINUX)
 endif()
 
 if(APPLE)
-  include_directories("/usr/local/opt/freeglut/include" "/usr/local/opt/glfw/include")
-  target_link_libraries(Irrlicht stdc++ "-framework Foundation -framework OpenGL -framework AppKit /usr/local/opt/glfw/lib/libglfw.dylib")
+  if(${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "arm64")
+    add_compile_definitions(PNG_ARM_NEON_OPT=0)
+
+    include_directories("/opt/homebrew/opt/glfw/include")
+    target_link_libraries(Irrlicht stdc++ "-framework Foundation -framework OpenGL -framework AppKit /opt/homebrew/opt/glfw/lib/libglfw.dylib")
+  else()
+    include_directories("/usr/local/opt/glfw/include")
+    target_link_libraries(Irrlicht stdc++ "-framework Foundation -framework OpenGL -framework AppKit /usr/local/opt/glfw/lib/libglfw.dylib")
+  endif()
 endif()
 
 set(Irrlicht_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/Irrlicht/include
