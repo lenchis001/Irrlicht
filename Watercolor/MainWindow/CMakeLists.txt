@@ -6,11 +6,10 @@
   ${Common_INCLUDE_DIR}
   ${Services_INCLUDE_DIR}
   ${MainWindow_INCLUDE_DIR}
-  ${WX_INCLUDE_DIR}
   ${external_includes}
 )
 
-add_compile_definitions(${Irrlicht_DEFINITIONS} ${WX_DEFINITIONS} _UNICODE)
+add_compile_definitions(${Irrlicht_DEFINITIONS} ${external_definitions} _UNICODE)
 
 file(GLOB_RECURSE main_window_sources_files "*.cpp")
 

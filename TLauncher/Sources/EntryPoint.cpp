@@ -2,7 +2,7 @@
 
 #include "boost/dll.hpp"
 #include "boost/filesystem.hpp"
-
+#include "boost/process.hpp"
 
 #include "TCoreFacade.h"
 #include "TNCFacade.h"
@@ -50,9 +50,17 @@ boost::shared_ptr<IGame> loadGame() {
         );
 }
 
+void setupDynamicLibrariesLoading() {
+    #ifdef __APPLE__
+    boost::this_process::wenvironment().set(L"DYLD_FALLBACK_LIBRARY_PATH", boost::filesystem::current_path().wstring());
+    #endif
+}
+
 int main(int argc, char* argv[])
 {
     int returnCode = 0;
+
+    setupDynamicLibrariesLoading();
 
     auto container = IDiContainer::createContainer();
     registerBaseDependencies(container);

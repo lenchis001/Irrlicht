@@ -6,7 +6,7 @@
   ${external_includes}
 )
 
-add_compile_definitions(${Irrlicht_DEFINITIONS} ${WX_DEFINITIONS})
+add_compile_definitions(${Irrlicht_DEFINITIONS} ${external_definitions})
 
 file(GLOB_RECURSE services_sources_files "*.cpp")
 
