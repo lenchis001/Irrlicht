@@ -128,6 +128,12 @@ elseif(APPLE)
     set(external_libs 
         ${external_lib_files}
     )
+
+  if(${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "arm64")
+    set(HOMEBREW_PATH /opt/homebrew/opt)
+  else()
+    set(HOMEBREW_PATH /usr/local/opt)
+  endif()
 endif()
 
 set(WATERCOLOR_PLUGIN_API ${PROJECT_SOURCE_DIR}/Watercolor/Services/Sources/Plugins/Api)
