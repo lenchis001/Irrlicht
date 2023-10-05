@@ -96,6 +96,10 @@ namespace irr
 	private:
 		void createDriver();
 		void postMouseEvent(irr::EMOUSE_INPUT_EVENT eventType);
+		void postKeyEvent(bool isPressed, int glfwKey, bool isShiftPressed);
+		void _setupKeyMapping();
+		void _createWindow();
+		void _subscribeToEvents();
 
 		//! Implementation of the macos x cursor control
 		class CCursorControl : public gui::ICursorControl
@@ -217,6 +221,8 @@ namespace irr
   		GLFWwindow *window;
 
 		int _xCursorPosition, _yCursorPosition;
+		std::map<int, irr::EKEY_CODE> _keyRemapping;
+		std::map<int, int> _shiftKeyMapping;
 	};
 
 

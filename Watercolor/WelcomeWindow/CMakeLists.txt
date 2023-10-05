@@ -10,7 +10,7 @@
   ${external_includes}
 )
 
-add_compile_definitions(${Irrlicht_DEFINITIONS} ${WX_DEFINITIONS} _UNICODE)
+add_compile_definitions(${Irrlicht_DEFINITIONS} ${external_definitions} _UNICODE)
 
 file(GLOB_RECURSE welcome_window_sources_files "*.cpp")
 

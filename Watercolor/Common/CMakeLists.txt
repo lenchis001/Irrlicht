@@ -7,11 +7,10 @@ include_directories(
     ${TUtils_INCLUDE_DIR}
     ${TCore_INCLUDE_DIR}
     ${Common_INCLUDE_DIR}
-    ${WX_INCLUDE_DIR}
     ${external_includes}
 )
 
-add_compile_definitions(${Irrlicht_DEFINITIONS} ${WX_DEFINITIONS})
+add_compile_definitions(${Irrlicht_DEFINITIONS} ${external_definitions})
 
 file(GLOB_RECURSE common_sources_files "*.cpp")
 

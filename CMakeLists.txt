@@ -36,7 +36,7 @@ if(MSVC)
     endif()
 
     #Setup external libraries defenitions
-    set(WX_DEFINITIONS __WXMSW__ CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
+    set(external_definitions __WXMSW__ CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
 
     #Setup external libraries includes
     if(${IS_DEBUG_BUILD})
@@ -80,18 +80,19 @@ if(MSVC)
       ${WX_LIBS}
     )
 elseif(LINUX)
-    set(WX_INCLUDE_DIR  $ENV{WX_WIDGETS}/include
-                        $ENV{WX_WIDGETS}/gtk-build/lib/wx/include/gtk3-unicode-3.2
-                        /usr/include/gtk-3.0
-                        /usr/include/glib-2.0
-                        /usr/lib/x86_64-linux-gnu/glib-2.0/include
-                        /usr/include/pango-1.0
-                        /usr/include/harfbuzz
-                        /usr/include/cairo
-                        /usr/include/gdk-pixbuf-2.0
-                        /usr/include/atk-1.0
-    CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
-    set(WX_DEFINITIONS WXUSINGDLL __WXGTK__ _FILE_OFFSET_BITS=64 PIC wxUSE_PROPGRID wxUSE_ODCOMBOBOX CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
+    #Setup external libraries references
+    set(external_includes $ENV{WX_WIDGETS}/include
+                          $ENV{WX_WIDGETS}/gtk-build/lib/wx/include/gtk3-unicode-3.2
+                          /usr/include/gtk-3.0
+                          /usr/include/glib-2.0
+                          /usr/lib/x86_64-linux-gnu/glib-2.0/include
+                          /usr/include/pango-1.0
+                          /usr/include/harfbuzz
+                          /usr/include/cairo
+                          /usr/include/gdk-pixbuf-2.0
+                          /usr/include/atk-1.0
+                          CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
+    set(external_definitions WXUSINGDLL __WXGTK__ _FILE_OFFSET_BITS=64 PIC wxUSE_PROPGRID wxUSE_ODCOMBOBOX CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
     
     file(GLOB external_lib_files
         $ENV{BOOST_ROOT}/stage/lib/*.a
@@ -115,9 +116,18 @@ elseif(LINUX)
 elseif(APPLE)
     #Setup external libraries references
     set(external_includes $ENV{WX_WIDGETS}/include
-                          ${WX_BUILD_TYPE_INCLUDE}
+                          $ENV{WX_WIDGETS}/build-cocoa/lib/wx/include/osx_cocoa-unicode-static-3.2
                           $ENV{BOOST_ROOT}
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
+
+    set(external_definitions __WXOSX_COCOA__ _FILE_OFFSET_BITS=64 PIC wxUSE_PROPGRID wxUSE_ODCOMBOBOX CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
+
+    file(GLOB external_lib_files
+        $ENV{BOOST_ROOT}/stage/lib/*.a
+    )
+    set(external_libs 
+        ${external_lib_files}
+    )
 endif()
 
 set(WATERCOLOR_PLUGIN_API ${PROJECT_SOURCE_DIR}/Watercolor/Services/Sources/Plugins/Api)
