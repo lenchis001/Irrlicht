@@ -83,6 +83,7 @@ elseif(LINUX)
     #Setup external libraries references
     set(external_includes $ENV{WX_WIDGETS}/include
                           $ENV{WX_WIDGETS}/gtk-build/lib/wx/include/gtk3-unicode-3.2
+                          $ENV{BOOST_ROOT}
                           /usr/include/gtk-3.0
                           /usr/include/glib-2.0
                           /usr/lib/x86_64-linux-gnu/glib-2.0/include

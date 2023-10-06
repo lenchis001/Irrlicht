@@ -15,7 +15,7 @@ WORKDIR /Libs
 RUN wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.2.1/wxWidgets-3.2.2.1.tar.bz2 && tar xf ./wxWidgets-3.2.2.1.tar.bz2 && rm ./wxWidgets-3.2.2.1.tar.bz2
 RUN mkdir /Libs/wxWidgets-3.2.2.1/gtk-build
 WORKDIR /Libs/wxWidgets-3.2.2.1/gtk-build
-RUN ../configure --enable-propgrid --with-gtk=3 --with-libjpeg=builtin && make -j4
+RUN ../configure --enable-propgrid --with-gtk=3 --with-libjpeg=builtin --enable-unicode && make -j4
 ENV WX_WIDGETS=/Libs/wxWidgets-3.2.2.1
 
 # Preparing libs finished

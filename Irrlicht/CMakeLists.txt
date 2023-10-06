@@ -7,14 +7,20 @@ set(Irrlicht_DEFINITIONS _IRR_WCHAR_FILESYSTEM NO_IRR_COMPILE_WITH_DIRECTINPUT_J
 add_compile_definitions(${Irrlicht_DEFINITIONS} IRRLICHT_EXPORTS)
 include_directories("include" "sources/zlib" ${external_includes})
 
-file(GLOB_RECURSE irrlicht_sources_files
-     "sources/*.cpp"
-     "sources/*.c"
-    if(APPLE)
-    "sources/MacOSX/*.m"
-    "sources/MacOSX/*.mm"
-    endif()
-)
+if(APPLE)
+  file(GLOB_RECURSE irrlicht_sources_files
+      "sources/*.cpp"
+      "sources/*.c"
+      "sources/MacOSX/*.m"
+      "sources/MacOSX/*.mm"
+  )
+else()
+  file(GLOB_RECURSE irrlicht_sources_files
+      "sources/*.cpp"
+      "sources/*.c"
+  )
+endif()
+
 add_library(Irrlicht SHARED ${irrlicht_sources_files})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
