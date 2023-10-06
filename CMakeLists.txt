@@ -9,9 +9,8 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 
 if(LINUX)
-set(GCC_COVERAGE_COMPILE_FLAGS "-pthread")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
-SET(CMAKE_CXX_FLAGS -pthread)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread" )
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 elseif(MSVC)
 SET(CMAKE_CXX_FLAGS           "${CMAKE_CXX_FLAGS} /D \"SAFESEH:NO\"")
 SET(CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
@@ -23,6 +22,10 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
 endif()
 
 set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
+
+if(UNIX AND NOT APPLE)
+    set(LINUX TRUE)
+endif()
 
 if(MSVC)
     #Get external dependencies
@@ -36,7 +39,7 @@ if(MSVC)
     endif()
 
     #Setup external libraries defenitions
-    set(external_definitions __WXMSW__ CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
+    set(EXTERNAL_DEFINITIONS __WXMSW__ CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
 
     #Setup external libraries includes
     if(${IS_DEBUG_BUILD})
@@ -46,7 +49,7 @@ if(MSVC)
     endif()
 
     #Setup external libraries references
-    set(external_includes $ENV{WX_WIDGETS}/include
+    set(EXTERNAL_INCLUDES $ENV{WX_WIDGETS}/include
                           ${WX_BUILD_TYPE_INCLUDE}
                           ${CMAKE_BINARY_DIR}/packages/boost/lib/native/include
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
@@ -58,7 +61,7 @@ if(MSVC)
     file(GLOB_RECURSE WX_LIBS "$ENV{WX_WIDGETS}/lib/vc_lib/*u_*.lib" "$ENV{WX_WIDGETS}/lib/vc_lib/*u.lib" "$ENV{WX_WIDGETS}/lib/vc_lib/*[gb].lib")
     endif ()
 
-    set(external_libs 
+    set(EXTERNAL_LIBS 
       kernel32.lib
       user32.lib
       gdi32.lib
@@ -80,26 +83,28 @@ if(MSVC)
       ${WX_LIBS}
     )
 elseif(LINUX)
+    find_package(PkgConfig REQUIRED)
+    pkg_search_module(GLIB REQUIRED glib-2.0)
+
     #Setup external libraries references
-    set(external_includes $ENV{WX_WIDGETS}/include
+    set(EXTERNAL_INCLUDES $ENV{WX_WIDGETS}/include
                           $ENV{WX_WIDGETS}/gtk-build/lib/wx/include/gtk3-unicode-3.2
                           $ENV{BOOST_ROOT}
                           /usr/include/gtk-3.0
-                          /usr/include/glib-2.0
-                          /usr/lib/x86_64-linux-gnu/glib-2.0/include
+                          ${GLIB_INCLUDE_DIRS}
                           /usr/include/pango-1.0
                           /usr/include/harfbuzz
                           /usr/include/cairo
                           /usr/include/gdk-pixbuf-2.0
                           /usr/include/atk-1.0
                           CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
-    set(external_definitions WXUSINGDLL __WXGTK__ _FILE_OFFSET_BITS=64 PIC wxUSE_PROPGRID wxUSE_ODCOMBOBOX CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
+    set(EXTERNAL_DEFINITIONS WXUSINGDLL __WXGTK__ _FILE_OFFSET_BITS=64 PIC wxUSE_PROPGRID wxUSE_ODCOMBOBOX CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
     
     file(GLOB external_lib_files
         $ENV{BOOST_ROOT}/stage/lib/*.a
         $ENV{WX_WIDGETS}/gtk-build/lib/*.so
     )
-    set(external_libs 
+    set(EXTERNAL_LIBS 
         gtk-3
         gdk-3
         gobject-2.0
@@ -109,24 +114,24 @@ elseif(LINUX)
         gio-2.0
         pangoft2-1.0
         pango-1.0
-        glib-2.0
+        ${GLIB_LDFLAGS}
         fontconfig
         gtk-3
         ${external_lib_files}
     )
 elseif(APPLE)
     #Setup external libraries references
-    set(external_includes $ENV{WX_WIDGETS}/include
+    set(EXTERNAL_INCLUDES $ENV{WX_WIDGETS}/include
                           $ENV{WX_WIDGETS}/build-cocoa/lib/wx/include/osx_cocoa-unicode-static-3.2
                           $ENV{BOOST_ROOT}
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
 
-    set(external_definitions __WXOSX_COCOA__ _FILE_OFFSET_BITS=64 PIC wxUSE_PROPGRID wxUSE_ODCOMBOBOX CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
+    set(EXTERNAL_DEFINITIONS __WXOSX_COCOA__ _FILE_OFFSET_BITS=64 PIC wxUSE_PROPGRID wxUSE_ODCOMBOBOX CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
 
     file(GLOB external_lib_files
         $ENV{BOOST_ROOT}/stage/lib/*.a
     )
-    set(external_libs 
+    set(EXTERNAL_LIBS 
         ${external_lib_files}
     )
 
@@ -140,21 +145,21 @@ endif()
 set(WATERCOLOR_PLUGIN_API ${PROJECT_SOURCE_DIR}/Watercolor/Services/Sources/Plugins/Api)
 
 # Include sub-projects.
-add_subdirectory ("Irrlicht")
-add_subdirectory ("TEngineFramework/TUtils")
-add_subdirectory ("TEngineFramework/TCore")
-add_subdirectory ("TEngineFramework/TAM")
-add_subdirectory ("TEngineFramework/TNC")
+add_subdirectory("Irrlicht")
+add_subdirectory("TEngineFramework/TUtils")
+add_subdirectory("TEngineFramework/TCore")
+add_subdirectory("TEngineFramework/TAM")
+add_subdirectory("TEngineFramework/TNC")
 
-add_subdirectory ("TLauncher")
+add_subdirectory("TLauncher")
 
-add_subdirectory ("Watercolor/Common")
-add_subdirectory ("Watercolor/Services")
-add_subdirectory ("Watercolor/MainWindow")
+add_subdirectory("Watercolor/Common")
+add_subdirectory("Watercolor/Services")
+add_subdirectory("Watercolor/MainWindow")
 
-add_subdirectory ("Watercolor/Plugins/GuiEditor")
+#add_subdirectory("Watercolor/Plugins/GuiEditor")
 
-add_subdirectory ("Watercolor/WelcomeWindow")
+add_subdirectory("Watercolor/WelcomeWindow")
 
 if(MSVC AND ${IS_DEBUG_BUILD})
     configure_file(${CMAKE_BINARY_DIR}/packages/OpenAL.Soft/runtimes/win-x86/native/OpenAL32.dll ${CMAKE_BINARY_DIR}/TLauncher COPYONLY)

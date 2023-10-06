@@ -7,10 +7,10 @@
   ${Services_INCLUDE_DIR}
   ${MainWindow_INCLUDE_DIR}
   "Sources"
-  ${external_includes}
+  ${EXTERNAL_INCLUDES}
 )
 
-add_compile_definitions(${Irrlicht_DEFINITIONS} ${external_definitions} _UNICODE)
+add_compile_definitions(${Irrlicht_DEFINITIONS} ${EXTERNAL_DEFINITIONS} _UNICODE)
 
 file(GLOB_RECURSE welcome_window_sources_files "*.cpp")
 
@@ -38,7 +38,7 @@ if(MSVC)
         ${CMAKE_SOURCE_DIR}/Watercolor/MainWindow/Resources ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow/Resources)
 endif()
 
-target_link_libraries(WelcomeWindow PUBLIC Common MainWindow Services TAM TCore TNC TUtils Irrlicht ${external_libs})
+target_link_libraries(WelcomeWindow PUBLIC Common MainWindow Services TAM TCore TNC TUtils Irrlicht ${EXTERNAL_LIBS})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET WelcomeWindow PROPERTY CXX_STANDARD 17)

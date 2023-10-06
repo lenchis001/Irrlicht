@@ -3,10 +3,10 @@
   ${TCore_INCLUDE_DIR} 
   ${Common_INCLUDE_DIR}
   ${Services_INCLUDE_DIR}
-  ${external_includes}
+  ${EXTERNAL_INCLUDES}
 )
 
-add_compile_definitions(${Irrlicht_DEFINITIONS} ${external_definitions})
+add_compile_definitions(${Irrlicht_DEFINITIONS} ${EXTERNAL_DEFINITIONS})
 
 file(GLOB_RECURSE services_sources_files "*.cpp")
 

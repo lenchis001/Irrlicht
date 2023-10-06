@@ -1,5 +1,5 @@
 ﻿add_compile_definitions(${Irrlicht_DEFINITIONS})
-include_directories(${Irrlicht_INCLUDE_DIR} ${TCore_INCLUDE_DIR} ${TNC_INCLUDE_DIR} ${TAM_INCLUDE_DIR} ${TUtils_INCLUDE_DIR} ${external_includes})
+include_directories(${Irrlicht_INCLUDE_DIR} ${TCore_INCLUDE_DIR} ${TNC_INCLUDE_DIR} ${TAM_INCLUDE_DIR} ${TUtils_INCLUDE_DIR} ${EXTERNAL_INCLUDES})
 
 file(GLOB tlauncher_sources_files
      "Sources/*.cpp"

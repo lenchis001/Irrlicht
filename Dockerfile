@@ -26,3 +26,10 @@ COPY . .
 RUN mkdir /Project/build
 WORKDIR /Project/build
 RUN cmake .. && make -j$(python3 -c 'import multiprocessing; print(multiprocessing.cpu_count())')
+
+RUN mkdir /release
+RUN cp ./Watercolor/WelcomeWindow/WelcomeWindow /release/Watercolor
+RUN cp ./Irrlicht/libIrrlicht.so /release/libIrrlicht.so
+RUN cp ./TLauncher/TLauncher /release/TLauncher
+RUN cp -r ../Watercolor/MainWindow/Resources /release/Resources
+RUN 7z a /Watercolor.7z /release/*

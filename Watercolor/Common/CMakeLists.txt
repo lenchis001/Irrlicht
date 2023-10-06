@@ -7,17 +7,17 @@ include_directories(
     ${TUtils_INCLUDE_DIR}
     ${TCore_INCLUDE_DIR}
     ${Common_INCLUDE_DIR}
-    ${external_includes}
+    ${EXTERNAL_INCLUDES}
 )
 
-add_compile_definitions(${Irrlicht_DEFINITIONS} ${external_definitions})
+add_compile_definitions(${Irrlicht_DEFINITIONS} ${EXTERNAL_DEFINITIONS})
 
 file(GLOB_RECURSE common_sources_files "*.cpp")
 
 # Add source to this project's executable.
 add_library(Common STATIC ${common_sources_files})
 
-target_link_libraries(Common PUBLIC TUtils Irrlicht ${external_libs})
+target_link_libraries(Common PUBLIC TUtils Irrlicht ${EXTERNAL_LIBS})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Common PROPERTY CXX_STANDARD 17)
