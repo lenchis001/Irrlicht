@@ -369,6 +369,8 @@ namespace Watercolor::Common
         irrEventData.MouseInput.Event = irr::EMOUSE_INPUT_EVENT::EMIE_LMOUSE_PRESSED_DOWN;
         irrEventData.MouseInput.X = eventData.GetX();
         irrEventData.MouseInput.Y = eventData.GetY();
+        irrEventData.MouseInput.ButtonStates = 0;
+
         _functionsProcessingManager->addFuctionToQueue(
             _threadType, [=]()
             { _device->postEventFromUser(irrEventData); });
@@ -397,6 +399,8 @@ namespace Watercolor::Common
         irrEventData.MouseInput.Event = irr::EMOUSE_INPUT_EVENT::EMIE_LMOUSE_LEFT_UP;
         irrEventData.MouseInput.X = eventData.GetX();
         irrEventData.MouseInput.Y = eventData.GetY();
+        irrEventData.MouseInput.ButtonStates = 0;
+
         _functionsProcessingManager->addFuctionToQueue(
             _threadType, [=]()
             { _device->postEventFromUser(irrEventData); });
@@ -420,11 +424,13 @@ namespace Watercolor::Common
             irrEventData.MouseInput.Event = irr::EMOUSE_INPUT_EVENT::EMIE_MOUSE_MOVED;
             irrEventData.MouseInput.X = eventData.GetX();
             irrEventData.MouseInput.Y = eventData.GetY();
+            irrEventData.MouseInput.ButtonStates = 0;
 
             if (eventData.LeftIsDown())
             {
                 irrEventData.MouseInput.ButtonStates |= irr::E_MOUSE_BUTTON_STATE_MASK::EMBSM_LEFT;
             }
+
             _functionsProcessingManager->addFuctionToQueue(
                 _threadType, [=]()
                 { _device->postEventFromUser(irrEventData); });
