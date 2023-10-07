@@ -28,8 +28,14 @@ WORKDIR /Project/build
 RUN cmake .. && make -j$(python3 -c 'import multiprocessing; print(multiprocessing.cpu_count())')
 
 RUN mkdir /release
+
+# Copy prepared builds
 RUN cp ./Watercolor/WelcomeWindow/WelcomeWindow /release/Watercolor
-RUN cp ./Irrlicht/libIrrlicht.so /release/libIrrlicht.so
 RUN cp ./TLauncher/TLauncher /release/TLauncher
 RUN cp -r ../Watercolor/MainWindow/Resources /release/Resources
+
+# and dependencies
+RUN ldd /release/TLauncher | awk 'NF == 4 { system("cp " $3 " /release") }'
+RUN ldd /release/Watercolor | awk 'NF == 4 { system("cp " $3 " /release") }'
+
 RUN 7z a /Watercolor.7z /release/*
