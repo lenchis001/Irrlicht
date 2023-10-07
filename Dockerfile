@@ -1,6 +1,6 @@
 FROM ubuntu
 
-RUN apt update && apt install g++ cmake make p7zip-full wget freeglut3-dev libxxf86vm-dev libalut-dev libopenal-dev libvorbis-dev libgtk-3-dev -y
+RUN apt update && apt install g++ cmake make python3 p7zip-full wget freeglut3-dev libxxf86vm-dev libalut-dev libopenal-dev libvorbis-dev libgtk-3-dev -y
 
 # Preparing libs
 RUN mkdir /Libs
@@ -15,7 +15,7 @@ WORKDIR /Libs
 RUN wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.2.1/wxWidgets-3.2.2.1.tar.bz2 && tar xf ./wxWidgets-3.2.2.1.tar.bz2 && rm ./wxWidgets-3.2.2.1.tar.bz2
 RUN mkdir /Libs/wxWidgets-3.2.2.1/gtk-build
 WORKDIR /Libs/wxWidgets-3.2.2.1/gtk-build
-RUN ../configure --enable-propgrid --with-gtk=3 --with-libjpeg=builtin --enable-unicode && make -j4
+RUN ../configure --enable-propgrid --with-gtk=3 --with-libjpeg=builtin --enable-unicode && make -j$(python3 -c 'import multiprocessing; print(multiprocessing.cpu_count())')
 ENV WX_WIDGETS=/Libs/wxWidgets-3.2.2.1
 
 # Preparing libs finished
@@ -25,4 +25,25 @@ WORKDIR /Project
 COPY . .
 RUN mkdir /Project/build
 WORKDIR /Project/build
-RUN cmake .. && make -j4
+RUN cmake .. && make -j$(python3 -c 'import multiprocessing; print(multiprocessing.cpu_count())')
+
+RUN mkdir /release
+
+# Copy prepared builds
+RUN cp ./Watercolor/WelcomeWindow/WelcomeWindow /release/Watercolor
+RUN cp ./TLauncher/TLauncher /release/TLauncher
+RUN cp -r ../Watercolor/MainWindow/Resources /release/Resources
+
+# and dependencies
+RUN ldd /release/Watercolor | grep libwx | awk 'NF == 4 { system("cp " $3 " /release") }'
+RUN ldd /release/Watercolor | grep libIrrlicht | awk 'NF == 4 { system("cp " $3 " /release") }'
+RUN ldd /release/Watercolor | grep libtiff.so | awk 'NF == 4 { system("cp " $3 " /release") }'
+RUN ldd /release/Watercolor | grep libjpeg.so | awk 'NF == 4 { system("cp " $3 " /release") }'
+
+# Prepare game API
+RUN cp -r ../Irrlicht/include /release && cp ../TGameApi/* /release/include
+
+# Add run script
+RUN cp /Project/run_watercolor.sh /release/run_watercolor.sh 
+
+RUN 7z a /Watercolor.7z /release/*

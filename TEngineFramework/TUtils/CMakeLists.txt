@@ -5,7 +5,7 @@
 # Add source to this project's executable.
 add_library(TUtils STATIC ${tutils_sources_files})
 
-include_directories(${external_includes})
+include_directories(${EXTERNAL_INCLUDES})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET TUtils PROPERTY CXX_STANDARD 17)

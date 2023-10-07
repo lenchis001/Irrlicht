@@ -41,7 +41,7 @@ elseif(APPLE)
     target_link_libraries(TAM PUBLIC ${HOMEBREW_PATH}/openal-soft/lib/libopenal.dylib ${HOMEBREW_PATH}/libvorbis/lib/libvorbisfile.dylib)
 endif()
 
-include_directories(${external_includes})
+include_directories(${EXTERNAL_INCLUDES})
 
 set(TAM_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/TEngineFramework/TAM/Sources ${TAM_INCLUDE_DIR}
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)

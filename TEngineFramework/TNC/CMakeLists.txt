@@ -8,7 +8,7 @@ file(GLOB tnc_sources_files
 # Add source to this project's executable.
 add_library(TNC STATIC ${tnc_sources_files})
 
-include_directories(${external_includes})
+include_directories(${EXTERNAL_INCLUDES})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET TNC PROPERTY CXX_STANDARD 17)

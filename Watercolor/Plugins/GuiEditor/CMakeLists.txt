@@ -2,10 +2,10 @@
   ${Irrlicht_INCLUDE_DIR} 
   "Sources"
   ${WATERCOLOR_PLUGIN_API}
-  ${external_includes}
+  ${EXTERNAL_INCLUDES}
 )
 
-add_compile_definitions(${Irrlicht_DEFINITIONS} ${external_definitions} _UNICODE)
+add_compile_definitions(${Irrlicht_DEFINITIONS} ${EXTERNAL_DEFINITIONS} _UNICODE)
 
 file(GLOB_RECURSE gui_editor_sources_files "*.cpp")
 
@@ -21,7 +21,7 @@ if(MSVC)
     )
 endif()
 
-target_link_libraries(GuiEditor PUBLIC Common Irrlicht ${external_libs})
+target_link_libraries(GuiEditor PUBLIC Common Irrlicht ${EXTERNAL_LIBS})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET GuiEditor PROPERTY CXX_STANDARD 17)
