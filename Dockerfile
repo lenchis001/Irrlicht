@@ -35,7 +35,15 @@ RUN cp ./TLauncher/TLauncher /release/TLauncher
 RUN cp -r ../Watercolor/MainWindow/Resources /release/Resources
 
 # and dependencies
-RUN ldd /release/TLauncher | awk 'NF == 4 { system("cp " $3 " /release") }'
-RUN ldd /release/Watercolor | awk 'NF == 4 { system("cp " $3 " /release") }'
+RUN ldd /release/Watercolor | grep libwx | awk 'NF == 4 { system("cp " $3 " /release") }'
+RUN ldd /release/Watercolor | grep libIrrlicht | awk 'NF == 4 { system("cp " $3 " /release") }'
+RUN ldd /release/Watercolor | grep libtiff.so | awk 'NF == 4 { system("cp " $3 " /release") }'
+RUN ldd /release/Watercolor | grep libjpeg.so | awk 'NF == 4 { system("cp " $3 " /release") }'
+
+# Prepare game API
+RUN cp -r ../Irrlicht/include /release && cp ../TGameApi/* /release/include
+
+# Add run script
+RUN cp /Project/run_watercolor.sh /release/run_watercolor.sh 
 
 RUN 7z a /Watercolor.7z /release/*

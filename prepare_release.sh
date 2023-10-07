@@ -2,7 +2,7 @@
 rm -f ./Watercolor.7z
 
 # Build 
-docker image build -t watercolor .
+docker image build -t watercolor --platform linux/arm64 .
 docker container create --name watercolor watercolor
 
 # Copy
