@@ -411,8 +411,12 @@ void GuiEditorGraphicContext::loadSubView(const std::wstring& path, VoidEventCal
     // get rid off this
     _functionsProcessingManager->addFuctionToQueue(ThreadTypes::RENDER_THREAD, [=]() {
         this->_currentViewPath = path;
-        
-        _guiEnvironment->loadGUI(path.c_str());
+
+        if (path.empty()) {
+            //_guiEnvironment->clear();
+        }else {
+            _guiEnvironment->loadGUI(path.c_str());
+        }
 
         callback();
     });

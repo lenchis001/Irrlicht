@@ -157,7 +157,7 @@ add_subdirectory("Watercolor/Common")
 add_subdirectory("Watercolor/Services")
 add_subdirectory("Watercolor/MainWindow")
 
-#add_subdirectory("Watercolor/Plugins/GuiEditor")
+add_subdirectory("Watercolor/Plugins/GuiEditor")
 
 add_subdirectory("Watercolor/WelcomeWindow")
 
