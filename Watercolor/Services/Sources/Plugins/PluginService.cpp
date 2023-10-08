@@ -3,7 +3,11 @@
 
 #include "TUtils.h"
 
+#ifdef _DEBUG
+#define PLUGINS_FOLDER L"./../Plugins"
+#else
 #define PLUGINS_FOLDER L"./Plugins/V1"
+#endif
 
 #ifdef _WINDOWS
 #define PLUGINS_EXTENSION L".+\\.dll$"
