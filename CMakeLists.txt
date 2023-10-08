@@ -142,6 +142,11 @@ elseif(APPLE)
   endif()
 endif()
 
+if(${IS_DEBUG_BUILD})
+    set(EXTERNAL_DEFINITIONS ${EXTERNAL_DEFINITIONS} _DEBUG)
+endif()
+
+
 set(WATERCOLOR_PLUGIN_API ${PROJECT_SOURCE_DIR}/Watercolor/Services/Sources/Plugins/Api)
 
 # Include sub-projects.
