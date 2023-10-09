@@ -20,12 +20,14 @@ namespace GUIEditor
         this->SetSizer(_sizer);
 
         auto toolMenu = boost::make_shared<ToolMenu>(this, functionsProcessingManager, projectDirectoryPath);
-        _sizer->Add(toolMenu.get(), 0, wxALL, 5);
+        _sizer->Add(toolMenu.get(), 0, wxTOP, 5);
         _components.push_back(toolMenu);
 
         auto clientAreaPanel = boost::make_shared<ClientAreaPanel>(this, functionsProcessingManager);
         _sizer->Add(clientAreaPanel.get(), 1, wxALL | wxEXPAND, 5);
         _components.push_back(clientAreaPanel);
+
+        _sizer->Layout();
 
         _commandsRunner = boost::make_shared<Services::UIThreadFunctionsRunner>(functionsProcessingManager);
         // todo: change this approach
