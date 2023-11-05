@@ -26,16 +26,18 @@ if(MSVC)
         ${CMAKE_BINARY_DIR}/packages/boost_iostreams-vc143/lib/native
     )
 
-    add_custom_command(TARGET WelcomeWindow POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_BINARY_DIR}/Irrlicht/Irrlicht.dll ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow)
+    if(${IS_DEBUG_BUILD})
+      add_custom_command(TARGET WelcomeWindow POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy
+          ${CMAKE_BINARY_DIR}/Irrlicht/Irrlicht.dll ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow)
 
-    add_custom_command(TARGET WelcomeWindow POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow/Resources)
+      add_custom_command(TARGET WelcomeWindow POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow/Resources)
 
-    add_custom_command(TARGET WelcomeWindow POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/Watercolor/MainWindow/Resources ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow/Resources)
+      add_custom_command(TARGET WelcomeWindow POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${CMAKE_SOURCE_DIR}/Watercolor/MainWindow/Resources ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow/Resources)
+    endif()
 endif()
 
 target_link_libraries(WelcomeWindow PUBLIC Common MainWindow Services TAM TCore TNC TUtils Irrlicht ${EXTERNAL_LIBS})

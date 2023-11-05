@@ -27,7 +27,7 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET GuiEditor PROPERTY CXX_STANDARD 17)
 endif()
 
-if(MSVC)
+if(MSVC AND ${IS_DEBUG_BUILD})
     add_custom_command(TARGET GuiEditor POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_BINARY_DIR}/Watercolor/Plugins/GuiEditor/GuiEditor.dll ${CMAKE_BINARY_DIR}/Watercolor/WelcomeWindow/Plugins/V1/GuiEditor.dll)
