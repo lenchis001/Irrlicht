@@ -28,6 +28,7 @@ protected:
 private:
     void _addNameProperty();
     void _addPositionProperty();
+    void _addAlignmentProperty();
     void _addTextProperty();
 
     void _changeNamePropertyHandler(wxPGProperty* eventProperty);

@@ -275,7 +275,8 @@ void GuiEditorGraphicContext::setSelectedElementName(const std::wstring& newName
 {
     _functionsProcessingManager->addFuctionToQueue(ThreadTypes::RENDER_THREAD, [=]() {
         auto selectedElement = _editWorkspace->getSelectedElement();
-        auto result = _guiEnvironment->addListBox(irr::core::recti(10, 10, 100, 30), selectedElement);
+
+        selectedElement->setName(newName);
 
         callback(result.get());
     });
@@ -328,6 +329,18 @@ void GuiEditorGraphicContext::setSelectedElementText(const std::wstring& newText
     
         if (selectedElement) {
             selectedElement->setText(newText.c_str());
+        }
+    
+        callback(selectedElement.get());
+    });
+}
+
+void GuiEditorGraphicContext::setSelectedElementAlignment(irr::gui::EGUI_ALIGNMENT left, irr::gui::EGUI_ALIGNMENT right, irr::gui::EGUI_ALIGNMENT top, irr::gui::EGUI_ALIGNMENT bottom) {
+    _functionsProcessingManager->addFuctionToQueue(ThreadTypes::RENDER_THREAD, [=]() {
+        auto selectedElement = _editWorkspace->getSelectedElement();
+    
+        if (selectedElement) {
+            selectedElement->setAlignment(left, right, top, bottom);
         }
     
         callback(selectedElement.get());

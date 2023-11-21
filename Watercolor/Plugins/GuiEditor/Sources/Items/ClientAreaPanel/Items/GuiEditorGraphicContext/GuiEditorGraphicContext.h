@@ -41,7 +41,8 @@ public:
     void setSelectedElementPosition(const irr::core::position2di& newPosition, const BoolEventCallback& callback = EMPTY_CALLBACK_WITH_PARAM);
     void setSelectedElementPosition(const irr::core::recti& newPosition, const BoolEventCallback& callback = EMPTY_CALLBACK_WITH_PARAM);
     std::wstring getSelectedElementText() const;
-    void setSelectedElementText(const std::wstring& newText, const BoolEventCallback& callback);
+    void setSelectedElementText(const std::wstring& newText, const BoolEventCallback& callback = EMPTY_CALLBACK_WITH_PARAM);
+    void setSelectedElementAlignment(irr::gui::EGUI_ALIGNMENT left, irr::gui::EGUI_ALIGNMENT right, irr::gui::EGUI_ALIGNMENT top, irr::gui::EGUI_ALIGNMENT bottom);
 
     // Only fo image elements
     std::wstring getSelectImageElementPath() const;

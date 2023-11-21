@@ -7,6 +7,7 @@
 #define NAME_PROPERTY_NAME L"namePropertyName"
 #define TEXT_PROPERTY_NAME L"textPropertyName"
 #define POSITION_PROPERTY_NAME L"positionPropertyName"
+#define ALIGNMENT_PROPERTY_NAME L"alignmentPropertyName"
 
 namespace GUIEditor {
 GuiElementPropertyGrid::GuiElementPropertyGrid(wxWindow* parent, std::wstring elementName, boost::shared_ptr<GuiEditorGraphicContext> graphicContext)
@@ -96,6 +97,30 @@ void GuiElementPropertyGrid::_addPositionProperty()
 
     this->addPropertyChangeHandler(
         POSITION_PROPERTY_NAME,
+        boost::bind(&GuiElementPropertyGrid::_changePositionPropertyHandler, this, boost::placeholders::_1));
+}
+
+void GuiElementPropertyGrid::_addAlignmentProperty()
+{
+    auto nodePosition = _graphicContext->getSelectedElementPosition();
+
+    wxPGPropArg position = this->Append(new wxStringProperty(
+        ALIGNMENT_PROPERTY_TITLE, ALIGNMENT_PROPERTY_NAME, wxT("<composed>")));
+    this->AppendIn(
+        position,
+        new wxIntProperty(L"Left", *wxPGProperty::, nodePosition.UpperLeftCorner.X));
+    this->AppendIn(
+        position,
+        new wxIntProperty(L"Top", *wxPGProperty::sm_wxPG_LABEL, nodePosition.UpperLeftCorner.Y));
+    this->AppendIn(
+        position,
+        new wxIntProperty(L"Right", *wxPGProperty::sm_wxPG_LABEL, nodePosition.LowerRightCorner.X));
+    this->AppendIn(
+        position,
+        new wxIntProperty(L"Bottom", *wxPGProperty::sm_wxPG_LABEL, nodePosition.LowerRightCorner.Y));
+
+    this->addPropertyChangeHandler(
+        ALIGNMENT_PROPERTY_NAME,
         boost::bind(&GuiElementPropertyGrid::_changePositionPropertyHandler, this, boost::placeholders::_1));
 }
 
