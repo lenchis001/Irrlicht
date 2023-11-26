@@ -177,6 +177,11 @@ public:
 		updateAbsolutePosition();
 	}
 
+	//! Returns current alignment.
+	std::tuple<EGUI_ALIGNMENT, EGUI_ALIGNMENT, EGUI_ALIGNMENT, EGUI_ALIGNMENT> getAlignment() const {
+		return {AlignLeft, AlignRight, AlignTop, AlignBottom};
+	}
+
 
 	//! The alignment defines how the borders of this element will be positioned when the parent element is resized.
 	void setAlignment(EGUI_ALIGNMENT left, EGUI_ALIGNMENT right, EGUI_ALIGNMENT top, EGUI_ALIGNMENT bottom)

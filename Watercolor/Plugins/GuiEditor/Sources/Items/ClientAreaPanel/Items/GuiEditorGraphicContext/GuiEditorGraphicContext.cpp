@@ -334,6 +334,38 @@ void GuiEditorGraphicContext::setSelectedElementText(const std::wstring& newText
     });
 }
 
+std::tuple<irr::gui::EGUI_ALIGNMENT, irr::gui::EGUI_ALIGNMENT, irr::gui::EGUI_ALIGNMENT, irr::gui::EGUI_ALIGNMENT> GuiEditorGraphicContext::getSelectedElementAlignment() const
+{
+    auto selectedElement = _editWorkspace->getSelectedElement();
+
+    return selectedElement->getAlignment();
+}
+
+void GuiEditorGraphicContext::setSelectedElementAlignment(irr::gui::EGUI_ALIGNMENT left, irr::gui::EGUI_ALIGNMENT top, irr::gui::EGUI_ALIGNMENT right, irr::gui::EGUI_ALIGNMENT bottom, const BoolEventCallback& callback)
+{
+    _functionsProcessingManager->addFuctionToQueue(ThreadTypes::RENDER_THREAD, [=]() {
+        auto selectedElement = _editWorkspace->getSelectedElement();
+
+        if (selectedElement) {
+            selectedElement->setAlignment(left, right, top, bottom);
+
+            if (left == irr::gui::EGUI_ALIGNMENT::EGUIA_CENTER &&
+                top == irr::gui::EGUI_ALIGNMENT::EGUIA_CENTER &&
+                right == irr::gui::EGUI_ALIGNMENT::EGUIA_CENTER &&
+                bottom == irr::gui::EGUI_ALIGNMENT::EGUIA_CENTER) {
+                auto parent = selectedElement->getParent();
+                auto parentRect = selectedElement->getParent()->getAbsoluteClippingRect().getSize();
+                auto rect = selectedElement->getAbsolutePosition().getSize();
+
+                selectedElement->setRelativePosition(parentRect/2 - rect/2);
+                onPositionChanged.callHandlers(_editWorkspace->getSelectedElement());
+            }
+        }
+
+        callback(selectedElement.get());
+     });
+}
+
 std::wstring GuiEditorGraphicContext::getSelectImageElementPath() const
 {
     // todo: should be async
@@ -362,6 +394,36 @@ void GuiEditorGraphicContext::setSelectedImageElementPath(const std::wstring& ne
 
         callback();
     });
+}
+
+bool GuiEditorGraphicContext::isSelectedImageScaled() const
+{
+    // todo: should be async
+    auto selectedElement = _editWorkspace->getSelectedElement();
+
+    auto imageElement = boost::dynamic_pointer_cast<irr::gui::IGUIImage>(selectedElement);
+
+    if (imageElement && imageElement->getImage()) {
+        return imageElement->isImageScaled();
+    }
+    else {
+        return false;
+    }
+}
+
+void GuiEditorGraphicContext::setSelectedImageScale(bool value, const VoidEventCallback& callback)
+{
+    _functionsProcessingManager->addFuctionToQueue(ThreadTypes::RENDER_THREAD, [=]() {
+        auto selectedElement = _editWorkspace->getSelectedElement();
+
+        auto imageElement = boost::dynamic_pointer_cast<irr::gui::IGUIImage>(selectedElement);
+
+        if (imageElement) {
+            imageElement->setScaleImage(value);
+        }
+
+        callback();
+        });
 }
 
 std::vector<std::wstring> GuiEditorGraphicContext::getSelectedListBoxOptions() const

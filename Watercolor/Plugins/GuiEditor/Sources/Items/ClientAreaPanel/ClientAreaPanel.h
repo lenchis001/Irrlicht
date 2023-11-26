@@ -2,7 +2,7 @@
 
 #include "wx/wx.h"
 
-#include "boost/shared_ptr.hpp"
+#include "boost/smart_ptr.hpp"
 
 #include "Services/FunctionsProcessing/IFunctionsProcessingManager.h"
 

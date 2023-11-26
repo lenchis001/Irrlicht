@@ -10,6 +10,8 @@ public:
 
 private:
     void _addPathProperty();
+    void _addScaleProperty();
     void _changePathPropertyHandler(wxPGProperty* eventProperty);
+    void _changeScalePropertyHandler(wxPGProperty* eventProperty);
 };
 }

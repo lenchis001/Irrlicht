@@ -43,9 +43,15 @@ public:
     std::wstring getSelectedElementText() const;
     void setSelectedElementText(const std::wstring& newText, const BoolEventCallback& callback);
 
+    std::tuple<irr::gui::EGUI_ALIGNMENT, irr::gui::EGUI_ALIGNMENT, irr::gui::EGUI_ALIGNMENT, irr::gui::EGUI_ALIGNMENT> getSelectedElementAlignment() const;
+    void setSelectedElementAlignment(irr::gui::EGUI_ALIGNMENT left, irr::gui::EGUI_ALIGNMENT top, irr::gui::EGUI_ALIGNMENT right, irr::gui::EGUI_ALIGNMENT bottom, const BoolEventCallback& callback);
+
     // Only fo image elements
     std::wstring getSelectImageElementPath() const;
     void setSelectedImageElementPath(const std::wstring& newPath, const VoidEventCallback& callback = EMPTY_CALLBACK);
+
+    bool isSelectedImageScaled() const;
+    void setSelectedImageScale(bool value, const VoidEventCallback& callback);
     // ----------------------
 
     std::vector<std::wstring> getSelectedListBoxOptions() const;

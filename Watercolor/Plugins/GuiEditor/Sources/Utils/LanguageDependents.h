@@ -1,7 +1,9 @@
 #pragma once
 
 #define PATH_PROPERTY_TITLE L"Path"
+#define SCALE_PROPERTY_TITLE L"Scale"
 #define POSITION_PROPERTY_TITLE L"Position"
+#define ALIGNMENT_PROPERTY_TITLE L"Alignment"
 #define TEXT_PROPERTY_TITLE L"Text"
 #define NAME_PROPERTY_TITLE L"Name"
 #define OPTIONS_PROPERTY_TITLE L"Options"

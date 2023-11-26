@@ -7,6 +7,12 @@
 #define NAME_PROPERTY_NAME L"namePropertyName"
 #define TEXT_PROPERTY_NAME L"textPropertyName"
 #define POSITION_PROPERTY_NAME L"positionPropertyName"
+#define ALIGNMENT_PROPERTY_NAME L"alignmentPropertyName"
+
+#define LEFT_ALIGNMENT_PROPERTY_NAME "leftAlignmentPropertyName"
+#define RIGHT_ALIGNMENT_PROPERTY_NAME "rightAlignmentPropertyName"
+#define TOP_ALIGNMENT_PROPERTY_NAME "topAlignmentPropertyName"
+#define BOTTOM_ALIGNMENT_PROPERTY_NAME "bottomAlignmentPropertyName"
 
 namespace GUIEditor {
 GuiElementPropertyGrid::GuiElementPropertyGrid(wxWindow* parent, std::wstring elementName, boost::shared_ptr<GuiEditorGraphicContext> graphicContext)
@@ -17,6 +23,7 @@ GuiElementPropertyGrid::GuiElementPropertyGrid(wxWindow* parent, std::wstring el
 
     _addNameProperty();
     _addPositionProperty();
+    _addAlignmentProperty();
     _addTextProperty();
 
     _graphicContext->onPositionChanged.addEventHandler(POSITION_PROPERTY_NAME,
@@ -99,6 +106,46 @@ void GuiElementPropertyGrid::_addPositionProperty()
         boost::bind(&GuiElementPropertyGrid::_changePositionPropertyHandler, this, boost::placeholders::_1));
 }
 
+void GuiElementPropertyGrid::_addAlignmentProperty()
+{
+    auto nodeAlignment = _graphicContext->getSelectedElementAlignment();
+
+    wxArrayString choicesNames;
+    choicesNames.push_back("ApperLeft");
+    choicesNames.push_back("LowerRight");
+    choicesNames.push_back("Center");
+    choicesNames.push_back("Scale");
+
+    wxArrayInt choicesValues;
+    choicesValues.Add(irr::gui::EGUI_ALIGNMENT::EGUIA_UPPERLEFT);
+    choicesValues.Add(irr::gui::EGUI_ALIGNMENT::EGUIA_LOWERRIGHT);
+    choicesValues.Add(irr::gui::EGUI_ALIGNMENT::EGUIA_CENTER);
+    choicesValues.Add(irr::gui::EGUI_ALIGNMENT::EGUIA_SCALE);
+
+    wxPGChoices choices(
+        choicesNames,
+        choicesValues);
+
+    wxPGPropArg alignment = this->Append(new wxStringProperty(
+        ALIGNMENT_PROPERTY_TITLE, ALIGNMENT_PROPERTY_NAME, wxT("<composed>")));
+    this->AppendIn(
+        alignment,
+        new wxEnumProperty(L"Left", LEFT_ALIGNMENT_PROPERTY_NAME, choices, std::get<0>(nodeAlignment)));
+    this->AppendIn(
+        alignment,
+        new wxEnumProperty(L"Top", TOP_ALIGNMENT_PROPERTY_NAME, choices, std::get<2>(nodeAlignment)));
+    this->AppendIn(
+        alignment,
+        new wxEnumProperty(L"Right", RIGHT_ALIGNMENT_PROPERTY_NAME, choices, std::get<1>(nodeAlignment)));
+    this->AppendIn(
+        alignment,
+        new wxEnumProperty(L"Bottom", BOTTOM_ALIGNMENT_PROPERTY_NAME, choices, std::get<3>(nodeAlignment)));
+
+    this->addPropertyChangeHandler(
+        ALIGNMENT_PROPERTY_NAME,
+        boost::bind(&GuiElementPropertyGrid::_changeAlignmentPropertyHandler, this, boost::placeholders::_1));
+}
+
 void GuiElementPropertyGrid::_addTextProperty()
 {
     auto text = _graphicContext->getSelectedElementText();
@@ -135,6 +182,23 @@ void GuiElementPropertyGrid::_changePositionPropertyHandler(wxPGProperty* eventP
 
     auto result = _parseRect(value);
     _graphicContext->setSelectedElementPosition(result, EMPTY_CALLBACK_WITH_PARAM);
+}
+
+void GuiElementPropertyGrid::_changeAlignmentPropertyHandler(wxPGProperty* eventProperty)
+{
+    auto data = this->GetProperty(ALIGNMENT_PROPERTY_NAME);
+
+    auto leftAlignment = data->GetPropertyByName(LEFT_ALIGNMENT_PROPERTY_NAME);
+    auto rightAlignment = data->GetPropertyByName(RIGHT_ALIGNMENT_PROPERTY_NAME);
+    auto topAlignment = data->GetPropertyByName(TOP_ALIGNMENT_PROPERTY_NAME);
+    auto bottomAlignment = data->GetPropertyByName(BOTTOM_ALIGNMENT_PROPERTY_NAME);
+
+    _graphicContext->setSelectedElementAlignment(
+        static_cast<irr::gui::EGUI_ALIGNMENT>(leftAlignment->GetChoiceSelection()),
+        static_cast<irr::gui::EGUI_ALIGNMENT>(topAlignment->GetChoiceSelection()),
+        static_cast<irr::gui::EGUI_ALIGNMENT>(rightAlignment->GetChoiceSelection()),
+        static_cast<irr::gui::EGUI_ALIGNMENT>(bottomAlignment->GetChoiceSelection()),
+        EMPTY_CALLBACK_WITH_PARAM);
 }
 
 wxBEGIN_EVENT_TABLE(GuiElementPropertyGrid, wxPropertyGrid)

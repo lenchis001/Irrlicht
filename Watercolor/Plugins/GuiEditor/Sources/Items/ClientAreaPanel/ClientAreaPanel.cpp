@@ -1,6 +1,5 @@
 #include "ClientAreaPanel.h"
 
-#include "boost/make_shared.hpp"
 #include "boost/make_unique.hpp"
 
 namespace GUIEditor {
