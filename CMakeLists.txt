@@ -158,7 +158,9 @@ add_subdirectory("Watercolor/Common")
 add_subdirectory("Watercolor/Services")
 add_subdirectory("Watercolor/MainWindow")
 
+if(MSVC)
 add_subdirectory("Watercolor/Plugins/GuiEditor")
+endif()
 
 add_subdirectory("Watercolor/WelcomeWindow")
 
