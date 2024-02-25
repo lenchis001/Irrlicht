@@ -45,7 +45,6 @@ RUN cp -r ../Irrlicht/include /release && cp ../TGameApi/* /release/include
 
 # Add plugins
 RUN mkdir -p /release/Plugins/V1
-RUN cp ./Watercolor/Plugins/GuiEditor/libGuiEditor.so /release/Plugins/V1/libGuiEditor.so
 
 # Add run script
 RUN cp /Project/run_watercolor.sh /release/run_watercolor.sh 
