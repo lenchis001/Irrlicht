@@ -6,12 +6,18 @@ mkdir build
 cd build
 
 cmake .. -A Win32
+cmake --build . --config=Debug -j8 --target=Irrlicht
 cmake --build . --config=Release -j8
 cd ..
 
 rm -rf Release
 
 mkdir Release\Plugins\V1
+mkdir Release\Development
+
+cp -r Irrlicht/include Release/Development/include
+cp -r TGameApi/* Release/Development/include
+cp build/Irrlicht/Debug/* Release/Development/
 cp build/Watercolor/WelcomeWindow/Release/WelcomeWindow.exe Release/Watercolor.exe
 cp build/TLauncher/Release/TLauncher.exe Release/TLauncher.exe
 cp build/Irrlicht/Release/Irrlicht.dll Release/Irrlicht.dll

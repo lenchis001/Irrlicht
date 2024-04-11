@@ -41,7 +41,7 @@ RUN ldd /release/Watercolor | grep libtiff.so | awk 'NF == 4 { system("cp " $3 "
 RUN ldd /release/Watercolor | grep libjpeg.so | awk 'NF == 4 { system("cp " $3 " /release") }'
 
 # Prepare game API
-RUN cp -r ../Irrlicht/include /release && cp ../TGameApi/* /release/include
+RUN mkdir -p /release/Development/include && cp ../Irrlicht/include/* /release/Development/include && cp ../TGameApi/* /release/Development/include
 
 # Add plugins
 RUN mkdir -p /release/Plugins/V1
