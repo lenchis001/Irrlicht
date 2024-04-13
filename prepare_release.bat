@@ -14,10 +14,13 @@ rm -rf Release
 
 mkdir Release\Plugins\V1
 mkdir Release\Development
+mkdir Release\Development\Debug
+mkdir Release\Development\Release
 
 cp -r Irrlicht/include Release/Development/include
 cp -r TGameApi/* Release/Development/include
-cp build/Irrlicht/Debug/* Release/Development/
+cp build/Irrlicht/Debug/* Release/Development/Debug
+cp build/Irrlicht/Release/* Release/Development/Release
 cp build/Watercolor/WelcomeWindow/Release/WelcomeWindow.exe Release/Watercolor.exe
 cp build/TLauncher/Release/TLauncher.exe Release/TLauncher.exe
 cp build/Irrlicht/Release/Irrlicht.dll Release/Irrlicht.dll
