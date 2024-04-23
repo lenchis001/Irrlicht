@@ -73,6 +73,8 @@ public:
     irr::video::E_LIGHT_TYPE getLightType(const std::wstring& nodeName);
     void setLightType(const std::wstring& nodeName, irr::video::E_LIGHT_TYPE value);
 
+    void addArrow();
+    void addEmpty();
     void addSkySphere(const std::wstring& pathToFile);
     void removeNode(const std::wstring& itemName);
     void addMesh(const std::wstring& pathToFile);

@@ -28,6 +28,8 @@ enum ElementsIDs {
     ADD_SKY_SPHERE,
     ADD_SKY_CUBE,
     ADD_CAMERA,
+    ADD_EMPTY,
+    ADD_ARROW,
 
     // CurrentLevelItemsTree
     ON_DRAG_LEVEL_NODE_TREE,

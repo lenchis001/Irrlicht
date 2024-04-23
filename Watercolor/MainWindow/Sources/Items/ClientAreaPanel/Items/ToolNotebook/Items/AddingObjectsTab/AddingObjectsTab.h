@@ -16,6 +16,8 @@ public:
     ~AddingObjectsTab();
 
 private:
+    void _addArrow(wxCommandEvent& eventData);
+    void _addEmpty(wxCommandEvent& eventData);
     void _addSkySphere(wxCommandEvent& eventData);
     void _addSkyCube(wxCommandEvent& eventData);
     void _addMesh(wxCommandEvent& eventData);
@@ -25,6 +27,8 @@ private:
     void _addWaterSurface(wxCommandEvent& eventData);
     void _addLightSource(wxCommandEvent& eventData);
     void _addCamera(wxCommandEvent& eventData);
+
+    void _addSection(std::wstring name, std::map<int, std::wstring> controls);
 
     std::vector<boost::shared_ptr<wxWindow>> _controls;
     wxSizer* _sizer;

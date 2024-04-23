@@ -269,6 +269,31 @@ namespace Watercolor::Common
         node->setLightType(value); });
     }
 
+    void SceneNodeGraphicContextMixin::addArrow()
+    {
+        _functionsProcessingManager->addFuctionToQueue(ThreadTypes::RENDER_THREAD, [&]()
+            {
+                auto mesh = _sceneManager->addArrowMesh(L"Arrow");
+
+
+                auto newNodeName = _getFreeObjectName(L"Arrow");
+                auto newNode = _sceneManager->addMeshSceneNode(mesh);
+                newNode->setName(TUtils::toString(newNodeName).c_str());
+
+                onNodeAdded.callHandlers(newNode); });
+    }
+
+    void SceneNodeGraphicContextMixin::addEmpty()
+    {
+        _functionsProcessingManager->addFuctionToQueue(ThreadTypes::RENDER_THREAD, [&]()
+            {
+                auto newNode = _sceneManager->addEmptySceneNode();
+                auto newNodeName = _getFreeObjectName(L"Empty");
+                newNode->setName(TUtils::toString(newNodeName).c_str());
+
+                onNodeAdded.callHandlers(newNode); });
+    }
+
     void SceneNodeGraphicContextMixin::addSkySphere(const std::wstring &pathToFile)
     {
         _functionsProcessingManager->addFuctionToQueue(ThreadTypes::RENDER_THREAD, [&, pathToFile]()
