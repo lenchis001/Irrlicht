@@ -1,6 +1,6 @@
 FROM ubuntu
 
-RUN apt update && apt install g++ cmake make python3 p7zip-full wget freeglut3-dev libxxf86vm-dev libalut-dev libopenal-dev libvorbis-dev libgtk-3-dev -y
+RUN apt update && apt install g++ cmake make python3 p7zip-full wget freeglut3-dev libxxf86vm-dev libalut-dev libopenal-dev libvorbis-dev libgtk-3-dev bzip2 -y
 
 # Preparing libs
 RUN mkdir /Libs
