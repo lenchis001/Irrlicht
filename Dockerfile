@@ -1,6 +1,6 @@
-FROM ubuntu
+FROM ubuntu:24.04
 
-RUN apt update && apt install g++ cmake make python3 p7zip-full wget freeglut3-dev libxxf86vm-dev libalut-dev libopenal-dev libvorbis-dev libgtk-3-dev -y
+RUN apt update && apt install g++ cmake make python3 p7zip-full wget freeglut3-dev libxxf86vm-dev libalut-dev libopenal-dev libvorbis-dev libgtk-3-dev bzip2 zip -y
 
 # Preparing libs
 RUN mkdir /Libs
@@ -49,4 +49,4 @@ RUN mkdir -p /release/Plugins/V1
 # Add run script
 RUN cp /Project/run_watercolor.sh /release/run_watercolor.sh 
 
-RUN 7z a /Watercolor.7z /release/*
+RUN cd /release && zip -r /Watercolor.zip *
