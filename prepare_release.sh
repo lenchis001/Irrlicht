@@ -1,12 +1,12 @@
 # Clear
-rm -f ./Watercolor.7z
+rm -f ./Watercolor.zip  
 
 # Build 
 docker image build -t watercolor --platform linux/arm64 .
 docker container create --name watercolor watercolor
 
 # Copy
-docker cp watercolor:/Watercolor.7z ./Watercolor.7z
+docker cp watercolor:/Watercolor.zip ./Watercolor.zip
 
 # Clear
 docker container rm watercolor
