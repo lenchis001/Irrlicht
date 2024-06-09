@@ -1,6 +1,8 @@
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 
-RUN apt update && apt install g++ cmake make python3 p7zip-full wget freeglut3-dev libxxf86vm-dev libalut-dev libopenal-dev libvorbis-dev libgtk-3-dev bzip2 zip -y
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt update && apt install g++ cmake make python3 p7zip-full wget freeglut3-dev libxxf86vm-dev libalut-dev libopenal-dev libvorbis-dev libgtk-3-dev bzip2 zip git -y
 
 # Preparing libs
 RUN mkdir /Libs
@@ -41,7 +43,15 @@ RUN ldd /release/Watercolor | grep libtiff.so | awk 'NF == 4 { system("cp " $3 "
 RUN ldd /release/Watercolor | grep libjpeg.so | awk 'NF == 4 { system("cp " $3 " /release") }'
 
 # Prepare game API
-RUN mkdir -p /release/Development/include && cp ../Irrlicht/include/* /release/Development/include && cp ../TGameApi/* /release/Development/include
+RUN mkdir -p /release/Development/include && \
+    cp ../Irrlicht/include/* /release/Development/include && \
+    cp ../TGameApi/* /release/Development/include && \
+    cp ../TEngineFramework/TNC/Sources/WebSocket/Client/IWebSocketClient.h /release/Development/include && \
+    cp ../TEngineFramework/TNC/Sources/WebSocket/Client/TWebSocketClientDecorator.h /release/Development/include && \
+    cp ../TEngineFramework/TNC/Sources/WebSocket/Server/IWebSocketServer.h /release/Development/include && \
+    cp ../TEngineFramework/TNC/Sources/WebSocket/Server/TWebSocketServerDecorator.h /release/Development/include
+RUN mkdir -p /release/Development/Release && \
+    cp ./TEngineFramework/TNC/libTNC.a /release/Development/Release
 
 # Add plugins
 RUN mkdir -p /release/Plugins/V1

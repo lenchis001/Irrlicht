@@ -5,7 +5,6 @@
 #include "boost/process.hpp"
 
 #include "TCoreFacade.h"
-#include "TNCFacade.h"
 #include "TAMFacade.h"
 
 #include "IGame.h"

@@ -23,10 +23,6 @@ endif()
 
 add_library(Irrlicht SHARED ${irrlicht_sources_files})
 
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET Irrlicht PROPERTY CXX_STANDARD 17)
-  set_property(TARGET Irrlicht PROPERTY C_STANDARD 17)
-endif()
 
 if(${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "aarch64" OR ${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "arm64")
   add_compile_definitions(PNG_ARM_NEON_OPT=0)

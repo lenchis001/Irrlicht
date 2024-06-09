@@ -7,6 +7,7 @@ cd build
 
 cmake .. -A Win32
 cmake --build . --config=Debug -j8 --target=Irrlicht
+cmake --build . --config=Debug -j8 --target=TNC
 cmake --build . --config=Release -j8
 cd ..
 
@@ -19,8 +20,14 @@ mkdir Release\Development\Release
 
 cp -r Irrlicht/include Release/Development/include
 cp -r TGameApi/* Release/Development/include
+cp TEngineFramework/TNC/Sources/WebSocket/Client/IWebSocketClient.h Release/Development/include
+cp TEngineFramework/TNC/Sources/WebSocket/Client/TWebSocketClientDecorator.h Release/Development/include
+cp TEngineFramework/TNC/Sources/WebSocket/Server/IWebSocketServer.h Release/Development/include
+cp TEngineFramework/TNC/Sources/WebSocket/Server/TWebSocketServerDecorator.h Release/Development/include
 cp build/Irrlicht/Debug/* Release/Development/Debug
 cp build/Irrlicht/Release/* Release/Development/Release
+cp build/TEngineFramework/TNC/Debug/* Release/Development/Debug
+cp build/TEngineFramework/TNC/Release/* Release/Development/Release
 cp build/Watercolor/WelcomeWindow/Release/WelcomeWindow.exe Release/Watercolor.exe
 cp build/TLauncher/Release/TLauncher.exe Release/TLauncher.exe
 cp build/Irrlicht/Release/Irrlicht.dll Release/Irrlicht.dll

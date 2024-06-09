@@ -30,11 +30,12 @@ if(MSVC)
     #Get external dependencies
     if(NOT EXISTS ${CMAKE_BINARY_DIR}/packages/boost)
         find_program(NUGET_EXE NAMES ${PROJECT_SOURCE_DIR}/tools/nuget)
-        exec_program(${NUGET_EXE} ARGS install "boost" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-        exec_program(${NUGET_EXE} ARGS install "boost_filesystem-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-        exec_program(${NUGET_EXE} ARGS install "boost_thread-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-        exec_program(${NUGET_EXE} ARGS install "boost_chrono-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
-        exec_program(${NUGET_EXE} ARGS install "boost_locale-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+        exec_program(${NUGET_EXE} ARGS install "boost" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages -Source "https://api.nuget.org/v3/index.json")
+        exec_program(${NUGET_EXE} ARGS install "boost_filesystem-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages -Source "https://api.nuget.org/v3/index.json")
+        exec_program(${NUGET_EXE} ARGS install "boost_thread-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages -Source "https://api.nuget.org/v3/index.json")
+        exec_program(${NUGET_EXE} ARGS install "boost_chrono-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages -Source "https://api.nuget.org/v3/index.json")
+        exec_program(${NUGET_EXE} ARGS install "boost_locale-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages -Source "https://api.nuget.org/v3/index.json")
+        exec_program(${NUGET_EXE} ARGS install "boost_random-vc143" -Version 1.82.0 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages -Source "https://api.nuget.org/v3/index.json")
     endif()
 
     #Setup external libraries defenitions
